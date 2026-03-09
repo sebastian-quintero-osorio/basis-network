@@ -42,7 +42,7 @@ avalanche blockchain create basisNetwork
 When prompted:
 - **VM:** Select `Subnet-EVM`
 - **Chain ID:** Enter your chosen chain ID (e.g., `43199`)
-- **Token Symbol:** `BASIS`
+- **Token Symbol:** `LITHOS`
 - **Gas configuration:** Choose custom and set:
   - Gas limit: `15000000`
   - Min base fee: `0`
@@ -94,7 +94,7 @@ Add a custom network in MetaMask:
 - **Network Name:** Basis Network (Fuji)
 - **RPC URL:** The URL from step 5
 - **Chain ID:** Your chosen chain ID
-- **Currency Symbol:** BASIS
+- **Currency Symbol:** LITHOS
 - **Block Explorer URL:** (leave blank or add if configured)
 
 ## 7. Deploy Smart Contracts

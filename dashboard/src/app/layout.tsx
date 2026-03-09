@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Basis Network — Dashboard",
-  description: "Enterprise-grade Avalanche L1 network explorer and activity dashboard",
+  description: "Enterprise-grade Avalanche L1 network explorer and activity dashboard. Native currency: Lithos (LITHOS).",
 };
 
 export default function RootLayout({
@@ -39,7 +39,10 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="border-t border-basis-border mt-16 py-6 text-center text-sm text-gray-500">
-          Base Computing S.A.S. — Basis Network MVP — Avalanche Build Games 2026
+          <a href="https://basisnetwork.com.co" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Basis Network</a>
+          {" "}&mdash;{" "}
+          <a href="https://basecomputing.com.co" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Base Computing S.A.S.</a>
+          {" "}&mdash; Avalanche Build Games 2026
         </footer>
       </body>
     </html>

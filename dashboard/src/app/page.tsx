@@ -214,8 +214,8 @@ export default function Dashboard() {
           />
           <StatCard
             title="Gas Price"
-            value={`${stats?.gasPrice || "0"} Gwei`}
-            subtitle="Zero-fee model"
+            value={`${stats?.gasPrice || "0"} Tomos`}
+            subtitle="Zero-fee Lithos model"
             variant="accent"
           />
           <StatCard

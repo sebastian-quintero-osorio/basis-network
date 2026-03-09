@@ -6,7 +6,9 @@
 
 Basis Network is a sovereign, permissioned blockchain deployed as an Avalanche L1 (Subnet-EVM). It provides companies with zero-fee transactions, data privacy via ZK proofs, and native interoperability with the Avalanche ecosystem.
 
-Built by [Base Computing S.A.S.](https://basecomputing.com.co) -- a Colombian deep tech startup with products in production serving real enterprise clients.
+The native currency is **Lithos** (LITHOS), with the smallest denomination called **Tomo** (1 LITHOS = 10^18 Tomos). Both names derive from Greek: *lithos* (foundation stone) and *tomos* (an indivisible unit).
+
+Built by [Base Computing S.A.S.](https://basecomputing.com.co) | [basisnetwork.com.co](https://basisnetwork.com.co)
 
 ---
 
@@ -113,6 +115,7 @@ basis-network/
 | Dashboard | Next.js + Tailwind CSS |
 | Hosting | Vercel |
 | Network | Avalanche Fuji Testnet |
+| Native Currency | Lithos (LITHOS) -- smallest unit: Tomo |
 
 ---
 
@@ -123,6 +126,7 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 - **Subnet ID:** `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx`
 - **Blockchain ID:** `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX`
 - **RPC:** `http://127.0.0.1:9650/ext/bc/qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX/rpc`
+- **Dashboard:** [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co)
 
 | Contract | Address | Purpose |
 |---|---|---|
@@ -237,8 +241,8 @@ The production roadmap includes evolution to full ZK rollups with per-enterprise
 
 Basis Network is not a hackathon-only project. It is built on top of real products with real clients:
 
-- **PLASMA** is deployed at Ingenio Sancarlos (one of Colombia's largest sugar mills), delivering 75-91% operational efficiency gains and 300M COP in documented savings.
-- **Trace** is a live ERP serving SME clients at ~3M COP/year per client.
+- **[PLASMA](https://basecomputing.com.co)** is deployed at Ingenio Sancarlos (one of Colombia's largest sugar mills), delivering 75-91% operational efficiency gains and 300M COP in documented savings.
+- **[Trace](https://traceerp.com)** is a live ERP serving SME clients at ~3M COP/year per client.
 - **Base Computing** generates 50M+ COP in revenue before its first year.
 
 ---
@@ -296,6 +300,18 @@ The blockchain is infrastructure, not the product. Revenue streams:
 
 ---
 
+## Ecosystem
+
+| Property | URL |
+|---|---|
+| Basis Network | [basisnetwork.com.co](https://basisnetwork.com.co) |
+| Dashboard | [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) |
+| Base Computing | [basecomputing.com.co](https://basecomputing.com.co) |
+| Trace ERP | [traceerp.com](https://traceerp.com) |
+| GitHub | [github.com/sebastian-quintero-osorio/basis-network](https://github.com/sebastian-quintero-osorio/basis-network) |
+
+---
+
 ## Team
 
 **Base Computing S.A.S.** -- Colombian deep tech startup, founded September 2024.
@@ -305,6 +321,8 @@ The blockchain is infrastructure, not the product. Revenue streams:
 - Top 50 / 1,300+ in Nestle Young Creators Challenge 2025
 - 20+ hackathon participations with consistent wins
 - Accepted into Avalanche Build Games 2026 ($1M prize pool)
+
+Contact: [sebastian@basisnetwork.co](mailto:sebastian@basisnetwork.co)
 
 ---
 

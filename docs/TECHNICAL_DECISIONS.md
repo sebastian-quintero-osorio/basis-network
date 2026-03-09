@@ -35,7 +35,7 @@ This document records the key technical decisions made for Basis Network and the
 **Rationale:**
 - Enterprise clients expect predictable costs. Per-transaction fees create friction.
 - Revenue comes from SaaS subscriptions, not gas. The blockchain is infrastructure.
-- Zero-fee removes the need for enterprises to hold native tokens for gas.
+- Zero-fee removes the need for enterprises to hold Lithos (the native token) for gas.
 - Allowlist controls prevent spam (only authorized addresses can transact), mitigating the abuse vector that zero-fee normally introduces.
 
 ---
