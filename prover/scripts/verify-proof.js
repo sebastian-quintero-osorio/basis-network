@@ -1,9 +1,9 @@
-const snarkjs = require("snarkjs");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
 /// Verifies a Groth16 proof locally before submitting to the on-chain verifier.
-/// This is a sanity check to ensure the proof is valid before paying for an on-chain transaction.
+/// This is a sanity check to ensure the proof is valid before sending an on-chain transaction.
 async function main() {
   const buildDir = path.join(__dirname, "..", "build");
 
@@ -20,18 +20,16 @@ async function main() {
     return;
   }
 
-  const vKey = JSON.parse(fs.readFileSync(vKeyPath));
-  const proof = JSON.parse(fs.readFileSync(proofPath));
-  const publicSignals = JSON.parse(fs.readFileSync(publicPath));
-
   console.log("Verifying proof...");
-  const isValid = await snarkjs.groth16.verify(vKey, publicSignals, proof);
-
-  if (isValid) {
+  try {
+    execSync(
+      `npx snarkjs groth16 verify build/verification_key.json build/public.json build/proof.json`,
+      { stdio: "inherit", cwd: path.join(__dirname, "..") }
+    );
     console.log("\nResult: VALID");
     console.log("The proof correctly attests that the batch of transactions is valid.");
     console.log("This proof can now be submitted to ZKVerifier.sol on Basis Network L1.");
-  } else {
+  } catch {
     console.log("\nResult: INVALID");
     console.log("The proof failed verification. Check inputs and circuit.");
   }

@@ -1,4 +1,4 @@
-const snarkjs = require("snarkjs");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -17,19 +17,14 @@ async function main() {
     return;
   }
 
-  const solidityVerifier = await snarkjs.zKey.exportSolidityVerifier(
-    zkeyPath,
-    { groth16: fs.readFileSync(
-        path.join(__dirname, "..", "node_modules", "snarkjs", "templates", "verifier_groth16.sol.ejs"),
-        "utf8"
-      )
-    }
+  console.log("Exporting Solidity verifier from zkey...");
+  execSync(
+    `npx snarkjs zkey export solidityverifier build/batch_verifier_final.zkey build/Groth16Verifier.sol`,
+    { stdio: "inherit", cwd: path.join(__dirname, "..") }
   );
 
   const outputPath = path.join(buildDir, "Groth16Verifier.sol");
-  fs.writeFileSync(outputPath, solidityVerifier);
-
-  console.log(`Solidity verifier exported to: ${outputPath}`);
+  console.log(`\nSolidity verifier exported to: ${outputPath}`);
   console.log("This contract provides the raw Groth16 verification logic.");
   console.log("ZKVerifier.sol in contracts/verification/ wraps this with enterprise checks.");
 }

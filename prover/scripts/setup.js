@@ -1,10 +1,15 @@
-const snarkjs = require("snarkjs");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
 /// Trusted setup script for the BatchVerifier circuit.
-/// This performs the Powers of Tau ceremony and generates the proving/verification keys.
+/// Uses snarkjs CLI for cross-platform compatibility.
 /// In production, a multi-party computation (MPC) ceremony would be used.
+function run(cmd) {
+  console.log(`  $ ${cmd}`);
+  execSync(cmd, { stdio: "inherit", cwd: path.join(__dirname, "..") });
+}
+
 async function main() {
   const buildDir = path.join(__dirname, "..", "build");
   const potDir = path.join(__dirname, "..", "pot");
@@ -16,60 +21,34 @@ async function main() {
 
   // Step 1: Powers of Tau ceremony (phase 1)
   console.log("Step 1: Starting Powers of Tau ceremony...");
-  await snarkjs.powersOfTau.newAccumulator(14, path.join(potDir, "pot14_0000.ptau"));
+  run(`npx snarkjs powersoftau new bn128 14 pot/pot14_0000.ptau`);
   console.log("  - Initial accumulator created");
 
-  await snarkjs.powersOfTau.contribute(
-    path.join(potDir, "pot14_0000.ptau"),
-    path.join(potDir, "pot14_0001.ptau"),
-    "Basis Network Contribution 1",
-    "basis-network-entropy-seed-" + Date.now()
-  );
+  run(`npx snarkjs powersoftau contribute pot/pot14_0000.ptau pot/pot14_0001.ptau --name="Basis Network Contribution 1" -e="basis-network-entropy-${Date.now()}"`);
   console.log("  - Contribution added");
 
   // Step 2: Prepare phase 2
   console.log("\nStep 2: Preparing phase 2...");
-  await snarkjs.powersOfTau.preparePhase2(
-    path.join(potDir, "pot14_0001.ptau"),
-    path.join(potDir, "pot14_final.ptau")
-  );
+  run(`npx snarkjs powersoftau prepare phase2 pot/pot14_0001.ptau pot/pot14_final.ptau`);
   console.log("  - Phase 2 prepared");
 
   // Step 3: Generate zkey (circuit-specific setup)
-  // NOTE: The circuit must be compiled first with circom
   const r1csPath = path.join(buildDir, "batch_verifier.r1cs");
   if (!fs.existsSync(r1csPath)) {
     console.log("\nWARNING: Circuit not compiled yet.");
-    console.log("Run the following command first:");
-    console.log("  circom circuits/batch_verifier.circom --r1cs --wasm --sym -o build/");
-    console.log("\nThen run this setup script again.");
+    console.log("Run: circom circuits/batch_verifier.circom --r1cs --wasm --sym -o build/");
     return;
   }
 
   console.log("\nStep 3: Generating proving key (zkey)...");
-  await snarkjs.zKey.newZKey(
-    r1csPath,
-    path.join(potDir, "pot14_final.ptau"),
-    path.join(buildDir, "batch_verifier_0000.zkey")
-  );
+  run(`npx snarkjs groth16 setup build/batch_verifier.r1cs pot/pot14_final.ptau build/batch_verifier_0000.zkey`);
 
-  await snarkjs.zKey.contribute(
-    path.join(buildDir, "batch_verifier_0000.zkey"),
-    path.join(buildDir, "batch_verifier_final.zkey"),
-    "Basis Network zKey Contribution",
-    "basis-zkey-entropy-" + Date.now()
-  );
+  run(`npx snarkjs zkey contribute build/batch_verifier_0000.zkey build/batch_verifier_final.zkey --name="Basis Network zKey Contribution" -e="basis-zkey-entropy-${Date.now()}"`);
   console.log("  - Proving key generated");
 
   // Step 4: Export verification key
   console.log("\nStep 4: Exporting verification key...");
-  const vKey = await snarkjs.zKey.exportVerificationKey(
-    path.join(buildDir, "batch_verifier_final.zkey")
-  );
-  fs.writeFileSync(
-    path.join(buildDir, "verification_key.json"),
-    JSON.stringify(vKey, null, 2)
-  );
+  run(`npx snarkjs zkey export verificationkey build/batch_verifier_final.zkey build/verification_key.json`);
   console.log("  - Verification key exported to build/verification_key.json");
 
   console.log("\n=== Setup Complete ===");

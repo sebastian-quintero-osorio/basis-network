@@ -1,4 +1,4 @@
-const snarkjs = require("snarkjs");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -11,7 +11,6 @@ async function main() {
 
   console.log("=== Generating ZK Proof for Basis Network ===\n");
 
-  // Check prerequisites
   const wasmPath = path.join(buildDir, "batch_verifier_js", "batch_verifier.wasm");
   const zkeyPath = path.join(buildDir, "batch_verifier_final.zkey");
 
@@ -45,8 +44,7 @@ async function main() {
     ],
   };
 
-  // Compute the batch root (must match circuit logic)
-  // The circuit uses chained Poseidon hashes
+  // Compute the batch root using circomlibjs Poseidon (matches circuit logic)
   const { buildPoseidon } = require("circomlibjs");
   const poseidon = await buildPoseidon();
 
@@ -64,38 +62,36 @@ async function main() {
   console.log(`  Transaction hashes: [private]`);
   console.log(`  Transaction amounts: [private]\n`);
 
-  // Generate the proof
+  // Write input file
+  fs.writeFileSync(
+    path.join(buildDir, "input.json"),
+    JSON.stringify(input, null, 2)
+  );
+
+  // Generate proof using snarkjs CLI
   console.log("Generating Groth16 proof...");
-  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-    input,
-    wasmPath,
-    zkeyPath
+  execSync(
+    `npx snarkjs groth16 fullprove build/input.json build/batch_verifier_js/batch_verifier.wasm build/batch_verifier_final.zkey build/proof.json build/public.json`,
+    { stdio: "inherit", cwd: path.join(__dirname, "..") }
   );
 
-  console.log("Proof generated successfully!\n");
+  console.log("\nProof generated successfully!");
 
-  // Save proof and public signals
-  fs.writeFileSync(
-    path.join(buildDir, "proof.json"),
-    JSON.stringify(proof, null, 2)
-  );
-  fs.writeFileSync(
-    path.join(buildDir, "public.json"),
-    JSON.stringify(publicSignals, null, 2)
-  );
+  // Export Solidity calldata
+  console.log("\nExporting Solidity calldata...");
+  const calldata = execSync(
+    `npx snarkjs zkey export soliditycalldata build/public.json build/proof.json`,
+    { cwd: path.join(__dirname, "..") }
+  ).toString().trim();
 
-  console.log("Files saved:");
+  fs.writeFileSync(path.join(buildDir, "calldata.txt"), calldata);
+
+  console.log("\nFiles saved:");
   console.log("  - build/proof.json");
   console.log("  - build/public.json");
-
-  // Format for on-chain submission
-  const calldata = await snarkjs.groth16.exportSolidityCallData(proof, publicSignals);
-  fs.writeFileSync(
-    path.join(buildDir, "calldata.txt"),
-    calldata
-  );
   console.log("  - build/calldata.txt (formatted for Solidity)");
 
+  const publicSignals = JSON.parse(fs.readFileSync(path.join(buildDir, "public.json")));
   console.log("\nPublic signals (visible on-chain):");
   publicSignals.forEach((s, i) => console.log(`  [${i}]: ${s}`));
   console.log("\nPrivate data (transaction details) remains hidden.");
