@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+cache/
+
+# Hardhat
+contracts/cache/
+contracts/artifacts/
+contracts/typechain-types/
+contracts/coverage/
+contracts/coverage.json
+
+# ZK Prover build artifacts
+prover/build/
+prover/*.r1cs
+prover/*.wasm
+prover/*.zkey
+prover/*.wtns
+prover/*.sym
+prover/pot/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+*.lcov
+
+# Secrets and keys
+*.pem
+*.key
+*.p12
+
+# CLAUDE.md — project-level AI assistant config (not part of deliverables)
+CLAUDE.md

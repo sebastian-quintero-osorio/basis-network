@@ -1,0 +1,11 @@
+{
+  "http-host": "0.0.0.0",
+  "http-port": 9650,
+  "staking-port": 9651,
+  "log-level": "info",
+  "log-display-level": "info",
+  "api-admin-enabled": true,
+  "api-info-enabled": true,
+  "index-enabled": true,
+  "db-type": "leveldb"
+}
