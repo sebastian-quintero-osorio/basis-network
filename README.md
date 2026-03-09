@@ -1,5 +1,7 @@
 # Basis Network
 
+[![CI](https://github.com/sebastian-quintero-osorio/basis-network/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-quintero-osorio/basis-network/actions/workflows/ci.yml)
+
 **Enterprise-grade Avalanche L1 for Latin American industries.**
 
 Basis Network is a sovereign, permissioned blockchain deployed as an Avalanche L1 (Subnet-EVM). It provides companies with zero-fee transactions, data privacy via ZK proofs, and native interoperability with the Avalanche ecosystem.
@@ -111,6 +113,22 @@ basis-network/
 | Dashboard | Next.js + Tailwind CSS |
 | Hosting | Vercel |
 | Network | Avalanche Fuji Testnet |
+
+---
+
+## Deployed Contracts
+
+Contracts are deployed on the Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`).
+
+| Contract | Address | Purpose |
+|---|---|---|
+| EnterpriseRegistry | `0x4Ac1d98D9cEF99EC6546dEd4Bd550b0b287aaD6D` | Enterprise onboarding and permissions |
+| TraceabilityRegistry | `0xA4cD3b0Eb6E5Ab5d8CE4065BcCD70040ADAB1F00` | Immutable event recording |
+| PLASMAConnector | `0xa4DfF80B4a1D748BF28BC4A271eD834689Ea3407` | Industrial maintenance bridge |
+| TraceConnector | `0xe336d36FacA76840407e6836d26119E1EcE0A2b4` | ERP commercial bridge |
+| ZKVerifier | `0x95CA0a568236fC7413Cd2b794A7da24422c2BBb6` | Groth16 proof verification |
+
+**On-chain activity:** 3 registered enterprises, 10+ adapter transactions, 1 verified ZK batch proof (4 transactions, 530K gas).
 
 ---
 
