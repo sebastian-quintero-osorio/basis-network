@@ -58,5 +58,6 @@ coverage/
 *.key
 *.p12
 
-# CLAUDE.md — project-level AI assistant config (not part of deliverables)
+# Internal development files (not part of public deliverables)
+.internal/
 CLAUDE.md

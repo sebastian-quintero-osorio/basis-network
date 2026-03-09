@@ -2,24 +2,68 @@
 
 ## System Overview
 
-Basis Network is a three-layer architecture built on Avalanche:
+Basis Network is a three-layer architecture built on Avalanche, designed for enterprise-grade traceability with cryptographic privacy guarantees.
 
-### Layer 1 — Avalanche Primary Network
+```mermaid
+graph TB
+    subgraph L3["Enterprise Instances (Layer 3)"]
+        E1["PLASMA<br/><i>Industrial Maintenance</i>"]
+        E2["Trace<br/><i>SME ERP</i>"]
+        E3["Future Enterprise N"]
+    end
+
+    subgraph L2["Basis Network L1 (Layer 2)"]
+        subgraph VM["Custom Subnet-EVM"]
+            ZF["Zero-Fee<br/>Gas Model"]
+            AL["Allowlist<br/>Controls"]
+            PV["Permissioned<br/>Validators"]
+        end
+        subgraph SC["Smart Contract Layer"]
+            ER["EnterpriseRegistry"]
+            TR["TraceabilityRegistry"]
+            PC["PLASMAConnector"]
+            TC["TraceConnector"]
+            ZK["ZKVerifier"]
+        end
+    end
+
+    subgraph L1["Avalanche Primary Network (Layer 1)"]
+        PC2["P-Chain<br/><i>Validators</i>"]
+        CC["C-Chain<br/><i>DeFi / Stablecoins</i>"]
+        AWM["Avalanche Warp<br/>Messaging"]
+    end
+
+    E1 -->|"ZK Proofs"| ZK
+    E2 -->|"ZK Proofs"| ZK
+    E3 -->|"ZK Proofs"| ZK
+    E1 -->|"Maintenance Events"| PC
+    E2 -->|"Commercial Events"| TC
+
+    PC2 -->|"Validator Registry"| VM
+    CC <-->|"Cross-Chain"| AWM
+    AWM <-->|"Interoperability"| VM
+
+    style L3 fill:#1a1a2e,stroke:#00d4aa,color:#fff
+    style L2 fill:#16213e,stroke:#e84142,color:#fff
+    style L1 fill:#0f0f1a,stroke:#e84142,color:#fff
+```
+
+### Layer 1 -- Avalanche Primary Network
 
 The global Avalanche network provides security, interoperability, and validator infrastructure. Basis Network anchors to the P-Chain for validator registration and uses Avalanche Warp Messaging (AWM) for cross-chain communication with the C-Chain.
 
-### Layer 2 — Basis Network L1
+### Layer 2 -- Basis Network L1
 
 A customized Subnet-EVM blockchain with:
 
 - **Zero-fee gas model** (`minBaseFee: 0`, `minBlockGasCost: 0`, `maxBlockGasCost: 0`)
-- **Transaction allowlist** — only authorized enterprise wallets can send transactions
-- **Contract deployer allowlist** — only admin addresses can deploy smart contracts
-- **Permissioned validators** — participating enterprises validate the network
+- **Transaction allowlist** -- only authorized enterprise wallets can send transactions
+- **Contract deployer allowlist** -- only admin addresses can deploy smart contracts
+- **Permissioned validators** -- participating enterprises validate the network
 
 Smart contracts deployed on this layer handle enterprise registration, event recording, product-specific connectors, and ZK proof verification.
 
-### Layer 3 — Enterprise Instances (Future)
+### Layer 3 -- Enterprise Instances (Future)
 
 Each enterprise gets a private execution environment implemented as a ZK validium:
 
@@ -32,24 +76,35 @@ This evolves toward full ZK rollups with per-enterprise sequencers and provers.
 
 ---
 
-## Component Architecture
+## Smart Contract Architecture
 
-### Smart Contract Layer
+```mermaid
+graph LR
+    subgraph Core["Core Contracts"]
+        ER["EnterpriseRegistry.sol<br/><i>Onboarding & Permissions</i>"]
+        TR["TraceabilityRegistry.sol<br/><i>Immutable Event Log</i>"]
+    end
 
-```
-EnterpriseRegistry.sol          TraceabilityRegistry.sol
-    |                                   |
-    | (authorization check)             | (event recording)
-    v                                   v
-PLASMAConnector.sol             TraceConnector.sol
-    |                                   |
-    | (maintenance events)              | (commercial events)
-    v                                   v
-                ZKVerifier.sol
-                    |
-                    | (batch proof verification)
-                    v
-              On-chain state root
+    subgraph Connectors["Product Connectors"]
+        PC["PLASMAConnector.sol<br/><i>Maintenance Data</i>"]
+        TC["TraceConnector.sol<br/><i>Commercial Data</i>"]
+    end
+
+    subgraph Verification["ZK Verification"]
+        ZK["ZKVerifier.sol<br/><i>Groth16 Batch Proofs</i>"]
+    end
+
+    ER -->|"isAuthorized()"| PC
+    ER -->|"isAuthorized()"| TC
+    ER -->|"isAuthorized()"| TR
+    ER -->|"isAuthorized()"| ZK
+
+    PC -->|"recordEvent()"| TR
+    TC -->|"recordEvent()"| TR
+
+    style Core fill:#16213e,stroke:#e84142,color:#fff
+    style Connectors fill:#16213e,stroke:#00d4aa,color:#fff
+    style Verification fill:#16213e,stroke:#f5a623,color:#fff
 ```
 
 **EnterpriseRegistry** manages enterprise onboarding and permissions. Only the network admin (Base Computing) can register or deactivate enterprises. Enterprises can update their own metadata.
@@ -62,69 +117,31 @@ PLASMAConnector.sol             TraceConnector.sol
 
 **ZKVerifier** verifies Groth16 zero-knowledge proofs on-chain. It validates that a batch of enterprise transactions is correct without accessing the underlying data.
 
-### Blockchain Adapter Layer
-
-```
-PLASMA Backend  ----\
-                     +---> Transaction Queue ---> ethers.js Provider ---> L1 RPC
-Trace Backend   ----/          |
-                          Retry Logic
-                          Batch Processing
-                          Error Handling
-```
-
-The adapter implements a **dual-write pattern**:
-
-1. Existing applications (PLASMA, Trace) continue writing to their databases normally.
-2. The adapter listens for relevant events and writes them on-chain simultaneously.
-3. If the blockchain is temporarily unavailable, events are queued and synced when connectivity is restored.
-
-This design ensures zero disruption to existing operations.
-
-### ZK Prover Pipeline
-
-```
-Enterprise Transactions (off-chain)
-    |
-    v
-Circom Circuit (batch_verifier.circom)
-    |
-    v
-SnarkJS (Groth16 proof generation)
-    |
-    v
-Proof + Public Signals
-    |
-    v
-ZKVerifier.sol (on-chain verification)
-    |
-    v
-Verification result recorded on L1
-```
-
-### Dashboard
-
-```
-Next.js Application
-    |
-    +---> ethers.js ---> Basis Network L1 RPC
-    |         |
-    |         +---> Contract ABIs ---> Read on-chain data
-    |         +---> Block/Tx queries ---> Network stats
-    |
-    +---> Server-side rendering ---> Vercel deployment
-```
-
-The dashboard displays:
-- Registered enterprises and their status
-- Real-time transaction activity
-- Event breakdown by type (maintenance, sales, inventory, etc.)
-- Network metrics (block height, gas price confirmation of zero-fee)
-- ZK proof verification status
-
 ---
 
-## Data Flow
+## Data Flow: Dual-Write Pattern
+
+The integration uses a dual-write pattern that ensures zero disruption to existing production systems.
+
+```mermaid
+sequenceDiagram
+    participant User as Technician / Operator
+    participant App as PLASMA / Trace
+    participant DB as Operational Database
+    participant Adapter as Blockchain Adapter
+    participant Queue as Transaction Queue
+    participant L1 as Basis Network L1
+
+    User->>App: Create work order / Record sale
+    App->>DB: Write to database (primary)
+    App->>Adapter: Emit event
+    Adapter->>Queue: Enqueue transaction
+    Queue->>L1: Submit on-chain (zero-fee)
+    L1-->>Queue: Transaction confirmed
+    Queue-->>Adapter: Confirmation + receipt
+
+    Note over DB,L1: Both writes happen simultaneously.<br/>If L1 is unavailable, queue retries automatically.
+```
 
 ### On-Chain Data (stored on L1)
 
@@ -146,6 +163,114 @@ This separation ensures compliance with data privacy regulations while maintaini
 
 ---
 
+## ZK Validium Pipeline
+
+```mermaid
+graph TB
+    subgraph OffChain["Off-Chain (Enterprise Infrastructure)"]
+        TX["Enterprise Transactions<br/><i>Private operational data</i>"]
+        CC["Circom Circuit<br/><i>batch_verifier.circom</i>"]
+        SN["SnarkJS Prover<br/><i>Groth16 proof generation</i>"]
+    end
+
+    subgraph OnChain["On-Chain (Basis Network L1)"]
+        ZKV["ZKVerifier.sol<br/><i>Groth16 verification via<br/>EIP-196/197 precompiles</i>"]
+        SR["State Root<br/><i>Verified batch record</i>"]
+    end
+
+    TX -->|"Private inputs<br/>(witness)"| CC
+    CC -->|"R1CS constraint<br/>system"| SN
+    SN -->|"proof.json +<br/>public.json"| ZKV
+    ZKV -->|"Verified"| SR
+
+    style OffChain fill:#1a1a2e,stroke:#00d4aa,color:#fff
+    style OnChain fill:#16213e,stroke:#e84142,color:#fff
+```
+
+The ZK validium model ensures that:
+
+1. **Enterprise data stays private** -- transaction details never leave the enterprise's infrastructure.
+2. **Validity is guaranteed** -- the Groth16 proof mathematically proves the batch is correct.
+3. **Verification is efficient** -- ~200K gas per proof verification using EVM precompiles (ecAdd, ecMul, ecPairing).
+4. **The interface is upgradeable** -- swapping the off-chain prover (Circom to SP1, Halo2, etc.) requires no on-chain changes.
+
+---
+
+## Blockchain Adapter Architecture
+
+```mermaid
+graph LR
+    subgraph Sources["Event Sources"]
+        P["PLASMA Backend<br/><i>Maintenance events</i>"]
+        T["Trace Backend<br/><i>Commercial events</i>"]
+    end
+
+    subgraph Adapter["Blockchain Adapter Layer"]
+        PA["PLASMAAdapter<br/><i>ethers.js</i>"]
+        TA["TraceAdapter<br/><i>ethers.js</i>"]
+        Q["TransactionQueue<br/><i>Retry logic, batching</i>"]
+    end
+
+    subgraph Chain["Basis Network L1"]
+        RPC["JSON-RPC Endpoint"]
+    end
+
+    P --> PA
+    T --> TA
+    PA --> Q
+    TA --> Q
+    Q -->|"ethers.js v6"| RPC
+
+    style Sources fill:#1a1a2e,stroke:#00d4aa,color:#fff
+    style Adapter fill:#16213e,stroke:#f5a623,color:#fff
+    style Chain fill:#0f0f1a,stroke:#e84142,color:#fff
+```
+
+The adapter provides:
+
+- **Dual-write guarantee** -- existing databases are never disrupted; on-chain writes are additive.
+- **Fault tolerance** -- if the L1 is temporarily unavailable, events queue and sync on reconnection.
+- **Retry logic** -- configurable retry count and exponential backoff.
+- **Idempotency** -- duplicate events are rejected at the contract level (unique IDs).
+
+---
+
+## Dashboard Architecture
+
+```mermaid
+graph TB
+    subgraph Client["Browser"]
+        UI["Next.js + Tailwind CSS<br/><i>Server-side rendered</i>"]
+    end
+
+    subgraph Backend["Data Sources"]
+        RPC["Basis Network L1<br/><i>JSON-RPC</i>"]
+        ABI["Contract ABIs<br/><i>Type-safe queries</i>"]
+    end
+
+    subgraph Deploy["Deployment"]
+        V["Vercel<br/><i>Edge network</i>"]
+    end
+
+    UI -->|"ethers.js v6"| RPC
+    UI --> ABI
+    UI --> V
+
+    style Client fill:#16213e,stroke:#00d4aa,color:#fff
+    style Backend fill:#1a1a2e,stroke:#e84142,color:#fff
+    style Deploy fill:#0f0f1a,stroke:#f5a623,color:#fff
+```
+
+The dashboard displays:
+
+- Registered enterprises and their status
+- Real-time transaction activity (auto-refresh every 10s)
+- Event breakdown by type (maintenance, sales, inventory, inspections)
+- Network metrics (block height, gas price confirming zero-fee)
+- ZK proof verification history and batch summaries
+
+---
+
 ## Network Configuration
 
 | Parameter | Value | Rationale |
@@ -161,7 +286,60 @@ This separation ensures compliance with data privacy regulations while maintaini
 
 ## Security Model
 
-1. **Network level:** Permissioned validators, transaction allowlist, deployer allowlist.
-2. **Contract level:** Role-based access control (Admin, Enterprise roles).
-3. **Data level:** Sensitive data never touches the blockchain. Only hashes and ZK proofs.
-4. **Cross-chain level:** AWM provides native, validator-secured communication (no third-party bridges).
+```mermaid
+graph TB
+    subgraph Network["Network Level"]
+        NV["Permissioned Validators"]
+        TAL["Transaction Allowlist<br/><i>VM-enforced</i>"]
+        DAL["Deployer Allowlist<br/><i>VM-enforced</i>"]
+    end
+
+    subgraph Contract["Contract Level"]
+        RBAC["Role-Based Access Control<br/><i>Admin / Enterprise roles</i>"]
+        ID["Idempotency Guards<br/><i>Duplicate prevention</i>"]
+    end
+
+    subgraph Data["Data Level"]
+        ZKP["ZK Proofs<br/><i>Privacy by design</i>"]
+        HASH["Hash-only Storage<br/><i>No raw data on-chain</i>"]
+    end
+
+    subgraph CrossChain["Cross-Chain Level"]
+        AWMS["Avalanche Warp Messaging<br/><i>Validator-secured, no bridges</i>"]
+    end
+
+    Network --> Contract --> Data --> CrossChain
+
+    style Network fill:#16213e,stroke:#e84142,color:#fff
+    style Contract fill:#16213e,stroke:#f5a623,color:#fff
+    style Data fill:#16213e,stroke:#00d4aa,color:#fff
+    style CrossChain fill:#16213e,stroke:#00d4aa,color:#fff
+```
+
+Security is enforced at four layers:
+
+1. **Network level:** Permissioned validators, transaction allowlist, deployer allowlist -- enforced at the VM level, not bypassable by smart contracts.
+2. **Contract level:** Role-based access control with custom errors for clear revert reasons. Idempotency guards prevent duplicate records.
+3. **Data level:** Sensitive data never touches the blockchain. Only hashes, metadata, and ZK proofs are stored on-chain.
+4. **Cross-chain level:** AWM provides native, validator-secured communication without relying on third-party bridges that introduce trust assumptions.
+
+---
+
+## Evolution Roadmap
+
+```mermaid
+graph LR
+    V1["MVP<br/><i>Enterprise Validium</i><br/>Fuji Testnet"]
+    V2["v1.0<br/><i>Mainnet Launch</i><br/>Production Validators"]
+    V3["v2.0<br/><i>Full ZK Rollup</i><br/>Per-Enterprise Sequencers"]
+    V4["v3.0<br/><i>Custom VM</i><br/>HyperSDK"]
+
+    V1 -->|"Months 1-2"| V2
+    V2 -->|"Months 3-6"| V3
+    V3 -->|"Year 2+"| V4
+
+    style V1 fill:#e84142,stroke:#fff,color:#fff
+    style V2 fill:#16213e,stroke:#e84142,color:#fff
+    style V3 fill:#16213e,stroke:#00d4aa,color:#fff
+    style V4 fill:#16213e,stroke:#f5a623,color:#fff
+```
