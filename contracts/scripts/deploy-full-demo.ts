@@ -9,7 +9,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("=== Basis Network Full Deployment ===\n");
   console.log("Deployer:", deployer.address);
-  console.log("Balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "BASIS");
+  console.log("Balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "LITHOS");
   console.log("Network:", (await ethers.provider.getNetwork()).chainId.toString());
 
   // --- Deploy Contracts ---

@@ -54,7 +54,7 @@ The global Avalanche network provides security, interoperability, and validator 
 
 ### Layer 2 -- Basis Network L1
 
-A customized Subnet-EVM blockchain with:
+A customized Subnet-EVM blockchain with the native currency **Lithos** (LITHOS, smallest unit: Tomo):
 
 - **Zero-fee gas model** (`minBaseFee: 0`, `minBlockGasCost: 0`, `maxBlockGasCost: 0`)
 - **Transaction allowlist** -- only authorized enterprise wallets can send transactions
