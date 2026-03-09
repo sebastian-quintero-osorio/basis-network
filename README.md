@@ -116,19 +116,23 @@ basis-network/
 
 ---
 
-## Deployed Contracts
+## Deployed Contracts (Fuji Testnet)
 
-Contracts are deployed on the Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`).
+Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
+
+- **Subnet ID:** `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx`
+- **Blockchain ID:** `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX`
+- **RPC:** `http://127.0.0.1:9650/ext/bc/qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX/rpc`
 
 | Contract | Address | Purpose |
 |---|---|---|
-| EnterpriseRegistry | `0x4Ac1d98D9cEF99EC6546dEd4Bd550b0b287aaD6D` | Enterprise onboarding and permissions |
-| TraceabilityRegistry | `0xA4cD3b0Eb6E5Ab5d8CE4065BcCD70040ADAB1F00` | Immutable event recording |
-| PLASMAConnector | `0xa4DfF80B4a1D748BF28BC4A271eD834689Ea3407` | Industrial maintenance bridge |
-| TraceConnector | `0xe336d36FacA76840407e6836d26119E1EcE0A2b4` | ERP commercial bridge |
-| ZKVerifier | `0x95CA0a568236fC7413Cd2b794A7da24422c2BBb6` | Groth16 proof verification |
+| EnterpriseRegistry | `0xe10CCf26c7Cb6CB81b47C8Da72E427628c8a5E09` | Enterprise onboarding and permissions |
+| TraceabilityRegistry | `0xAC00F4920665b1eA43F4F7Da7ef3714DE7acf6Fc` | Immutable event recording |
+| PLASMAConnector | `0xF486547C8bF764eA4E53a05D745543f8a6973133` | Industrial maintenance bridge |
+| TraceConnector | `0x3ABC06a56b7F7Ec3711C8282B5B778CE8e34Dda0` | ERP commercial bridge |
+| ZKVerifier | `0x6e28B9DD35C752DF4a38040df31c9A82c5285aF2` | Groth16 proof verification |
 
-**On-chain activity:** 3 registered enterprises, 10+ adapter transactions, 1 verified ZK batch proof (4 transactions, 530K gas).
+**On-chain activity:** 3 registered enterprises, 10+ demo transactions (PLASMA work orders, Trace sales, inventory, supplier), 1 verified ZK batch proof (4 transactions, 530K gas).
 
 ---
 
