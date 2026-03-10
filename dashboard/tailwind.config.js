@@ -7,13 +7,16 @@ module.exports = {
     extend: {
       colors: {
         basis: {
-          primary: "#E84142",
-          dark: "#1A1A2E",
-          darker: "#0F0F1A",
-          accent: "#00D4AA",
-          surface: "#16213E",
-          border: "#2A2A4A",
+          cyan: "#00C8AA",
+          teal: "#0CF5C8",
+          purple: "#8B5CF6",
+          navy: "#1A1A2E",
+          slate: "#64748B",
+          faint: "#94A3B8",
         },
+      },
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

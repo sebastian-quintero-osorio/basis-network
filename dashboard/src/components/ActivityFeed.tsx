@@ -4,47 +4,68 @@ interface Activity {
   type: string;
   description: string;
   timestamp: string;
-  txHash?: string;
+  blockNumber?: number;
 }
 
 interface ActivityFeedProps {
   activities: Activity[];
 }
 
-const typeColors: Record<string, string> = {
-  MAINTENANCE: "text-orange-400 bg-orange-900/20",
-  SALE: "text-blue-400 bg-blue-900/20",
-  INVENTORY: "text-purple-400 bg-purple-900/20",
-  SUPPLIER: "text-cyan-400 bg-cyan-900/20",
-  INSPECTION: "text-yellow-400 bg-yellow-900/20",
-  ZK_PROOF: "text-green-400 bg-green-900/20",
-  ENTERPRISE: "text-basis-primary bg-red-900/20",
+const badgeClass: Record<string, string> = {
+  plasma: "badge-plasma",
+  trace: "badge-trace",
+  zk: "badge-zk",
+  enterprise: "badge-enterprise",
+};
+
+const badgeLabel: Record<string, string> = {
+  plasma: "PLASMA",
+  trace: "Trace",
+  zk: "ZK",
+  enterprise: "Registry",
+};
+
+const dotColor: Record<string, string> = {
+  plasma: "#F97316",
+  trace: "#3B82F6",
+  zk: "#8B5CF6",
+  enterprise: "#00C8AA",
 };
 
 export default function ActivityFeed({ activities }: ActivityFeedProps) {
   if (activities.length === 0) {
     return (
-      <div className="bg-basis-surface border border-basis-border rounded-lg p-6 text-center text-gray-500">
-        No activity yet. Deploy contracts and start writing data on-chain.
+      <div className="card p-8 text-center text-basis-slate text-sm">
+        No on-chain activity recorded yet.
       </div>
     );
   }
 
   return (
-    <div className="bg-basis-surface border border-basis-border rounded-lg divide-y divide-basis-border">
-      {activities.map((activity, i) => (
-        <div key={i} className="px-4 py-3 flex items-center gap-3">
-          <span
-            className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
-              typeColors[activity.type] || "text-gray-400 bg-gray-800"
-            }`}
-          >
-            {activity.type}
-          </span>
-          <span className="text-sm text-gray-300 flex-1">{activity.description}</span>
-          <span className="text-xs text-gray-500 whitespace-nowrap">{activity.timestamp}</span>
-        </div>
-      ))}
+    <div className="relative pl-8">
+      <div className="timeline-line" />
+      <div className="space-y-3">
+        {activities.map((a, i) => (
+          <div key={i} className="relative flex items-start gap-4">
+            <div
+              className="timeline-dot mt-3.5 -ml-8"
+              style={{ borderColor: dotColor[a.type] || "#00C8AA" }}
+            />
+            <div className="card px-4 py-3 flex-1 flex items-center gap-3">
+              <span className={`badge ${badgeClass[a.type] || "badge-enterprise"}`}>
+                {badgeLabel[a.type] || a.type}
+              </span>
+              <span className="text-sm text-basis-navy flex-1">{a.description}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                {a.blockNumber !== undefined && (
+                  <span className="text-[11px] text-basis-faint font-mono">#{a.blockNumber}</span>
+                )}
+                <span className="text-[11px] text-basis-faint">{a.timestamp}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

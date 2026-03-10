@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
+import dynamic from "next/dynamic";
 import StatCard from "@/components/StatCard";
 import EnterpriseList from "@/components/EnterpriseList";
 import ActivityFeed from "@/components/ActivityFeed";
 import {
   getProvider,
   getContract,
+  fetchRecentActivities,
   ENTERPRISE_REGISTRY_ABI,
   TRACEABILITY_REGISTRY_ABI,
   PLASMA_CONNECTOR_ABI,
   TRACE_CONNECTOR_ABI,
   ZK_VERIFIER_ABI,
 } from "@/lib/contracts";
+
+const NetworkParticles = dynamic(() => import("@/components/NetworkParticles"), { ssr: false });
 
 interface NetworkStats {
   blockNumber: number;
@@ -40,6 +44,7 @@ interface Activity {
   type: string;
   description: string;
   timestamp: string;
+  blockNumber?: number;
 }
 
 export default function Dashboard() {
@@ -48,46 +53,8 @@ export default function Dashboard() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [demoMode, setDemoMode] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  function loadDemoData() {
-    setStats({
-      blockNumber: 18,
-      gasPrice: "0",
-      enterpriseCount: 3,
-      totalEvents: 7,
-      totalMaintenanceOrders: 2,
-      completedOrders: 1,
-      totalSales: 1,
-      totalInventoryMovements: 1,
-      totalZKBatches: 1,
-      totalZKVerified: 1,
-      totalTxVerified: 4,
-    });
-    setEnterprises([
-      { address: "0xF486547C8bF764eA4E53a05D745543f8a6973133", name: "PLASMAConnector", active: true, registeredAt: "3/9/2026" },
-      { address: "0x3ABC06a56b7F7Ec3711C8282B5B778CE8e34Dda0", name: "TraceConnector", active: true, registeredAt: "3/9/2026" },
-      { address: "0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", name: "Ingenio Sancarlos", active: true, registeredAt: "3/9/2026" },
-    ]);
-    setActivities([
-      { type: "plasma", description: "Work order WO-2026-001 created (BOILER-A1, Critical)", timestamp: "3/9/2026" },
-      { type: "plasma", description: "Work order WO-2026-002 created (TURBINE-B3, Scheduled)", timestamp: "3/9/2026" },
-      { type: "plasma", description: "Equipment inspection: BOILER-A1 (nominal)", timestamp: "3/9/2026" },
-      { type: "plasma", description: "Work order WO-2026-001 completed", timestamp: "3/9/2026" },
-      { type: "trace", description: "Sale SALE-001: 100x SUGAR-50KG ($5,000,000)", timestamp: "3/9/2026" },
-      { type: "trace", description: "Inventory movement: SUGAR-50KG (-100 units)", timestamp: "3/9/2026" },
-      { type: "zk", description: "ZK batch proof verified on-chain (4 transactions, 530K gas)", timestamp: "3/9/2026" },
-    ]);
-    setDemoMode(true);
-  }
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     try {
       const provider = getProvider();
 
@@ -117,76 +84,136 @@ export default function Dashboard() {
       let totalTxVerified = 0;
       let enterpriseData: Enterprise[] = [];
 
-      if (registryAddr) {
-        const registry = getContract(registryAddr, ENTERPRISE_REGISTRY_ABI);
-        enterpriseCount = Number(await registry.enterpriseCount());
+      const calls: Promise<void>[] = [];
 
-        const addresses: string[] = await registry.listEnterprises();
-        enterpriseData = await Promise.all(
-          addresses.map(async (addr: string) => {
-            const e = await registry.getEnterprise(addr);
-            return {
-              address: addr,
-              name: e.name,
-              active: e.active,
-              registeredAt: new Date(Number(e.registeredAt) * 1000).toLocaleDateString(),
-            };
-          })
-        );
+      if (registryAddr) {
+        calls.push((async () => {
+          const c = getContract(registryAddr, ENTERPRISE_REGISTRY_ABI);
+          enterpriseCount = Number(await c.enterpriseCount());
+          const addrs: string[] = await c.listEnterprises();
+          enterpriseData = await Promise.all(
+            addrs.map(async (addr: string) => {
+              const e = await c.getEnterprise(addr);
+              return {
+                address: addr,
+                name: e.name,
+                active: e.active,
+                registeredAt: new Date(Number(e.registeredAt) * 1000).toLocaleDateString(),
+              };
+            })
+          );
+        })());
       }
 
       if (traceRegAddr) {
-        const traceReg = getContract(traceRegAddr, TRACEABILITY_REGISTRY_ABI);
-        totalEvents = Number(await traceReg.eventCount());
+        calls.push((async () => {
+          totalEvents = Number(await getContract(traceRegAddr, TRACEABILITY_REGISTRY_ABI).eventCount());
+        })());
       }
 
       if (plasmaAddr) {
-        const plasma = getContract(plasmaAddr, PLASMA_CONNECTOR_ABI);
-        totalMaintenanceOrders = Number(await plasma.totalOrders());
-        completedOrders = Number(await plasma.completedOrders());
+        calls.push((async () => {
+          const c = getContract(plasmaAddr, PLASMA_CONNECTOR_ABI);
+          [totalMaintenanceOrders, completedOrders] = await Promise.all([
+            c.totalOrders().then(Number),
+            c.completedOrders().then(Number),
+          ]);
+        })());
       }
 
       if (traceConnAddr) {
-        const traceCon = getContract(traceConnAddr, TRACE_CONNECTOR_ABI);
-        totalSales = Number(await traceCon.totalSales());
-        totalInventoryMovements = Number(await traceCon.totalInventoryMovements());
+        calls.push((async () => {
+          const c = getContract(traceConnAddr, TRACE_CONNECTOR_ABI);
+          [totalSales, totalInventoryMovements] = await Promise.all([
+            c.totalSales().then(Number),
+            c.totalInventoryMovements().then(Number),
+          ]);
+        })());
       }
 
       if (zkAddr) {
-        const zk = getContract(zkAddr, ZK_VERIFIER_ABI);
-        totalZKBatches = Number(await zk.totalBatches());
-        totalZKVerified = Number(await zk.totalVerified());
-        totalTxVerified = Number(await zk.totalTransactionsVerified());
+        calls.push((async () => {
+          const c = getContract(zkAddr, ZK_VERIFIER_ABI);
+          [totalZKBatches, totalZKVerified, totalTxVerified] = await Promise.all([
+            c.totalBatches().then(Number),
+            c.totalVerified().then(Number),
+            c.totalTransactionsVerified().then(Number),
+          ]);
+        })());
       }
 
-      setStats({
-        blockNumber,
-        gasPrice,
-        enterpriseCount,
-        totalEvents,
-        totalMaintenanceOrders,
-        completedOrders,
-        totalSales,
-        totalInventoryMovements,
-        totalZKBatches,
-        totalZKVerified,
-        totalTxVerified,
-      });
+      calls.push(fetchRecentActivities(provider).then(setActivities));
 
+      await Promise.all(calls);
+
+      setStats({
+        blockNumber, gasPrice, enterpriseCount, totalEvents,
+        totalMaintenanceOrders, completedOrders, totalSales,
+        totalInventoryMovements, totalZKBatches, totalZKVerified, totalTxVerified,
+      });
       setEnterprises(enterpriseData);
       setError(null);
-    } catch {
-      loadDemoData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
+  useEffect(() => {
+    fetchData();
+    const iv = setInterval(fetchData, 10000);
+    return () => clearInterval(iv);
+  }, [fetchData]);
+
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-400">Connecting to Basis Network...</p>
-      </div>
+      <>
+        <NetworkParticles />
+        <div className="space-y-6">
+          <div className="hero-gradient p-8 flex items-center justify-center">
+            <div className="text-center">
+              <div className="skeleton h-4 w-48 mx-auto mb-3" />
+              <div className="skeleton h-10 w-24 mx-auto" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="card p-5">
+                <div className="skeleton h-3 w-20 mb-3" />
+                <div className="skeleton h-8 w-14" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  /* ── Error ── */
+  if (error) {
+    return (
+      <>
+        <NetworkParticles />
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <div className="card-accent p-10 max-w-md text-center">
+            <div className="w-14 h-14 rounded-full mx-auto mb-5 flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, rgba(0,200,170,0.1), rgba(139,92,246,0.08))" }}>
+              <svg className="w-7 h-7 text-basis-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-basis-navy mb-2">L1 Node Unreachable</h2>
+            <p className="text-sm text-basis-slate mb-4">
+              Unable to connect to the Basis Network RPC endpoint. Ensure the Avalanche node is running.
+            </p>
+            <p className="text-[11px] text-basis-faint font-mono break-all">
+              {process.env.NEXT_PUBLIC_RPC_URL}
+            </p>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -195,104 +222,75 @@ export default function Dashboard() {
       ? Math.round((stats.completedOrders / stats.totalMaintenanceOrders) * 100)
       : 0;
 
+  /* ── Dashboard ── */
   return (
-    <div className="space-y-8">
-      {demoMode && (
-        <div className="bg-yellow-900/20 border border-yellow-700 rounded-lg px-4 py-3 text-sm text-yellow-300">
-          Showing data from Fuji testnet deployment. Connect to the L1 RPC for live updates.
-        </div>
-      )}
+    <>
+      <NetworkParticles />
 
-      {/* Network Status */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Network Status</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            title="Current Block"
-            value={stats?.blockNumber.toLocaleString() || "0"}
-            subtitle="Snowman consensus"
-          />
-          <StatCard
-            title="Gas Price"
-            value={`${stats?.gasPrice || "0"} Tomos`}
-            subtitle="Zero-fee Lithos model"
-            variant="accent"
-          />
-          <StatCard
-            title="Enterprises"
-            value={stats?.enterpriseCount || 0}
-            subtitle="Registered on-chain"
-          />
-          <StatCard
-            title="Total Events"
-            value={stats?.totalEvents.toLocaleString() || "0"}
-            subtitle="Immutable records"
-          />
-        </div>
-      </section>
+      <div className="space-y-8">
+        {/* ── Hero ── */}
+        <section className="hero-gradient px-8 py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-1">Basis Network L1</p>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+                <span className="text-gradient">Block {stats?.blockNumber.toLocaleString()}</span>
+              </h2>
+              <p className="text-sm text-basis-slate mt-2">
+                {stats?.gasPrice || "0"} Tomos gas &middot; {stats?.enterpriseCount} enterprises &middot; {stats?.totalEvents} events
+              </p>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-gradient">{stats?.totalZKVerified}</p>
+                <p className="text-[11px] text-basis-faint mt-0.5">ZK Proofs Verified</p>
+              </div>
+              <div className="w-px h-10 bg-black/[0.06]" />
+              <div className="text-center">
+                <p className="text-3xl font-bold text-basis-navy">{stats?.totalTxVerified}</p>
+                <p className="text-[11px] text-basis-faint mt-0.5">Tx via Validium</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      {/* Product Metrics */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Product Metrics</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            title="PLASMA: Work Orders"
-            value={stats?.totalMaintenanceOrders || 0}
-            subtitle={`${completionRate}% completion rate`}
-          />
-          <StatCard
-            title="PLASMA: Completed"
-            value={stats?.completedOrders || 0}
-            subtitle="Maintenance orders closed"
-            variant="accent"
-          />
-          <StatCard
-            title="Trace: Sales"
-            value={stats?.totalSales || 0}
-            subtitle="On-chain sale records"
-          />
-          <StatCard
-            title="Trace: Inventory"
-            value={stats?.totalInventoryMovements || 0}
-            subtitle="Stock movements tracked"
-          />
-        </div>
-      </section>
+        {/* ── PLASMA ── */}
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-3">PLASMA &middot; Industrial Maintenance</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <StatCard title="Work Orders" value={stats?.totalMaintenanceOrders || 0} subtitle={`${completionRate}% completion`} />
+            <StatCard title="Completed" value={stats?.completedOrders || 0} subtitle="Orders closed" accent />
+            <StatCard
+              title="Open Orders"
+              value={(stats?.totalMaintenanceOrders || 0) - (stats?.completedOrders || 0)}
+              subtitle="In progress"
+              className="hidden md:block"
+            />
+          </div>
+        </section>
 
-      {/* ZK Verification */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-4">ZK Proof Verification</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <StatCard
-            title="Batches Submitted"
-            value={stats?.totalZKBatches || 0}
-            subtitle="Groth16 proofs"
-          />
-          <StatCard
-            title="Batches Verified"
-            value={stats?.totalZKVerified || 0}
-            subtitle="Successfully verified on-chain"
-            variant="accent"
-          />
-          <StatCard
-            title="Transactions Verified"
-            value={stats?.totalTxVerified.toLocaleString() || "0"}
-            subtitle="Via ZK validium"
-          />
-        </div>
-      </section>
+        {/* ── Trace ── */}
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-3">Trace &middot; Commercial ERP</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <StatCard title="Sales" value={stats?.totalSales || 0} subtitle="On-chain records" accent />
+            <StatCard title="Inventory" value={stats?.totalInventoryMovements || 0} subtitle="Stock movements" />
+            <StatCard title="ZK Batches" value={stats?.totalZKBatches || 0} subtitle="Groth16 proofs" />
+          </div>
+        </section>
 
-      {/* Registered Enterprises */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Registered Enterprises</h2>
-        <EnterpriseList enterprises={enterprises} />
-      </section>
+        {/* ── Enterprises ── */}
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-3">Registered Enterprises</p>
+          <EnterpriseList enterprises={enterprises} />
+        </section>
 
-      {/* Activity Feed */}
-      <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-        <ActivityFeed activities={activities} />
-      </section>
-    </div>
+        {/* ── Activity ── */}
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-3">On-Chain Activity</p>
+          <ActivityFeed activities={activities} />
+        </section>
+      </div>
+    </>
   );
 }

@@ -4,22 +4,18 @@ interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  variant?: "default" | "accent" | "warning";
+  accent?: boolean;
+  className?: string;
 }
 
-export default function StatCard({ title, value, subtitle, variant = "default" }: StatCardProps) {
-  const borderColor =
-    variant === "accent"
-      ? "border-basis-accent"
-      : variant === "warning"
-        ? "border-yellow-500"
-        : "border-basis-border";
-
+export default function StatCard({ title, value, subtitle, accent = false, className = "" }: StatCardProps) {
   return (
-    <div className={`bg-basis-surface border ${borderColor} rounded-lg p-5`}>
-      <p className="text-sm text-gray-400 mb-1">{title}</p>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+    <div className={`${accent ? "card-accent" : "card"} p-5 ${className}`}>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-basis-faint mb-2">{title}</p>
+      <p className={`text-3xl font-bold tracking-tight ${accent ? "text-gradient" : "text-basis-navy"}`}>
+        {value}
+      </p>
+      {subtitle && <p className="text-[12px] text-basis-slate mt-1">{subtitle}</p>}
     </div>
   );
 }
