@@ -58,11 +58,9 @@ async function main() {
   await (await registry.registerEnterprise(traceAddr, "TraceConnector", meta)).wait();
   console.log("  TraceConnector registered");
 
-  const demoMeta = ethers.toUtf8Bytes(JSON.stringify({
-    industry: "agroindustry", country: "CO", city: "Cali", product: "PLASMA"
-  }));
-  await (await registry.registerEnterprise(deployer.address, "Ingenio Sancarlos", demoMeta)).wait();
-  console.log("  Ingenio Sancarlos registered");
+  // NOTE: "Ingenio Sancarlos" was previously registered here using the deployer
+  // address, but it was removed because Ingenio Sancarlos is a CLIENT of PLASMA,
+  // not a SaaS enterprise.  Do not re-add it.
 
   // --- PLASMA Demo Transactions ---
   console.log("\n--- PLASMA demo transactions ---");
@@ -178,7 +176,7 @@ async function main() {
   console.log("TraceConnector:        ", traceAddr);
   console.log("ZKVerifier:            ", zkAddr);
   console.log("========================================");
-  console.log("Enterprises: 3 (PLASMAConnector, TraceConnector, Ingenio Sancarlos)");
+  console.log("Enterprises: 2 (PLASMAConnector, TraceConnector)");
   console.log("PLASMA: 2 work orders, 1 completed, 1 inspection");
   console.log("Trace: 1 sale, 1 inventory movement, 1 supplier transaction");
   console.log("ZK: 1 batch proof verified (4 transactions)");

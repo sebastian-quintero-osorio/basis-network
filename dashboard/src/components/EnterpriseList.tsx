@@ -14,42 +14,36 @@ interface EnterpriseListProps {
 export default function EnterpriseList({ enterprises }: EnterpriseListProps) {
   if (enterprises.length === 0) {
     return (
-      <div className="bg-basis-surface border border-basis-border rounded-lg p-6 text-center text-gray-500">
+      <div className="card p-8 text-center text-basis-slate text-sm">
         No enterprises registered yet.
       </div>
     );
   }
 
   return (
-    <div className="bg-basis-surface border border-basis-border rounded-lg overflow-hidden">
+    <div className="card overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-basis-dark">
-          <tr>
-            <th className="text-left px-4 py-3 text-gray-400 font-medium">Enterprise</th>
-            <th className="text-left px-4 py-3 text-gray-400 font-medium">Address</th>
-            <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-            <th className="text-left px-4 py-3 text-gray-400 font-medium">Registered</th>
+        <thead>
+          <tr className="border-b border-black/[0.04]">
+            <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-basis-faint">Enterprise</th>
+            <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-basis-faint">Address</th>
+            <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-basis-faint">Status</th>
+            <th className="text-left px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-basis-faint">Registered</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-basis-border">
+        <tbody>
           {enterprises.map((e) => (
-            <tr key={e.address} className="hover:bg-basis-dark/50">
-              <td className="px-4 py-3 text-white font-medium">{e.name}</td>
-              <td className="px-4 py-3 text-gray-400 font-mono text-xs">
+            <tr key={e.address} className="border-b border-black/[0.03] last:border-0 hover:bg-black/[0.01] transition-colors">
+              <td className="px-5 py-3.5 font-medium text-basis-navy">{e.name}</td>
+              <td className="px-5 py-3.5 font-mono text-xs text-basis-slate">
                 {e.address.slice(0, 6)}...{e.address.slice(-4)}
               </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-0.5 rounded text-xs font-medium ${
-                    e.active
-                      ? "bg-green-900/30 text-green-400"
-                      : "bg-red-900/30 text-red-400"
-                  }`}
-                >
+              <td className="px-5 py-3.5">
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${e.active ? "pill-active" : "pill-inactive"}`}>
                   {e.active ? "Active" : "Inactive"}
                 </span>
               </td>
-              <td className="px-4 py-3 text-gray-400">{e.registeredAt}</td>
+              <td className="px-5 py-3.5 text-xs text-basis-slate">{e.registeredAt}</td>
             </tr>
           ))}
         </tbody>

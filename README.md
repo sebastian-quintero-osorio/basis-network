@@ -125,7 +125,7 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 
 - **Subnet ID:** `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx`
 - **Blockchain ID:** `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX`
-- **RPC:** `http://127.0.0.1:9650/ext/bc/qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX/rpc`
+- **RPC:** `https://rpc.basisnetwork.com.co/ext/bc/qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX/rpc`
 - **Dashboard:** [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co)
 
 | Contract | Address | Purpose |
