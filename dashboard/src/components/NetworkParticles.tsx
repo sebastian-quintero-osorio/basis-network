@@ -22,8 +22,8 @@ export default function NetworkParticles() {
 
     let id: number;
     const nodes: Node[] = [];
-    const N = 50;
-    const LINK = 160;
+    const N = 40;
+    const LINK = 150;
 
     function size() {
       c!.width = window.innerWidth;
@@ -37,10 +37,10 @@ export default function NetworkParticles() {
         nodes.push({
           x: Math.random() * c!.width,
           y: Math.random() * c!.height,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 2 + 0.8,
-          o: Math.random() * 0.4 + 0.08,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 1.8 + 0.6,
+          o: Math.random() * 0.3 + 0.06,
         });
       }
     }
@@ -61,9 +61,9 @@ export default function NetworkParticles() {
           const dy = a.y - b.y;
           const d = Math.sqrt(dx * dx + dy * dy);
           if (d < LINK) {
-            const alpha = (1 - d / LINK) * 0.12;
-            ctx!.strokeStyle = `rgba(0, 200, 170, ${alpha})`;
-            ctx!.lineWidth = 0.6;
+            const alpha = (1 - d / LINK) * 0.08;
+            ctx!.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
+            ctx!.lineWidth = 0.5;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
             ctx!.lineTo(b.x, b.y);
@@ -73,7 +73,7 @@ export default function NetworkParticles() {
 
         ctx!.beginPath();
         ctx!.arc(a.x, a.y, a.r, 0, 6.283);
-        ctx!.fillStyle = `rgba(0, 200, 170, ${a.o})`;
+        ctx!.fillStyle = `rgba(0, 255, 204, ${a.o})`;
         ctx!.fill();
       }
 
@@ -89,5 +89,11 @@ export default function NetworkParticles() {
     };
   }, []);
 
-  return <canvas ref={ref} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }} />;
+  return (
+    <canvas
+      ref={ref}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
+    />
+  );
 }

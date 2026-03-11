@@ -174,7 +174,7 @@ TRACE_API_URL=<Trace backend URL>
 ### dashboard/.env.local
 
 ```
-NEXT_PUBLIC_RPC_URL=<Basis Network RPC URL>
+NEXT_PUBLIC_RPC_URL=https://rpc.basisnetwork.com.co
 NEXT_PUBLIC_CHAIN_ID=<chain ID>
 NEXT_PUBLIC_ENTERPRISE_REGISTRY_ADDRESS=<deployed address>
 NEXT_PUBLIC_TRACEABILITY_REGISTRY_ADDRESS=<deployed address>
