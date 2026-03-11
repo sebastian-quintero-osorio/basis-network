@@ -136,7 +136,7 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 | TraceConnector | `0x3ABC06a56b7F7Ec3711C8282B5B778CE8e34Dda0` | ERP commercial bridge |
 | ZKVerifier | `0x6e28B9DD35C752DF4a38040df31c9A82c5285aF2` | Groth16 proof verification |
 
-**On-chain activity:** 3 registered enterprises, 10+ demo transactions (PLASMA work orders, Trace sales, inventory, supplier), 1 verified ZK batch proof (4 transactions, 530K gas).
+**On-chain activity:** 4 registered enterprises, 9 traceability events (PLASMA work orders, Trace sales, inventory, supplier), 1 verified ZK batch proof (4 transactions via Groth16).
 
 ---
 
@@ -306,6 +306,8 @@ The blockchain is infrastructure, not the product. Revenue streams:
 |---|---|
 | Basis Network | [basisnetwork.com.co](https://basisnetwork.com.co) |
 | Dashboard | [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) |
+| Explorer | [explorer.basisnetwork.com.co](https://explorer.basisnetwork.com.co) |
+| RPC Endpoint | [rpc.basisnetwork.com.co](https://rpc.basisnetwork.com.co) |
 | Base Computing | [basecomputing.com.co](https://basecomputing.com.co) |
 | Trace ERP | [traceerp.com](https://traceerp.com) |
 | GitHub | [github.com/sebastian-quintero-osorio/basis-network](https://github.com/sebastian-quintero-osorio/basis-network) |
