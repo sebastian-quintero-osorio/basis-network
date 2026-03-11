@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:9650/ext/bc/C/rpc";
+const RPC_URL = process.env.RPC_URL || "https://rpc.basisnetwork.com.co";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 
 export function getProvider(): ethers.JsonRpcProvider {

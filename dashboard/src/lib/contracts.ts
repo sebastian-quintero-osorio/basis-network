@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "http://127.0.0.1:9650/ext/bc/C/rpc";
+const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "https://rpc.basisnetwork.com.co";
 
 export function getProvider(): ethers.JsonRpcProvider {
   return new ethers.JsonRpcProvider(RPC_URL);
@@ -22,24 +22,6 @@ export const TRACEABILITY_REGISTRY_ABI = [
   "function getEventsByEnterprise(address) view returns (bytes32[])",
   "function getEventsByType(bytes32) view returns (bytes32[])",
   "event EventRecorded(bytes32 indexed eventId, address indexed enterprise, bytes32 indexed eventType, bytes32 assetId, uint256 timestamp)",
-];
-
-export const PLASMA_CONNECTOR_ABI = [
-  "function totalOrders() view returns (uint256)",
-  "function completedOrders() view returns (uint256)",
-  "function getOpenOrders() view returns (bytes32[])",
-  "event MaintenanceOrderCreated(bytes32 indexed orderId, bytes32 indexed equipmentId, address indexed enterprise, uint8 priority, uint256 timestamp)",
-  "event MaintenanceOrderCompleted(bytes32 indexed orderId, uint256 timestamp, uint256 duration)",
-  "event EquipmentInspected(bytes32 indexed equipmentId, address indexed enterprise, uint256 timestamp)",
-];
-
-export const TRACE_CONNECTOR_ABI = [
-  "function totalSales() view returns (uint256)",
-  "function totalInventoryMovements() view returns (uint256)",
-  "function totalSupplierTransactions() view returns (uint256)",
-  "event SaleRecorded(bytes32 indexed saleId, bytes32 indexed productId, address indexed enterprise, uint256 amount, uint256 timestamp)",
-  "event InventoryMoved(bytes32 indexed productId, address indexed enterprise, int256 quantity, uint256 timestamp)",
-  "event SupplierTransactionRecorded(bytes32 indexed supplierId, bytes32 indexed productId, address indexed enterprise, uint256 timestamp)",
 ];
 
 export const ZK_VERIFIER_ABI = [
@@ -65,62 +47,85 @@ function decodeBytes32(val: string): string {
   }
 }
 
-interface Activity {
+function truncateAddress(addr: string): string {
+  return addr.slice(0, 6) + "..." + addr.slice(-4);
+}
+
+export interface BlockInfo {
+  number: number;
+  timestamp: number;
+  transactions: number;
+}
+
+export interface Enterprise {
+  address: string;
+  name: string;
+  active: boolean;
+  registeredAt: string;
+}
+
+export interface Activity {
   type: string;
   description: string;
   timestamp: string;
   blockNumber: number;
 }
 
-export async function fetchRecentActivities(provider: ethers.JsonRpcProvider): Promise<Activity[]> {
-  const plasmaAddr = process.env.NEXT_PUBLIC_PLASMA_CONNECTOR_ADDRESS;
-  const traceAddr = process.env.NEXT_PUBLIC_TRACE_CONNECTOR_ADDRESS;
-  const zkAddr = process.env.NEXT_PUBLIC_ZK_VERIFIER_ADDRESS;
+export async function fetchRecentBlocks(
+  provider: ethers.JsonRpcProvider,
+  count: number = 8
+): Promise<BlockInfo[]> {
+  const blockNumber = await provider.getBlockNumber();
+  const promises = [];
+  for (let i = 0; i < count && blockNumber - i >= 0; i++) {
+    promises.push(provider.getBlock(blockNumber - i));
+  }
+  const blocks = await Promise.all(promises);
+  return blocks
+    .filter((b): b is ethers.Block => b !== null)
+    .map((b) => ({
+      number: b.number,
+      timestamp: b.timestamp,
+      transactions: b.transactions.length,
+    }));
+}
+
+export async function fetchRecentActivities(
+  provider: ethers.JsonRpcProvider
+): Promise<Activity[]> {
   const registryAddr = process.env.NEXT_PUBLIC_ENTERPRISE_REGISTRY_ADDRESS;
+  const traceRegAddr = process.env.NEXT_PUBLIC_TRACEABILITY_REGISTRY_ADDRESS;
+  const zkAddr = process.env.NEXT_PUBLIC_ZK_VERIFIER_ADDRESS;
 
   const currentBlock = await provider.getBlockNumber();
   const fromBlock = Math.max(0, currentBlock - 1000);
 
   const activities: Activity[] = [];
-
   const queries: Promise<void>[] = [];
 
-  if (plasmaAddr) {
-    const plasma = new ethers.Contract(plasmaAddr, PLASMA_CONNECTOR_ABI, provider);
+  if (registryAddr) {
+    const registry = new ethers.Contract(registryAddr, ENTERPRISE_REGISTRY_ABI, provider);
     queries.push(
-      plasma.queryFilter(plasma.filters.MaintenanceOrderCreated(), fromBlock).then((events) => {
+      registry.queryFilter(registry.filters.EnterpriseRegistered(), fromBlock).then((events) => {
         for (const ev of events) {
           const log = ev as ethers.EventLog;
           activities.push({
-            type: "plasma",
-            description: `Work order ${decodeBytes32(log.args[0])} created for ${decodeBytes32(log.args[1])} (priority ${log.args[3]})`,
-            timestamp: new Date(Number(log.args[4]) * 1000).toLocaleDateString(),
-            blockNumber: log.blockNumber,
-          });
-        }
-      }).catch(() => {})
-    );
-    queries.push(
-      plasma.queryFilter(plasma.filters.MaintenanceOrderCompleted(), fromBlock).then((events) => {
-        for (const ev of events) {
-          const log = ev as ethers.EventLog;
-          activities.push({
-            type: "plasma",
-            description: `Work order ${decodeBytes32(log.args[0])} completed`,
-            timestamp: new Date(Number(log.args[1]) * 1000).toLocaleDateString(),
-            blockNumber: log.blockNumber,
-          });
-        }
-      }).catch(() => {})
-    );
-    queries.push(
-      plasma.queryFilter(plasma.filters.EquipmentInspected(), fromBlock).then((events) => {
-        for (const ev of events) {
-          const log = ev as ethers.EventLog;
-          activities.push({
-            type: "plasma",
-            description: `Equipment ${decodeBytes32(log.args[0])} inspected`,
+            type: "registry",
+            description: `Enterprise "${log.args[1]}" registered`,
             timestamp: new Date(Number(log.args[2]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+    queries.push(
+      registry.queryFilter(registry.filters.EnterpriseDeactivated(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "registry",
+            description: `Enterprise ${truncateAddress(log.args[0])} deactivated`,
+            timestamp: new Date(Number(log.args[1]) * 1000).toLocaleDateString(),
             blockNumber: log.blockNumber,
           });
         }
@@ -128,42 +133,16 @@ export async function fetchRecentActivities(provider: ethers.JsonRpcProvider): P
     );
   }
 
-  if (traceAddr) {
-    const trace = new ethers.Contract(traceAddr, TRACE_CONNECTOR_ABI, provider);
+  if (traceRegAddr) {
+    const traceReg = new ethers.Contract(traceRegAddr, TRACEABILITY_REGISTRY_ABI, provider);
     queries.push(
-      trace.queryFilter(trace.filters.SaleRecorded(), fromBlock).then((events) => {
+      traceReg.queryFilter(traceReg.filters.EventRecorded(), fromBlock).then((events) => {
         for (const ev of events) {
           const log = ev as ethers.EventLog;
           activities.push({
-            type: "trace",
-            description: `Sale ${decodeBytes32(log.args[0])} recorded: ${decodeBytes32(log.args[1])} (${log.args[3]} units)`,
+            type: "traceability",
+            description: `Event recorded by ${truncateAddress(log.args[1])} (type: ${decodeBytes32(log.args[2])}, asset: ${decodeBytes32(log.args[3])})`,
             timestamp: new Date(Number(log.args[4]) * 1000).toLocaleDateString(),
-            blockNumber: log.blockNumber,
-          });
-        }
-      }).catch(() => {})
-    );
-    queries.push(
-      trace.queryFilter(trace.filters.InventoryMoved(), fromBlock).then((events) => {
-        for (const ev of events) {
-          const log = ev as ethers.EventLog;
-          activities.push({
-            type: "trace",
-            description: `Inventory movement: ${decodeBytes32(log.args[0])} (${log.args[2]} units)`,
-            timestamp: new Date(Number(log.args[3]) * 1000).toLocaleDateString(),
-            blockNumber: log.blockNumber,
-          });
-        }
-      }).catch(() => {})
-    );
-    queries.push(
-      trace.queryFilter(trace.filters.SupplierTransactionRecorded(), fromBlock).then((events) => {
-        for (const ev of events) {
-          const log = ev as ethers.EventLog;
-          activities.push({
-            type: "trace",
-            description: `Supplier ${decodeBytes32(log.args[0])} transaction: ${decodeBytes32(log.args[1])}`,
-            timestamp: new Date(Number(log.args[3]) * 1000).toLocaleDateString(),
             blockNumber: log.blockNumber,
           });
         }
@@ -173,6 +152,19 @@ export async function fetchRecentActivities(provider: ethers.JsonRpcProvider): P
 
   if (zkAddr) {
     const zk = new ethers.Contract(zkAddr, ZK_VERIFIER_ABI, provider);
+    queries.push(
+      zk.queryFilter(zk.filters.BatchSubmitted(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "zk",
+            description: `ZK batch submitted with ${log.args[3]} transactions`,
+            timestamp: new Date(Number(log.args[4]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
     queries.push(
       zk.queryFilter(zk.filters.BatchVerified(), fromBlock).then((events) => {
         for (const ev of events) {
@@ -188,26 +180,7 @@ export async function fetchRecentActivities(provider: ethers.JsonRpcProvider): P
     );
   }
 
-  if (registryAddr) {
-    const registry = new ethers.Contract(registryAddr, ENTERPRISE_REGISTRY_ABI, provider);
-    queries.push(
-      registry.queryFilter(registry.filters.EnterpriseRegistered(), fromBlock).then((events) => {
-        for (const ev of events) {
-          const log = ev as ethers.EventLog;
-          activities.push({
-            type: "enterprise",
-            description: `Enterprise "${log.args[1]}" registered`,
-            timestamp: new Date(Number(log.args[2]) * 1000).toLocaleDateString(),
-            blockNumber: log.blockNumber,
-          });
-        }
-      }).catch(() => {})
-    );
-  }
-
   await Promise.all(queries);
-
   activities.sort((a, b) => b.blockNumber - a.blockNumber);
-
   return activities;
 }

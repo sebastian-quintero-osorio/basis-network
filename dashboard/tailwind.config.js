@@ -7,16 +7,21 @@ module.exports = {
     extend: {
       colors: {
         basis: {
-          cyan: "#00C8AA",
-          teal: "#0CF5C8",
-          purple: "#8B5CF6",
-          navy: "#1A1A2E",
-          slate: "#64748B",
-          faint: "#94A3B8",
+          cyan: "#00FFCC",
+          sky: "#00CCFF",
+          mint: "#A7F3D0",
+          ice: "#67E8F9",
+          periwinkle: "#93C5FD",
+          blue: "#7aa5ff",
         },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+      },
+      boxShadow: {
+        glass: '0 10px 30px rgba(31, 38, 135, 0.2)',
+        'glass-hover': '0 16px 40px rgba(31, 38, 135, 0.25)',
       },
     },
   },

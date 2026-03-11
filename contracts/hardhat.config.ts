@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000001";
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:9650/ext/bc/C/rpc";
+const RPC_URL = process.env.RPC_URL || "https://rpc.basisnetwork.com.co";
 const CHAIN_ID = parseInt(process.env.CHAIN_ID || "43199");
 
 const config: HardhatUserConfig = {
