@@ -261,13 +261,14 @@ graph TB
     style Deploy fill:#0f0f1a,stroke:#f5a623,color:#fff
 ```
 
-The dashboard displays:
+The dashboard is deployed at [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) and provides four views:
 
-- Registered enterprises and their status
-- Real-time transaction activity (auto-refresh every 10s)
-- Event breakdown by type (maintenance, sales, inventory, inspections)
-- Network metrics (block height, gas price confirming zero-fee)
-- ZK proof verification history and batch summaries
+- **Overview** -- block height, gas price, enterprise count, ZK batch stats, recent blocks
+- **Enterprises** -- registered enterprises, authorization status, registration dates
+- **Activity** -- real-time event feed with type badges (auto-refresh every 10s)
+- **Modules** -- deployed protocol components and their status
+
+Ecosystem navigation links connect the dashboard to the landing page and block explorer.
 
 ---
 

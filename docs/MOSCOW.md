@@ -31,9 +31,9 @@
 |---|---|---|---|
 | C1 | AWM cross-chain communication demo | contracts | Planned |
 | C2 | Stress test results (1000+ transactions) | docs | Planned |
-| C3 | CI/CD pipeline with GitHub Actions | .github | Planned |
-| C4 | Block explorer integration | l1-config | Planned |
-| C5 | Network monitoring dashboard | dashboard | Planned |
+| C3 | CI/CD pipeline with GitHub Actions | .github | Complete |
+| C4 | Block explorer (Blockscout) | infra | Live |
+| C5 | Network monitoring dashboard with real-time data | dashboard | Live |
 
 ## Will Not Have (post-competition roadmap)
 

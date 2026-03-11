@@ -2,6 +2,23 @@
 
 Step-by-step guide for deploying Basis Network on Avalanche Fuji Testnet.
 
+## Current Deployment
+
+Basis Network is live on Avalanche Fuji Testnet with the following infrastructure:
+
+| Resource | Value |
+|---|---|
+| Subnet ID | `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx` |
+| Blockchain ID | `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX` |
+| Chain ID | `43199` |
+| RPC | [rpc.basisnetwork.com.co](https://rpc.basisnetwork.com.co) |
+| Validator | DigitalOcean droplet (`144.126.220.103`) |
+| Node ID | `NodeID-CVmwsLFTjkAzmWp3DJW74z8VYnfqamWsx` |
+| Dashboard | [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) |
+| Explorer | [explorer.basisnetwork.com.co](https://explorer.basisnetwork.com.co) |
+
+The RPC endpoint is proxied via Nginx with SSL (Let's Encrypt) and CORS headers for browser access.
+
 ---
 
 ## Prerequisites
@@ -92,10 +109,10 @@ Save all of these values.
 
 Add a custom network in MetaMask:
 - **Network Name:** Basis Network (Fuji)
-- **RPC URL:** The URL from step 5
-- **Chain ID:** Your chosen chain ID
+- **RPC URL:** `https://rpc.basisnetwork.com.co`
+- **Chain ID:** `43199`
 - **Currency Symbol:** LITHOS
-- **Block Explorer URL:** (leave blank or add if configured)
+- **Block Explorer URL:** `https://explorer.basisnetwork.com.co`
 
 ## 7. Deploy Smart Contracts
 
@@ -124,6 +141,11 @@ npm run start
 For production deployment on Vercel:
 ```bash
 npx vercel --prod
+```
+
+All `NEXT_PUBLIC_*` variables must also be set in the Vercel project settings under Environment Variables (Production scope). Use `printf` when adding values via CLI to avoid trailing newlines:
+```bash
+printf '<value>' | npx vercel env add NEXT_PUBLIC_RPC_URL production
 ```
 
 ## 9. Run the Adapter
@@ -175,12 +197,12 @@ TRACE_API_URL=<Trace backend URL>
 
 ```
 NEXT_PUBLIC_RPC_URL=https://rpc.basisnetwork.com.co
-NEXT_PUBLIC_CHAIN_ID=<chain ID>
+NEXT_PUBLIC_CHAIN_ID=43199
 NEXT_PUBLIC_ENTERPRISE_REGISTRY_ADDRESS=<deployed address>
 NEXT_PUBLIC_TRACEABILITY_REGISTRY_ADDRESS=<deployed address>
+NEXT_PUBLIC_ZK_VERIFIER_ADDRESS=<deployed address>
 NEXT_PUBLIC_PLASMA_CONNECTOR_ADDRESS=<deployed address>
 NEXT_PUBLIC_TRACE_CONNECTOR_ADDRESS=<deployed address>
-NEXT_PUBLIC_ZK_VERIFIER_ADDRESS=<deployed address>
 ```
 
 ---
