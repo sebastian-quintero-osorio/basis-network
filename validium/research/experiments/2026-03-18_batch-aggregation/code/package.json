@@ -1,0 +1,17 @@
+{
+  "name": "batch-aggregation-experiment",
+  "version": "1.0.0",
+  "description": "RU-V4: Transaction queue and batch aggregation benchmarks for enterprise validium node",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "npx tsx src/benchmark.ts",
+    "test:determinism": "npx tsx src/test-determinism.ts",
+    "test:crash": "npx tsx src/test-crash-recovery.ts",
+    "test:all": "npx tsx src/benchmark.ts && npx tsx src/test-determinism.ts && npx tsx src/test-crash-recovery.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,1244 @@
+[
+  {
+    "strategy": "SIZE",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "15980.94",
+      "stdev": "2349.27",
+      "ci95_lower": "15140.26",
+      "ci95_upper": "16821.62",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0149",
+      "stdev": "0.0027",
+      "p95": "0.0149",
+      "p99": "0.0149",
+      "ci95_lower": "0.0139",
+      "ci95_upper": "0.0158",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "170.1",
+      "p95": "259.8"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "8.29"
+  },
+  {
+    "strategy": "TIME",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "0.00",
+      "stdev": "0.00",
+      "ci95_lower": "0.00",
+      "ci95_upper": "0.00",
+      "ci_within_10pct": true,
+      "meets_target": false
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0000",
+      "stdev": "0.0000",
+      "p95": "0.0000",
+      "p99": "0.0000",
+      "ci95_lower": "0.0000",
+      "ci95_upper": "0.0000",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "148.2",
+      "p95": "215.8"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "0.00",
+      "total": 0
+    },
+    "memoryMB": "8.50"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "18528.33",
+      "stdev": "1400.64",
+      "ci95_lower": "18027.12",
+      "ci95_upper": "19029.54",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0100",
+      "stdev": "0.0037",
+      "p95": "0.0100",
+      "p99": "0.0100",
+      "ci95_lower": "0.0087",
+      "ci95_upper": "0.0113",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "149.2",
+      "p95": "222.9"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "8.51"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 4,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "210324.22",
+      "stdev": "8099.77",
+      "ci95_lower": "207425.76",
+      "ci95_upper": "213222.69",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0095",
+      "stdev": "0.0009",
+      "p95": "0.0123",
+      "p99": "0.0123",
+      "ci95_lower": "0.0092",
+      "ci95_upper": "0.0099",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "147.3",
+      "p95": "222.9"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "7.00",
+      "total": 210
+    },
+    "memoryMB": "8.67"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 8,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "161795.46",
+      "stdev": "11767.88",
+      "ci95_lower": "157584.38",
+      "ci95_upper": "166006.55",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0111",
+      "stdev": "0.0026",
+      "p95": "0.0134",
+      "p99": "0.0134",
+      "ci95_lower": "0.0102",
+      "ci95_upper": "0.0120",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "145.4",
+      "p95": "227.3"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "3.00",
+      "total": 90
+    },
+    "memoryMB": "8.61"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "19178.11",
+      "stdev": "905.48",
+      "ci95_lower": "18854.09",
+      "ci95_upper": "19502.13",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0095",
+      "stdev": "0.0004",
+      "p95": "0.0095",
+      "p99": "0.0095",
+      "ci95_lower": "0.0094",
+      "ci95_upper": "0.0096",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "143.4",
+      "p95": "212.6"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "8.71"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 32,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "0.00",
+      "stdev": "0.00",
+      "ci95_lower": "0.00",
+      "ci95_upper": "0.00",
+      "ci_within_10pct": true,
+      "meets_target": false
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0000",
+      "stdev": "0.0000",
+      "p95": "0.0000",
+      "p99": "0.0000",
+      "ci95_lower": "0.0000",
+      "ci95_upper": "0.0000",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "157.4",
+      "p95": "228.5"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "0.00",
+      "total": 0
+    },
+    "memoryMB": "8.60"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 64,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "0.00",
+      "stdev": "0.00",
+      "ci95_lower": "0.00",
+      "ci95_upper": "0.00",
+      "ci_within_10pct": true,
+      "meets_target": false
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0000",
+      "stdev": "0.0000",
+      "p95": "0.0000",
+      "p99": "0.0000",
+      "ci95_lower": "0.0000",
+      "ci95_upper": "0.0000",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "152.7",
+      "p95": "200.0"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "0.00",
+      "total": 0
+    },
+    "memoryMB": "8.62"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 50,
+    "replications": 30,
+    "throughput": {
+      "mean": "0.00",
+      "stdev": "0.00",
+      "ci95_lower": "0.00",
+      "ci95_upper": "0.00",
+      "ci_within_10pct": true,
+      "meets_target": false
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0000",
+      "stdev": "0.0000",
+      "p95": "0.0000",
+      "p99": "0.0000",
+      "ci95_lower": "0.0000",
+      "ci95_upper": "0.0000",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "165.9",
+      "p95": "243.7"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "0.00",
+      "total": 0
+    },
+    "memoryMB": "8.98"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 100,
+    "replications": 30,
+    "throughput": {
+      "mean": "0.00",
+      "stdev": "0.00",
+      "ci95_lower": "0.00",
+      "ci95_upper": "0.00",
+      "ci_within_10pct": true,
+      "meets_target": false
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0000",
+      "stdev": "0.0000",
+      "p95": "0.0000",
+      "p99": "0.0000",
+      "ci95_lower": "0.0000",
+      "ci95_upper": "0.0000",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "163.3",
+      "p95": "265.4"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "0.00",
+      "total": 0
+    },
+    "memoryMB": "8.54"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "17867.00",
+      "stdev": "1668.44",
+      "ci95_lower": "17269.96",
+      "ci95_upper": "18464.05",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0129",
+      "stdev": "0.0062",
+      "p95": "0.0129",
+      "p99": "0.0129",
+      "ci95_lower": "0.0107",
+      "ci95_upper": "0.0151",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "155.3",
+      "p95": "244.1"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "8.70"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 500,
+    "replications": 30,
+    "throughput": {
+      "mean": "206656.35",
+      "stdev": "12157.55",
+      "ci95_lower": "202305.83",
+      "ci95_upper": "211006.88",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0220",
+      "stdev": "0.0385",
+      "p95": "0.0502",
+      "p99": "0.0502",
+      "ci95_lower": "0.0082",
+      "ci95_upper": "0.0358",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "141.6",
+      "p95": "195.8"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "4.00",
+      "total": 120
+    },
+    "memoryMB": "8.76"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 1000,
+    "replications": 30,
+    "throughput": {
+      "mean": "274437.70",
+      "stdev": "15358.44",
+      "ci95_lower": "268941.76",
+      "ci95_upper": "279933.65",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0148",
+      "stdev": "0.0019",
+      "p95": "0.0240",
+      "p99": "0.0240",
+      "ci95_lower": "0.0141",
+      "ci95_upper": "0.0155",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "140.6",
+      "p95": "191.6"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "9.00",
+      "total": 270
+    },
+    "memoryMB": "9.10"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 1000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "18019.76",
+      "stdev": "1098.13",
+      "ci95_lower": "17626.80",
+      "ci95_upper": "18412.72",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0115",
+      "stdev": "0.0041",
+      "p95": "0.0115",
+      "p99": "0.0115",
+      "ci95_lower": "0.0101",
+      "ci95_upper": "0.0130",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "152.7",
+      "p95": "226.8"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "9.83"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "17943.81",
+      "stdev": "1414.96",
+      "ci95_lower": "17437.48",
+      "ci95_upper": "18450.15",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0113",
+      "stdev": "0.0055",
+      "p95": "0.0113",
+      "p99": "0.0113",
+      "ci95_lower": "0.0094",
+      "ci95_upper": "0.0133",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "156.1",
+      "p95": "244.8"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "9.90"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 5000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "18006.94",
+      "stdev": "1564.31",
+      "ci95_lower": "17447.16",
+      "ci95_upper": "18566.73",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0104",
+      "stdev": "0.0014",
+      "p95": "0.0104",
+      "p99": "0.0104",
+      "ci95_lower": "0.0099",
+      "ci95_upper": "0.0109",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "155.9",
+      "p95": "230.1"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "9.96"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "14149.79",
+      "stdev": "966.35",
+      "ci95_lower": "13803.98",
+      "ci95_upper": "14495.59",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0102",
+      "stdev": "0.0035",
+      "p95": "0.0102",
+      "p99": "0.0102",
+      "ci95_lower": "0.0089",
+      "ci95_upper": "0.0114",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "209.6",
+      "p95": "274.9"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "9.61"
+  },
+  {
+    "strategy": "HYBRID",
+    "sizeThreshold": 16,
+    "timeThresholdMs": 2000,
+    "arrivalRate": 200,
+    "replications": 30,
+    "throughput": {
+      "mean": "17480.89",
+      "stdev": "1301.88",
+      "ci95_lower": "17015.02",
+      "ci95_upper": "17946.77",
+      "ci_within_10pct": true,
+      "meets_target": true
+    },
+    "batchFormationLatencyMs": {
+      "mean": "0.0133",
+      "stdev": "0.0085",
+      "p95": "0.0133",
+      "p99": "0.0133",
+      "ci95_lower": "0.0102",
+      "ci95_upper": "0.0163",
+      "meets_target": true
+    },
+    "walWriteLatencyUs": {
+      "mean": "159.1",
+      "p95": "257.9"
+    },
+    "txLoss": {
+      "total": 0,
+      "perReplication": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "zeroLoss": true
+    },
+    "batchesFormed": {
+      "mean": "1.00",
+      "total": 30
+    },
+    "memoryMB": "9.81"
+  }
+]

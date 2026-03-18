@@ -1,0 +1,26 @@
+{
+  "name": "batch-aggregation",
+  "target": "validium",
+  "title": "Transaction Queue with WAL Persistence and Configurable Batch Aggregation for Enterprise Validium Node",
+  "hypothesis": "A persistent transaction queue with write-ahead logging and configurable batch aggregation (size-based, time-based, hybrid) can sustain 100+ tx/min throughput with batch formation latency under 5 seconds, guarantee zero transaction loss under crash recovery, and produce deterministic batches (identical transaction sets yield identical batch outputs).",
+  "null_hypothesis": "Either throughput degrades below 100 tx/min under sustained load, batch formation latency exceeds 5 seconds, crash recovery loses transactions, or batch formation is non-deterministic.",
+  "domain": "l2-architecture",
+  "independent_variables": [
+    "batch_size_threshold",
+    "batch_time_threshold_ms",
+    "aggregation_strategy",
+    "transaction_arrival_rate",
+    "crash_timing"
+  ],
+  "dependent_variables": [
+    "throughput_tx_per_min",
+    "batch_formation_latency_ms",
+    "crash_recovery_tx_loss_count",
+    "batch_determinism_pass",
+    "wal_write_latency_us",
+    "wal_recovery_time_ms",
+    "memory_usage_bytes"
+  ],
+  "stage": 1,
+  "created": "2026-03-18"
+}

@@ -1,0 +1,42 @@
+{
+  "scenarios": [
+    {
+      "scenario": "crash_after_enqueue",
+      "replications": 30,
+      "passed": 30,
+      "failed": 0,
+      "zeroLoss": true
+    },
+    {
+      "scenario": "crash_mid_batch",
+      "replications": 30,
+      "passed": 30,
+      "failed": 0,
+      "zeroLoss": true
+    },
+    {
+      "scenario": "corrupted_wal_entry",
+      "replications": 30,
+      "passed": 30,
+      "failed": 0,
+      "zeroLoss": true
+    },
+    {
+      "scenario": "crash_after_checkpoint",
+      "replications": 30,
+      "passed": 30,
+      "failed": 0,
+      "zeroLoss": true
+    },
+    {
+      "scenario": "multiple_sequential_crashes",
+      "replications": 30,
+      "passed": 30,
+      "failed": 0,
+      "zeroLoss": true
+    }
+  ],
+  "allPassed": true,
+  "totalTests": 150,
+  "totalPassed": 150
+}
