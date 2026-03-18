@@ -1,0 +1,796 @@
+DIGEST c552c066ce1490d04f1a7029fa6da973
+FEN.Spec
+R734:739 EN.Common <> <> lib
+R769:778 Stdlib.Lists.List <> <> lib
+R808:816 Stdlib.Bool.Bool <> <> lib
+R846:848 Stdlib.micromega.Lia <> <> lib
+R859:871 Stdlib.Lists.List ListNotations <> mod
+mod 882:885 <> Spec
+rec 1129:1133 Spec State
+proj 1150:1158 Spec nodeState
+proj 1207:1213 Spec txQueue
+proj 1284:1286 Spec wal
+proj 1348:1360 Spec walCheckpoint
+proj 1427:1434 Spec smtState
+proj 1508:1515 Spec batchTxs
+proj 1584:1595 Spec batchPrevSmt
+proj 1664:1670 Spec l1State
+proj 1739:1749 Spec dataExposed
+proj 1815:1821 Spec pending
+proj 1883:1892 Spec crashCount
+proj 1948:1959 Spec timerExpired
+R1166:1174 EN.Common <> NodeState ind
+R1223:1226 Corelib.Init.Datatypes <> list ind
+R1228:1229 EN.Common <> Tx defax
+R1300:1303 Corelib.Init.Datatypes <> list ind
+R1305:1306 EN.Common <> Tx defax
+R1364:1366 Corelib.Init.Datatypes <> nat ind
+R1443:1447 EN.Common <> TxSet def
+R1524:1527 Corelib.Init.Datatypes <> list ind
+R1529:1530 EN.Common <> Tx defax
+R1600:1604 EN.Common <> TxSet def
+R1680:1684 EN.Common <> TxSet def
+R1755:1759 EN.Common <> DKSet def
+R1831:1835 EN.Common <> TxSet def
+R1899:1901 Corelib.Init.Datatypes <> nat ind
+R1964:1967 Corelib.Init.Datatypes <> bool ind
+def 2194:2203 Spec init_state
+R2207:2211 EN.Spec Spec State rec
+R2218:2224 EN.Spec Spec mkState constr
+R2230:2233 EN.Common <> Idle constr
+R2279:2280 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2325:2326 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2415:2425 EN.Common <> empty_txset def
+R2459:2460 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2506:2516 EN.Common <> empty_txset def
+R2554:2564 EN.Common <> empty_txset def
+R2597:2604 EN.Common <> dk_empty def
+R2644:2653 EN.Common <> full_txset def
+R2736:2740 Corelib.Init.Datatypes <> false constr
+def 2992:3005 Spec receive_tx_pre
+R3012:3016 EN.Spec Spec State rec
+binder 3008:3008 <> s:14
+R3025:3026 EN.Common <> Tx defax
+binder 3020:3021 <> tx:15
+R3053:3059 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3161:3161 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3041:3047 EN.Spec Spec pending proj
+R3049:3049 EN.Spec <> s:14 var
+R3051:3052 EN.Spec <> tx:15 var
+R3078:3081 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3071:3073 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3060:3068 EN.Spec Spec nodeState proj
+R3070:3070 EN.Spec <> s:14 var
+R3074:3077 EN.Common <> Idle constr
+R3105:3111 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3093:3095 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3082:3090 EN.Spec Spec nodeState proj
+R3092:3092 EN.Spec <> s:14 var
+R3096:3104 EN.Common <> Receiving constr
+R3133:3136 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3123:3125 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3112:3120 EN.Spec Spec nodeState proj
+R3122:3122 EN.Spec <> s:14 var
+R3126:3132 EN.Common <> Proving constr
+R3148:3150 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3137:3145 EN.Spec Spec nodeState proj
+R3147:3147 EN.Spec <> s:14 var
+R3151:3160 EN.Common <> Submitting constr
+def 3228:3242 Spec check_queue_pre
+R3249:3253 EN.Spec Spec State rec
+binder 3245:3245 <> s:16
+R3286:3289 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3279:3281 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3268:3276 EN.Spec Spec nodeState proj
+R3278:3278 EN.Spec <> s:16 var
+R3282:3285 EN.Common <> Idle constr
+R3308:3310 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R3290:3295 Corelib.Init.Datatypes <> length def
+R3298:3304 EN.Spec Spec txQueue proj
+R3306:3306 EN.Spec <> s:16 var
+def 3377:3390 Spec form_batch_pre
+R3397:3401 EN.Spec Spec State rec
+binder 3393:3393 <> s:17
+R3439:3445 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3538:3538 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3427:3429 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3416:3424 EN.Spec Spec nodeState proj
+R3426:3426 EN.Spec <> s:17 var
+R3430:3438 EN.Common <> Receiving constr
+R3482:3489 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3537:3537 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3464:3467 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R3446:3451 Corelib.Init.Datatypes <> length def
+R3454:3460 EN.Spec Spec txQueue proj
+R3462:3462 EN.Spec <> s:17 var
+R3468:3481 EN.Common <> BatchThreshold defax
+R3511:3514 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3504:3506 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3490:3501 EN.Spec Spec timerExpired proj
+R3503:3503 EN.Spec <> s:17 var
+R3507:3510 Corelib.Init.Datatypes <> true constr
+R3533:3535 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R3515:3520 Corelib.Init.Datatypes <> length def
+R3523:3529 EN.Spec Spec txQueue proj
+R3531:3531 EN.Spec <> s:17 var
+def 3610:3624 Spec gen_witness_pre
+R3631:3635 EN.Spec Spec State rec
+binder 3627:3627 <> s:18
+R3672:3675 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3661:3663 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3650:3658 EN.Spec Spec nodeState proj
+R3660:3660 EN.Spec <> s:18 var
+R3664:3671 EN.Common <> Batching constr
+R3695:3697 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R3676:3681 Corelib.Init.Datatypes <> length def
+R3684:3691 EN.Spec Spec batchTxs proj
+R3693:3693 EN.Spec <> s:18 var
+def 3763:3775 Spec gen_proof_pre
+R3782:3786 EN.Spec Spec State rec
+binder 3778:3778 <> s:19
+R3812:3814 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3801:3809 EN.Spec Spec nodeState proj
+R3811:3811 EN.Spec <> s:19 var
+R3815:3821 EN.Common <> Proving constr
+def 3884:3899 Spec submit_batch_pre
+R3906:3910 EN.Spec Spec State rec
+binder 3902:3902 <> s:20
+R3936:3938 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3925:3933 EN.Spec Spec nodeState proj
+R3935:3935 EN.Spec <> s:20 var
+R3939:3948 EN.Common <> Submitting constr
+def 4012:4028 Spec confirm_batch_pre
+R4035:4039 EN.Spec Spec State rec
+binder 4031:4031 <> s:21
+R4065:4067 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4054:4062 EN.Spec Spec nodeState proj
+R4064:4064 EN.Spec <> s:21 var
+R4068:4077 EN.Common <> Submitting constr
+def 4139:4147 Spec crash_pre
+R4154:4158 EN.Spec Spec State rec
+binder 4150:4150 <> s:22
+R4173:4173 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4279:4285 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4197:4200 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4185:4187 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4174:4182 EN.Spec Spec nodeState proj
+R4184:4184 EN.Spec <> s:22 var
+R4188:4196 EN.Common <> Receiving constr
+R4223:4229 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4212:4214 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4201:4209 EN.Spec Spec nodeState proj
+R4211:4211 EN.Spec <> s:22 var
+R4215:4222 EN.Common <> Batching constr
+R4251:4254 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4241:4243 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4230:4238 EN.Spec Spec nodeState proj
+R4240:4240 EN.Spec <> s:22 var
+R4244:4250 EN.Common <> Proving constr
+R4266:4268 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4255:4263 EN.Spec Spec nodeState proj
+R4265:4265 EN.Spec <> s:22 var
+R4269:4278 EN.Common <> Submitting constr
+R4298:4300 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R4286:4295 EN.Spec Spec crashCount proj
+R4297:4297 EN.Spec <> s:22 var
+R4301:4310 EN.Common <> MaxCrashes defax
+def 4370:4382 Spec l1_reject_pre
+R4389:4393 EN.Spec Spec State rec
+binder 4385:4385 <> s:23
+R4419:4421 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4408:4416 EN.Spec Spec nodeState proj
+R4418:4418 EN.Spec <> s:23 var
+R4422:4431 EN.Common <> Submitting constr
+def 4488:4496 Spec retry_pre
+R4503:4507 EN.Spec Spec State rec
+binder 4499:4499 <> s:24
+R4533:4535 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4522:4530 EN.Spec Spec nodeState proj
+R4532:4532 EN.Spec <> s:24 var
+R4536:4540 EN.Common <> Error constr
+def 4606:4619 Spec timer_tick_pre
+R4626:4630 EN.Spec Spec State rec
+binder 4622:4622 <> s:25
+R4668:4673 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4656:4658 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4645:4653 EN.Spec Spec nodeState proj
+R4655:4655 EN.Spec <> s:25 var
+R4659:4667 EN.Common <> Receiving constr
+R4696:4701 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4688:4690 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4674:4685 EN.Spec Spec timerExpired proj
+R4687:4687 EN.Spec <> s:25 var
+R4691:4695 Corelib.Init.Datatypes <> false constr
+R4720:4722 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R4702:4707 Corelib.Init.Datatypes <> length def
+R4710:4716 EN.Spec Spec txQueue proj
+R4718:4718 EN.Spec <> s:25 var
+def 4784:4791 Spec done_pre
+R4798:4802 EN.Spec Spec State rec
+binder 4794:4794 <> s:26
+R4840:4845 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4826:4828 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4817:4823 EN.Spec Spec pending proj
+R4825:4825 EN.Spec <> s:26 var
+R4829:4839 EN.Common <> empty_txset def
+R4868:4873 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4864:4866 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4846:4851 Corelib.Init.Datatypes <> length def
+R4854:4860 EN.Spec Spec txQueue proj
+R4862:4862 EN.Spec <> s:26 var
+R4897:4902 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4893:4895 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4874:4879 Corelib.Init.Datatypes <> length def
+R4882:4889 EN.Spec Spec batchTxs proj
+R4891:4891 EN.Spec <> s:26 var
+R4914:4916 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4903:4911 EN.Spec Spec nodeState proj
+R4913:4913 EN.Spec <> s:26 var
+R4917:4920 EN.Common <> Idle constr
+def 5225:5234 Spec receive_tx
+R5241:5245 EN.Spec Spec State rec
+binder 5237:5237 <> s:27
+R5254:5255 EN.Common <> Tx defax
+binder 5249:5250 <> tx:28
+R5260:5264 EN.Spec Spec State rec
+R5271:5277 EN.Spec Spec mkState constr
+R5287:5302 EN.Common <> NodeState_eq_dec def
+R5305:5313 EN.Spec Spec nodeState proj
+R5315:5315 EN.Spec <> s:27 var
+R5318:5321 EN.Common <> Idle constr
+R5348:5356 EN.Spec Spec nodeState proj
+R5358:5358 EN.Spec <> s:27 var
+R5328:5336 EN.Common <> Receiving constr
+R5375:5378 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R5366:5372 EN.Spec Spec txQueue proj
+R5374:5374 EN.Spec <> s:27 var
+R5379:5379 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5382:5382 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5380:5381 EN.Spec <> tx:28 var
+R5395:5398 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R5390:5392 EN.Spec Spec wal proj
+R5394:5394 EN.Spec <> s:27 var
+R5399:5399 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5402:5402 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R5400:5401 EN.Spec <> tx:28 var
+R5410:5422 EN.Spec Spec walCheckpoint proj
+R5424:5424 EN.Spec <> s:27 var
+R5432:5439 EN.Spec Spec smtState proj
+R5441:5441 EN.Spec <> s:27 var
+R5449:5456 EN.Spec Spec batchTxs proj
+R5458:5458 EN.Spec <> s:27 var
+R5466:5477 EN.Spec Spec batchPrevSmt proj
+R5479:5479 EN.Spec <> s:27 var
+R5487:5493 EN.Spec Spec l1State proj
+R5495:5495 EN.Spec <> s:27 var
+R5503:5513 EN.Spec Spec dataExposed proj
+R5515:5515 EN.Spec <> s:27 var
+R5523:5532 EN.Common <> set_remove def
+R5535:5541 EN.Spec Spec pending proj
+R5543:5543 EN.Spec <> s:27 var
+R5546:5547 EN.Spec <> tx:28 var
+R5555:5564 EN.Spec Spec crashCount proj
+R5566:5566 EN.Spec <> s:27 var
+R5574:5585 EN.Spec Spec timerExpired proj
+R5587:5587 EN.Spec <> s:27 var
+def 5685:5695 Spec check_queue
+R5702:5706 EN.Spec Spec State rec
+binder 5698:5698 <> s:29
+R5711:5715 EN.Spec Spec State rec
+R5722:5728 EN.Spec Spec mkState constr
+R5734:5742 EN.Common <> Receiving constr
+R5749:5755 EN.Spec Spec txQueue proj
+R5757:5757 EN.Spec <> s:29 var
+R5765:5767 EN.Spec Spec wal proj
+R5769:5769 EN.Spec <> s:29 var
+R5777:5789 EN.Spec Spec walCheckpoint proj
+R5791:5791 EN.Spec <> s:29 var
+R5799:5806 EN.Spec Spec smtState proj
+R5808:5808 EN.Spec <> s:29 var
+R5816:5823 EN.Spec Spec batchTxs proj
+R5825:5825 EN.Spec <> s:29 var
+R5833:5844 EN.Spec Spec batchPrevSmt proj
+R5846:5846 EN.Spec <> s:29 var
+R5854:5860 EN.Spec Spec l1State proj
+R5862:5862 EN.Spec <> s:29 var
+R5870:5880 EN.Spec Spec dataExposed proj
+R5882:5882 EN.Spec <> s:29 var
+R5890:5896 EN.Spec Spec pending proj
+R5898:5898 EN.Spec <> s:29 var
+R5906:5915 EN.Spec Spec crashCount proj
+R5917:5917 EN.Spec <> s:29 var
+R5925:5936 EN.Spec Spec timerExpired proj
+R5938:5938 EN.Spec <> s:29 var
+def 6052:6061 Spec form_batch
+R6068:6072 EN.Spec Spec State rec
+binder 6064:6064 <> s:30
+R6077:6081 EN.Spec Spec State rec
+R6105:6111 Corelib.Init.Nat <> min def
+R6114:6119 Corelib.Init.Datatypes <> length def
+R6122:6128 EN.Spec Spec txQueue proj
+R6130:6130 EN.Spec <> s:30 var
+R6134:6147 EN.Common <> BatchThreshold defax
+binder 6092:6100 <> batchSize:31
+R6154:6160 EN.Spec Spec mkState constr
+R6166:6173 EN.Common <> Batching constr
+R6180:6184 Corelib.Lists.ListDef <> skipn def
+R6197:6203 EN.Spec Spec txQueue proj
+R6205:6205 EN.Spec <> s:30 var
+R6186:6194 EN.Spec <> batchSize:31 var
+R6214:6216 EN.Spec Spec wal proj
+R6218:6218 EN.Spec <> s:30 var
+R6226:6238 EN.Spec Spec walCheckpoint proj
+R6240:6240 EN.Spec <> s:30 var
+R6248:6255 EN.Spec Spec smtState proj
+R6257:6257 EN.Spec <> s:30 var
+R6265:6270 Corelib.Lists.ListDef <> firstn def
+R6283:6289 EN.Spec Spec txQueue proj
+R6291:6291 EN.Spec <> s:30 var
+R6272:6280 EN.Spec <> batchSize:31 var
+R6300:6307 EN.Spec Spec smtState proj
+R6309:6309 EN.Spec <> s:30 var
+R6368:6374 EN.Spec Spec l1State proj
+R6376:6376 EN.Spec <> s:30 var
+R6384:6394 EN.Spec Spec dataExposed proj
+R6396:6396 EN.Spec <> s:30 var
+R6404:6410 EN.Spec Spec pending proj
+R6412:6412 EN.Spec <> s:30 var
+R6420:6429 EN.Spec Spec crashCount proj
+R6431:6431 EN.Spec <> s:30 var
+R6438:6442 Corelib.Init.Datatypes <> false constr
+def 6562:6572 Spec gen_witness
+R6579:6583 EN.Spec Spec State rec
+binder 6575:6575 <> s:32
+R6588:6592 EN.Spec Spec State rec
+R6599:6605 EN.Spec Spec mkState constr
+R6611:6617 EN.Common <> Proving constr
+R6624:6630 EN.Spec Spec txQueue proj
+R6632:6632 EN.Spec <> s:32 var
+R6640:6642 EN.Spec Spec wal proj
+R6644:6644 EN.Spec <> s:32 var
+R6652:6664 EN.Spec Spec walCheckpoint proj
+R6666:6666 EN.Spec <> s:32 var
+R6674:6682 EN.Common <> set_union def
+R6685:6692 EN.Spec Spec smtState proj
+R6694:6694 EN.Spec <> s:32 var
+R6698:6708 EN.Common <> list_to_set def
+R6711:6718 EN.Spec Spec batchTxs proj
+R6720:6720 EN.Spec <> s:32 var
+R6730:6737 EN.Spec Spec batchTxs proj
+R6739:6739 EN.Spec <> s:32 var
+R6747:6758 EN.Spec Spec batchPrevSmt proj
+R6760:6760 EN.Spec <> s:32 var
+R6768:6774 EN.Spec Spec l1State proj
+R6776:6776 EN.Spec <> s:32 var
+R6784:6794 EN.Spec Spec dataExposed proj
+R6796:6796 EN.Spec <> s:32 var
+R6804:6810 EN.Spec Spec pending proj
+R6812:6812 EN.Spec <> s:32 var
+R6820:6829 EN.Spec Spec crashCount proj
+R6831:6831 EN.Spec <> s:32 var
+R6839:6850 EN.Spec Spec timerExpired proj
+R6852:6852 EN.Spec <> s:32 var
+def 6974:6982 Spec gen_proof
+R6989:6993 EN.Spec Spec State rec
+binder 6985:6985 <> s:33
+R6998:7002 EN.Spec Spec State rec
+R7009:7015 EN.Spec Spec mkState constr
+R7021:7030 EN.Common <> Submitting constr
+R7037:7043 EN.Spec Spec txQueue proj
+R7045:7045 EN.Spec <> s:33 var
+R7053:7055 EN.Spec Spec wal proj
+R7057:7057 EN.Spec <> s:33 var
+R7065:7077 EN.Spec Spec walCheckpoint proj
+R7079:7079 EN.Spec <> s:33 var
+R7087:7094 EN.Spec Spec smtState proj
+R7096:7096 EN.Spec <> s:33 var
+R7104:7111 EN.Spec Spec batchTxs proj
+R7113:7113 EN.Spec <> s:33 var
+R7121:7132 EN.Spec Spec batchPrevSmt proj
+R7134:7134 EN.Spec <> s:33 var
+R7142:7148 EN.Spec Spec l1State proj
+R7150:7150 EN.Spec <> s:33 var
+R7158:7168 EN.Spec Spec dataExposed proj
+R7170:7170 EN.Spec <> s:33 var
+R7178:7184 EN.Spec Spec pending proj
+R7186:7186 EN.Spec <> s:33 var
+R7194:7203 EN.Spec Spec crashCount proj
+R7205:7205 EN.Spec <> s:33 var
+R7213:7224 EN.Spec Spec timerExpired proj
+R7226:7226 EN.Spec <> s:33 var
+def 7385:7396 Spec submit_batch
+R7403:7407 EN.Spec Spec State rec
+binder 7399:7399 <> s:34
+R7412:7416 EN.Spec Spec State rec
+R7423:7429 EN.Spec Spec mkState constr
+R7436:7444 EN.Spec Spec nodeState proj
+R7446:7446 EN.Spec <> s:34 var
+R7454:7460 EN.Spec Spec txQueue proj
+R7462:7462 EN.Spec <> s:34 var
+R7470:7472 EN.Spec Spec wal proj
+R7474:7474 EN.Spec <> s:34 var
+R7482:7494 EN.Spec Spec walCheckpoint proj
+R7496:7496 EN.Spec <> s:34 var
+R7504:7511 EN.Spec Spec smtState proj
+R7513:7513 EN.Spec <> s:34 var
+R7521:7528 EN.Spec Spec batchTxs proj
+R7530:7530 EN.Spec <> s:34 var
+R7538:7549 EN.Spec Spec batchPrevSmt proj
+R7551:7551 EN.Spec <> s:34 var
+R7559:7565 EN.Spec Spec l1State proj
+R7567:7567 EN.Spec <> s:34 var
+R7575:7587 EN.Common <> dk_add_ps_dac def
+R7590:7600 EN.Spec Spec dataExposed proj
+R7602:7602 EN.Spec <> s:34 var
+R7611:7617 EN.Spec Spec pending proj
+R7619:7619 EN.Spec <> s:34 var
+R7627:7636 EN.Spec Spec crashCount proj
+R7638:7638 EN.Spec <> s:34 var
+R7646:7657 EN.Spec Spec timerExpired proj
+R7659:7659 EN.Spec <> s:34 var
+def 7817:7829 Spec confirm_batch
+R7836:7840 EN.Spec Spec State rec
+binder 7832:7832 <> s:35
+R7845:7849 EN.Spec Spec State rec
+R7856:7862 EN.Spec Spec mkState constr
+R7868:7871 EN.Common <> Idle constr
+R7878:7884 EN.Spec Spec txQueue proj
+R7886:7886 EN.Spec <> s:35 var
+R7894:7896 EN.Spec Spec wal proj
+R7898:7898 EN.Spec <> s:35 var
+R7921:7923 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R7906:7918 EN.Spec Spec walCheckpoint proj
+R7920:7920 EN.Spec <> s:35 var
+R7924:7929 Corelib.Init.Datatypes <> length def
+R7932:7939 EN.Spec Spec batchTxs proj
+R7941:7941 EN.Spec <> s:35 var
+R7950:7957 EN.Spec Spec smtState proj
+R7959:7959 EN.Spec <> s:35 var
+R7966:7967 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7973:7983 EN.Common <> empty_txset def
+R7990:7997 EN.Spec Spec smtState proj
+R7999:7999 EN.Spec <> s:35 var
+R8053:8063 EN.Spec Spec dataExposed proj
+R8065:8065 EN.Spec <> s:35 var
+R8073:8079 EN.Spec Spec pending proj
+R8081:8081 EN.Spec <> s:35 var
+R8089:8098 EN.Spec Spec crashCount proj
+R8100:8100 EN.Spec <> s:35 var
+R8108:8119 EN.Spec Spec timerExpired proj
+R8121:8121 EN.Spec <> s:35 var
+def 8222:8226 Spec crash
+R8233:8237 EN.Spec Spec State rec
+binder 8229:8229 <> s:36
+R8242:8246 EN.Spec Spec State rec
+R8253:8259 EN.Spec Spec mkState constr
+R8265:8269 EN.Common <> Error constr
+R8275:8276 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R8283:8285 EN.Spec Spec wal proj
+R8287:8287 EN.Spec <> s:36 var
+R8295:8307 EN.Spec Spec walCheckpoint proj
+R8309:8309 EN.Spec <> s:36 var
+R8317:8323 EN.Spec Spec l1State proj
+R8325:8325 EN.Spec <> s:36 var
+R8379:8380 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R8386:8396 EN.Common <> empty_txset def
+R8403:8409 EN.Spec Spec l1State proj
+R8411:8411 EN.Spec <> s:36 var
+R8419:8429 EN.Spec Spec dataExposed proj
+R8431:8431 EN.Spec <> s:36 var
+R8439:8445 EN.Spec Spec pending proj
+R8447:8447 EN.Spec <> s:36 var
+R8467:8469 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R8455:8464 EN.Spec Spec crashCount proj
+R8466:8466 EN.Spec <> s:36 var
+R8477:8481 Corelib.Init.Datatypes <> false constr
+def 8587:8595 Spec l1_reject
+R8602:8606 EN.Spec Spec State rec
+binder 8598:8598 <> s:37
+R8611:8615 EN.Spec Spec State rec
+R8622:8628 EN.Spec Spec mkState constr
+R8634:8638 EN.Common <> Error constr
+R8644:8645 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R8652:8654 EN.Spec Spec wal proj
+R8656:8656 EN.Spec <> s:37 var
+R8664:8676 EN.Spec Spec walCheckpoint proj
+R8678:8678 EN.Spec <> s:37 var
+R8686:8692 EN.Spec Spec l1State proj
+R8694:8694 EN.Spec <> s:37 var
+R8701:8702 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R8708:8718 EN.Common <> empty_txset def
+R8725:8731 EN.Spec Spec l1State proj
+R8733:8733 EN.Spec <> s:37 var
+R8741:8751 EN.Spec Spec dataExposed proj
+R8753:8753 EN.Spec <> s:37 var
+R8761:8767 EN.Spec Spec pending proj
+R8769:8769 EN.Spec <> s:37 var
+R8777:8786 EN.Spec Spec crashCount proj
+R8788:8788 EN.Spec <> s:37 var
+R8795:8799 Corelib.Init.Datatypes <> false constr
+def 8903:8907 Spec retry
+R8914:8918 EN.Spec Spec State rec
+binder 8910:8910 <> s:38
+R8923:8927 EN.Spec Spec State rec
+R8934:8940 EN.Spec Spec mkState constr
+R8946:8949 EN.Common <> Idle constr
+R8956:8960 Corelib.Lists.ListDef <> skipn def
+R8981:8983 EN.Spec Spec wal proj
+R8985:8985 EN.Spec <> s:38 var
+R8963:8975 EN.Spec Spec walCheckpoint proj
+R8977:8977 EN.Spec <> s:38 var
+R8994:8996 EN.Spec Spec wal proj
+R8998:8998 EN.Spec <> s:38 var
+R9006:9018 EN.Spec Spec walCheckpoint proj
+R9020:9020 EN.Spec <> s:38 var
+R9028:9034 EN.Spec Spec l1State proj
+R9036:9036 EN.Spec <> s:38 var
+R9091:9098 EN.Spec Spec batchTxs proj
+R9100:9100 EN.Spec <> s:38 var
+R9108:9119 EN.Spec Spec batchPrevSmt proj
+R9121:9121 EN.Spec <> s:38 var
+R9129:9135 EN.Spec Spec l1State proj
+R9137:9137 EN.Spec <> s:38 var
+R9145:9155 EN.Spec Spec dataExposed proj
+R9157:9157 EN.Spec <> s:38 var
+R9165:9171 EN.Spec Spec pending proj
+R9173:9173 EN.Spec <> s:38 var
+R9181:9190 EN.Spec Spec crashCount proj
+R9192:9192 EN.Spec <> s:38 var
+R9200:9211 EN.Spec Spec timerExpired proj
+R9213:9213 EN.Spec <> s:38 var
+def 9305:9314 Spec timer_tick
+R9321:9325 EN.Spec Spec State rec
+binder 9317:9317 <> s:39
+R9330:9334 EN.Spec Spec State rec
+R9341:9347 EN.Spec Spec mkState constr
+R9354:9362 EN.Spec Spec nodeState proj
+R9364:9364 EN.Spec <> s:39 var
+R9372:9378 EN.Spec Spec txQueue proj
+R9380:9380 EN.Spec <> s:39 var
+R9388:9390 EN.Spec Spec wal proj
+R9392:9392 EN.Spec <> s:39 var
+R9400:9412 EN.Spec Spec walCheckpoint proj
+R9414:9414 EN.Spec <> s:39 var
+R9422:9429 EN.Spec Spec smtState proj
+R9431:9431 EN.Spec <> s:39 var
+R9439:9446 EN.Spec Spec batchTxs proj
+R9448:9448 EN.Spec <> s:39 var
+R9456:9467 EN.Spec Spec batchPrevSmt proj
+R9469:9469 EN.Spec <> s:39 var
+R9477:9483 EN.Spec Spec l1State proj
+R9485:9485 EN.Spec <> s:39 var
+R9493:9503 EN.Spec Spec dataExposed proj
+R9505:9505 EN.Spec <> s:39 var
+R9513:9519 EN.Spec Spec pending proj
+R9521:9521 EN.Spec <> s:39 var
+R9529:9538 EN.Spec Spec crashCount proj
+R9540:9540 EN.Spec <> s:39 var
+R9547:9550 Corelib.Init.Datatypes <> true constr
+def 9646:9649 Spec done
+R9656:9660 EN.Spec Spec State rec
+binder 9652:9652 <> s:40
+R9665:9669 EN.Spec Spec State rec
+R9674:9674 EN.Spec <> s:40 var
+ind 9894:9897 Spec step
+constr 9931:9945 Spec step_receive_tx
+constr 10023:10038 Spec step_check_queue
+constr 10108:10122 Spec step_form_batch
+constr 10191:10206 Spec step_gen_witness
+constr 10276:10289 Spec step_gen_proof
+constr 10357:10373 Spec step_submit_batch
+constr 10444:10461 Spec step_confirm_batch
+constr 10533:10542 Spec step_crash
+constr 10606:10619 Spec step_l1_reject
+constr 10687:10696 Spec step_retry
+constr 10760:10774 Spec step_timer_tick
+constr 10843:10851 Spec step_done
+R9906:9909 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9901:9905 EN.Spec Spec State rec
+R9915:9918 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9910:9914 EN.Spec Spec State rec
+binder 9959:9959 <> s:43
+binder 9961:9962 <> tx:44
+R9990:9993 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9971:9984 EN.Spec Spec receive_tx_pre def
+R9986:9986 EN.Spec <> s:43 var
+R9988:9989 EN.Spec <> tx:44 var
+R9994:9997 EN.Spec <> step:41 ind
+R10002:10011 EN.Spec Spec receive_tx def
+R10013:10013 EN.Spec <> s:43 var
+R10015:10016 EN.Spec <> tx:44 var
+R9999:9999 EN.Spec <> s:43 var
+binder 10051:10051 <> s:45
+R10077:10080 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10060:10074 EN.Spec Spec check_queue_pre def
+R10076:10076 EN.Spec <> s:45 var
+R10081:10084 EN.Spec <> step:41 ind
+R10089:10099 EN.Spec Spec check_queue def
+R10101:10101 EN.Spec <> s:45 var
+R10086:10086 EN.Spec <> s:45 var
+binder 10136:10136 <> s:46
+R10161:10164 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10145:10158 EN.Spec Spec form_batch_pre def
+R10160:10160 EN.Spec <> s:46 var
+R10165:10168 EN.Spec <> step:41 ind
+R10173:10182 EN.Spec Spec form_batch def
+R10184:10184 EN.Spec <> s:46 var
+R10170:10170 EN.Spec <> s:46 var
+binder 10219:10219 <> s:47
+R10245:10248 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10228:10242 EN.Spec Spec gen_witness_pre def
+R10244:10244 EN.Spec <> s:47 var
+R10249:10252 EN.Spec <> step:41 ind
+R10257:10267 EN.Spec Spec gen_witness def
+R10269:10269 EN.Spec <> s:47 var
+R10254:10254 EN.Spec <> s:47 var
+binder 10304:10304 <> s:48
+R10328:10331 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10313:10325 EN.Spec Spec gen_proof_pre def
+R10327:10327 EN.Spec <> s:48 var
+R10332:10335 EN.Spec <> step:41 ind
+R10340:10348 EN.Spec Spec gen_proof def
+R10350:10350 EN.Spec <> s:48 var
+R10337:10337 EN.Spec <> s:48 var
+binder 10385:10385 <> s:49
+R10412:10415 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10394:10409 EN.Spec Spec submit_batch_pre def
+R10411:10411 EN.Spec <> s:49 var
+R10416:10419 EN.Spec <> step:41 ind
+R10424:10435 EN.Spec Spec submit_batch def
+R10437:10437 EN.Spec <> s:49 var
+R10421:10421 EN.Spec <> s:49 var
+binder 10472:10472 <> s:50
+R10500:10503 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10481:10497 EN.Spec Spec confirm_batch_pre def
+R10499:10499 EN.Spec <> s:50 var
+R10504:10507 EN.Spec <> step:41 ind
+R10512:10524 EN.Spec Spec confirm_batch def
+R10526:10526 EN.Spec <> s:50 var
+R10509:10509 EN.Spec <> s:50 var
+binder 10561:10561 <> s:51
+R10581:10584 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10570:10578 EN.Spec Spec crash_pre def
+R10580:10580 EN.Spec <> s:51 var
+R10585:10588 EN.Spec <> step:41 ind
+R10593:10597 EN.Spec Spec crash def
+R10599:10599 EN.Spec <> s:51 var
+R10590:10590 EN.Spec <> s:51 var
+binder 10634:10634 <> s:52
+R10658:10661 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10643:10655 EN.Spec Spec l1_reject_pre def
+R10657:10657 EN.Spec <> s:52 var
+R10662:10665 EN.Spec <> step:41 ind
+R10670:10678 EN.Spec Spec l1_reject def
+R10680:10680 EN.Spec <> s:52 var
+R10667:10667 EN.Spec <> s:52 var
+binder 10715:10715 <> s:53
+R10735:10738 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10724:10732 EN.Spec Spec retry_pre def
+R10734:10734 EN.Spec <> s:53 var
+R10739:10742 EN.Spec <> step:41 ind
+R10747:10751 EN.Spec Spec retry def
+R10753:10753 EN.Spec <> s:53 var
+R10744:10744 EN.Spec <> s:53 var
+binder 10788:10788 <> s:54
+R10813:10816 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10797:10810 EN.Spec Spec timer_tick_pre def
+R10812:10812 EN.Spec <> s:54 var
+R10817:10820 EN.Spec <> step:41 ind
+R10825:10834 EN.Spec Spec timer_tick def
+R10836:10836 EN.Spec <> s:54 var
+R10822:10822 EN.Spec <> s:54 var
+binder 10871:10871 <> s:55
+R10890:10893 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10880:10887 EN.Spec Spec done_pre def
+R10889:10889 EN.Spec <> s:55 var
+R10894:10897 EN.Spec <> step:41 ind
+R10902:10905 EN.Spec Spec done def
+R10907:10907 EN.Spec <> s:55 var
+R10899:10899 EN.Spec <> s:55 var
+scheme 9894:9897 Spec step_ind
+scheme 9894:9897 Spec step_sind
+def 11276:11278 Spec SRC
+R11285:11289 EN.Spec Spec State rec
+binder 11281:11281 <> s:56
+R11310:11318 EN.Spec Spec nodeState proj
+R11320:11320 EN.Spec <> s:56 var
+R11331:11334 EN.Common <> Idle constr
+R11338:11346 EN.Common <> Receiving constr
+R11350:11357 EN.Common <> Batching constr
+R11361:11365 EN.Common <> Error constr
+R11386:11388 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11376:11383 EN.Spec Spec smtState proj
+R11385:11385 EN.Spec <> s:56 var
+R11389:11395 EN.Spec Spec l1State proj
+R11397:11397 EN.Spec <> s:56 var
+R11386:11388 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11376:11383 EN.Spec Spec smtState proj
+R11385:11385 EN.Spec <> s:56 var
+R11389:11395 EN.Spec Spec l1State proj
+R11397:11397 EN.Spec <> s:56 var
+R11386:11388 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11376:11383 EN.Spec Spec smtState proj
+R11385:11385 EN.Spec <> s:56 var
+R11389:11395 EN.Spec Spec l1State proj
+R11397:11397 EN.Spec <> s:56 var
+R11386:11388 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11376:11383 EN.Spec Spec smtState proj
+R11385:11385 EN.Spec <> s:56 var
+R11389:11395 EN.Spec Spec l1State proj
+R11397:11397 EN.Spec <> s:56 var
+R11403:11409 EN.Common <> Proving constr
+R11413:11422 EN.Common <> Submitting constr
+R11443:11445 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11433:11440 EN.Spec Spec smtState proj
+R11442:11442 EN.Spec <> s:56 var
+R11446:11454 EN.Common <> set_union def
+R11457:11463 EN.Spec Spec l1State proj
+R11465:11465 EN.Spec <> s:56 var
+R11469:11479 EN.Common <> list_to_set def
+R11482:11489 EN.Spec Spec batchTxs proj
+R11491:11491 EN.Spec <> s:56 var
+R11443:11445 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11433:11440 EN.Spec Spec smtState proj
+R11442:11442 EN.Spec <> s:56 var
+R11446:11454 EN.Common <> set_union def
+R11457:11463 EN.Spec Spec l1State proj
+R11465:11465 EN.Spec <> s:56 var
+R11469:11479 EN.Common <> list_to_set def
+R11482:11489 EN.Spec Spec batchTxs proj
+R11491:11491 EN.Spec <> s:56 var
+def 11807:11809 Spec PSI
+R11816:11820 EN.Spec Spec State rec
+binder 11812:11812 <> s:57
+R11841:11849 EN.Spec Spec nodeState proj
+R11851:11851 EN.Spec <> s:57 var
+R11862:11869 EN.Common <> Batching constr
+R11873:11879 EN.Common <> Proving constr
+R11883:11892 EN.Common <> Submitting constr
+R11911:11913 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11897:11908 EN.Spec Spec batchPrevSmt proj
+R11910:11910 EN.Spec <> s:57 var
+R11914:11920 EN.Spec Spec l1State proj
+R11922:11922 EN.Spec <> s:57 var
+R11911:11913 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11897:11908 EN.Spec Spec batchPrevSmt proj
+R11910:11910 EN.Spec <> s:57 var
+R11914:11920 EN.Spec Spec l1State proj
+R11922:11922 EN.Spec <> s:57 var
+R11911:11913 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11897:11908 EN.Spec Spec batchPrevSmt proj
+R11910:11910 EN.Spec <> s:57 var
+R11914:11920 EN.Spec Spec l1State proj
+R11922:11922 EN.Spec <> s:57 var
+R11933:11936 Corelib.Init.Logic <> True ind
+def 12154:12156 Spec NDL
+R12163:12167 EN.Spec Spec State rec
+binder 12159:12159 <> s:58
+R12182:12190 EN.Common <> dk_subset def
+R12193:12203 EN.Spec Spec dataExposed proj
+R12205:12205 EN.Spec <> s:58 var
+R12208:12223 EN.Common <> allowed_external def
+def 12336:12344 Spec SafetyInv
+R12351:12355 EN.Spec Spec State rec
+binder 12347:12347 <> s:59
+R12375:12378 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R12370:12372 EN.Spec Spec SRC def
+R12374:12374 EN.Spec <> s:59 var
+R12384:12387 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R12379:12381 EN.Spec Spec PSI def
+R12383:12383 EN.Spec <> s:59 var
+R12388:12390 EN.Spec Spec NDL def
+R12392:12392 EN.Spec <> s:59 var
+def 12502:12520 Spec ProofStateIntegrity
+R12527:12531 EN.Spec Spec State rec
+binder 12523:12523 <> s:60
+R12570:12573 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12557:12559 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12546:12554 EN.Spec Spec nodeState proj
+R12556:12556 EN.Spec <> s:60 var
+R12560:12569 EN.Common <> Submitting constr
+R12588:12590 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12574:12585 EN.Spec Spec batchPrevSmt proj
+R12587:12587 EN.Spec <> s:60 var
+R12591:12597 EN.Spec Spec l1State proj
+R12599:12599 EN.Spec <> s:60 var
+R12607:12610 EN.Spec Spec <> mod

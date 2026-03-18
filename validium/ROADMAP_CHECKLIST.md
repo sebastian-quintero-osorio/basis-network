@@ -561,7 +561,7 @@ lab/4-prover/verification-history/YYYY-MM-enterprise-node/
 
 ### [24] Prover | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 13 theorems Qed, 0 Admitted, Safety + Liveness + NoDataLeakage proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [23] complete, snapshots prepared.

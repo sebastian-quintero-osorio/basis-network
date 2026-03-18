@@ -1,0 +1,131 @@
+DIGEST eb89295ba08a8364252393167d58a96b
+FEN.Impl
+R1517:1522 EN.Common <> <> lib
+R1548:1551 EN.Spec <> <> lib
+mod 1562:1565 <> Impl
+def 2413:2417 Impl State
+R2422:2431 EN.Spec Spec State rec
+def 2739:2747 Impl map_state
+R2755:2759 EN.Impl Impl State def
+binder 2750:2751 <> si:1
+R2764:2773 EN.Spec Spec State rec
+R2778:2779 EN.Impl <> si:1 var
+def 3113:3121 Impl submit_tx
+R3128:3132 EN.Impl Impl State def
+binder 3124:3124 <> s:2
+R3141:3142 EN.Common <> Tx defax
+binder 3136:3137 <> tx:3
+R3147:3151 EN.Impl Impl State def
+R3158:3172 EN.Spec Spec receive_tx def
+R3174:3174 EN.Impl <> s:2 var
+R3176:3177 EN.Impl <> tx:3 var
+def 3468:3478 Impl batch_cycle
+R3485:3489 EN.Impl Impl State def
+binder 3481:3481 <> s:4
+R3494:3498 EN.Impl Impl State def
+R3505:3522 EN.Spec Spec confirm_batch def
+R3529:3545 EN.Spec Spec submit_batch def
+R3554:3567 EN.Spec Spec gen_proof def
+R3578:3593 EN.Spec Spec gen_witness def
+R3606:3620 EN.Spec Spec form_batch def
+R3622:3622 EN.Impl <> s:4 var
+def 3833:3844 Impl handle_error
+R3851:3855 EN.Impl Impl State def
+binder 3847:3847 <> s:5
+R3860:3864 EN.Impl Impl State def
+R3871:3880 EN.Spec Spec retry def
+R3883:3892 EN.Spec Spec crash def
+R3894:3894 EN.Impl <> s:5 var
+def 4031:4046 Impl handle_l1_reject
+R4053:4057 EN.Impl Impl State def
+binder 4049:4049 <> s:6
+R4062:4066 EN.Impl Impl State def
+R4073:4082 EN.Spec Spec retry def
+R4085:4098 EN.Spec Spec l1_reject def
+R4100:4100 EN.Impl <> s:6 var
+def 4222:4228 Impl recover
+R4235:4239 EN.Impl Impl State def
+binder 4231:4231 <> s:7
+R4244:4248 EN.Impl Impl State def
+R4255:4264 EN.Spec Spec retry def
+R4266:4266 EN.Impl <> s:7 var
+def 4447:4461 Impl batch_loop_tick
+R4468:4472 EN.Impl Impl State def
+binder 4464:4464 <> s:8
+R4477:4481 EN.Impl Impl State def
+R4488:4503 EN.Spec Spec check_queue def
+R4505:4505 EN.Impl <> s:8 var
+ind 4821:4824 Impl step
+constr 4858:4871 Impl step_submit_tx
+constr 4956:4971 Impl step_batch_cycle
+constr 5049:5058 Impl step_error
+constr 5132:5145 Impl step_l1_reject
+constr 5227:5238 Impl step_recover
+constr 5307:5320 Impl step_loop_tick
+constr 5403:5412 Impl step_timer
+R4833:4836 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4828:4832 EN.Impl Impl State def
+R4842:4845 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4837:4841 EN.Impl Impl State def
+binder 4882:4882 <> s:11
+binder 4884:4885 <> tx:12
+R4918:4927 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4894:4912 EN.Spec Spec receive_tx_pre def
+R4914:4914 EN.Impl <> s:11 var
+R4916:4917 EN.Impl <> tx:12 var
+R4928:4931 EN.Impl <> step:9 ind
+R4936:4944 EN.Impl Impl submit_tx def
+R4946:4946 EN.Impl <> s:11 var
+R4948:4949 EN.Impl <> tx:12 var
+R4933:4933 EN.Impl <> s:11 var
+binder 4982:4982 <> s:13
+R5012:5021 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4991:5009 EN.Spec Spec form_batch_pre def
+R5011:5011 EN.Impl <> s:13 var
+R5022:5025 EN.Impl <> step:9 ind
+R5030:5040 EN.Impl Impl batch_cycle def
+R5042:5042 EN.Impl <> s:13 var
+R5027:5027 EN.Impl <> s:13 var
+binder 5069:5069 <> s:14
+R5094:5103 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5078:5091 EN.Spec Spec crash_pre def
+R5093:5093 EN.Impl <> s:14 var
+R5104:5107 EN.Impl <> step:9 ind
+R5112:5123 EN.Impl Impl handle_error def
+R5125:5125 EN.Impl <> s:14 var
+R5109:5109 EN.Impl <> s:14 var
+binder 5156:5156 <> s:15
+R5185:5194 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5165:5182 EN.Spec Spec l1_reject_pre def
+R5184:5184 EN.Impl <> s:15 var
+R5195:5198 EN.Impl <> step:9 ind
+R5203:5218 EN.Impl Impl handle_l1_reject def
+R5220:5220 EN.Impl <> s:15 var
+R5200:5200 EN.Impl <> s:15 var
+binder 5249:5249 <> s:16
+R5274:5283 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5258:5271 EN.Spec Spec retry_pre def
+R5273:5273 EN.Impl <> s:16 var
+R5284:5287 EN.Impl <> step:9 ind
+R5292:5298 EN.Impl Impl recover def
+R5300:5300 EN.Impl <> s:16 var
+R5289:5289 EN.Impl <> s:16 var
+binder 5331:5331 <> s:17
+R5362:5371 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5340:5359 EN.Spec Spec check_queue_pre def
+R5361:5361 EN.Impl <> s:17 var
+R5372:5375 EN.Impl <> step:9 ind
+R5380:5394 EN.Impl Impl batch_loop_tick def
+R5396:5396 EN.Impl <> s:17 var
+R5377:5377 EN.Impl <> s:17 var
+binder 5423:5423 <> s:18
+R5453:5462 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5432:5450 EN.Spec Spec timer_tick_pre def
+R5452:5452 EN.Impl <> s:18 var
+R5463:5466 EN.Impl <> step:9 ind
+R5471:5485 EN.Spec Spec timer_tick def
+R5487:5487 EN.Impl <> s:18 var
+R5468:5468 EN.Impl <> s:18 var
+scheme 4821:4824 Impl step_ind
+scheme 4821:4824 Impl step_sind
+R5496:5499 EN.Impl Impl <> mod
