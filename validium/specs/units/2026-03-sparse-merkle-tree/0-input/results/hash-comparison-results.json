@@ -1,0 +1,48 @@
+{
+  "experiment": "hash-comparison",
+  "target": "validium",
+  "field": "BN128",
+  "reps": 1000,
+  "warmup": 100,
+  "nodeVersion": "v22.13.1",
+  "platform": "win32 x64",
+  "timestamp": "2026-03-18T06:58:28.939Z",
+  "results": [
+    {
+      "name": "Poseidon (circomlibjs 0.1.7)",
+      "totalTimeMs": 56.09,
+      "perHashUs": 56.09,
+      "hashesPerSecond": 17830,
+      "reps": 1000,
+      "sampleOutputHex": "23c7fe896272234a5a3db2016a49c52681a100fddadce18c622874ec5c9d075a"
+    },
+    {
+      "name": "Poseidon-1 (single input, key derivation)",
+      "totalTimeMs": 40.44,
+      "perHashUs": 40.44,
+      "hashesPerSecond": 24728,
+      "reps": 1000,
+      "sampleOutputHex": "1c7b0296b0bf7b61b2dee3ef4afa79e7411d8b32bd3a5c06ca9b2fb5ee1fd6a2"
+    },
+    {
+      "name": "MiMC-Feistel (x^7, 91 rounds, BN128)",
+      "totalTimeMs": 278.55,
+      "perHashUs": 278.55,
+      "hashesPerSecond": 3590,
+      "reps": 1000,
+      "sampleOutputHex": "087c7cfa7f7f5da55843d09a8f811e891585bf634a86f8faffd6e4b3c905bc1d"
+    },
+    {
+      "name": "Poseidon-chain-32 (32 sequential hashes, simulates Merkle path)",
+      "totalTimeMs": 171.33,
+      "perHashUs": 53.54,
+      "hashesPerSecond": 18677,
+      "reps": 100,
+      "sampleOutputHex": "2adfe99e62e06dc36132cb262d054e4c1c7bc1952dc02e1ea4a967502b72ad1d"
+    }
+  ],
+  "analysis": {
+    "poseidonVsMimcSpeedup": 4.97,
+    "estimatedMerklePathMs": 1.79
+  }
+}

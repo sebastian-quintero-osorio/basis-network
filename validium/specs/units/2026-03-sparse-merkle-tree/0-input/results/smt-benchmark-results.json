@@ -1,0 +1,174 @@
+{
+  "experiment": "sparse-merkle-tree",
+  "target": "validium",
+  "treeDepth": 32,
+  "hashFunction": "Poseidon (circomlibjs 0.1.7, BN128)",
+  "measurementReps": 50,
+  "warmupReps": 10,
+  "nodeVersion": "v22.13.1",
+  "platform": "win32 x64",
+  "timestamp": "2026-03-18T07:01:58.447Z",
+  "hypothesisTargets": {
+    "insertLatency": 10,
+    "proofGeneration": 5,
+    "proofVerification": 2
+  },
+  "results": [
+    {
+      "entryCount": 100,
+      "insertLatency": {
+        "mean": 1.8774,
+        "stddev": 0.0955,
+        "min": 1.7883,
+        "max": 2.2081,
+        "p50": 1.8409,
+        "p95": 2.0865,
+        "p99": 2.2081,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofGeneration": {
+        "mean": 0.0123,
+        "stddev": 0.0067,
+        "min": 0.0093,
+        "max": 0.0462,
+        "p50": 0.0104,
+        "p95": 0.029,
+        "p99": 0.0462,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofVerification": {
+        "mean": 1.6855,
+        "stddev": 0.128,
+        "min": 1.6427,
+        "max": 2.5241,
+        "p50": 1.6506,
+        "p95": 1.7876,
+        "p99": 2.5241,
+        "unit": "ms",
+        "samples": 50
+      },
+      "memoryUsageMB": 68.43,
+      "nodeCount": 2721,
+      "totalInsertTimeMs": 187.52
+    },
+    {
+      "entryCount": 1000,
+      "insertLatency": {
+        "mean": 1.7875,
+        "stddev": 0.0801,
+        "min": 1.718,
+        "max": 2.0428,
+        "p50": 1.7627,
+        "p95": 1.9968,
+        "p99": 2.0428,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofGeneration": {
+        "mean": 0.0137,
+        "stddev": 0.0016,
+        "min": 0.0099,
+        "max": 0.019,
+        "p50": 0.0137,
+        "p95": 0.0161,
+        "p99": 0.019,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofVerification": {
+        "mean": 1.6773,
+        "stddev": 0.096,
+        "min": 1.6312,
+        "max": 2.2891,
+        "p50": 1.6477,
+        "p95": 1.7579,
+        "p99": 2.2891,
+        "unit": "ms",
+        "samples": 50
+      },
+      "memoryUsageMB": 112.85,
+      "nodeCount": 23867,
+      "totalInsertTimeMs": 1800.03
+    },
+    {
+      "entryCount": 10000,
+      "insertLatency": {
+        "mean": 1.7924,
+        "stddev": 0.2021,
+        "min": 1.7177,
+        "max": 3.0656,
+        "p50": 1.7324,
+        "p95": 1.9457,
+        "p99": 3.0656,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofGeneration": {
+        "mean": 0.0142,
+        "stddev": 0.0013,
+        "min": 0.0083,
+        "max": 0.0168,
+        "p50": 0.0143,
+        "p95": 0.0157,
+        "p99": 0.0168,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofVerification": {
+        "mean": 1.7191,
+        "stddev": 0.262,
+        "min": 1.6335,
+        "max": 3.4312,
+        "p50": 1.6415,
+        "p95": 1.9052,
+        "p99": 3.4312,
+        "unit": "ms",
+        "samples": 50
+      },
+      "memoryUsageMB": 57.85,
+      "nodeCount": 202398,
+      "totalInsertTimeMs": 17977.91
+    },
+    {
+      "entryCount": 100000,
+      "insertLatency": {
+        "mean": 1.8245,
+        "stddev": 0.1851,
+        "min": 1.7341,
+        "max": 2.6713,
+        "p50": 1.7668,
+        "p95": 2.0141,
+        "p99": 2.6713,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofGeneration": {
+        "mean": 0.0185,
+        "stddev": 0.0021,
+        "min": 0.0097,
+        "max": 0.0236,
+        "p50": 0.0189,
+        "p95": 0.0213,
+        "p99": 0.0236,
+        "unit": "ms",
+        "samples": 50
+      },
+      "proofVerification": {
+        "mean": 1.7442,
+        "stddev": 0.3278,
+        "min": 1.6374,
+        "max": 3.9528,
+        "p50": 1.6759,
+        "p95": 1.8686,
+        "p99": 3.9528,
+        "unit": "ms",
+        "samples": 50
+      },
+      "memoryUsageMB": 233.86,
+      "nodeCount": 1712112,
+      "totalInsertTimeMs": 182318.82
+    }
+  ]
+}

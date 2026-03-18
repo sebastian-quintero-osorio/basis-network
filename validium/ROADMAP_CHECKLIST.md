@@ -24,7 +24,7 @@
 
 ### [01] Scientist | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- Hypothesis CONFIRMED, all targets PASS)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** None (first research unit).
