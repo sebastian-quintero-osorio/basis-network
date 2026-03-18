@@ -580,7 +580,7 @@ lab/4-prover/verification-history/YYYY-MM-enterprise-node/
 
 ### [25] Scientist | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 1.41x sequential, 0.64x batched, 68K constraints, 15 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [21], [13] complete.
