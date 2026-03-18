@@ -1,0 +1,204 @@
+DIGEST 2b9606359abe9b26d6662278f4249751
+FSC.Impl
+R1238:1243 SC.Common <> <> lib
+R1273:1280 Stdlib.Arith.PeanoNat <> <> lib
+R1310:1312 Stdlib.micromega.Lia <> <> lib
+mod 1346:1349 <> Impl
+rec 1929:1933 Impl State
+proj 1950:1960 Impl currentRoot
+proj 2021:2030 Impl batchCount
+proj 2092:2104 Impl lastTimestamp
+proj 2176:2186 Impl initialized
+proj 2247:2256 Impl batchRoots
+proj 2318:2338 Impl totalBatchesCommitted
+proj 2389:2403 Impl verifyingKeySet
+R1984:1987 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1974:1983 SC.Common <> Enterprise def
+R1988:1991 SC.Common <> Root def
+R2055:2058 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2045:2054 SC.Common <> Enterprise def
+R2059:2061 Corelib.Init.Datatypes <> nat ind
+R2126:2129 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2116:2125 SC.Common <> Enterprise def
+R2130:2132 Corelib.Init.Datatypes <> nat ind
+R2210:2213 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2200:2209 SC.Common <> Enterprise def
+R2214:2217 Corelib.Init.Datatypes <> bool ind
+R2281:2284 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2271:2280 SC.Common <> Enterprise def
+R2288:2291 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2285:2287 Corelib.Init.Datatypes <> nat ind
+R2292:2295 SC.Common <> Root def
+R2342:2344 Corelib.Init.Datatypes <> nat ind
+R2413:2416 Corelib.Init.Datatypes <> bool ind
+def 2764:2767 Impl Init
+R2771:2775 SC.Impl Impl State rec
+R2780:2786 SC.Impl Impl mkState constr
+R2800:2803 SC.Common <> NONE def
+R2951:2955 Corelib.Init.Datatypes <> false constr
+R3004:3007 SC.Common <> NONE def
+R3094:3098 Corelib.Init.Datatypes <> false constr
+def 3520:3534 Impl SetVerifyingKey
+R3541:3545 SC.Impl Impl State rec
+binder 3537:3537 <> s:9
+R3550:3554 SC.Impl Impl State rec
+R3561:3567 SC.Impl Impl mkState constr
+R3574:3584 SC.Impl Impl currentRoot proj
+R3586:3586 SC.Impl <> s:9 var
+R3590:3599 SC.Impl Impl batchCount proj
+R3601:3601 SC.Impl <> s:9 var
+R3605:3617 SC.Impl Impl lastTimestamp proj
+R3619:3619 SC.Impl <> s:9 var
+R3627:3637 SC.Impl Impl initialized proj
+R3639:3639 SC.Impl <> s:9 var
+R3643:3652 SC.Impl Impl batchRoots proj
+R3654:3654 SC.Impl <> s:9 var
+R3658:3678 SC.Impl Impl totalBatchesCommitted proj
+R3680:3680 SC.Impl <> s:9 var
+R3687:3690 Corelib.Init.Datatypes <> true constr
+def 4229:4248 Impl initializeEnterprise
+R4255:4259 SC.Impl Impl State rec
+binder 4251:4251 <> s:10
+R4267:4276 SC.Common <> Enterprise def
+binder 4263:4263 <> e:11
+R4296:4299 SC.Common <> Root def
+binder 4282:4292 <> genesisRoot:12
+R4315:4317 Corelib.Init.Datatypes <> nat ind
+binder 4303:4311 <> timestamp:13
+R4322:4326 SC.Impl Impl State rec
+R4333:4339 SC.Impl Impl mkState constr
+R4346:4352 SC.Common <> fupdate def
+R4372:4382 SC.Impl <> genesisRoot:12 var
+R4370:4370 SC.Impl <> e:11 var
+R4355:4365 SC.Impl Impl currentRoot proj
+R4367:4367 SC.Impl <> s:10 var
+R4390:4399 SC.Impl Impl batchCount proj
+R4401:4401 SC.Impl <> s:10 var
+R4470:4476 SC.Common <> fupdate def
+R4498:4506 SC.Impl <> timestamp:13 var
+R4496:4496 SC.Impl <> e:11 var
+R4479:4491 SC.Impl Impl lastTimestamp proj
+R4493:4493 SC.Impl <> s:10 var
+R4514:4520 SC.Common <> fupdate def
+R4540:4543 Corelib.Init.Datatypes <> true constr
+R4538:4538 SC.Impl <> e:11 var
+R4523:4533 SC.Impl Impl initialized proj
+R4535:4535 SC.Impl <> s:10 var
+R4551:4560 SC.Impl Impl batchRoots proj
+R4562:4562 SC.Impl <> s:10 var
+R4570:4590 SC.Impl Impl totalBatchesCommitted proj
+R4592:4592 SC.Impl <> s:10 var
+R4600:4614 SC.Impl Impl verifyingKeySet proj
+R4616:4616 SC.Impl <> s:10 var
+def 5488:5498 Impl submitBatch
+R5505:5509 SC.Impl Impl State rec
+binder 5501:5501 <> s:14
+R5517:5526 SC.Common <> Enterprise def
+binder 5513:5513 <> e:15
+R5542:5545 SC.Common <> Root def
+binder 5532:5538 <> newRoot:16
+R5561:5563 Corelib.Init.Datatypes <> nat ind
+binder 5549:5557 <> timestamp:17
+R5568:5572 SC.Impl Impl State rec
+R5590:5599 SC.Impl Impl batchCount proj
+R5601:5601 SC.Impl <> s:14 var
+R5603:5603 SC.Impl <> e:15 var
+binder 5583:5585 <> bid:18
+R5610:5616 SC.Impl Impl mkState constr
+R5623:5629 SC.Common <> fupdate def
+R5649:5655 SC.Impl <> newRoot:16 var
+R5647:5647 SC.Impl <> e:15 var
+R5632:5642 SC.Impl Impl currentRoot proj
+R5644:5644 SC.Impl <> s:14 var
+R5663:5669 SC.Common <> fupdate def
+R5692:5694 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R5689:5691 SC.Impl <> bid:18 var
+R5686:5686 SC.Impl <> e:15 var
+R5672:5681 SC.Impl Impl batchCount proj
+R5683:5683 SC.Impl <> s:14 var
+R5704:5710 SC.Common <> fupdate def
+R5732:5740 SC.Impl <> timestamp:17 var
+R5730:5730 SC.Impl <> e:15 var
+R5713:5725 SC.Impl Impl lastTimestamp proj
+R5727:5727 SC.Impl <> s:14 var
+R5748:5758 SC.Impl Impl initialized proj
+R5760:5760 SC.Impl <> s:14 var
+R5818:5825 SC.Common <> fupdate2 def
+R5848:5854 SC.Impl <> newRoot:16 var
+R5844:5846 SC.Impl <> bid:18 var
+R5842:5842 SC.Impl <> e:15 var
+R5828:5837 SC.Impl Impl batchRoots proj
+R5839:5839 SC.Impl <> s:14 var
+R5885:5887 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R5862:5882 SC.Impl Impl totalBatchesCommitted proj
+R5884:5884 SC.Impl <> s:14 var
+R5896:5910 SC.Impl Impl verifyingKeySet proj
+R5912:5912 SC.Impl <> s:14 var
+ind 6505:6508 Impl step
+constr 6542:6552 Impl step_set_vk
+constr 6604:6623 Impl step_init_enterprise
+constr 6894:6910 Impl step_submit_batch
+R6517:6520 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6512:6516 SC.Impl Impl State rec
+R6526:6529 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6521:6525 SC.Impl Impl State rec
+binder 6563:6563 <> s:21
+R6572:6575 SC.Impl <> step:19 ind
+R6580:6594 SC.Impl Impl SetVerifyingKey def
+R6596:6596 SC.Impl <> s:21 var
+R6577:6577 SC.Impl <> s:21 var
+binder 6634:6634 <> s:22
+binder 6636:6636 <> e:23
+binder 6638:6648 <> genesisRoot:24
+binder 6650:6658 <> timestamp:25
+R6690:6749 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6682:6684 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6667:6677 SC.Impl Impl initialized proj
+R6679:6679 SC.Impl <> s:22 var
+R6681:6681 SC.Impl <> e:23 var
+R6685:6689 Corelib.Init.Datatypes <> false constr
+R6765:6832 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6761:6763 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R6750:6760 SC.Impl <> genesisRoot:24 var
+R6833:6836 SC.Impl <> step:19 ind
+R6841:6860 SC.Impl Impl initializeEnterprise def
+R6862:6862 SC.Impl <> s:22 var
+R6864:6864 SC.Impl <> e:23 var
+R6866:6876 SC.Impl <> genesisRoot:24 var
+R6878:6886 SC.Impl <> timestamp:25 var
+R6838:6838 SC.Impl <> s:22 var
+binder 6921:6921 <> s:26
+binder 6923:6923 <> e:27
+binder 6925:6932 <> prevRoot:28
+binder 6934:6940 <> newRoot:29
+binder 6942:6950 <> timestamp:30
+R6983:7044 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6976:6978 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6959:6973 SC.Impl Impl verifyingKeySet proj
+R6975:6975 SC.Impl <> s:26 var
+R6979:6982 Corelib.Init.Datatypes <> true constr
+R7067:7129 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7060:7062 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7045:7055 SC.Impl Impl initialized proj
+R7057:7057 SC.Impl <> s:26 var
+R7059:7059 SC.Impl <> e:27 var
+R7063:7066 Corelib.Init.Datatypes <> true constr
+R7156:7223 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7138:7140 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7130:7137 SC.Impl <> prevRoot:28 var
+R7141:7151 SC.Impl Impl currentRoot proj
+R7153:7153 SC.Impl <> s:26 var
+R7155:7155 SC.Impl <> e:27 var
+R7235:7371 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7231:7233 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R7224:7230 SC.Impl <> newRoot:29 var
+R7372:7375 SC.Impl <> step:19 ind
+R7380:7390 SC.Impl Impl submitBatch def
+R7392:7392 SC.Impl <> s:26 var
+R7394:7394 SC.Impl <> e:27 var
+R7396:7402 SC.Impl <> newRoot:29 var
+R7404:7412 SC.Impl <> timestamp:30 var
+R7377:7377 SC.Impl <> s:26 var
+scheme 6505:6508 Impl step_ind
+scheme 6505:6508 Impl step_sind
+R7421:7424 SC.Impl Impl <> mod
