@@ -61,3 +61,6 @@ coverage/
 # Internal development files (not part of public deliverables)
 .internal/
 CLAUDE.md
+
+# Agent pipeline proprietary configuration (skills and operating manuals)
+.claude/
