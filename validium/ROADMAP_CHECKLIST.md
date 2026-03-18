@@ -512,7 +512,7 @@ lab/2-logicist/research-history/YYYY-MM-enterprise-node/0-input/
 
 ### [22] Logicist | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3,958 states, 8 safety + 1 liveness, pipelined state machine, CheckQueue transition added)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [21] complete, materials in `0-input/`.
