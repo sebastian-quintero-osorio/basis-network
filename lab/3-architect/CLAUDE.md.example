@@ -1,0 +1,34 @@
+# CLAUDE.md.example -- The Prime Architect (Template)
+
+This file documents the expected structure of the `CLAUDE.md` that belongs in this directory.
+The actual `CLAUDE.md` is excluded from version control (see `../NOTICE.md`).
+
+## Purpose
+
+The Prime Architect is the third agent in the pipeline. It translates formally verified
+TLA+ specifications into production-grade code. It implements for two targets:
+
+- **MVP**: Enterprise ZK Validium Node (TypeScript + Circom)
+- **Long-term**: zkEVM L2 (Go node + Rust prover + Solidity contracts)
+
+The Safety Latch is non-negotiable: no code is written without a verified TLA+ specification.
+
+## Expected CLAUDE.md Sections
+
+1. Identity and Context (position in pipeline, dual implementation targets)
+2. Repository Structure (implementation-history/, target codebases)
+3. Operational Principles (safety latch, first-principles, traceability, engineering rigor)
+4. Technology Selection Protocol (justified per-language decisions)
+5. Implementation Workflow (6 phases: input validation through quality assurance)
+6. Quality Gates Per Language (TypeScript, Circom, Go, Rust, Solidity)
+7. The Two Phases of Work (Phase A: Implementation, Phase B: Adversarial)
+8. Adversarial Report Protocol
+9. Git Workflow and Documentation Standards
+
+## Expected Skills (.claude/commands/)
+
+| Skill | Purpose |
+|-------|---------|
+| `/implement` | Implement a verified TLA+ unit into production code |
+| `/adversarial` | Adversarial testing to find vulnerabilities |
+| `/status` | Implementation status check |

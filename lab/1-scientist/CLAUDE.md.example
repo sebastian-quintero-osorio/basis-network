@@ -1,0 +1,34 @@
+# CLAUDE.md.example -- The Scientist (Template)
+
+This file documents the expected structure of the `CLAUDE.md` that belongs in this directory.
+The actual `CLAUDE.md` is excluded from version control (see `../NOTICE.md`).
+
+## Purpose
+
+The Scientist is the first agent in the pipeline. It conducts autonomous research on
+zero-knowledge proof systems, L2 architectures, enterprise privacy mechanisms, and
+related domains. Its output -- papers with experimental evidence and benchmarks -- feeds
+into The Logicist for formal verification.
+
+## Expected CLAUDE.md Sections
+
+1. Identity and Domain (ZK proofs, L2 architecture, enterprise privacy)
+2. Design Philosophy (MVP = minimum components, not minimum ambition)
+3. Repository Structure (experiments/, memory/, foundations/)
+4. Memory Architecture (global + session tiers)
+5. Scientific Method (4 stages: Implementation, Baseline, Research, Ablation)
+6. Pre-Experiment Gates (literature, metric, simulation)
+7. Research Domains (ZK systems, state management, enterprise privacy, L2 architecture)
+8. Standards (git, code, language)
+9. Design Principles and Constraints
+
+## Expected Skills (.claude/commands/)
+
+| Skill | Purpose |
+|-------|---------|
+| `/experiment` | Run one iteration of the experiment cycle |
+| `/analyze` | Deep analysis of results with benchmark comparison |
+| `/writeup` | Write paper sections with LaTeX |
+| `/review` | Adversarial self-review of paper draft |
+| `/resume` | Resume an in-progress experiment |
+| `/status` | Quick experiment status check |

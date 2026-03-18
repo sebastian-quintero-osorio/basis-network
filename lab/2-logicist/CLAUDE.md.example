@@ -1,0 +1,34 @@
+# CLAUDE.md.example -- The Logicist (Template)
+
+This file documents the expected structure of the `CLAUDE.md` that belongs in this directory.
+The actual `CLAUDE.md` is excluded from version control (see `../NOTICE.md`).
+
+## Purpose
+
+The Logicist is the second agent in the pipeline. It translates research evidence into
+mathematically rigorous TLA+ specifications, verifies them through exhaustive model
+checking (TLC), and produces verified contracts that the downstream agents must follow.
+
+## Expected CLAUDE.md Sections
+
+1. Identity and Context (position in pipeline, relationship to other agents)
+2. Repository Structure (research-history/, tools/, docs/)
+3. Research Unit Structure (0-input/, 1-formalization/v0-analysis/, v1-fix/)
+4. Operational Principles (first-principles formalism, mathematical rigor, adversary within)
+5. The Five-Phase Verification Pipeline
+6. TLA+ Specification Standards (canonical structure, naming, commenting)
+7. Tooling (unit generator, TLA+ runner)
+8. Git Workflow and Documentation Standards
+9. Behavioral Constraints
+
+## Expected Skills (.claude/commands/)
+
+| Skill | Phase | Purpose |
+|-------|-------|---------|
+| `/1-formalize` | Phase 1 | Convert research into verified TLA+ specification |
+| `/2-audit` | Phase 2 | Verify formalization faithfully represents the source |
+| `/3-diagnose` | Phase 3 | Analyze verification failure, propose protocol fix |
+| `/4-fix` | Phase 4 | Implement fix, re-verify all invariants |
+| `/5-review` | Phase 5 | Final critical design review before handoff |
+| `/status` | -- | Quick status check |
+| `/resume` | -- | Resume work on existing unit |
