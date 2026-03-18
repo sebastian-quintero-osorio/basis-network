@@ -108,7 +108,7 @@ Use `python lab/4-prover/tools/new_verification_unit.py sparse-merkle-tree` to s
 
 ### [04] Prover | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 10 theorems Qed, 0 Admitted, 3 standard axioms)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [03] complete, snapshots prepared.
