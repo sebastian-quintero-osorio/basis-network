@@ -627,7 +627,7 @@ lab/3-architect/implementation-history/verification-cross-enterprise/
 
 ### [27] Architect | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 44 tests, CrossEnterpriseVerifier.sol, 25 adversarial vectors, Isolation + Consistency enforced)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [26] complete, verified specs in `implementation-history/`.
