@@ -1,0 +1,232 @@
+{
+  "timestamp": "2026-03-18T22:44:03.024Z",
+  "experiment": "cross-enterprise-verification",
+  "research_unit": "RU-V7",
+  "benchmark_reps": 50,
+  "tree_depth": 32,
+  "constraints": {
+    "merklePathPerSide": 34254,
+    "interactionPredicate": 360,
+    "total": 68868,
+    "provingTimeSnarkjsMs": 4476.42,
+    "provingTimeRapidsnarkMs": 447.642
+  },
+  "timing": {
+    "merkle_proof_gen_ms": {
+      "mean": 0.018083999999994375,
+      "std": 0.014912751054045237
+    },
+    "witness_gen_ms": {
+      "mean": 0.11152200000001358,
+      "std": 0.01571365380805465
+    },
+    "verification_sim_ms": {
+      "mean": 3.4638139999999886,
+      "std": 0.17695526441448253
+    }
+  },
+  "privacy": {
+    "leakage_bits": 1,
+    "leakage_type": "interaction existence only",
+    "preimage_resistance": "128-bit (Poseidon)",
+    "adversarial_tests": "4/4 PASS"
+  },
+  "verification_result": true,
+  "results": [
+    {
+      "approach": "Sequential",
+      "numEnterprises": 2,
+      "numInteractions": 1,
+      "totalGas": 806737,
+      "overheadRatio": 1.4115836587858173,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 1,
+      "proofSizeBytes": 2415,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Batched Pairing",
+      "numEnterprises": 2,
+      "numInteractions": 1,
+      "totalGas": 365042,
+      "overheadRatio": 0.6387302453841739,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 1,
+      "proofSizeBytes": 2415,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Hub Aggregation",
+      "numEnterprises": 2,
+      "numInteractions": 1,
+      "totalGas": 663540,
+      "overheadRatio": 1.1610254902784194,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 1,
+      "proofSizeBytes": 805,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Sequential",
+      "numEnterprises": 3,
+      "numInteractions": 2,
+      "totalGas": 1327718,
+      "overheadRatio": 1.548778211714423,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 2,
+      "proofSizeBytes": 4025,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Batched Pairing",
+      "numEnterprises": 3,
+      "numInteractions": 2,
+      "totalGas": 468497,
+      "overheadRatio": 0.5465000443268616,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 2,
+      "proofSizeBytes": 4025,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Hub Aggregation",
+      "numEnterprises": 3,
+      "numInteractions": 2,
+      "totalGas": 788886,
+      "overheadRatio": 0.920232646033679,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 2,
+      "proofSizeBytes": 805,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Sequential",
+      "numEnterprises": 5,
+      "numInteractions": 4,
+      "totalGas": 2369680,
+      "overheadRatio": 1.6585338540573076,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 4,
+      "proofSizeBytes": 7245,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Batched Pairing",
+      "numEnterprises": 5,
+      "numInteractions": 4,
+      "totalGas": 675407,
+      "overheadRatio": 0.4727158834810118,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 4,
+      "proofSizeBytes": 7245,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Hub Aggregation",
+      "numEnterprises": 5,
+      "numInteractions": 4,
+      "totalGas": 1039563,
+      "overheadRatio": 0.7275878721706631,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 4,
+      "proofSizeBytes": 805,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Sequential",
+      "numEnterprises": 10,
+      "numInteractions": 9,
+      "totalGas": 4974585,
+      "overheadRatio": 1.7408505858144712,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 9,
+      "proofSizeBytes": 15295,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Batched Pairing",
+      "numEnterprises": 10,
+      "numInteractions": 9,
+      "totalGas": 1192682,
+      "overheadRatio": 0.41737776284662437,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 9,
+      "proofSizeBytes": 15295,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Hub Aggregation",
+      "numEnterprises": 10,
+      "numInteractions": 9,
+      "totalGas": 1666283,
+      "overheadRatio": 0.5831139153683562,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 9,
+      "proofSizeBytes": 805,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Sequential",
+      "numEnterprises": 2,
+      "numInteractions": 5,
+      "totalGas": 1747637,
+      "overheadRatio": 3.0579182939290863,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 5,
+      "proofSizeBytes": 5635,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Batched Pairing",
+      "numEnterprises": 2,
+      "numInteractions": 5,
+      "totalGas": 540514,
+      "overheadRatio": 0.9457614188328504,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 5,
+      "proofSizeBytes": 5635,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    },
+    {
+      "approach": "Hub Aggregation",
+      "numEnterprises": 2,
+      "numInteractions": 5,
+      "totalGas": 896110,
+      "overheadRatio": 1.5679635773177116,
+      "crossRefConstraints": 68868,
+      "crossRefProvingTimeEstMs": 4476.42,
+      "privacyLeakageBits": 5,
+      "proofSizeBytes": 805,
+      "merkleProofGenTimeMs": 0.018083999999994375,
+      "crossRefWitnessGenTimeMs": 0.11152200000001358
+    }
+  ]
+}
