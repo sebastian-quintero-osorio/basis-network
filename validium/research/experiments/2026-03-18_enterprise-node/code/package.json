@@ -1,0 +1,22 @@
+{
+  "name": "enterprise-node-experiment",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RU-V5: Enterprise Node Orchestrator -- Experimental Prototype",
+  "scripts": {
+    "build": "tsc",
+    "benchmark": "ts-node src/benchmark.ts",
+    "benchmark:pipeline": "ts-node src/benchmark-pipeline.ts",
+    "test:state-machine": "ts-node src/test-state-machine.ts"
+  },
+  "dependencies": {
+    "fastify": "^4.28.0",
+    "@fastify/websocket": "^10.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.10"
+  }
+}

@@ -488,7 +488,7 @@ lab/4-prover/verification-history/YYYY-MM-state-commitment/
 
 ### [21] Scientist | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 6-state machine, 593ms overhead, API contract, 20 references, proving is sole bottleneck)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [05], [09], [17] complete (all Scientist work for dependencies).
