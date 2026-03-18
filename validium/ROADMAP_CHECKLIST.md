@@ -289,7 +289,7 @@ lab/4-prover/verification-history/YYYY-MM-batch-aggregation/
 
 ### [12] Prover | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 55 theorems Qed, 0 Admitted, NoLoss + v1-fix checkpoint certified)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [11] complete, snapshots prepared.

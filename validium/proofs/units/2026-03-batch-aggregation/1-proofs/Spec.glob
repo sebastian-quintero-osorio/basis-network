@@ -1,0 +1,527 @@
+DIGEST 9dccbc845b4dc8d03dd5b305e63941d9
+FBA.Spec
+R734:739 BA.Common <> <> lib
+R769:778 Stdlib.Lists.List <> <> lib
+R808:818 Stdlib.Arith.Arith <> <> lib
+R848:856 Stdlib.Bool.Bool <> <> lib
+R886:888 Stdlib.micromega.Lia <> <> lib
+R899:911 Stdlib.Lists.List ListNotations <> mod
+rec 1101:1105 <> State
+proj 1122:1126 <> queue
+proj 1191:1193 <> wal
+proj 1260:1272 <> checkpointSeq
+proj 1333:1339 <> batches
+proj 1404:1412 <> processed
+proj 1471:1477 <> pending
+proj 1524:1531 <> systemUp
+proj 1575:1586 <> timerExpired
+R1130:1133 Corelib.Init.Datatypes <> list ind
+R1135:1136 BA.Common <> Tx def
+R1197:1200 Corelib.Init.Datatypes <> list ind
+R1202:1203 BA.Common <> Tx def
+R1276:1278 Corelib.Init.Datatypes <> nat ind
+R1343:1346 Corelib.Init.Datatypes <> list ind
+R1349:1352 Corelib.Init.Datatypes <> list ind
+R1354:1355 BA.Common <> Tx def
+R1416:1419 Corelib.Init.Datatypes <> list ind
+R1422:1425 Corelib.Init.Datatypes <> list ind
+R1427:1428 BA.Common <> Tx def
+R1481:1484 Corelib.Init.Datatypes <> list ind
+R1486:1487 BA.Common <> Tx def
+R1535:1538 Corelib.Init.Datatypes <> bool ind
+R1590:1593 Corelib.Init.Datatypes <> bool ind
+def 1988:1998 <> uncommitted
+R2005:2009 BA.Spec <> State rec
+binder 2001:2001 <> s:10
+R2014:2017 Corelib.Init.Datatypes <> list ind
+R2019:2020 BA.Common <> Tx def
+R2027:2031 Corelib.Lists.ListDef <> skipn def
+R2052:2054 BA.Spec <> wal proj
+R2056:2056 BA.Spec <> s:10 var
+R2034:2046 BA.Spec <> checkpointSeq proj
+R2048:2048 BA.Spec <> s:10 var
+def 2151:2162 <> processedTxs
+R2169:2173 BA.Spec <> State rec
+binder 2165:2165 <> s:11
+R2178:2181 Corelib.Init.Datatypes <> list ind
+R2183:2184 BA.Common <> Tx def
+R2191:2197 BA.Common <> flatten def
+R2200:2208 BA.Spec <> processed proj
+R2210:2210 BA.Spec <> s:11 var
+def 2402:2405 <> Init
+R2417:2420 Corelib.Init.Datatypes <> list ind
+R2422:2423 BA.Common <> Tx def
+binder 2408:2413 <> allTxs:12
+R2428:2432 BA.Spec <> State rec
+R2439:2445 BA.Spec <> mkState constr
+R2447:2448 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2450:2451 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2455:2456 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2458:2459 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2461:2466 BA.Spec <> allTxs:12 var
+R2468:2471 Corelib.Init.Datatypes <> true constr
+R2473:2477 Corelib.Init.Datatypes <> false constr
+def 2735:2741 <> Enqueue
+R2748:2752 BA.Spec <> State rec
+binder 2744:2744 <> s:13
+R2761:2762 BA.Common <> Tx def
+binder 2756:2757 <> tx:14
+R2767:2771 BA.Spec <> State rec
+R2778:2784 BA.Spec <> mkState constr
+R2798:2801 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R2791:2795 BA.Spec <> queue proj
+R2797:2797 BA.Spec <> s:13 var
+R2802:2802 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2805:2805 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2803:2804 BA.Spec <> tx:14 var
+R2818:2821 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R2813:2815 BA.Spec <> wal proj
+R2817:2817 BA.Spec <> s:13 var
+R2822:2822 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2825:2825 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2823:2824 BA.Spec <> tx:14 var
+R2833:2845 BA.Spec <> checkpointSeq proj
+R2847:2847 BA.Spec <> s:13 var
+R2855:2861 BA.Spec <> batches proj
+R2863:2863 BA.Spec <> s:13 var
+R2871:2879 BA.Spec <> processed proj
+R2881:2881 BA.Spec <> s:13 var
+R2889:2894 Stdlib.Lists.List <> remove def
+R2911:2917 BA.Spec <> pending proj
+R2919:2919 BA.Spec <> s:13 var
+R2907:2908 BA.Spec <> tx:14 var
+R2896:2905 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R2928:2935 BA.Spec <> systemUp proj
+R2937:2937 BA.Spec <> s:13 var
+R2945:2956 BA.Spec <> timerExpired proj
+R2958:2958 BA.Spec <> s:13 var
+def 3112:3120 <> FormBatch
+R3127:3131 BA.Spec <> State rec
+binder 3123:3123 <> s:15
+R3136:3140 BA.Spec <> State rec
+R3170:3174 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R3167:3169 BA.Common <> BST defax
+R3175:3180 Corelib.Init.Datatypes <> length def
+R3183:3187 BA.Spec <> queue proj
+R3189:3189 BA.Spec <> s:15 var
+R3246:3251 Corelib.Init.Datatypes <> length def
+R3254:3258 BA.Spec <> queue proj
+R3260:3260 BA.Spec <> s:15 var
+R3217:3219 BA.Common <> BST defax
+binder 3151:3159 <> batchSize:16
+R3268:3274 BA.Spec <> mkState constr
+R3281:3285 Corelib.Lists.ListDef <> skipn def
+R3298:3302 BA.Spec <> queue proj
+R3304:3304 BA.Spec <> s:15 var
+R3287:3295 BA.Spec <> batchSize:16 var
+R3313:3315 BA.Spec <> wal proj
+R3317:3317 BA.Spec <> s:15 var
+R3325:3337 BA.Spec <> checkpointSeq proj
+R3339:3339 BA.Spec <> s:15 var
+R3356:3359 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3347:3353 BA.Spec <> batches proj
+R3355:3355 BA.Spec <> s:15 var
+R3360:3360 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3387:3387 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3361:3366 Corelib.Lists.ListDef <> firstn def
+R3379:3383 BA.Spec <> queue proj
+R3385:3385 BA.Spec <> s:15 var
+R3368:3376 BA.Spec <> batchSize:16 var
+R3395:3403 BA.Spec <> processed proj
+R3405:3405 BA.Spec <> s:15 var
+R3413:3419 BA.Spec <> pending proj
+R3421:3421 BA.Spec <> s:15 var
+R3429:3436 BA.Spec <> systemUp proj
+R3438:3438 BA.Spec <> s:15 var
+R3445:3449 Corelib.Init.Datatypes <> false constr
+def 3629:3640 <> ProcessBatch
+R3647:3651 BA.Spec <> State rec
+binder 3643:3643 <> s:17
+R3656:3660 BA.Spec <> State rec
+R3673:3679 BA.Spec <> batches proj
+R3681:3681 BA.Spec <> s:17 var
+R3692:3693 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R3698:3698 BA.Spec <> s:17 var
+R3705:3708 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R3721:3727 BA.Spec <> mkState constr
+R3736:3740 BA.Spec <> queue proj
+R3742:3742 BA.Spec <> s:17 var
+R3752:3754 BA.Spec <> wal proj
+R3756:3756 BA.Spec <> s:17 var
+R3781:3783 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R3766:3778 BA.Spec <> checkpointSeq proj
+R3780:3780 BA.Spec <> s:17 var
+R3784:3789 Corelib.Init.Datatypes <> length def
+R3823:3826 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3812:3820 BA.Spec <> processed proj
+R3822:3822 BA.Spec <> s:17 var
+R3827:3827 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3829:3829 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3839:3845 BA.Spec <> pending proj
+R3847:3847 BA.Spec <> s:17 var
+R3857:3864 BA.Spec <> systemUp proj
+R3866:3866 BA.Spec <> s:17 var
+R3876:3887 BA.Spec <> timerExpired proj
+R3889:3889 BA.Spec <> s:17 var
+def 3995:3999 <> Crash
+R4006:4010 BA.Spec <> State rec
+binder 4002:4002 <> s:18
+R4015:4019 BA.Spec <> State rec
+R4026:4032 BA.Spec <> mkState constr
+R4038:4039 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R4046:4048 BA.Spec <> wal proj
+R4050:4050 BA.Spec <> s:18 var
+R4058:4070 BA.Spec <> checkpointSeq proj
+R4072:4072 BA.Spec <> s:18 var
+R4079:4080 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R4087:4095 BA.Spec <> processed proj
+R4097:4097 BA.Spec <> s:18 var
+R4105:4111 BA.Spec <> pending proj
+R4113:4113 BA.Spec <> s:18 var
+R4120:4124 Corelib.Init.Datatypes <> false constr
+R4130:4134 Corelib.Init.Datatypes <> false constr
+def 4314:4320 <> Recover
+R4327:4331 BA.Spec <> State rec
+binder 4323:4323 <> s:19
+R4336:4340 BA.Spec <> State rec
+R4347:4353 BA.Spec <> mkState constr
+R4360:4364 Corelib.Lists.ListDef <> skipn def
+R4385:4387 BA.Spec <> wal proj
+R4389:4389 BA.Spec <> s:19 var
+R4367:4379 BA.Spec <> checkpointSeq proj
+R4381:4381 BA.Spec <> s:19 var
+R4398:4400 BA.Spec <> wal proj
+R4402:4402 BA.Spec <> s:19 var
+R4410:4422 BA.Spec <> checkpointSeq proj
+R4424:4424 BA.Spec <> s:19 var
+R4432:4438 BA.Spec <> batches proj
+R4440:4440 BA.Spec <> s:19 var
+R4448:4456 BA.Spec <> processed proj
+R4458:4458 BA.Spec <> s:19 var
+R4466:4472 BA.Spec <> pending proj
+R4474:4474 BA.Spec <> s:19 var
+R4481:4484 Corelib.Init.Datatypes <> true constr
+R4491:4502 BA.Spec <> timerExpired proj
+R4504:4504 BA.Spec <> s:19 var
+def 4559:4567 <> TimerTick
+R4574:4578 BA.Spec <> State rec
+binder 4570:4570 <> s:20
+R4583:4587 BA.Spec <> State rec
+R4594:4600 BA.Spec <> mkState constr
+R4607:4611 BA.Spec <> queue proj
+R4613:4613 BA.Spec <> s:20 var
+R4621:4623 BA.Spec <> wal proj
+R4625:4625 BA.Spec <> s:20 var
+R4633:4645 BA.Spec <> checkpointSeq proj
+R4647:4647 BA.Spec <> s:20 var
+R4655:4661 BA.Spec <> batches proj
+R4663:4663 BA.Spec <> s:20 var
+R4671:4679 BA.Spec <> processed proj
+R4681:4681 BA.Spec <> s:20 var
+R4689:4695 BA.Spec <> pending proj
+R4697:4697 BA.Spec <> s:20 var
+R4705:4712 BA.Spec <> systemUp proj
+R4714:4714 BA.Spec <> s:20 var
+R4721:4724 Corelib.Init.Datatypes <> true constr
+def 4931:4940 <> canEnqueue
+R4947:4951 BA.Spec <> State rec
+binder 4943:4943 <> s:21
+R4960:4961 BA.Common <> Tx def
+binder 4955:4956 <> tx:22
+R4993:4996 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4986:4988 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4976:4983 BA.Spec <> systemUp proj
+R4985:4985 BA.Spec <> s:21 var
+R4989:4992 Corelib.Init.Datatypes <> true constr
+R4997:4998 Stdlib.Lists.List <> In def
+R5004:5010 BA.Spec <> pending proj
+R5012:5012 BA.Spec <> s:21 var
+R5000:5001 BA.Spec <> tx:22 var
+def 5080:5091 <> canFormBatch
+R5098:5102 BA.Spec <> State rec
+binder 5094:5094 <> s:23
+R5134:5140 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5218:5218 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5127:5129 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5117:5124 BA.Spec <> systemUp proj
+R5126:5126 BA.Spec <> s:23 var
+R5130:5133 Corelib.Init.Datatypes <> true constr
+R5164:5171 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R5217:5217 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R5157:5160 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R5141:5146 Corelib.Init.Datatypes <> length def
+R5149:5153 BA.Spec <> queue proj
+R5155:5155 BA.Spec <> s:23 var
+R5161:5163 BA.Common <> BST defax
+R5193:5196 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5186:5188 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5172:5183 BA.Spec <> timerExpired proj
+R5185:5185 BA.Spec <> s:23 var
+R5189:5192 Corelib.Init.Datatypes <> true constr
+R5213:5215 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R5197:5202 Corelib.Init.Datatypes <> length def
+R5205:5209 BA.Spec <> queue proj
+R5211:5211 BA.Spec <> s:23 var
+def 5288:5302 <> canProcessBatch
+R5309:5313 BA.Spec <> State rec
+binder 5305:5305 <> s:24
+R5345:5348 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5338:5340 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5328:5335 BA.Spec <> systemUp proj
+R5337:5337 BA.Spec <> s:24 var
+R5341:5344 Corelib.Init.Datatypes <> true constr
+R5358:5361 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R5349:5355 BA.Spec <> batches proj
+R5357:5357 BA.Spec <> s:24 var
+R5362:5363 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+def 5421:5428 <> canCrash
+R5435:5439 BA.Spec <> State rec
+binder 5431:5431 <> s:25
+R5464:5466 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5454:5461 BA.Spec <> systemUp proj
+R5463:5463 BA.Spec <> s:25 var
+R5467:5470 Corelib.Init.Datatypes <> true constr
+def 5530:5539 <> canRecover
+R5546:5550 BA.Spec <> State rec
+binder 5542:5542 <> s:26
+R5575:5577 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5565:5572 BA.Spec <> systemUp proj
+R5574:5574 BA.Spec <> s:26 var
+R5578:5582 Corelib.Init.Datatypes <> false constr
+def 5649:5660 <> canTimerTick
+R5667:5671 BA.Spec <> State rec
+binder 5663:5663 <> s:27
+R5703:5708 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5696:5698 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5686:5693 BA.Spec <> systemUp proj
+R5695:5695 BA.Spec <> s:27 var
+R5699:5702 Corelib.Init.Datatypes <> true constr
+R5731:5736 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5723:5725 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5709:5720 BA.Spec <> timerExpired proj
+R5722:5722 BA.Spec <> s:27 var
+R5726:5730 Corelib.Init.Datatypes <> false constr
+R5753:5755 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R5737:5742 Corelib.Init.Datatypes <> length def
+R5745:5749 BA.Spec <> queue proj
+R5751:5751 BA.Spec <> s:27 var
+ind 5946:5949 <> Step
+constr 5983:5994 <> step_enqueue
+constr 6062:6076 <> step_form_batch
+constr 6139:6156 <> step_process_batch
+constr 6225:6234 <> step_crash
+constr 6289:6300 <> step_recover
+constr 6359:6373 <> step_timer_tick
+R5958:5961 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5953:5957 BA.Spec <> State rec
+R5967:5970 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5962:5966 BA.Spec <> State rec
+binder 6005:6005 <> s:30
+binder 6007:6008 <> tx:31
+R6032:6035 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6017:6026 BA.Spec <> canEnqueue def
+R6028:6028 BA.Spec <> s:30 var
+R6030:6031 BA.Spec <> tx:31 var
+R6036:6039 BA.Spec <> Step:28 ind
+R6044:6050 BA.Spec <> Enqueue def
+R6052:6052 BA.Spec <> s:30 var
+R6054:6055 BA.Spec <> tx:31 var
+R6041:6041 BA.Spec <> s:30 var
+binder 6087:6087 <> s:32
+R6110:6113 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6096:6107 BA.Spec <> canFormBatch def
+R6109:6109 BA.Spec <> s:32 var
+R6114:6117 BA.Spec <> Step:28 ind
+R6122:6130 BA.Spec <> FormBatch def
+R6132:6132 BA.Spec <> s:32 var
+R6119:6119 BA.Spec <> s:32 var
+binder 6167:6167 <> s:33
+R6193:6196 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6176:6190 BA.Spec <> canProcessBatch def
+R6192:6192 BA.Spec <> s:33 var
+R6197:6200 BA.Spec <> Step:28 ind
+R6205:6216 BA.Spec <> ProcessBatch def
+R6218:6218 BA.Spec <> s:33 var
+R6202:6202 BA.Spec <> s:33 var
+binder 6245:6245 <> s:34
+R6264:6267 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6254:6261 BA.Spec <> canCrash def
+R6263:6263 BA.Spec <> s:34 var
+R6268:6271 BA.Spec <> Step:28 ind
+R6276:6280 BA.Spec <> Crash def
+R6282:6282 BA.Spec <> s:34 var
+R6273:6273 BA.Spec <> s:34 var
+binder 6311:6311 <> s:35
+R6332:6335 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6320:6329 BA.Spec <> canRecover def
+R6331:6331 BA.Spec <> s:35 var
+R6336:6339 BA.Spec <> Step:28 ind
+R6344:6350 BA.Spec <> Recover def
+R6352:6352 BA.Spec <> s:35 var
+R6341:6341 BA.Spec <> s:35 var
+binder 6384:6384 <> s:36
+R6407:6410 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6393:6404 BA.Spec <> canTimerTick def
+R6406:6406 BA.Spec <> s:36 var
+R6411:6414 BA.Spec <> Step:28 ind
+R6419:6427 BA.Spec <> TimerTick def
+R6429:6429 BA.Spec <> s:36 var
+R6416:6416 BA.Spec <> s:36 var
+scheme 5946:5949 <> Step_ind
+scheme 5946:5949 <> Step_sind
+def 6743:6754 <> FIFOOrdering
+R6761:6765 BA.Spec <> State rec
+binder 6757:6757 <> s:37
+R6797:6802 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6790:6792 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6780:6787 BA.Spec <> systemUp proj
+R6789:6789 BA.Spec <> s:37 var
+R6793:6796 Corelib.Init.Datatypes <> true constr
+R6851:6853 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6817:6820 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R6803:6814 BA.Spec <> processedTxs def
+R6816:6816 BA.Spec <> s:37 var
+R6840:6843 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R6821:6827 BA.Common <> flatten def
+R6830:6836 BA.Spec <> batches proj
+R6838:6838 BA.Spec <> s:37 var
+R6844:6848 BA.Spec <> queue proj
+R6850:6850 BA.Spec <> s:37 var
+R6854:6856 BA.Spec <> wal proj
+R6858:6858 BA.Spec <> s:37 var
+def 7031:7049 <> QueueWalConsistency
+R7056:7060 BA.Spec <> State rec
+binder 7052:7052 <> s:38
+R7092:7097 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7085:7087 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7075:7082 BA.Spec <> systemUp proj
+R7084:7084 BA.Spec <> s:38 var
+R7088:7091 Corelib.Init.Datatypes <> true constr
+R7128:7130 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7117:7120 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R7098:7104 BA.Common <> flatten def
+R7107:7113 BA.Spec <> batches proj
+R7115:7115 BA.Spec <> s:38 var
+R7121:7125 BA.Spec <> queue proj
+R7127:7127 BA.Spec <> s:38 var
+R7131:7141 BA.Spec <> uncommitted def
+R7143:7143 BA.Spec <> s:38 var
+def 7314:7334 <> CheckpointConsistency
+R7341:7345 BA.Spec <> State rec
+binder 7337:7337 <> s:39
+R7375:7377 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7360:7372 BA.Spec <> checkpointSeq proj
+R7374:7374 BA.Spec <> s:39 var
+R7378:7383 Corelib.Init.Datatypes <> length def
+R7386:7397 BA.Spec <> processedTxs def
+R7399:7399 BA.Spec <> s:39 var
+def 7531:7548 <> DurableConsistency
+R7555:7559 BA.Spec <> State rec
+binder 7551:7551 <> s:40
+R7588:7590 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7574:7585 BA.Spec <> processedTxs def
+R7587:7587 BA.Spec <> s:40 var
+R7591:7596 Corelib.Lists.ListDef <> firstn def
+R7617:7619 BA.Spec <> wal proj
+R7621:7621 BA.Spec <> s:40 var
+R7599:7611 BA.Spec <> checkpointSeq proj
+R7613:7613 BA.Spec <> s:40 var
+def 7699:7713 <> CheckpointBound
+R7720:7724 BA.Spec <> State rec
+binder 7716:7716 <> s:41
+R7754:7757 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R7739:7751 BA.Spec <> checkpointSeq proj
+R7753:7753 BA.Spec <> s:41 var
+R7758:7763 Corelib.Init.Datatypes <> length def
+R7766:7768 BA.Spec <> wal proj
+R7770:7770 BA.Spec <> s:41 var
+def 7901:7914 <> DownStateClean
+R7921:7925 BA.Spec <> State rec
+binder 7917:7917 <> s:42
+R7958:7961 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7950:7952 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7940:7947 BA.Spec <> systemUp proj
+R7949:7949 BA.Spec <> s:42 var
+R7953:7957 Corelib.Init.Datatypes <> false constr
+R7974:7977 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R7969:7971 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7962:7966 BA.Spec <> queue proj
+R7968:7968 BA.Spec <> s:42 var
+R7972:7973 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R7987:7989 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7978:7984 BA.Spec <> batches proj
+R7986:7986 BA.Spec <> s:42 var
+R7990:7991 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+def 8142:8152 <> WalComplete
+R8159:8163 BA.Spec <> State rec
+binder 8155:8155 <> s:43
+R8176:8179 Corelib.Init.Datatypes <> list ind
+R8181:8182 BA.Common <> Tx def
+binder 8167:8172 <> allTxs:44
+binder 8204:8205 <> tx:45
+R8220:8225 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R8260:8260 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R8208:8209 Stdlib.Lists.List <> In def
+R8214:8219 BA.Spec <> allTxs:44 var
+R8211:8212 BA.Spec <> tx:45 var
+R8243:8246 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R8226:8227 Stdlib.Lists.List <> In def
+R8233:8239 BA.Spec <> pending proj
+R8241:8241 BA.Spec <> s:43 var
+R8229:8230 BA.Spec <> tx:45 var
+R8247:8248 Stdlib.Lists.List <> In def
+R8254:8256 BA.Spec <> wal proj
+R8258:8258 BA.Spec <> s:43 var
+R8250:8251 BA.Spec <> tx:45 var
+def 8425:8430 <> NoLoss
+R8437:8441 BA.Spec <> State rec
+binder 8433:8433 <> s:46
+R8454:8457 Corelib.Init.Datatypes <> list ind
+R8459:8460 BA.Common <> Tx def
+binder 8445:8450 <> allTxs:47
+binder 8482:8483 <> tx:48
+R8498:8507 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R8576:8576 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R8486:8487 Stdlib.Lists.List <> In def
+R8492:8497 BA.Spec <> allTxs:47 var
+R8489:8490 BA.Spec <> tx:48 var
+R8525:8528 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R8508:8509 Stdlib.Lists.List <> In def
+R8515:8521 BA.Spec <> pending proj
+R8523:8523 BA.Spec <> s:46 var
+R8511:8512 BA.Spec <> tx:48 var
+R8550:8553 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R8529:8530 Stdlib.Lists.List <> In def
+R8536:8546 BA.Spec <> uncommitted def
+R8548:8548 BA.Spec <> s:46 var
+R8532:8533 BA.Spec <> tx:48 var
+R8554:8555 Stdlib.Lists.List <> In def
+R8561:8572 BA.Spec <> processedTxs def
+R8574:8574 BA.Spec <> s:46 var
+R8557:8558 BA.Spec <> tx:48 var
+def 8635:8648 <> BatchSizeBound
+R8655:8659 BA.Spec <> State rec
+binder 8651:8651 <> s:49
+R8674:8674 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8720:8727 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8775:8775 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+binder 8682:8682 <> b:50
+R8701:8704 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8685:8686 Stdlib.Lists.List <> In def
+R8691:8697 BA.Spec <> batches proj
+R8699:8699 BA.Spec <> s:49 var
+R8688:8688 BA.Spec <> b:50 var
+R8713:8716 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R8705:8710 Corelib.Init.Datatypes <> length def
+R8712:8712 BA.Spec <> b:50 var
+R8717:8719 BA.Common <> BST defax
+binder 8735:8735 <> b:51
+R8756:8759 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8738:8739 Stdlib.Lists.List <> In def
+R8744:8752 BA.Spec <> processed proj
+R8754:8754 BA.Spec <> s:49 var
+R8741:8741 BA.Spec <> b:51 var
+R8768:8771 Corelib.Init.Peano <> ::nat_scope:x_'<='_x not
+R8760:8765 Corelib.Init.Datatypes <> length def
+R8767:8767 BA.Spec <> b:51 var
+R8772:8774 BA.Common <> BST defax
