@@ -81,7 +81,7 @@ lab/3-architect/implementation-history/state-machine-sparse-merkle-tree/
 
 ### [03] Architect | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 52/52 tests pass, 11 adversarial scenarios, production code in validium/node/src/state/)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [02] complete, verified specs in `implementation-history/`.
