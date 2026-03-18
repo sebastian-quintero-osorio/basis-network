@@ -1,0 +1,308 @@
+DIGEST 465c85cd066fedf3d210871da1cd8bf5
+FSC.Refinement
+R1587:1592 SC.Common <> <> lib
+R1618:1621 SC.Spec <> <> lib
+R1647:1650 SC.Impl <> <> lib
+R1680:1687 Stdlib.Arith.PeanoNat <> <> lib
+R1717:1719 Stdlib.micromega.Lia <> <> lib
+def 2172:2180 <> map_state
+R2187:2196 SC.Impl Impl State rec
+binder 2183:2183 <> s:1
+R2201:2210 SC.Spec Spec State rec
+R2217:2228 SC.Spec Spec mkState constr
+R2235:2250 SC.Impl Impl currentRoot proj
+R2252:2252 SC.Refinement <> s:1 var
+R2260:2274 SC.Impl Impl batchCount proj
+R2276:2276 SC.Refinement <> s:1 var
+R2284:2299 SC.Impl Impl initialized proj
+R2301:2301 SC.Refinement <> s:1 var
+R2309:2323 SC.Impl Impl batchRoots proj
+R2325:2325 SC.Refinement <> s:1 var
+R2333:2358 SC.Impl Impl totalBatchesCommitted proj
+R2360:2360 SC.Refinement <> s:1 var
+prf 2730:2744 <> init_refinement
+R2767:2769 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2748:2756 SC.Refinement <> map_state def
+R2758:2766 SC.Impl Impl Init def
+R2770:2778 SC.Spec Spec Init def
+prf 3340:3354 <> step_refinement
+binder 3365:3365 <> s:2
+binder 3367:3368 <> s':3
+R3389:3396 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3375:3383 SC.Impl Impl step ind
+R3385:3385 SC.Refinement <> s:2 var
+R3387:3388 SC.Refinement <> s':3 var
+R3423:3430 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3409:3411 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3397:3405 SC.Refinement <> map_state def
+R3407:3408 SC.Refinement <> s':3 var
+R3412:3420 SC.Refinement <> map_state def
+R3422:3422 SC.Refinement <> s:2 var
+R3431:3439 SC.Spec Spec step ind
+R3442:3450 SC.Refinement <> map_state def
+R3452:3452 SC.Refinement <> s:2 var
+R3456:3464 SC.Refinement <> map_state def
+R3466:3467 SC.Refinement <> s':3 var
+R3716:3740 SC.Spec Spec step_init_enterprise constr
+R3716:3740 SC.Spec Spec step_init_enterprise constr
+R3871:3886 SC.Impl Impl currentRoot proj
+R3830:3851 SC.Spec Spec step_submit_batch constr
+R3871:3886 SC.Impl Impl currentRoot proj
+R3830:3851 SC.Spec Spec step_submit_batch constr
+prf 4456:4474 <> all_invariants_init
+R4478:4495 SC.Spec Spec AllInvariants def
+R4497:4505 SC.Spec Spec Init def
+prf 5405:5431 <> init_before_batch_preserved
+binder 5442:5442 <> s:4
+binder 5444:5445 <> s':5
+R5474:5481 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5452:5471 SC.Spec Spec InitBeforeBatch def
+R5473:5473 SC.Refinement <> s:4 var
+R5496:5503 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5482:5490 SC.Spec Spec step ind
+R5492:5492 SC.Refinement <> s:4 var
+R5494:5495 SC.Refinement <> s':5 var
+R5504:5523 SC.Spec Spec InitBeforeBatch def
+R5525:5526 SC.Refinement <> s':5 var
+R5676:5685 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R5676:5685 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R5722:5733 SC.Common <> fupdate_same thm
+R5722:5733 SC.Common <> fupdate_same thm
+R5722:5733 SC.Common <> fupdate_same thm
+R5764:5776 SC.Common <> fupdate_other thm
+R5764:5776 SC.Common <> fupdate_other thm
+R5764:5776 SC.Common <> fupdate_other thm
+R5852:5861 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R5852:5861 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R5935:5947 SC.Common <> fupdate_other thm
+R5935:5947 SC.Common <> fupdate_other thm
+R5935:5947 SC.Common <> fupdate_other thm
+prf 6236:6256 <> no_reversal_preserved
+binder 6267:6267 <> s:6
+binder 6269:6270 <> s':7
+R6294:6301 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6277:6291 SC.Spec Spec NoReversal def
+R6293:6293 SC.Refinement <> s:6 var
+R6316:6323 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6302:6310 SC.Spec Spec step ind
+R6312:6312 SC.Refinement <> s:6 var
+R6314:6315 SC.Refinement <> s':7 var
+R6324:6338 SC.Spec Spec NoReversal def
+R6340:6341 SC.Refinement <> s':7 var
+R6492:6501 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R6492:6501 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R6538:6549 SC.Common <> fupdate_same thm
+R6538:6549 SC.Common <> fupdate_same thm
+R6538:6549 SC.Common <> fupdate_same thm
+R6558:6568 SC.Common <> pos_ne_NONE thm
+R6558:6568 SC.Common <> pos_ne_NONE thm
+R6598:6610 SC.Common <> fupdate_other thm
+R6598:6610 SC.Common <> fupdate_other thm
+R6598:6610 SC.Common <> fupdate_other thm
+R6641:6653 SC.Common <> fupdate_other thm
+R6641:6653 SC.Common <> fupdate_other thm
+R6641:6653 SC.Common <> fupdate_other thm
+R6744:6753 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R6744:6753 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R6790:6801 SC.Common <> fupdate_same thm
+R6790:6801 SC.Common <> fupdate_same thm
+R6790:6801 SC.Common <> fupdate_same thm
+R6810:6820 SC.Common <> pos_ne_NONE thm
+R6810:6820 SC.Common <> pos_ne_NONE thm
+R6850:6862 SC.Common <> fupdate_other thm
+R6850:6862 SC.Common <> fupdate_other thm
+R6850:6862 SC.Common <> fupdate_other thm
+prf 7204:7219 <> no_gap_preserved
+binder 7230:7230 <> s:8
+binder 7232:7233 <> s':9
+R7252:7259 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7240:7249 SC.Spec Spec NoGap def
+R7251:7251 SC.Refinement <> s:8 var
+R7274:7281 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7260:7268 SC.Spec Spec step ind
+R7270:7270 SC.Refinement <> s:8 var
+R7272:7273 SC.Refinement <> s':9 var
+R7282:7291 SC.Spec Spec NoGap def
+R7293:7294 SC.Refinement <> s':9 var
+R7508:7517 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R7508:7517 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R7742:7753 SC.Common <> fupdate_same thm
+R7742:7753 SC.Common <> fupdate_same thm
+R7742:7753 SC.Common <> fupdate_same thm
+R7780:7789 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R7792:7806 SC.Spec Spec batchCount proj
+R7780:7789 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R7792:7806 SC.Spec Spec batchCount proj
+R7908:7920 SC.Common <> fupdate2_same thm
+R7908:7920 SC.Common <> fupdate2_same thm
+R7908:7920 SC.Common <> fupdate2_same thm
+R7929:7939 SC.Common <> pos_ne_NONE thm
+R7929:7939 SC.Common <> pos_ne_NONE thm
+R8031:8055 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8031:8055 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8031:8055 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8191:8202 SC.Common <> fupdate_same thm
+R8191:8202 SC.Common <> fupdate_same thm
+R8191:8202 SC.Common <> fupdate_same thm
+R8252:8255 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8233:8247 SC.Spec Spec batchCount proj
+R8252:8255 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8233:8247 SC.Spec Spec batchCount proj
+R8284:8308 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8284:8308 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8284:8308 SC.Common <> fupdate2_same_k1_other_k2 thm
+R8479:8491 SC.Common <> fupdate_other thm
+R8479:8491 SC.Common <> fupdate_other thm
+R8479:8491 SC.Common <> fupdate_other thm
+R8530:8546 SC.Common <> fupdate2_other_k1 thm
+R8530:8546 SC.Common <> fupdate2_other_k1 thm
+R8530:8546 SC.Common <> fupdate2_other_k1 thm
+R8633:8645 SC.Common <> fupdate_other thm
+R8633:8645 SC.Common <> fupdate_other thm
+R8633:8645 SC.Common <> fupdate_other thm
+R8684:8700 SC.Common <> fupdate2_other_k1 thm
+R8684:8700 SC.Common <> fupdate2_other_k1 thm
+R8684:8700 SC.Common <> fupdate2_other_k1 thm
+prf 9328:9353 <> chain_continuity_preserved
+binder 9364:9364 <> s:10
+binder 9366:9367 <> s':11
+R9396:9403 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9374:9393 SC.Spec Spec InitBeforeBatch def
+R9395:9395 SC.Refinement <> s:10 var
+R9426:9433 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9404:9423 SC.Spec Spec ChainContinuity def
+R9425:9425 SC.Refinement <> s:10 var
+R9448:9455 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9434:9442 SC.Spec Spec step ind
+R9444:9444 SC.Refinement <> s:10 var
+R9446:9447 SC.Refinement <> s':11 var
+R9456:9475 SC.Spec Spec ChainContinuity def
+R9477:9478 SC.Refinement <> s':11 var
+R9639:9648 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R9639:9648 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R10031:10043 SC.Common <> fupdate_other thm
+R10031:10043 SC.Common <> fupdate_other thm
+R10031:10043 SC.Common <> fupdate_other thm
+R10074:10086 SC.Common <> fupdate_other thm
+R10074:10086 SC.Common <> fupdate_other thm
+R10074:10086 SC.Common <> fupdate_other thm
+R10182:10191 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R10182:10191 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R10433:10444 SC.Common <> fupdate_same thm
+R10433:10444 SC.Common <> fupdate_same thm
+R10433:10444 SC.Common <> fupdate_same thm
+R10461:10472 SC.Common <> fupdate_same thm
+R10461:10472 SC.Common <> fupdate_same thm
+R10461:10472 SC.Common <> fupdate_same thm
+R10513:10515 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10509:10511 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R10490:10504 SC.Spec Spec batchCount proj
+R10525:10539 SC.Spec Spec batchCount proj
+R10513:10515 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R10509:10511 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R10490:10504 SC.Spec Spec batchCount proj
+R10525:10539 SC.Spec Spec batchCount proj
+R10568:10580 SC.Common <> fupdate2_same thm
+R10568:10580 SC.Common <> fupdate2_same thm
+R10568:10580 SC.Common <> fupdate2_same thm
+R10729:10741 SC.Common <> fupdate_other thm
+R10729:10741 SC.Common <> fupdate_other thm
+R10729:10741 SC.Common <> fupdate_other thm
+R10772:10784 SC.Common <> fupdate_other thm
+R10772:10784 SC.Common <> fupdate_other thm
+R10772:10784 SC.Common <> fupdate_other thm
+R10823:10839 SC.Common <> fupdate2_other_k1 thm
+R10823:10839 SC.Common <> fupdate2_other_k1 thm
+R10823:10839 SC.Common <> fupdate2_other_k1 thm
+R10874:10886 SC.Common <> fupdate_other thm
+R10874:10886 SC.Common <> fupdate_other thm
+R10874:10886 SC.Common <> fupdate_other thm
+prf 11287:11310 <> all_invariants_preserved
+binder 11321:11321 <> s:12
+binder 11323:11324 <> s':13
+R11351:11358 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11331:11348 SC.Spec Spec AllInvariants def
+R11350:11350 SC.Refinement <> s:12 var
+R11373:11380 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11359:11367 SC.Spec Spec step ind
+R11369:11369 SC.Refinement <> s:12 var
+R11371:11372 SC.Refinement <> s':13 var
+R11381:11398 SC.Spec Spec AllInvariants def
+R11400:11401 SC.Refinement <> s':13 var
+R11497:11522 SC.Refinement <> chain_continuity_preserved thm
+R11497:11522 SC.Refinement <> chain_continuity_preserved thm
+R11557:11572 SC.Refinement <> no_gap_preserved thm
+R11557:11572 SC.Refinement <> no_gap_preserved thm
+R11602:11622 SC.Refinement <> no_reversal_preserved thm
+R11602:11622 SC.Refinement <> no_reversal_preserved thm
+R11652:11678 SC.Refinement <> init_before_batch_preserved thm
+R11652:11678 SC.Refinement <> init_before_batch_preserved thm
+prf 11998:12017 <> impl_invariants_init
+R12025:12042 SC.Spec Spec AllInvariants def
+R12045:12053 SC.Refinement <> map_state def
+R12055:12063 SC.Impl Impl Init def
+R12084:12098 SC.Refinement <> init_refinement thm
+R12084:12098 SC.Refinement <> init_refinement thm
+R12084:12098 SC.Refinement <> init_refinement thm
+R12107:12125 SC.Refinement <> all_invariants_init thm
+R12107:12125 SC.Refinement <> all_invariants_init thm
+prf 12348:12372 <> impl_invariants_preserved
+binder 12383:12383 <> s:14
+binder 12385:12386 <> s':15
+R12425:12432 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12393:12410 SC.Spec Spec AllInvariants def
+R12413:12421 SC.Refinement <> map_state def
+R12423:12423 SC.Refinement <> s:14 var
+R12447:12454 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12433:12441 SC.Impl Impl step ind
+R12443:12443 SC.Refinement <> s:14 var
+R12445:12446 SC.Refinement <> s':15 var
+R12455:12472 SC.Spec Spec AllInvariants def
+R12475:12483 SC.Refinement <> map_state def
+R12485:12486 SC.Refinement <> s':15 var
+R12535:12549 SC.Refinement <> step_refinement thm
+R12535:12549 SC.Refinement <> step_refinement thm
+R12732:12755 SC.Refinement <> all_invariants_preserved thm
+R12758:12766 SC.Refinement <> map_state def
+R12772:12780 SC.Refinement <> map_state def
+R12732:12755 SC.Refinement <> all_invariants_preserved thm
+R12758:12766 SC.Refinement <> map_state def
+R12772:12780 SC.Refinement <> map_state def
+prf 13907:13924 <> proof_before_state
+binder 13935:13935 <> s:16
+binder 13937:13937 <> e:17
+binder 13939:13945 <> newRoot:18
+binder 13947:13955 <> timestamp:19
+R13991:13998 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13984:13986 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13962:13981 SC.Impl Impl verifyingKeySet proj
+R13983:13983 SC.Refinement <> s:16 var
+R13987:13990 Corelib.Init.Datatypes <> true constr
+R14026:14033 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14019:14021 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R13999:14014 SC.Impl Impl initialized proj
+R14016:14016 SC.Refinement <> s:16 var
+R14018:14018 SC.Refinement <> e:17 var
+R14022:14025 Corelib.Init.Datatypes <> true constr
+R14077:14084 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14054:14056 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14034:14049 SC.Impl Impl currentRoot proj
+R14051:14051 SC.Refinement <> s:16 var
+R14053:14053 SC.Refinement <> e:17 var
+R14057:14072 SC.Impl Impl currentRoot proj
+R14074:14074 SC.Refinement <> s:16 var
+R14076:14076 SC.Refinement <> e:17 var
+R14096:14103 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14092:14094 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R14085:14091 SC.Refinement <> newRoot:18 var
+R14104:14112 SC.Impl Impl step ind
+R14114:14114 SC.Refinement <> s:16 var
+R14117:14132 SC.Impl Impl submitBatch def
+R14134:14134 SC.Refinement <> s:16 var
+R14136:14136 SC.Refinement <> e:17 var
+R14138:14144 SC.Refinement <> newRoot:18 var
+R14146:14154 SC.Refinement <> timestamp:19 var
+R14224:14239 SC.Impl Impl currentRoot proj
+R14183:14204 SC.Impl Impl step_submit_batch constr
+R14224:14239 SC.Impl Impl currentRoot proj
+R14183:14204 SC.Impl Impl step_submit_batch constr
