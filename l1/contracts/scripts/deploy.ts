@@ -51,7 +51,15 @@ async function main() {
   const zkVerifierAddress = await zkVerifier.getAddress();
   console.log("ZKVerifier deployed to:", zkVerifierAddress);
 
-  // 6. Register connector contracts as authorized enterprises
+  // 6. Deploy StateCommitment
+  console.log("\n--- Deploying StateCommitment ---");
+  const StateCommitment = await ethers.getContractFactory("StateCommitment");
+  const stateCommitment = await StateCommitment.deploy(enterpriseRegistryAddress);
+  await stateCommitment.waitForDeployment();
+  const stateCommitmentAddress = await stateCommitment.getAddress();
+  console.log("StateCommitment deployed to:", stateCommitmentAddress);
+
+  // 7. Register connector contracts as authorized enterprises
   console.log("\n--- Registering connector contracts as authorized ---");
   const connectorMetadata = ethers.toUtf8Bytes('{"type":"system_connector"}');
 
@@ -78,6 +86,7 @@ async function main() {
   console.log("PLASMAConnector:       ", plasmaConnectorAddress);
   console.log("TraceConnector:        ", traceConnectorAddress);
   console.log("ZKVerifier:            ", zkVerifierAddress);
+  console.log("StateCommitment:       ", stateCommitmentAddress);
   console.log("========================================");
   console.log("\nSave these addresses in your .env files.");
 }
