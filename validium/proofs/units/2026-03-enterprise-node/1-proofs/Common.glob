@@ -1,0 +1,162 @@
+DIGEST ee70e68aa663e9aa5a298ad3b9120c41
+FEN.Common
+R809:818 Stdlib.Lists.List <> <> lib
+R848:856 Stdlib.Bool.Bool <> <> lib
+R886:888 Stdlib.micromega.Lia <> <> lib
+R899:911 Stdlib.Lists.List ListNotations <> mod
+ax 1162:1163 <> Tx
+ax 1277:1285 <> Tx_eq_dec
+R1303:1304 EN.Common <> Tx defax
+binder 1297:1297 <> x:3
+binder 1299:1299 <> y:4
+R1308:1308 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1314:1318 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1325:1325 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1310:1312 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1309:1309 EN.Common <> x:3 var
+R1313:1313 EN.Common <> y:4 var
+R1320:1323 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R1319:1319 EN.Common <> x:3 var
+R1324:1324 EN.Common <> y:4 var
+ind 1651:1659 <> NodeState
+constr 1675:1678 <> Idle
+constr 1682:1690 <> Receiving
+constr 1694:1701 <> Batching
+constr 1705:1711 <> Proving
+constr 1715:1724 <> Submitting
+constr 1728:1732 <> Error
+scheme 1651:1659 <> NodeState_rect
+scheme 1651:1659 <> NodeState_ind
+scheme 1651:1659 <> NodeState_rec
+scheme 1651:1659 <> NodeState_sind
+def 1747:1762 <> NodeState_eq_dec
+R1782:1790 EN.Common <> NodeState ind
+binder 1776:1776 <> x:9
+binder 1778:1778 <> y:10
+R1794:1794 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1800:1804 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1811:1811 Corelib.Init.Specif <> ::type_scope:'{'_x_'}'_'+'_'{'_x_'}' not
+R1796:1798 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1795:1795 EN.Common <> x:9 var
+R1799:1799 EN.Common <> y:10 var
+R1806:1809 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R1805:1805 EN.Common <> x:9 var
+R1810:1810 EN.Common <> y:10 var
+ind 2121:2128 <> DataKind
+constr 2144:2155 <> ProofSignals
+constr 2159:2167 <> DACShares
+constr 2171:2177 <> RawData
+scheme 2121:2128 <> DataKind_rect
+scheme 2121:2128 <> DataKind_ind
+scheme 2121:2128 <> DataKind_rec
+scheme 2121:2128 <> DataKind_sind
+def 2325:2340 <> allowed_external
+R2348:2355 EN.Common <> DataKind ind
+binder 2343:2344 <> dk:13
+R2387:2390 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R2372:2374 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2370:2371 EN.Common <> dk:13 var
+R2375:2386 EN.Common <> ProofSignals constr
+R2393:2395 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2391:2392 EN.Common <> dk:13 var
+R2396:2404 EN.Common <> DACShares constr
+def 2734:2738 <> TxSet
+R2745:2748 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2743:2744 EN.Common <> Tx defax
+def 2766:2770 <> DKSet
+R2783:2786 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2775:2782 EN.Common <> DataKind ind
+def 2834:2844 <> empty_txset
+R2848:2852 EN.Common <> TxSet def
+R2866:2870 Corelib.Init.Logic <> False ind
+def 2917:2926 <> full_txset
+R2930:2934 EN.Common <> TxSet def
+R2948:2951 Corelib.Init.Logic <> True ind
+def 2988:2996 <> set_union
+R3005:3009 EN.Common <> TxSet def
+binder 2999:2999 <> A:14
+binder 3001:3001 <> B:15
+R3014:3018 EN.Common <> TxSet def
+binder 3027:3027 <> x:16
+R3035:3038 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3032:3032 EN.Common <> A:14 var
+R3034:3034 EN.Common <> x:16 var
+R3039:3039 EN.Common <> B:15 var
+R3041:3041 EN.Common <> x:16 var
+def 3077:3086 <> set_remove
+R3093:3097 EN.Common <> TxSet def
+binder 3089:3089 <> A:17
+R3105:3106 EN.Common <> Tx defax
+binder 3101:3101 <> t:18
+R3111:3115 EN.Common <> TxSet def
+binder 3126:3126 <> x:19
+R3134:3137 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3131:3131 EN.Common <> A:17 var
+R3133:3133 EN.Common <> x:19 var
+R3139:3142 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3138:3138 EN.Common <> x:19 var
+R3143:3143 EN.Common <> t:18 var
+def 3230:3240 <> list_to_set
+R3247:3250 Corelib.Init.Datatypes <> list ind
+R3252:3253 EN.Common <> Tx defax
+binder 3243:3243 <> l:20
+R3258:3262 EN.Common <> TxSet def
+binder 3271:3271 <> x:21
+R3276:3277 Stdlib.Lists.List <> In def
+R3281:3281 EN.Common <> l:20 var
+R3279:3279 EN.Common <> x:21 var
+def 3327:3334 <> dk_empty
+R3338:3342 EN.Common <> DKSet def
+R3356:3360 Corelib.Init.Logic <> False ind
+def 3447:3459 <> dk_add_ps_dac
+R3466:3470 EN.Common <> DKSet def
+binder 3462:3462 <> A:22
+R3475:3479 EN.Common <> DKSet def
+binder 3490:3490 <> x:23
+R3498:3501 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3495:3495 EN.Common <> A:22 var
+R3497:3497 EN.Common <> x:23 var
+R3518:3521 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3503:3505 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3502:3502 EN.Common <> x:23 var
+R3506:3517 EN.Common <> ProofSignals constr
+R3523:3525 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3522:3522 EN.Common <> x:23 var
+R3526:3534 EN.Common <> DACShares constr
+def 3576:3584 <> dk_subset
+R3593:3597 EN.Common <> DKSet def
+binder 3587:3587 <> A:24
+binder 3589:3589 <> B:25
+binder 3617:3617 <> x:26
+R3623:3626 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3620:3620 EN.Common <> A:24 var
+R3622:3622 EN.Common <> x:26 var
+R3627:3627 EN.Common <> B:25 var
+R3629:3629 EN.Common <> x:26 var
+ax 3904:3917 <> BatchThreshold
+R3921:3923 Corelib.Init.Datatypes <> nat ind
+ax 3936:3945 <> MaxCrashes
+R3949:3951 Corelib.Init.Datatypes <> nat ind
+ax 4009:4027 <> batch_threshold_pos
+R4045:4047 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R4031:4044 EN.Common <> BatchThreshold defax
+prf 4200:4214 <> dk_empty_subset
+binder 4225:4225 <> B:33
+R4228:4236 EN.Common <> dk_subset def
+R4238:4245 EN.Common <> dk_empty def
+R4247:4247 EN.Common <> B:33 var
+R4266:4274 EN.Common <> dk_subset def
+R4277:4284 EN.Common <> dk_empty def
+prf 4328:4347 <> dk_add_ps_dac_subset
+binder 4360:4360 <> A:34
+R4391:4396 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4363:4371 EN.Common <> dk_subset def
+R4373:4373 EN.Common <> A:34 var
+R4375:4390 EN.Common <> allowed_external def
+R4397:4405 EN.Common <> dk_subset def
+R4408:4420 EN.Common <> dk_add_ps_dac def
+R4422:4422 EN.Common <> A:34 var
+R4425:4440 EN.Common <> allowed_external def
+R4459:4467 EN.Common <> dk_subset def
+R4470:4482 EN.Common <> dk_add_ps_dac def
+R4485:4500 EN.Common <> allowed_external def
