@@ -53,7 +53,7 @@ Use `python lab/2-logicist/tools/new_unit.py sparse-merkle-tree` to scaffold the
 
 ### [02] Logicist | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 1.57M states, 65K distinct, all 3 invariants hold)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [01] complete, materials copied to `0-input/`.
