@@ -282,9 +282,22 @@ interface IBasisRollup {
 ```
 zkl2/
 |-- VISION.md                    # This document
+|-- ROADMAP.md                   # Research units and execution plan
+|-- ROADMAP_CHECKLIST.md         # Sequential agent execution checklist
 |-- docs/
 |   |-- ARCHITECTURE.md          # Detailed technical architecture
 |   `-- TECHNICAL_DECISIONS.md   # Full ADR catalog
+|-- research/                    # R&D pipeline output (Scientist)
+|   |-- experiments/             # Self-contained experiment directories
+|   `-- foundations/             # Living specs (invariants, threat models)
+|-- specs/                       # R&D pipeline output (Logicist)
+|   |-- units/                   # TLA+ formal specification units
+|   `-- docs/                    # ADRs and glossary for specifications
+|-- tests/                       # Security testing
+|   `-- adversarial/             # Adversarial test reports (Architect)
+|-- proofs/                      # R&D pipeline output (Prover)
+|   |-- units/                   # Coq verification units
+|   `-- docs/                    # ADRs and glossary for proofs
 |-- node/                        # L2 Node (Go)
 |   |-- cmd/
 |   |   `-- basis-l2/            # Node binary

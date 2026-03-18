@@ -146,7 +146,17 @@ The MVP **extends** the current Basis Network, not replaces it:
 
 ## Development Plan
 
-The R&D pipeline (4-agent system in `lab/`) will research, formalize, implement, and verify each component. The pipeline produces production-grade code, not prototypes.
+The R&D pipeline (4-agent system in `lab/`) will research, formalize, implement, and verify each component. The pipeline produces production-grade code, not prototypes. All pipeline output is stored in `validium/`, not in `lab/`:
+
+| Pipeline Stage | Agent | Output Location |
+|---------------|-------|-----------------|
+| Research | Scientist | `validium/research/experiments/` |
+| Formal Specification | Logicist | `validium/specs/units/` |
+| Implementation | Architect | `validium/node/`, `validium/circuits/` |
+| Adversarial Testing | Architect | `validium/tests/adversarial/` |
+| Verification | Prover | `validium/proofs/units/` |
+
+The detailed execution plan is in [`validium/ROADMAP.md`](../validium/ROADMAP.md).
 
 ### Phase 1: State Management (Week 1)
 - Sparse Merkle Tree implementation with Poseidon hash
