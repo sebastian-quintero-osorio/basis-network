@@ -355,7 +355,7 @@ lab/3-architect/implementation-history/da-committee/
 
 ### [15] Architect | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 167 tests, DACAttestation.sol, Shamir SSS + DACNode + DACProtocol, 13 adversarial vectors)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [14] complete, verified specs in `implementation-history/`.
