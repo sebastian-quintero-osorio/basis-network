@@ -153,7 +153,7 @@ Use `python lab/2-logicist/tools/new_unit.py state-transition-circuit`.
 
 ### [06] Logicist | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3.3M states, 4,096 distinct, 4/4 invariants hold)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [05] complete, materials in `0-input/`.
