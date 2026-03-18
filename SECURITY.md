@@ -24,8 +24,10 @@ This policy covers:
 - Smart contracts in `l1/contracts/`
 - Blockchain Adapter Layer in `validium/adapters/`
 - ZK circuits and verifier in `validium/circuits/`
+- Enterprise validium node in `validium/node/` (when implemented)
 - Dashboard application in `l1/dashboard/`
 - L1 configuration in `l1/config/`
+- zkEVM L2 components in `zkl2/` (when implemented)
 
 ## Smart Contract Security
 

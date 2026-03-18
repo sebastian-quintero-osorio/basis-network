@@ -86,23 +86,21 @@ basis-network/
 │   ├── config/                 # Avalanche L1 genesis and node configuration
 │   └── dashboard/              # Network explorer (Next.js + Tailwind CSS)
 ├── validium/                   # MVP: Enterprise ZK Validium Node
+│   ├── node/                   # Enterprise validium node service (planned)
 │   ├── circuits/               # ZK proof generation (Circom + SnarkJS)
-│   │   ├── circuits/           # Circom circuits (BatchVerifier)
-│   │   └── scripts/            # Trusted setup, proof generation, verification
 │   ├── adapters/               # Blockchain Adapter Layer (Node.js + ethers.js v6)
-│   │   └── src/
-│   │       ├── plasma-adapter/ # PLASMA -> on-chain bridge
-│   │       ├── trace-adapter/  # Trace -> on-chain bridge
-│   │       └── common/         # Transaction queue with retry logic
-│   └── node/                   # Enterprise validium node service (planned)
-├── zkl2/                       # V2: Enterprise zkEVM L2 (future vision)
-├── lab/                        # Automated R&D pipeline (4-agent system)
+│   ├── research/               # R&D output: experiments and foundational specs
+│   ├── specs/                  # R&D output: verified TLA+ formal specifications
+│   ├── tests/                  # Adversarial tests and security reports
+│   └── proofs/                 # R&D output: Coq verification proofs
+├── zkl2/                       # V2: Enterprise zkEVM L2 (Go + Rust)
+│   ├── docs/                   # Architecture and technical decisions
+│   ├── research/               # R&D output: experiments and foundational specs
+│   ├── specs/                  # R&D output: verified TLA+ formal specifications
+│   ├── tests/                  # Adversarial tests and security reports
+│   └── proofs/                 # R&D output: Coq verification proofs
+├── lab/                        # R&D pipeline infrastructure (4-agent system)
 └── docs/                       # Technical documentation
-    ├── ARCHITECTURE.md         # System architecture with diagrams
-    ├── TECHNICAL_DECISIONS.md  # Justified design choices
-    ├── MOSCOW.md               # Feature prioritization
-    ├── USER_JOURNEY.md         # End-to-end user flows
-    └── DEPLOYMENT_GUIDE.md     # Step-by-step deployment instructions
 ```
 
 ---
@@ -238,7 +236,7 @@ sequenceDiagram
 - Production-proven in Polygon zkEVM, Iden3, and Semaphore.
 - Upgradeable: swapping the off-chain prover requires no on-chain changes.
 
-The production roadmap includes evolution to full ZK rollups with per-enterprise sequencers and provers, developed through Base Computing's AI-automated R&D pipeline.
+The production roadmap includes evolution to full ZK rollups with per-enterprise sequencers and provers, developed through Base Computing's AI-automated R&D pipeline (`lab/`). The pipeline produces formally verified research, TLA+ specifications, production code, and Coq proofs, all stored in the corresponding target directories (`validium/` for MVP, `zkl2/` for long-term).
 
 ---
 
@@ -299,9 +297,13 @@ The blockchain is infrastructure, not the product. Revenue streams:
 |---|---|
 | [Architecture](./docs/ARCHITECTURE.md) | System design with Mermaid diagrams |
 | [Technical Decisions](./docs/TECHNICAL_DECISIONS.md) | Justified design choices (ADR format) |
+| [L2 MVP Vision](./docs/L2_MVP_VISION.md) | Enterprise ZK Validium Node design and motivation |
 | [MoSCoW](./docs/MOSCOW.md) | Feature prioritization framework |
 | [User Journey](./docs/USER_JOURNEY.md) | End-to-end user flows |
 | [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) | Step-by-step setup instructions |
+| [Validium Roadmap](./validium/ROADMAP.md) | MVP research units, dependencies, and execution plan |
+| [zkEVM L2 Vision](./zkl2/VISION.md) | Long-term zkEVM L2 architecture and strategy |
+| [zkEVM L2 Roadmap](./zkl2/ROADMAP.md) | L2 research units across 5 phases |
 
 ---
 

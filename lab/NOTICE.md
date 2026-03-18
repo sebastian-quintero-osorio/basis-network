@@ -14,13 +14,16 @@ Each agent directory contains a `CLAUDE.md.example` file documenting the purpose
 
 ### What is included
 
-Everything the pipeline produces is public and auditable:
+Everything the pipeline produces is public and auditable. Work products are stored in the target directories, not in `lab/`:
 
-- **Foundations**: Living documents tracking system invariants and threat models
-- **Research history**: Formal TLA+ specifications and model checking artifacts
-- **Implementation history**: Verified implementation records
-- **Verification history**: Coq proof artifacts
-- **Documentation**: Glossaries, ADRs, architecture documents
+- **Research** (`validium/research/`, `zkl2/research/`): Experiments, benchmarks, papers, and foundational specifications (system invariants, threat models)
+- **Formal specifications** (`validium/specs/`, `zkl2/specs/`): TLA+ specifications with TLC model checking artifacts and verification reports
+- **Implementation** (`validium/node/`, `validium/circuits/`, `validium/adapters/`, `zkl2/node/`, `zkl2/prover/`, `zkl2/contracts/`): Production code generated from verified specifications
+- **Adversarial tests** (`validium/tests/`, `zkl2/tests/`): Security-focused test suites and attack reports
+- **Verification proofs** (`validium/proofs/`, `zkl2/proofs/`): Coq proof artifacts certifying implementation correctness
+- **Documentation** (`validium/specs/docs/`, `zkl2/specs/docs/`): Glossaries, ADRs, and architecture documents produced during the pipeline
+
+The `lab/` directory itself contains only agent infrastructure (operating manuals, skills, tools) and session history logs documenting what was done in each work session.
 
 The pipeline's outputs -- papers, specifications, code, and proofs -- are fully transparent. Only the operational configuration that drives the agents is proprietary.
 

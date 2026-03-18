@@ -25,7 +25,7 @@ This repository is not open for external contributions at this time. The codebas
 
 Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`
 
-Scopes: `l1`, `l1/contracts`, `validium`, `validium/circuits`, `validium/adapters`, `dashboard`, `docs`
+Scopes: `l1`, `l1/contracts`, `validium`, `validium/node`, `validium/circuits`, `validium/adapters`, `zkl2`, `lab`, `dashboard`, `docs`
 
 ### Code Standards
 
