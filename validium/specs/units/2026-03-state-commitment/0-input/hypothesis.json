@@ -1,0 +1,32 @@
+{
+  "name": "state-commitment",
+  "target": "validium",
+  "title": "L1 State Commitment Protocol: Per-Enterprise Root Chains with Integrated ZK Verification",
+  "hypothesis": "A StateCommitment.sol contract that maintains per-enterprise state root chains with integrated ZK proof verification can process batch submissions at < 300K gas, detect gaps and reversals in the root chain, and maintain complete batch history with < 500 bytes of storage per batch.",
+  "null_hypothesis": "The combined cost of storage operations and ZK proof verification exceeds 300K gas, or per-batch storage exceeds 500 bytes, making a single-contract state commitment infeasible on Subnet-EVM.",
+  "domain": "l2-architecture",
+  "independent_variables": [
+    "storage_layout_variant",
+    "batch_metadata_richness",
+    "verification_integration_pattern",
+    "enterprise_count",
+    "batch_sequence_length"
+  ],
+  "dependent_variables": [
+    "gas_per_submission",
+    "storage_bytes_per_batch",
+    "gap_detection_correctness",
+    "reversal_prevention_correctness",
+    "enterprise_isolation_correctness"
+  ],
+  "predictions": [
+    "P1: Integrated verification (single contract) uses < 300K gas per submission",
+    "P2: Delegated verification (cross-contract call to ZKVerifier) exceeds 300K gas due to redundant storage",
+    "P3: Minimal storage layout (root-only + events) uses < 100 bytes per batch",
+    "P4: Rich storage layout (root + packed metadata) uses < 200 bytes per batch",
+    "P5: Root chain continuity check catches 100% of gap and reversal attempts"
+  ],
+  "created": "2026-03-18",
+  "stage": 1,
+  "status": "active"
+}

@@ -422,7 +422,7 @@ lab/2-logicist/research-history/YYYY-MM-state-commitment/0-input/
 
 ### [18] Logicist | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3.78M states, 1.87M distinct, 6 invariants, gap/replay structurally blocked)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [17] complete, materials in `0-input/`.
