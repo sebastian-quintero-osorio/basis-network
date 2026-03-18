@@ -120,9 +120,9 @@ async function main() {
 
   // --- ZK Proof Verification ---
   console.log("\n--- ZK proof on-chain verification ---");
-  const vkPath = path.join(__dirname, "../../prover/build/verification_key.json");
-  const proofPath = path.join(__dirname, "../../prover/build/proof.json");
-  const publicPath = path.join(__dirname, "../../prover/build/public.json");
+  const vkPath = path.join(__dirname, "../../../validium/circuits/build/verification_key.json");
+  const proofPath = path.join(__dirname, "../../../validium/circuits/build/proof.json");
+  const publicPath = path.join(__dirname, "../../../validium/circuits/build/public.json");
 
   if (fs.existsSync(vkPath) && fs.existsSync(proofPath)) {
     const vk = JSON.parse(fs.readFileSync(vkPath, "utf-8"));
@@ -163,7 +163,7 @@ async function main() {
     )).wait();
     console.log("  ZK proof verified on-chain! Gas:", receipt?.gasUsed.toString());
   } else {
-    console.log("  Skipped: run 'npm run setup && npm run prove' in prover/ first");
+    console.log("  Skipped: run 'npm run setup && npm run prove' in validium/circuits/ first");
   }
 
   // --- Summary ---

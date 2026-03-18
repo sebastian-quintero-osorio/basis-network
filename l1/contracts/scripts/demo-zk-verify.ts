@@ -15,7 +15,7 @@ async function main() {
   );
 
   // Load verification key from prover build
-  const vkPath = path.join(__dirname, "../../prover/build/verification_key.json");
+  const vkPath = path.join(__dirname, "../../../validium/circuits/build/verification_key.json");
   const vk = JSON.parse(fs.readFileSync(vkPath, "utf-8"));
 
   // Step 1: Set the verifying key on-chain
@@ -55,8 +55,8 @@ async function main() {
 
   // Step 2: Load proof and public signals
   console.log("\nStep 2: Loading proof and public signals...");
-  const proofPath = path.join(__dirname, "../../prover/build/proof.json");
-  const publicPath = path.join(__dirname, "../../prover/build/public.json");
+  const proofPath = path.join(__dirname, "../../../validium/circuits/build/proof.json");
+  const publicPath = path.join(__dirname, "../../../validium/circuits/build/public.json");
 
   const proof = JSON.parse(fs.readFileSync(proofPath, "utf-8"));
   const publicSignals: string[] = JSON.parse(fs.readFileSync(publicPath, "utf-8"));
