@@ -379,7 +379,7 @@ lab/4-prover/verification-history/YYYY-MM-data-availability/
 
 ### [16] Prover | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 16 theorems Qed, 0 Admitted, DataAvailability + Privacy + Soundness proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [15] complete, snapshots prepared.
