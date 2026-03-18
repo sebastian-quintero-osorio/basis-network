@@ -1,0 +1,23 @@
+{
+  "stage": 2,
+  "stage_name": "Baseline",
+  "status": "complete",
+  "iteration": 1,
+  "last_action": "Compiled and benchmarked ChainedBatchStateTransition circuit across 7 configurations (depth 10/20/32, batch 4/8/16). Derived precise constraint formula. Evaluated hypothesis.",
+  "next_action": "Hypothesis partially rejected: 100K constraint target infeasible, but 60s proving time achievable with rapidsnark. Ready for downstream pipeline (Logicist formalization). Consider Stage 3 (adversarial scenarios) if deeper analysis is needed.",
+  "metrics": {
+    "constraint_formula": "1038 * (depth + 1) * batchSize",
+    "d32_b64_constraints": 2192256,
+    "d32_b4_proving_ms": 6860,
+    "d32_b8_proving_ms": 12757,
+    "d10_b4_proving_ms": 3403,
+    "d10_b16_proving_ms": 7974,
+    "proof_size_bytes": 805,
+    "verification_time_ms_avg": 2377,
+    "per_tx_per_level_constraints": 1038
+  },
+  "hypothesis_status": "partially_rejected",
+  "hypothesis_details": "100K constraint target REJECTED (batch 64 needs 2.2M). 60s proving time CONFIRMED with rapidsnark (est. 14-35s), REJECTED with snarkjs (est. 142s).",
+  "created": "2026-03-18",
+  "updated": "2026-03-18"
+}
