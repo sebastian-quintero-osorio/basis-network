@@ -445,7 +445,7 @@ lab/3-architect/implementation-history/l1-state-commitment/
 
 ### [19] Architect | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- StateCommitment.sol 290 lines, 138 tests, 10 adversarial, 6 TLA+ invariants enforced)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [18] complete, verified specs in `implementation-history/`.
