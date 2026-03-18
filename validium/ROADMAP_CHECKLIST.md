@@ -176,7 +176,7 @@ lab/3-architect/implementation-history/circuit-state-transition/
 
 ### [07] Architect | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- state_transition.circom + merkle_proof_verifier.circom, 45,715 constraints, 6/6 adversarial PASS)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [06] complete, verified specs in `implementation-history/`.
