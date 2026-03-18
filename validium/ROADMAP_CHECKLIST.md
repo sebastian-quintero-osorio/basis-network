@@ -266,7 +266,7 @@ lab/3-architect/implementation-history/queue-batch-aggregation/
 
 ### [11] Architect | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 163/163 tests, 85.71% coverage, v1-fix checkpoint enforced, WAL compaction bug found)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [10] complete, verified specs in `implementation-history/`.
