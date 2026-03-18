@@ -243,7 +243,7 @@ lab/2-logicist/research-history/YYYY-MM-batch-aggregation/0-input/
 
 ### [10] Logicist | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CRITICAL flaw found (NoLoss), fixed in v1-fix, TLC PASS: 6,763 states, APPROVED)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [09] complete, materials in `0-input/`.
