@@ -219,7 +219,7 @@ lab/4-prover/verification-history/YYYY-MM-state-transition-circuit/
 
 ### [09] Scientist | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 274K tx/min, 0.01ms latency, 0 loss, 450/450 determinism)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
