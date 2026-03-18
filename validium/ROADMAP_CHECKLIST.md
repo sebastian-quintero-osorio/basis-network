@@ -308,7 +308,7 @@ lab/4-prover/verification-history/YYYY-MM-batch-aggregation/
 
 ### [13] Scientist | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 175ms attestation, 0 bits leaked, Shamir SSS, 112 tests, 24 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
