@@ -1,0 +1,26 @@
+# CLAUDE.md.example -- Pipeline Overview (Template)
+
+This file documents the expected structure of the `CLAUDE.md` that belongs in this directory.
+The actual `CLAUDE.md` is excluded from version control (see `NOTICE.md`).
+
+## Purpose
+
+The pipeline `CLAUDE.md` serves as the root operating manual for the 4-agent R&D system.
+It defines:
+
+- The pipeline flow: Scientist -> Logicist -> Architect -> Prover
+- Agent responsibilities and inter-agent contracts
+- Safety latch protocols (each agent's gate before producing output)
+- The two implementation targets (MVP and long-term)
+- Research domains covered by the pipeline
+- Project context and technical constraints
+
+## Expected Sections
+
+1. Pipeline Overview (flow diagram and agent table)
+2. Safety Latch Protocol (gates per agent)
+3. Target 1: Enterprise ZK Validium Node (MVP)
+4. Target 2: zkEVM L2 (Long-term)
+5. Research Domains
+6. Design Philosophy
+7. Project Context and Constraints

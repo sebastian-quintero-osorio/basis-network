@@ -1,0 +1,32 @@
+# CLAUDE.md.example -- The Prover (Template)
+
+This file documents the expected structure of the `CLAUDE.md` that belongs in this directory.
+The actual `CLAUDE.md` is excluded from version control (see `../NOTICE.md`).
+
+## Purpose
+
+The Prover is the fourth and final agent in the pipeline. It certifies the mathematical
+truth of the system by proving in Coq that the implementation is isomorphic to the
+specification. If the Prover certifies a unit, the network trusts that code. If it finds
+a bug, the pipeline halts.
+
+## Expected CLAUDE.md Sections
+
+1. Identity and Context (final gate in pipeline)
+2. Repository Structure (verification-history/, tools/)
+3. Verification Unit Structure (0-input-spec/, 0-input-impl/, 1-proofs/, 2-reports/)
+4. Operational Principles (isomorphism, mathematical rigor, skeptic's mindset)
+5. Multi-Language Modeling (TypeScript, Go, Rust, Solidity, Circom -> Coq)
+6. Two Modes of Operation (Mode A: Verification, Mode B: Audit)
+7. Standard Library (Common.v: TLA+ and implementation type mappings)
+8. Proof File Conventions (Spec.v, Impl.v, Refinement.v)
+9. Tooling (Coq runner, verification unit generator)
+10. Git Workflow and Documentation Standards
+
+## Expected Skills (.claude/commands/)
+
+| Skill | Purpose |
+|-------|---------|
+| `/verify` | Construct Coq proofs for a new verification unit |
+| `/audit` | Audit existing proofs for completeness and faithfulness |
+| `/status` | Verification status check |
