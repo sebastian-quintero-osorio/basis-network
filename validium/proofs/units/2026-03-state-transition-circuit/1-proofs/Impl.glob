@@ -1,0 +1,144 @@
+DIGEST 6376833d218ca81d793e7add299710f7
+FSTC.Impl
+R1233:1238 STC.Common <> <> lib
+R1268:1280 Stdlib.ZArith.ZArith <> <> lib
+R1310:1319 Stdlib.Lists.List <> <> lib
+R1349:1351 Stdlib.micromega.Lia <> <> lib
+R1382:1394 Stdlib.Lists.List ListNotations <> mod
+mod 1405:1408 <> Impl
+rec 1834:1842 Impl TxWitness
+proj 1863:1867 Impl w_key
+proj 1881:1890 Impl w_oldValue
+proj 1910:1919 Impl w_newValue
+proj 1939:1948 Impl w_siblings
+R1876:1876 Corelib.Numbers.BinNums <> Z ind
+R1894:1905 STC.Common <> FieldElement def
+R1923:1934 STC.Common <> FieldElement def
+R1955:1958 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1952:1954 Corelib.Init.Datatypes <> nat ind
+R1959:1970 STC.Common <> FieldElement def
+def 2771:2788 Impl MerklePathVerifier
+R2805:2816 STC.Common <> FieldElement def
+binder 2791:2801 <> currentHash:6
+R2843:2846 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2840:2842 Corelib.Init.Datatypes <> nat ind
+R2847:2858 STC.Common <> FieldElement def
+binder 2829:2836 <> siblings:7
+R2876:2879 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2873:2875 Corelib.Init.Datatypes <> nat ind
+R2880:2880 Corelib.Numbers.BinNums <> Z ind
+binder 2862:2869 <> pathBits:8
+R2901:2903 Corelib.Init.Datatypes <> nat ind
+binder 2893:2897 <> level:9
+R2919:2921 Corelib.Init.Datatypes <> nat ind
+binder 2907:2915 <> remaining:10
+R2926:2937 STC.Common <> FieldElement def
+R2950:2958 STC.Impl <> remaining:10 var
+R2969:2969 Corelib.Init.Datatypes <> O constr
+R2974:2984 STC.Impl <> currentHash:6 var
+R2990:2990 Corelib.Init.Datatypes <> S constr
+R3018:3025 Stdlib.ZArith.BinInt Z eq_dec def
+R3028:3035 STC.Impl <> pathBits:8 var
+R3037:3041 STC.Impl <> level:9 var
+R3126:3129 STC.Common <> Hash defax
+R3132:3139 STC.Impl <> siblings:7 var
+R3141:3145 STC.Impl <> level:9 var
+R3148:3158 STC.Impl <> currentHash:6 var
+R3069:3072 STC.Common <> Hash defax
+R3074:3084 STC.Impl <> currentHash:6 var
+R3087:3094 STC.Impl <> siblings:7 var
+R3096:3100 STC.Impl <> level:9 var
+binder 3005:3010 <> parent:13
+R3167:3184 STC.Impl <> MerklePathVerifier:11 def
+R3212:3212 Corelib.Init.Datatypes <> S constr
+R3214:3218 STC.Impl <> level:9 var
+R3202:3209 STC.Impl <> pathBits:8 var
+R3193:3200 STC.Impl <> siblings:7 var
+R3186:3191 STC.Impl <> parent:13 var
+def 4042:4053 Impl PerTxCircuit
+R4070:4081 STC.Common <> FieldElement def
+binder 4056:4066 <> chainedRoot:14
+R4089:4097 STC.Impl Impl TxWitness rec
+binder 4085:4085 <> w:15
+R4116:4118 Corelib.Init.Datatypes <> nat ind
+binder 4112:4112 <> d:16
+R4123:4128 Corelib.Init.Datatypes <> option ind
+R4130:4141 STC.Common <> FieldElement def
+binder 4168:4168 <> l:17
+R4173:4179 STC.Common <> PathBit def
+R4182:4186 STC.Impl Impl w_key proj
+R4188:4188 STC.Impl <> w:15 var
+R4191:4191 STC.Impl <> l:17 var
+binder 4152:4159 <> pathBits:18
+R4217:4224 STC.Common <> LeafHash def
+R4227:4231 STC.Impl Impl w_key proj
+R4233:4233 STC.Impl <> w:15 var
+R4237:4246 STC.Impl Impl w_oldValue proj
+R4248:4248 STC.Impl <> w:15 var
+binder 4202:4212 <> oldLeafHash:19
+R4271:4288 STC.Impl Impl MerklePathVerifier def
+R4290:4300 STC.Impl <> oldLeafHash:19 var
+R4303:4312 STC.Impl Impl w_siblings proj
+R4314:4314 STC.Impl <> w:15 var
+R4317:4324 STC.Impl <> pathBits:18 var
+R4328:4328 STC.Impl <> d:16 var
+binder 4260:4266 <> oldRoot:20
+R4338:4345 Stdlib.ZArith.BinInt Z eq_dec def
+R4347:4353 STC.Impl <> oldRoot:20 var
+R4355:4365 STC.Impl <> chainedRoot:14 var
+R4541:4544 Corelib.Init.Datatypes <> None constr
+R4393:4400 STC.Common <> LeafHash def
+R4403:4407 STC.Impl Impl w_key proj
+R4409:4409 STC.Impl <> w:15 var
+R4413:4422 STC.Impl Impl w_newValue proj
+R4424:4424 STC.Impl <> w:15 var
+binder 4378:4388 <> newLeafHash:21
+R4452:4469 STC.Impl Impl MerklePathVerifier def
+R4471:4481 STC.Impl <> newLeafHash:21 var
+R4484:4493 STC.Impl Impl w_siblings proj
+R4495:4495 STC.Impl <> w:15 var
+R4498:4505 STC.Impl <> pathBits:18 var
+R4509:4509 STC.Impl <> d:16 var
+binder 4441:4447 <> newRoot:22
+R4521:4524 Corelib.Init.Datatypes <> Some constr
+R4526:4532 STC.Impl <> newRoot:22 var
+def 4994:5005 Impl BatchCircuit
+R5022:5033 STC.Common <> FieldElement def
+binder 5008:5018 <> chainedRoot:23
+R5058:5061 Corelib.Init.Datatypes <> list ind
+R5063:5071 STC.Impl Impl TxWitness rec
+binder 5046:5054 <> witnesses:24
+R5079:5081 Corelib.Init.Datatypes <> nat ind
+binder 5075:5075 <> d:25
+R5086:5091 Corelib.Init.Datatypes <> option ind
+R5093:5104 STC.Common <> FieldElement def
+R5117:5125 STC.Impl <> witnesses:24 var
+R5136:5138 Corelib.Init.Datatypes <> nil constr
+R5143:5146 Corelib.Init.Datatypes <> Some constr
+R5148:5158 STC.Impl <> chainedRoot:23 var
+R5165:5168 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R5187:5198 STC.Impl Impl PerTxCircuit def
+R5200:5210 STC.Impl <> chainedRoot:23 var
+R5214:5214 STC.Impl <> d:25 var
+R5227:5230 Corelib.Init.Datatypes <> Some constr
+R5243:5254 STC.Impl <> BatchCircuit:26 def
+R5269:5269 STC.Impl <> d:25 var
+R5277:5280 Corelib.Init.Datatypes <> None constr
+R5285:5288 Corelib.Init.Datatypes <> None constr
+def 5638:5651 Impl CircuitAccepts
+R5683:5694 STC.Common <> FieldElement def
+binder 5654:5666 <> prevStateRoot:28
+binder 5668:5679 <> newStateRoot:29
+R5721:5724 Corelib.Init.Datatypes <> list ind
+R5726:5734 STC.Impl Impl TxWitness rec
+binder 5709:5717 <> witnesses:30
+R5742:5744 Corelib.Init.Datatypes <> nat ind
+binder 5738:5738 <> d:31
+R5797:5799 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5759:5770 STC.Impl Impl BatchCircuit def
+R5772:5784 STC.Impl <> prevStateRoot:28 var
+R5786:5794 STC.Impl <> witnesses:30 var
+R5796:5796 STC.Impl <> d:31 var
+R5800:5803 Corelib.Init.Datatypes <> Some constr
+R5805:5816 STC.Impl <> newStateRoot:29 var
+R5824:5827 STC.Impl Impl <> mod

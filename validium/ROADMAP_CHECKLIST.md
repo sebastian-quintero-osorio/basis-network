@@ -200,7 +200,7 @@ lab/4-prover/verification-history/YYYY-MM-state-transition-circuit/
 
 ### [08] Prover | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 7 theorems Qed, 0 Admitted, batch_preserves_state_root_chain proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [07] complete, snapshots prepared.

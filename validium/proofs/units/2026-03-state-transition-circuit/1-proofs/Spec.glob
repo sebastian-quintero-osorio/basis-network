@@ -1,0 +1,325 @@
+DIGEST 026f9f36e9f5e1f75a791c24d2f00790
+FSTC.Spec
+R1159:1164 STC.Common <> <> lib
+R1194:1206 Stdlib.ZArith.ZArith <> <> lib
+R1236:1245 Stdlib.Lists.List <> <> lib
+R1275:1277 Stdlib.micromega.Lia <> <> lib
+R1308:1320 Stdlib.Lists.List ListNotations <> mod
+mod 1331:1334 <> Spec
+rec 1600:1604 Spec State
+proj 1621:1627 Spec entries
+proj 1642:1645 Spec root
+R1631:1637 STC.Common <> Entries def
+R1652:1663 STC.Common <> FieldElement def
+def 1928:1938 Spec DefaultHash
+R1949:1951 Corelib.Init.Datatypes <> nat ind
+binder 1941:1945 <> level:4
+R1956:1967 STC.Common <> FieldElement def
+R1980:1984 STC.Spec <> level:4 var
+R1995:1995 Corelib.Init.Datatypes <> O constr
+R2000:2004 STC.Common <> EMPTY def
+R2010:2010 Corelib.Init.Datatypes <> S constr
+R2017:2020 STC.Common <> Hash defax
+R2023:2033 STC.Spec <> DefaultHash:5 def
+R2039:2049 STC.Spec <> DefaultHash:5 def
+def 2257:2266 Spec EntryValue
+R2273:2279 STC.Common <> Entries def
+binder 2269:2269 <> e:7
+R2289:2289 Corelib.Numbers.BinNums <> Z ind
+binder 2283:2285 <> idx:8
+R2294:2305 STC.Common <> FieldElement def
+R2310:2310 STC.Spec <> e:7 var
+R2312:2314 STC.Spec <> idx:8 var
+def 2588:2598 Spec ComputeNode
+R2605:2611 STC.Common <> Entries def
+binder 2601:2601 <> e:9
+R2623:2625 Corelib.Init.Datatypes <> nat ind
+binder 2615:2619 <> level:10
+R2637:2637 Corelib.Numbers.BinNums <> Z ind
+binder 2629:2633 <> index:11
+R2642:2653 STC.Common <> FieldElement def
+R2666:2670 STC.Spec <> level:10 var
+R2681:2681 Corelib.Init.Datatypes <> O constr
+R2686:2693 STC.Common <> LeafHash def
+R2695:2699 STC.Spec <> index:11 var
+R2702:2711 STC.Spec Spec EntryValue def
+R2713:2713 STC.Spec <> e:9 var
+R2715:2719 STC.Spec <> index:11 var
+R2726:2726 Corelib.Init.Datatypes <> S constr
+R2733:2736 STC.Common <> Hash defax
+R2739:2749 STC.Spec <> ComputeNode:12 def
+R2757:2759 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2760:2764 STC.Spec <> index:11 var
+R2751:2751 STC.Spec <> e:9 var
+R2785:2795 STC.Spec <> ComputeNode:12 def
+R2811:2813 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R2803:2805 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2806:2810 STC.Spec <> index:11 var
+R2797:2797 STC.Spec <> e:9 var
+def 2875:2885 Spec ComputeRoot
+R2892:2898 STC.Common <> Entries def
+binder 2888:2888 <> e:14
+R2906:2908 Corelib.Init.Datatypes <> nat ind
+binder 2902:2902 <> d:15
+R2913:2924 STC.Common <> FieldElement def
+R2931:2941 STC.Spec Spec ComputeNode def
+R2943:2943 STC.Spec <> e:14 var
+R2945:2945 STC.Spec <> d:15 var
+def 3159:3169 Spec SiblingHash
+R3176:3182 STC.Common <> Entries def
+binder 3172:3172 <> e:16
+R3192:3192 Corelib.Numbers.BinNums <> Z ind
+binder 3186:3188 <> key:17
+R3204:3206 Corelib.Init.Datatypes <> nat ind
+binder 3196:3200 <> level:18
+R3211:3222 STC.Common <> FieldElement def
+R3229:3239 STC.Spec Spec ComputeNode def
+R3241:3241 STC.Spec <> e:16 var
+R3243:3247 STC.Spec <> level:18 var
+R3250:3261 STC.Common <> SiblingIndex def
+R3263:3265 STC.Spec <> key:17 var
+R3267:3271 STC.Spec <> level:18 var
+def 3608:3613 Spec WalkUp
+R3629:3635 STC.Common <> Entries def
+binder 3616:3625 <> oldEntries:19
+R3653:3664 STC.Common <> FieldElement def
+binder 3639:3649 <> currentHash:20
+R3683:3683 Corelib.Numbers.BinNums <> Z ind
+binder 3677:3679 <> key:21
+R3695:3697 Corelib.Init.Datatypes <> nat ind
+binder 3687:3691 <> level:22
+R3713:3715 Corelib.Init.Datatypes <> nat ind
+binder 3701:3709 <> remaining:23
+R3720:3731 STC.Common <> FieldElement def
+R3744:3752 STC.Spec <> remaining:23 var
+R3763:3763 Corelib.Init.Datatypes <> O constr
+R3768:3778 STC.Spec <> currentHash:20 var
+R3784:3784 Corelib.Init.Datatypes <> S constr
+R3806:3812 STC.Common <> PathBit def
+R3814:3816 STC.Spec <> key:21 var
+R3818:3822 STC.Spec <> level:22 var
+binder 3799:3801 <> bit:26
+R3846:3856 STC.Spec Spec SiblingHash def
+R3858:3867 STC.Spec <> oldEntries:19 var
+R3869:3871 STC.Spec <> key:21 var
+R3873:3877 STC.Spec <> level:22 var
+binder 3835:3841 <> sibling:27
+R3903:3910 Stdlib.ZArith.BinInt Z eq_dec def
+R3912:3914 STC.Spec <> bit:26 var
+R3989:3992 STC.Common <> Hash defax
+R3994:4000 STC.Spec <> sibling:27 var
+R4002:4012 STC.Spec <> currentHash:20 var
+R3941:3944 STC.Common <> Hash defax
+R3946:3956 STC.Spec <> currentHash:20 var
+R3958:3964 STC.Spec <> sibling:27 var
+binder 3890:3895 <> parent:28
+R4021:4026 STC.Spec <> WalkUp:24 def
+R4051:4051 Corelib.Init.Datatypes <> S constr
+R4053:4057 STC.Spec <> level:22 var
+R4046:4048 STC.Spec <> key:21 var
+R4039:4044 STC.Spec <> parent:28 var
+R4028:4037 STC.Spec <> oldEntries:19 var
+def 4130:4143 Spec WalkUpFromLeaf
+R4159:4165 STC.Common <> Entries def
+binder 4146:4155 <> oldEntries:29
+R4180:4191 STC.Common <> FieldElement def
+binder 4169:4176 <> leafHash:30
+R4212:4212 Corelib.Numbers.BinNums <> Z ind
+binder 4206:4208 <> key:31
+R4220:4222 Corelib.Init.Datatypes <> nat ind
+binder 4216:4216 <> d:32
+R4227:4238 STC.Common <> FieldElement def
+R4245:4250 STC.Spec Spec WalkUp def
+R4252:4261 STC.Spec <> oldEntries:29 var
+R4263:4270 STC.Spec <> leafHash:30 var
+R4272:4274 STC.Spec <> key:31 var
+R4278:4278 STC.Spec <> d:32 var
+def 4531:4534 Spec Init
+R4541:4543 Corelib.Init.Datatypes <> nat ind
+binder 4537:4537 <> d:33
+R4548:4552 STC.Spec Spec State rec
+R4559:4565 STC.Spec Spec mkState constr
+R4567:4579 STC.Common <> empty_entries def
+R4582:4592 STC.Spec Spec DefaultHash def
+R4594:4594 STC.Spec <> d:33 var
+rec 4866:4876 Spec Transaction
+proj 4890:4895 Spec tx_key
+proj 4909:4919 Spec tx_oldValue
+proj 4939:4949 Spec tx_newValue
+R4904:4904 Corelib.Numbers.BinNums <> Z ind
+R4923:4934 STC.Common <> FieldElement def
+R4953:4964 STC.Common <> FieldElement def
+rec 5027:5034 Spec TxResult
+proj 5054:5061 Spec tx_valid
+proj 5075:5084 Spec tx_entries
+proj 5099:5105 Spec tx_root
+R5067:5070 Corelib.Init.Datatypes <> bool ind
+R5088:5094 STC.Common <> Entries def
+R5112:5123 STC.Common <> FieldElement def
+def 5544:5550 Spec ApplyTx
+R5557:5563 STC.Common <> Entries def
+binder 5553:5553 <> e:42
+R5571:5582 STC.Common <> FieldElement def
+binder 5567:5567 <> r:43
+R5602:5612 STC.Spec Spec Transaction rec
+binder 5597:5598 <> tx:44
+R5620:5622 Corelib.Init.Datatypes <> nat ind
+binder 5616:5616 <> d:45
+R5627:5634 STC.Spec Spec TxResult rec
+R5644:5651 Stdlib.ZArith.BinInt Z eq_dec def
+R5654:5654 STC.Spec <> e:42 var
+R5657:5662 STC.Spec Spec tx_key proj
+R5664:5665 STC.Spec <> tx:44 var
+R5670:5680 STC.Spec Spec tx_oldValue proj
+R5682:5683 STC.Spec <> tx:44 var
+R5942:5951 STC.Spec Spec mkTxResult constr
+R5953:5957 Corelib.Init.Datatypes <> false constr
+R5959:5959 STC.Spec <> e:42 var
+R5961:5961 STC.Spec <> r:43 var
+R5711:5722 STC.Common <> update_entry def
+R5724:5724 STC.Spec <> e:42 var
+R5727:5732 STC.Spec Spec tx_key proj
+R5734:5735 STC.Spec <> tx:44 var
+R5739:5749 STC.Spec Spec tx_newValue proj
+R5751:5752 STC.Spec <> tx:44 var
+binder 5697:5706 <> newEntries:46
+R5784:5791 STC.Common <> LeafHash def
+R5794:5799 STC.Spec Spec tx_key proj
+R5801:5802 STC.Spec <> tx:44 var
+R5806:5816 STC.Spec Spec tx_newValue proj
+R5818:5819 STC.Spec <> tx:44 var
+binder 5769:5779 <> newLeafHash:47
+R5847:5860 STC.Spec Spec WalkUpFromLeaf def
+R5862:5862 STC.Spec <> e:42 var
+R5864:5874 STC.Spec <> newLeafHash:47 var
+R5877:5882 STC.Spec Spec tx_key proj
+R5884:5885 STC.Spec <> tx:44 var
+R5888:5888 STC.Spec <> d:45 var
+binder 5836:5842 <> newRoot:48
+R5900:5909 STC.Spec Spec mkTxResult constr
+R5911:5914 Corelib.Init.Datatypes <> true constr
+R5916:5925 STC.Spec <> newEntries:46 var
+R5927:5933 STC.Spec <> newRoot:48 var
+def 6213:6222 Spec ApplyBatch
+R6229:6235 STC.Common <> Entries def
+binder 6225:6225 <> e:49
+R6243:6254 STC.Common <> FieldElement def
+binder 6239:6239 <> r:50
+R6273:6276 Corelib.Init.Datatypes <> list ind
+R6278:6288 STC.Spec Spec Transaction rec
+binder 6267:6269 <> txs:51
+R6296:6298 Corelib.Init.Datatypes <> nat ind
+binder 6292:6292 <> d:52
+R6303:6310 STC.Spec Spec TxResult rec
+R6323:6325 STC.Spec <> txs:51 var
+R6336:6338 Corelib.Init.Datatypes <> nil constr
+R6343:6352 STC.Spec Spec mkTxResult constr
+R6354:6357 Corelib.Init.Datatypes <> true constr
+R6359:6359 STC.Spec <> e:49 var
+R6361:6361 STC.Spec <> r:50 var
+R6369:6372 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R6399:6405 STC.Spec Spec ApplyTx def
+R6407:6407 STC.Spec <> e:49 var
+R6409:6409 STC.Spec <> r:50 var
+R6414:6414 STC.Spec <> d:52 var
+binder 6389:6394 <> result:55
+R6429:6436 STC.Spec Spec tx_valid proj
+R6438:6443 STC.Spec <> result:55 var
+R6456:6459 Corelib.Init.Datatypes <> true constr
+R6464:6473 STC.Spec <> ApplyBatch:53 def
+R6517:6517 STC.Spec <> d:52 var
+R6496:6502 STC.Spec Spec tx_root proj
+R6504:6509 STC.Spec <> result:55 var
+R6476:6485 STC.Spec Spec tx_entries proj
+R6487:6492 STC.Spec <> result:55 var
+R6525:6529 Corelib.Init.Datatypes <> false constr
+R6534:6543 STC.Spec Spec mkTxResult constr
+R6545:6549 Corelib.Init.Datatypes <> false constr
+R6551:6551 STC.Spec <> e:49 var
+R6553:6553 STC.Spec <> r:50 var
+def 6980:6993 Spec StateRootChain
+R7000:7004 STC.Spec Spec State rec
+binder 6996:6996 <> s:56
+R7012:7014 Corelib.Init.Datatypes <> nat ind
+binder 7008:7008 <> d:57
+R7035:7037 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7029:7032 STC.Spec Spec root proj
+R7034:7034 STC.Spec <> s:56 var
+R7038:7048 STC.Spec Spec ComputeNode def
+R7051:7057 STC.Spec Spec entries proj
+R7059:7059 STC.Spec <> s:56 var
+R7062:7062 STC.Spec <> d:57 var
+def 7342:7355 Spec BatchIntegrity
+R7362:7366 STC.Spec Spec State rec
+binder 7358:7358 <> s:58
+R7374:7376 Corelib.Init.Datatypes <> nat ind
+binder 7370:7370 <> d:59
+binder 7398:7398 <> k:60
+binder 7400:7400 <> v:61
+R7413:7416 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7408:7411 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R7407:7407 STC.Spec <> k:60 var
+R7431:7438 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7427:7429 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7418:7420 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R7417:7417 STC.Spec <> k:60 var
+R7421:7424 STC.Common <> pow2 def
+R7426:7426 STC.Spec <> d:59 var
+R7449:7452 STC.Spec Spec mkTx constr
+R7454:7454 STC.Spec <> k:60 var
+R7457:7463 STC.Spec Spec entries proj
+R7465:7465 STC.Spec <> s:58 var
+R7467:7467 STC.Spec <> k:60 var
+R7470:7470 STC.Spec <> v:61 var
+binder 7443:7444 <> tx:62
+R7493:7499 STC.Spec Spec ApplyTx def
+R7502:7508 STC.Spec Spec entries proj
+R7510:7510 STC.Spec <> s:58 var
+R7514:7517 STC.Spec Spec root proj
+R7519:7519 STC.Spec <> s:58 var
+R7522:7523 STC.Spec <> tx:62 var
+R7525:7525 STC.Spec <> d:59 var
+binder 7483:7488 <> result:63
+R7556:7563 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7549:7551 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7534:7541 STC.Spec Spec tx_valid proj
+R7543:7548 STC.Spec <> result:63 var
+R7552:7555 Corelib.Init.Datatypes <> true constr
+R7578:7580 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7564:7570 STC.Spec Spec tx_root proj
+R7572:7577 STC.Spec <> result:63 var
+R7581:7591 STC.Spec Spec ComputeNode def
+R7594:7603 STC.Spec Spec tx_entries proj
+R7605:7610 STC.Spec <> result:63 var
+R7613:7613 STC.Spec <> d:59 var
+def 7766:7779 Spec ProofSoundness
+R7786:7790 STC.Spec Spec State rec
+binder 7782:7782 <> s:64
+R7798:7800 Corelib.Init.Datatypes <> nat ind
+binder 7794:7794 <> d:65
+binder 7822:7822 <> k:66
+binder 7824:7831 <> wrongVal:67
+R7861:7868 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7846:7849 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R7838:7845 STC.Spec <> wrongVal:67 var
+R7850:7856 STC.Spec Spec entries proj
+R7858:7858 STC.Spec <> s:64 var
+R7860:7860 STC.Spec <> k:66 var
+R7879:7882 STC.Spec Spec mkTx constr
+R7884:7884 STC.Spec <> k:66 var
+R7886:7893 STC.Spec <> wrongVal:67 var
+R7895:7899 STC.Common <> EMPTY def
+binder 7873:7874 <> tx:68
+R7922:7928 STC.Spec Spec ApplyTx def
+R7931:7937 STC.Spec Spec entries proj
+R7939:7939 STC.Spec <> s:64 var
+R7943:7946 STC.Spec Spec root proj
+R7948:7948 STC.Spec <> s:64 var
+R7951:7952 STC.Spec <> tx:68 var
+R7954:7954 STC.Spec <> d:65 var
+binder 7912:7917 <> result:69
+R7978:7980 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7963:7970 STC.Spec Spec tx_valid proj
+R7972:7977 STC.Spec <> result:69 var
+R7981:7985 Corelib.Init.Datatypes <> false constr
+R7993:7996 STC.Spec Spec <> mod
