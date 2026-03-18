@@ -13,7 +13,7 @@ This repository is not open for external contributions at this time. The codebas
 1. Pull the latest `dev` branch.
 2. Create a feature branch: `feature/<descriptive-name>`.
 3. Make your changes with atomic commits following Conventional Commits format.
-4. Ensure all tests pass: `cd contracts && npx hardhat test`.
+4. Ensure all tests pass: `cd l1/contracts && npx hardhat test`.
 5. Merge your feature branch into `dev`.
 6. Delete the feature branch after merging.
 
@@ -25,7 +25,7 @@ This repository is not open for external contributions at this time. The codebas
 
 Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`
 
-Scopes: `contracts`, `adapter`, `prover`, `dashboard`, `l1-config`, `docs`
+Scopes: `l1`, `l1/contracts`, `validium`, `validium/circuits`, `validium/adapters`, `dashboard`, `docs`
 
 ### Code Standards
 

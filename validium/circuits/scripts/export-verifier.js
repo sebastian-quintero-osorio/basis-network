@@ -26,7 +26,7 @@ async function main() {
   const outputPath = path.join(buildDir, "Groth16Verifier.sol");
   console.log(`\nSolidity verifier exported to: ${outputPath}`);
   console.log("This contract provides the raw Groth16 verification logic.");
-  console.log("ZKVerifier.sol in contracts/verification/ wraps this with enterprise checks.");
+  console.log("ZKVerifier.sol in l1/contracts/contracts/verification/ wraps this with enterprise checks.");
 }
 
 main().catch(console.error);

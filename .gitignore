@@ -16,20 +16,20 @@ out/
 cache/
 
 # Hardhat
-contracts/cache/
-contracts/artifacts/
-contracts/typechain-types/
-contracts/coverage/
-contracts/coverage.json
+l1/contracts/cache/
+l1/contracts/artifacts/
+l1/contracts/typechain-types/
+l1/contracts/coverage/
+l1/contracts/coverage.json
 
-# ZK Prover build artifacts
-prover/build/
-prover/*.r1cs
-prover/*.wasm
-prover/*.zkey
-prover/*.wtns
-prover/*.sym
-prover/pot/
+# ZK Circuits build artifacts
+validium/circuits/build/
+validium/circuits/*.r1cs
+validium/circuits/*.wasm
+validium/circuits/*.zkey
+validium/circuits/*.wtns
+validium/circuits/*.sym
+validium/circuits/pot/
 
 # IDE
 .idea/
