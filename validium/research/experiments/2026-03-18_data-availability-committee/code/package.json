@@ -1,0 +1,17 @@
+{
+  "name": "data-availability-committee-experiment",
+  "version": "1.0.0",
+  "description": "RU-V6: Data Availability Committee with Shamir Secret Sharing for enterprise validium node",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "npx tsx src/benchmark.ts",
+    "test:privacy": "npx tsx src/test-privacy.ts",
+    "test:recovery": "npx tsx src/test-recovery.ts",
+    "test:all": "npx tsx src/benchmark.ts && npx tsx src/test-privacy.ts && npx tsx src/test-recovery.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}
