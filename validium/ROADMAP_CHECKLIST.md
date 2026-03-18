@@ -398,7 +398,7 @@ lab/4-prover/verification-history/YYYY-MM-data-availability/
 
 ### [17] Scientist | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 285,756 gas Layout A, 32 bytes/batch, integrated verification mandatory)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [07] complete (needs circuit proof format from RU-V2 Architect).
