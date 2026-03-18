@@ -332,7 +332,7 @@ lab/2-logicist/research-history/YYYY-MM-data-availability/0-input/
 
 ### [14] Logicist | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 6 safety + 2 liveness, node down/malicious/fallback scenarios verified)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [13] complete, materials in `0-input/`.
