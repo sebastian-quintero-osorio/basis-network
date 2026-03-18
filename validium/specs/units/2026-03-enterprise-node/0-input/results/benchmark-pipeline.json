@@ -1,0 +1,284 @@
+[
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "snarkjs_d32_b8",
+      "batchSize": 8,
+      "totalBatches": 10,
+      "totalTransactions": 80,
+      "totalTimeMs": 155116.11999999997,
+      "throughputTxPerSec": 0.5157426578230555,
+      "batchLatencies": [
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612,
+        15511.612
+      ],
+      "avgBatchLatencyMs": 15511.611999999997
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "snarkjs_d32_b8",
+      "batchSize": 8,
+      "totalBatches": 10,
+      "totalTransactions": 80,
+      "totalTimeMs": 149791.612,
+      "throughputTxPerSec": 0.53407529922303,
+      "batchLatencies": [
+        15511.612,
+        14920,
+        14920,
+        14920,
+        14920,
+        14920,
+        14920,
+        14920,
+        14920,
+        14920
+      ],
+      "avgBatchLatencyMs": 14979.161199999999
+    },
+    "speedup": 1.0355461025414425
+  },
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "rapidsnark_d32_b8",
+      "batchSize": 8,
+      "totalBatches": 10,
+      "totalTransactions": 80,
+      "totalTimeMs": 52546.12,
+      "throughputTxPerSec": 1.522472068346816,
+      "batchLatencies": [
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612,
+        5254.612
+      ],
+      "avgBatchLatencyMs": 5254.612
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "rapidsnark_d32_b8",
+      "batchSize": 8,
+      "totalBatches": 10,
+      "totalTransactions": 80,
+      "totalTimeMs": 47221.612,
+      "throughputTxPerSec": 1.6941395393278824,
+      "batchLatencies": [
+        5254.612,
+        4663,
+        4663,
+        4663,
+        4663,
+        4663,
+        4663,
+        4663,
+        4663,
+        4663
+      ],
+      "avgBatchLatencyMs": 4722.1612000000005
+    },
+    "speedup": 1.1127557441283453
+  },
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "snarkjs_d32_b16",
+      "batchSize": 16,
+      "totalBatches": 10,
+      "totalTransactions": 160,
+      "totalTimeMs": 313462.04000000004,
+      "throughputTxPerSec": 0.5104286311669508,
+      "batchLatencies": [
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204,
+        31346.204
+      ],
+      "avgBatchLatencyMs": 31346.204000000005
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "snarkjs_d32_b16",
+      "batchSize": 16,
+      "totalBatches": 10,
+      "totalTransactions": 160,
+      "totalTimeMs": 302813.204,
+      "throughputTxPerSec": 0.5283785445498604,
+      "batchLatencies": [
+        31346.204,
+        30163,
+        30163,
+        30163,
+        30163,
+        30163,
+        30163,
+        30163,
+        30163,
+        30163
+      ],
+      "avgBatchLatencyMs": 30281.320400000004
+    },
+    "speedup": 1.0351663529176884
+  },
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "rapidsnark_d32_b16",
+      "batchSize": 16,
+      "totalBatches": 10,
+      "totalTransactions": 160,
+      "totalTimeMs": 83462.04,
+      "throughputTxPerSec": 1.917039171340648,
+      "batchLatencies": [
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204,
+        8346.204
+      ],
+      "avgBatchLatencyMs": 8346.204
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "rapidsnark_d32_b16",
+      "batchSize": 16,
+      "totalBatches": 10,
+      "totalTransactions": 160,
+      "totalTimeMs": 72813.204,
+      "throughputTxPerSec": 2.197403646734183,
+      "batchLatencies": [
+        8346.204,
+        7163,
+        7163,
+        7163,
+        7163,
+        7163,
+        7163,
+        7163,
+        7163,
+        7163
+      ],
+      "avgBatchLatencyMs": 7281.3204
+    },
+    "speedup": 1.146248694124214
+  },
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "rapidsnark_d32_b64",
+      "batchSize": 64,
+      "totalBatches": 10,
+      "totalTransactions": 640,
+      "totalTimeMs": 188957.55999999997,
+      "throughputTxPerSec": 3.3870039388738937,
+      "batchLatencies": [
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756,
+        18895.756
+      ],
+      "avgBatchLatencyMs": 18895.755999999998
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "rapidsnark_d32_b64",
+      "batchSize": 64,
+      "totalBatches": 10,
+      "totalTransactions": 640,
+      "totalTimeMs": 146362.756,
+      "throughputTxPerSec": 4.372697108819132,
+      "batchLatencies": [
+        18895.756,
+        14163,
+        14163,
+        14163,
+        14163,
+        14163,
+        14163,
+        14163,
+        14163,
+        14163
+      ],
+      "avgBatchLatencyMs": 14636.275599999999
+    },
+    "speedup": 1.291022150471121
+  },
+  {
+    "sequential": {
+      "mode": "sequential",
+      "proverBackend": "snarkjs_d32_b64",
+      "batchSize": 64,
+      "totalBatches": 10,
+      "totalTransactions": 640,
+      "totalTimeMs": 1568957.5600000003,
+      "throughputTxPerSec": 0.40791415670924835,
+      "batchLatencies": [
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756,
+        156895.756
+      ],
+      "avgBatchLatencyMs": 156895.75600000002
+    },
+    "pipelined": {
+      "mode": "pipelined",
+      "proverBackend": "snarkjs_d32_b64",
+      "batchSize": 64,
+      "totalBatches": 10,
+      "totalTransactions": 640,
+      "totalTimeMs": 1526362.756,
+      "throughputTxPerSec": 0.41929744255368867,
+      "batchLatencies": [
+        156895.756,
+        152163,
+        152163,
+        152163,
+        152163,
+        152163,
+        152163,
+        152163,
+        152163,
+        152163
+      ],
+      "avgBatchLatencyMs": 152636.2756
+    },
+    "speedup": 1.0279060818488683
+  }
+]
