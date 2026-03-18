@@ -139,10 +139,10 @@ Nobody on the L1 can determine: what the transactions were, who the counterparti
 
 The MVP **extends** the current Basis Network, not replaces it:
 
-- `contracts/` -- Existing L1 contracts remain. New `StateCommitment.sol` is added.
-- `prover/` -- Existing circuits are the foundation. Enhanced circuits replace `batch_verifier.circom`.
-- `adapter/` -- Existing adapters inform the enterprise node design. The node subsumes adapter functionality.
-- `dashboard/` -- Extended to show per-enterprise state roots, batch history, and proof status.
+- `l1/contracts/` -- Existing L1 contracts remain. New `StateCommitment.sol` is added.
+- `validium/circuits/` -- Existing circuits are the foundation. Enhanced circuits replace `batch_verifier.circom`.
+- `validium/adapters/` -- Existing adapters inform the enterprise node design. The node subsumes adapter functionality.
+- `l1/dashboard/` -- Extended to show per-enterprise state roots, batch history, and proof status.
 
 ## Development Plan
 

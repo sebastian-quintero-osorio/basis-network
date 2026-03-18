@@ -117,7 +117,7 @@ Add a custom network in MetaMask:
 ## 7. Deploy Smart Contracts
 
 ```bash
-cd contracts
+cd l1/contracts
 cp .env.example .env
 # Edit .env with your RPC URL, chain ID, and private key
 npm install
@@ -130,7 +130,7 @@ The deployment script will output all contract addresses. Save them.
 ## 8. Configure Dashboard
 
 ```bash
-cd dashboard
+cd l1/dashboard
 cp .env.example .env.local
 # Edit .env.local with RPC URL and contract addresses
 npm install
@@ -151,7 +151,7 @@ printf '<value>' | npx vercel env add NEXT_PUBLIC_RPC_URL production
 ## 9. Run the Adapter
 
 ```bash
-cd adapter
+cd validium/adapters
 cp .env.example .env
 # Edit .env with RPC URL, contract addresses, and private key
 npm install
@@ -161,7 +161,7 @@ npm run start
 ## 10. Generate and Verify a ZK Proof
 
 ```bash
-cd prover
+cd validium/circuits
 npm install
 npm run setup     # One-time trusted setup (generates proving/verification keys)
 npm run prove     # Generate a Groth16 proof for a sample batch
@@ -172,7 +172,7 @@ npm run verify    # Verify the proof locally before on-chain submission
 
 ## Environment Variables Reference
 
-### contracts/.env
+### l1/contracts/.env
 
 ```
 PRIVATE_KEY=<admin wallet private key>
@@ -180,7 +180,7 @@ RPC_URL=<Basis Network RPC URL>
 CHAIN_ID=<chain ID>
 ```
 
-### adapter/.env
+### validium/adapters/.env
 
 ```
 PRIVATE_KEY=<adapter wallet private key>
@@ -193,7 +193,7 @@ PLASMA_API_URL=<PLASMA backend URL>
 TRACE_API_URL=<Trace backend URL>
 ```
 
-### dashboard/.env.local
+### l1/dashboard/.env.local
 
 ```
 NEXT_PUBLIC_RPC_URL=https://rpc.basisnetwork.com.co

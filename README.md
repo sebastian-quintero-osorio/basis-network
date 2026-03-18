@@ -75,29 +75,34 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](./docs/ARCHI
 
 ```
 basis-network/
-├── contracts/              # Smart contracts (Hardhat + Solidity 0.8.24)
-│   ├── contracts/
-│   │   ├── core/           # EnterpriseRegistry, TraceabilityRegistry
-│   │   ├── connectors/     # PLASMAConnector, TraceConnector
-│   │   └── verification/   # ZKVerifier (Groth16)
-│   ├── test/               # 72 unit tests (all passing)
-│   └── scripts/            # Deployment scripts
-├── l1-config/              # Avalanche L1 genesis and node configuration
-├── adapter/                # Blockchain Adapter Layer (Node.js + ethers.js v6)
-│   └── src/
-│       ├── plasma-adapter/ # PLASMA -> on-chain bridge
-│       ├── trace-adapter/  # Trace -> on-chain bridge
-│       └── common/         # Transaction queue with retry logic
-├── prover/                 # ZK proof generation (Circom + SnarkJS)
-│   ├── circuits/           # Circom circuits (BatchVerifier)
-│   └── scripts/            # Trusted setup, proof generation, verification
-├── dashboard/              # Network explorer (Next.js + Tailwind CSS)
-└── docs/                   # Technical documentation
-    ├── ARCHITECTURE.md     # System architecture with diagrams
+├── l1/                         # Basis Network L1 (shared foundation)
+│   ├── contracts/              # Smart contracts (Hardhat + Solidity 0.8.24)
+│   │   ├── contracts/
+│   │   │   ├── core/           # EnterpriseRegistry, TraceabilityRegistry
+│   │   │   ├── connectors/     # PLASMAConnector, TraceConnector
+│   │   │   └── verification/   # ZKVerifier (Groth16)
+│   │   ├── test/               # 72 unit tests (all passing)
+│   │   └── scripts/            # Deployment scripts
+│   ├── config/                 # Avalanche L1 genesis and node configuration
+│   └── dashboard/              # Network explorer (Next.js + Tailwind CSS)
+├── validium/                   # MVP: Enterprise ZK Validium Node
+│   ├── circuits/               # ZK proof generation (Circom + SnarkJS)
+│   │   ├── circuits/           # Circom circuits (BatchVerifier)
+│   │   └── scripts/            # Trusted setup, proof generation, verification
+│   ├── adapters/               # Blockchain Adapter Layer (Node.js + ethers.js v6)
+│   │   └── src/
+│   │       ├── plasma-adapter/ # PLASMA -> on-chain bridge
+│   │       ├── trace-adapter/  # Trace -> on-chain bridge
+│   │       └── common/         # Transaction queue with retry logic
+│   └── node/                   # Enterprise validium node service (planned)
+├── zkl2/                       # V2: Enterprise zkEVM L2 (future vision)
+├── lab/                        # Automated R&D pipeline (4-agent system)
+└── docs/                       # Technical documentation
+    ├── ARCHITECTURE.md         # System architecture with diagrams
     ├── TECHNICAL_DECISIONS.md  # Justified design choices
-    ├── MOSCOW.md           # Feature prioritization
-    ├── USER_JOURNEY.md     # End-to-end user flows
-    └── DEPLOYMENT_GUIDE.md # Step-by-step deployment instructions
+    ├── MOSCOW.md               # Feature prioritization
+    ├── USER_JOURNEY.md         # End-to-end user flows
+    └── DEPLOYMENT_GUIDE.md     # Step-by-step deployment instructions
 ```
 
 ---
@@ -151,16 +156,16 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 ### Smart Contracts
 
 ```bash
-cd contracts
+cd l1/contracts
 npm install
 npx hardhat compile    # Compiles 5 contracts (EVM target: cancun)
 npx hardhat test       # Runs 72 tests (all passing)
 ```
 
-### ZK Prover
+### ZK Circuits
 
 ```bash
-cd prover
+cd validium/circuits
 npm install
 npm run setup    # One-time trusted setup (Powers of Tau + Groth16 keys)
 npm run prove    # Generate a proof for a sample batch
@@ -170,7 +175,7 @@ npm run verify   # Verify the proof locally
 ### Dashboard
 
 ```bash
-cd dashboard
+cd l1/dashboard
 npm install
 npm run dev      # Starts on http://localhost:3000
 ```
@@ -178,7 +183,7 @@ npm run dev      # Starts on http://localhost:3000
 ### Adapter Demo
 
 ```bash
-cd adapter
+cd validium/adapters
 npm install
 npm run demo     # Simulates PLASMA + Trace events writing on-chain
 ```
