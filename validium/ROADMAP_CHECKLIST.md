@@ -128,7 +128,7 @@ Use `python lab/4-prover/tools/new_verification_unit.py sparse-merkle-tree` to s
 
 ### [05] Scientist | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 7 benchmarks across depth 10/20/32 x batch 4/8/16, d32_b8=274K constraints/12.8s proving)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
