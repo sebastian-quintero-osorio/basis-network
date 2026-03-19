@@ -12,10 +12,11 @@ generation + distribution + signature collection) across batch sizes and
 threshold configurations. This is the latency-critical metric: the time
 between the operator producing a batch and receiving a valid DAC certificate.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Attestation Pipeline Latency by Configuration}
 \label{tab:attestation}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrrr}
 \toprule
 \textbf{Config} & \textbf{Batch} & \textbf{Mean} & \textbf{P95} &
@@ -34,7 +35,8 @@ between the operator producing a batch and receiving a valid DAC certificate.
 \midrule
 2-of-3$^*$ & 100 KB & 30.9 & 36.0 & 2,000 & 56$\times$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \begin{flushleft}
 \small $^*$One node offline during distribution (degraded mode).
 \end{flushleft}
@@ -53,10 +55,11 @@ normal operation.
 Table~\ref{tab:sharegen} isolates the share generation cost, which dominates
 the attestation pipeline.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Share Generation Latency (2-of-3 Configuration)}
 \label{tab:sharegen}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{rrrr}
 \toprule
 \textbf{Batch Size} & \textbf{Elements} & \textbf{Mean (ms)} &
@@ -67,7 +70,8 @@ the attestation pipeline.
 500 KB & 16,130 & 163.2 & 10.1 \\
 1 MB   & 32,259 & 318.1 & 9.9  \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Per-element cost is constant at $\sim$9.5--10.0~$\mu$s (JavaScript BigInt),
@@ -82,10 +86,11 @@ per-element cost with native field arithmetic: $<$1~$\mu$s.
 Table~\ref{tab:recovery} presents the recovery latency for reconstructing
 the original batch from $k$ share bundles.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Data Recovery Latency by Configuration}
 \label{tab:recovery}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrr}
 \toprule
 \textbf{Config} & \textbf{Batch} & \textbf{Elements} & \textbf{Mean (ms)} &
@@ -101,7 +106,8 @@ the original batch from $k$ share bundles.
 3-of-3 & 500 KB & 16,130 & 9,745.8  & 604.2 \\
 3-of-3 & 1 MB   & 32,259 & 19,478.8 & 603.7 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Recovery is $\sim$8$\times$ slower for $(3,3)$ than $(2,3)$, reflecting the
@@ -117,10 +123,11 @@ throughput; recovery latency affects only interactive data retrieval.
 
 \subsection{Storage Overhead}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Storage Overhead (3-Node Committee)}
 \label{tab:storage}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{rrrr}
 \toprule
 \textbf{Batch Size} & \textbf{Per-Node (bytes)} & \textbf{Total (bytes)} &
@@ -131,7 +138,8 @@ throughput; recovery latency affects only interactive data retrieval.
 500 KB & 645,264   & 1,935,792 & 3.87$\times$ \\
 1 MB   & 1,290,416 & 3,871,248 & 3.87$\times$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Overhead converges to 3.87$\times$ at scale, explained by $n \times 32/31$:
@@ -139,10 +147,11 @@ each field element encodes 31 bytes but is stored as 32 bytes. Each node
 stores approximately $1\times$ the original data size. Table~\ref{tab:overhead_compare}
 compares with production systems.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Storage Overhead Comparison with Production Systems}
 \label{tab:overhead_compare}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrl}
 \toprule
 \textbf{System} & \textbf{Total} & \textbf{Per-Node} &
@@ -154,7 +163,8 @@ Semi-AVID-PR               & 3.2$\times$ & $3.2/n$ & Any $n/3$ nodes \\
 Celestia (2D RS)           & 4$\times$   & $4/n$   & Any $n/4$ nodes \\
 EigenDA V2 (RS 1/8)        & 8$\times$   & $8/n$   & Any $n/8$ nodes \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Shamir-DAC's 3.87$\times$ overhead is less than EigenDA (8$\times$),
@@ -184,10 +194,11 @@ cost of information-theoretic privacy.
 
 61 of 61 recovery and failure mode tests pass:
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Failure Mode Test Results}
 \label{tab:failure}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrl}
 \toprule
 \textbf{Scenario} & \textbf{Tests} & \textbf{Passed} & \textbf{Outcome} \\
@@ -202,7 +213,8 @@ Certificate tampered    & 3  & 3  & Detected, rejected \\
 3-of-3 configuration   & 1  & 1  & Correct behavior \\
 3-of-5 configuration   & 1  & 1  & Correct behavior \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 The $(2,3)$-threshold configuration tolerates exactly 1 node failure for both

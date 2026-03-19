@@ -1,4 +1,4 @@
-% results.tex -- Batch Aggregation Paper (RU-V4)
+% results.tex -- Batch Aggregation Paper (BNR-2026-004)
 
 \section{Results}
 
@@ -12,7 +12,7 @@ Table~\ref{tab:strategy} compares the three batch formation strategies under
 identical conditions (size threshold 16, time threshold 2000~ms, arrival rate
 200~tx/min, 30 replications).
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Batch Formation Strategy Comparison}
 \label{tab:strategy}
@@ -41,37 +41,37 @@ unsuitability as a standalone strategy for enterprise workloads.
 Table~\ref{tab:scaling} shows throughput scaling across batch sizes and arrival
 rates using the HYBRID strategy.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Throughput Scaling (HYBRID Strategy)}
 \label{tab:scaling}
-\begin{tabular}{rrrr}
+\begin{tabular}{rlrl}
 \toprule
-\textbf{Batch} & \textbf{Throughput} & \textbf{95\% CI} & \textbf{Batch} \\
-\textbf{Size}  & \textbf{(tx/min)}   &                   & \textbf{Latency (ms)} \\
+\textbf{Config} & \textbf{Throughput} & \textbf{95\% CI} & \textbf{Latency} \\
+                 & \textbf{(tx/min)}   & \textbf{(tx/min)} & \textbf{(ms)} \\
 \midrule
-\multicolumn{4}{l}{\emph{Batch size sweep (200 tx/min)}} \\
-4   & 210,324 & [207,426 -- 213,223] & 0.010 \\
-8   & 161,795 & [157,584 -- 166,007] & 0.011 \\
-16  & 19,178  & [18,854 -- 19,502]   & 0.010 \\
+\multicolumn{4}{l}{\emph{Batch size sweep (200 tx/min arrival rate)}} \\
+Size 4   & 210,324 & $\pm$2,899 & 0.010 \\
+Size 8   & 161,795 & $\pm$4,212 & 0.011 \\
+Size 16  & 19,178  & $\pm$324   & 0.010 \\
 \midrule
 \multicolumn{4}{l}{\emph{Arrival rate sweep (threshold 16)}} \\
-200 tx/min  & 17,867  & [17,270 -- 18,464] & 0.013 \\
-500 tx/min  & 206,656 & [202,306 -- 211,007] & 0.022 \\
-1000 tx/min & 274,438 & [268,942 -- 279,934] & 0.015 \\
+200/min  & 17,867  & $\pm$597   & 0.013 \\
+500/min  & 206,656 & $\pm$4,351 & 0.022 \\
+1000/min & 274,438 & $\pm$5,496 & 0.015 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The system scales linearly with arrival rate, achieving 274,438~tx/min peak
 throughput---exceeding the 100~tx/min target by a factor of 2,744. Batch
-formation latency remains sub-0.025~ms across all configurations, five orders
-of magnitude below the 5,000~ms target. All 95\% CI half-widths are within
-10\% of the mean.
+formation latency remains below 0.025~ms across all configurations, five
+orders of magnitude below the 5,000~ms target. All 95\% confidence interval
+half-widths are within 10\% of the mean.
 
 \subsubsection{fsync Strategy Impact}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{fsync Strategy Comparison (HYBRID, threshold 16, 200 tx/min)}
 \label{tab:fsync}
@@ -95,11 +95,12 @@ performance).
 
 Table~\ref{tab:reconcile} validates our measurements against published data.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Benchmark Reconciliation with Published Data}
 \label{tab:reconcile}
-\begin{tabular}{lllp{3.5cm}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllp{3.8cm}}
 \toprule
 \textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
 \midrule
@@ -110,7 +111,8 @@ WAL write (fsync) & 210 $\mu$s   & 880 $\mu$s~\cite{chia2024database}
 Throughput (burst) & 274K tx/min  & Kafka 2M/s~\cite{linkedin2024kafka}
   & Consistent: single-threaded vs distributed \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 No metric diverges by more than $10\times$ from published benchmarks after
@@ -118,10 +120,11 @@ accounting for workload and platform differences.
 
 \subsection{Determinism and Crash Recovery}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Determinism and Crash Recovery Test Results}
 \label{tab:correctness}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrl}
 \toprule
 \textbf{Test Category} & \textbf{Scenarios} & \textbf{Total} & \textbf{Passed} & \textbf{Result} \\
@@ -138,7 +141,8 @@ Crash: sequential (3x)  & 1 & 30 & 30 & 0 loss \\
 \midrule
 \textbf{Total}       &   & \textbf{600} & \textbf{600} & \textbf{PASS} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 All 450 determinism tests and 150 crash recovery tests pass. Same transactions
@@ -251,7 +255,7 @@ crash patterns.
 
 Table~\ref{tab:formal} summarizes the formal verification results.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{TLA+ Model Checking Results}
 \label{tab:formal}

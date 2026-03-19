@@ -44,10 +44,11 @@ dimension of cross-enterprise interactions.
 Table~\ref{tab:enterprise-privacy} summarizes production and research systems
 addressing enterprise privacy on blockchain.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{Enterprise Privacy Systems Comparison}
 \label{tab:enterprise-privacy}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lllll@{}}
 \toprule
 System & Privacy Model & Cross-Ent. & Proof & Status \\
@@ -58,7 +59,8 @@ zkCross~\cite{zkcross2024} & Cross-chain audit & Compliance & zk-SNARK & Researc
 ZK-InterChain~\cite{zkinterchain2025} & Cross-chain privacy & Limited & Various & Research \\
 \textbf{Ours} & Per-ent. validium & Hub-spoke & Groth16 & Research \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Rayls, developed by Parfin for the Drex (Brazilian CBDC) ecosystem and
@@ -85,7 +87,7 @@ verification.
 Table~\ref{tab:benchmarks} positions our cross-enterprise verification gas
 costs against published benchmarks.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{Verification Gas Cost Comparison}
 \label{tab:benchmarks}

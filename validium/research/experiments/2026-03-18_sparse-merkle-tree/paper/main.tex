@@ -1,5 +1,5 @@
 % main.tex -- Master document
-% Sparse Merkle Trees with Poseidon Hash for Enterprise ZK Validium State Management
+% BNR-2026-001: Sparse Merkle Trees with Poseidon Hash for Enterprise ZK Validium State Management
 %
 % Compile:
 %   pdflatex main.tex
@@ -8,6 +8,7 @@
 %   pdflatex main.tex
 
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -19,21 +20,39 @@
 \usepackage{hyperref}
 \usepackage{cite}
 \usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-001}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Internal Technical Report. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 
 % Metadata
 \title{Sparse Merkle Trees with Poseidon Hash for\\Enterprise ZK Validium State Management}
 
 \author{
-  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
   \IEEEauthorblockA{
-    Medellin, Colombia\\
-    social@basecomputing.com.co
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
   }
 }
 
 \begin{document}
 
 \maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
 
 % Abstract
 \input{abstract}
