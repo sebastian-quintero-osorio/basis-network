@@ -1,0 +1,29 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 110 and seed -743048397227371481 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-state-commitment\1-formalization\v0-analysis\experiments\StateCommitment\_build\MC_StateCommitment.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-state-commitment\1-formalization\v0-analysis\experiments\StateCommitment\_build\StateCommitment.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module StateCommitment
+Semantic processing of module MC_StateCommitment
+Starting... (2026-03-18 14:26:51)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-18 14:26:52.
+Progress(12) at 2026-03-18 14:26:55: 764,355 states generated (764,355 s/min), 367,853 distinct states found (367,853 ds/min), 238,583 states left on queue.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 1.9E-7
+  based on the actual fingerprints:  val = 1.4E-7
+3778441 states generated, 1874161 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 13.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 8 and the 95th percentile is 4).
+Finished in 21s at (2026-03-18 14:27:13)

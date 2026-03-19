@@ -1,0 +1,36 @@
+Verification Log -- State Transition Circuit (RU-V2)
+====================================================
+
+Date: 2026-03-18
+Target: validium/proofs/units/2026-03-state-transition-circuit/
+Prover: Rocq 9.0.1 (compiled with OCaml 4.14.2)
+Logical Path: STC
+Compilation: coqc -R . STC <file>.v
+
+Compilation Order and Results:
+------------------------------
+
+1. Common.v
+   Command: coqc -R . STC Common.v
+   Result: PASS
+   Output: Common.vo (11,955 bytes), Common.vok (0 bytes)
+
+2. Spec.v
+   Command: coqc -R . STC Spec.v
+   Result: PASS
+   Output: Spec.vo (10,359 bytes), Spec.vok (0 bytes)
+
+3. Impl.v
+   Command: coqc -R . STC Impl.v
+   Result: PASS
+   Output: Impl.vo (5,524 bytes), Impl.vok (0 bytes)
+
+4. Refinement.v
+   Command: coqc -R . STC Refinement.v
+   Result: PASS
+   Output: Refinement.vo (50,182 bytes), Refinement.vok (0 bytes)
+
+Admitted Count: 0
+Axiom Trust Base: 3 (hash_positive, hash_injective, depth_positive)
+
+All theorems verified. No Admitted. No admit. No give_up.

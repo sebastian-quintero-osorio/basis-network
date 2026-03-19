@@ -1,0 +1,79 @@
+=== VERIFICATION LOG ===
+Date: 2026-03-18 03:40 UTC-5
+Prover: The Rocq Prover, version 9.0.1 (compiled with OCaml 4.14.2)
+Unit: 2026-03-sparse-merkle-tree
+Target: validium
+
+=== COMPILATION ORDER ===
+1. Common.v  -- Standard library (types, hash axioms, tactics)
+2. Spec.v    -- TLA+ -> Coq translation
+3. Impl.v    -- TypeScript -> Coq abstract model
+4. Refinement.v -- Refinement proof (Impl refines Spec)
+
+=== RESULTS ===
+Common.v:     [OK] Compiled successfully
+Spec.v:       [OK] Compiled successfully
+Impl.v:       [OK] Compiled successfully
+Refinement.v: [OK] Compiled successfully
+
+=== ADMITTED CHECK ===
+Admitted:  0
+admit:     0
+give_up:   0
+
+=== AXIOM TRUST BASE ===
+1. hash_positive:  forall a b, Hash a b > 0
+2. hash_injective: forall a1 b1 a2 b2, Hash a1 b1 = Hash a2 b2 -> a1 = a2 /\ b1 = b2
+3. depth_positive:  DEPTH > 0
+
+=== THEOREM INVENTORY ===
+Common.v:
+  - pow2_pos
+  - pow2_double
+  - pow2_0
+  - update_entry_same
+  - update_entry_other
+  - leaf_hash_empty
+  - leaf_hash_nonempty
+  - leaf_hash_nonneg
+
+Spec.v:
+  - default_hash_0
+  - default_hash_S
+  - default_hash_nonneg
+
+Impl.v:
+  - init_root
+
+Refinement.v:
+  - ancestor_step
+  - pathbit_0_ancestor
+  - pathbit_1_ancestor
+  - sibling_index_pathbit_0
+  - sibling_index_pathbit_1
+  - pathbit_range
+  - init_refinement
+  - verify_walkup_equiv
+  - compute_node_ext
+  - compute_node_update_outside
+  - compute_node_empty
+  - parent_from_left
+  - parent_from_right
+  - verify_reconstructs_node
+  - completeness_from_consistency
+  - verify_walkup_injective
+  - soundness_from_consistency
+  - sibling_outside_key
+  - sibling_hash_update_invariant
+  - parent_step_left
+  - parent_step_right
+  - walkup_computes_new_root
+  - walkup_equals_compute_root
+  - consistency_init
+  - consistency_preserved_insert
+  - consistency_preserved_delete
+  - all_invariants_init
+  - all_invariants_preserved_insert
+  - all_invariants_preserved_delete
+
+=== VERDICT: VERIFIED ===

@@ -1,0 +1,86 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 65 and seed 5047408332939647801 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file MC_BatchAggregation.tla
+Parsing file BatchAggregation.tla
+Parsing file TLC.tla
+Parsing file Integers.tla
+Parsing file Sequences.tla
+Parsing file FiniteSets.tla
+Parsing file Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module BatchAggregation
+Semantic processing of module MC_BatchAggregation
+Starting... (2026-03-18 09:41:33)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-18 09:41:33.
+Error: Invariant NoLoss is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ pending = {tx1, tx2, tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 0
+/\ queue = <<>>
+/\ wal = <<>>
+/\ timerExpired = FALSE
+/\ processed = <<>>
+/\ batches = <<>>
+/\ systemUp = TRUE
+
+State 2: <Next line 198, col 8 to line 198, col 38 of module BatchAggregation>
+/\ pending = {tx2, tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 0
+/\ queue = <<tx1>>
+/\ wal = <<tx1>>
+/\ timerExpired = FALSE
+/\ processed = <<>>
+/\ batches = <<>>
+/\ systemUp = TRUE
+
+State 3: <Next line 198, col 8 to line 198, col 38 of module BatchAggregation>
+/\ pending = {tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 0
+/\ queue = <<tx1, tx2>>
+/\ wal = <<tx1, tx2>>
+/\ timerExpired = FALSE
+/\ processed = <<>>
+/\ batches = <<>>
+/\ systemUp = TRUE
+
+State 4: <TimerTick line 187, col 5 to line 191, col 87 of module BatchAggregation>
+/\ pending = {tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 0
+/\ queue = <<tx1, tx2>>
+/\ wal = <<tx1, tx2>>
+/\ timerExpired = TRUE
+/\ processed = <<>>
+/\ batches = <<>>
+/\ systemUp = TRUE
+
+State 5: <FormBatch line 132, col 5 to line 143, col 56 of module BatchAggregation>
+/\ pending = {tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 2
+/\ queue = <<>>
+/\ wal = <<tx1, tx2>>
+/\ timerExpired = FALSE
+/\ processed = <<>>
+/\ batches = <<<<tx1, tx2>>>>
+/\ systemUp = TRUE
+
+State 6: <Crash line 163, col 5 to line 168, col 61 of module BatchAggregation>
+/\ pending = {tx3, tx4, tx5, tx6, tx7, tx8, tx9, tx10}
+/\ checkpointSeq = 2
+/\ queue = <<>>
+/\ wal = <<tx1, tx2>>
+/\ timerExpired = FALSE
+/\ processed = <<>>
+/\ batches = <<>>
+/\ systemUp = FALSE
+
+3262 states generated, 2899 distinct states found, 2518 states left on queue.
+The depth of the complete state graph search is 6.
+The average outdegree of the complete state graph is 8 (minimum is 0, the maximum 11 and the 95th percentile is 10).
+Finished in 01s at (2026-03-18 09:41:34)
