@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 /// Full deployment and demo script: deploys all contracts, registers
-/// a demo enterprise, and submits a ZK proof on-chain.
+/// a demo enterprise, and submits sample events on-chain.
 /// Use with --network basisLocal or --network basisFuji.
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -13,110 +13,124 @@ async function main() {
   console.log("Network:", (await ethers.provider.getNetwork()).chainId.toString());
 
   // --- Deploy Contracts ---
-  console.log("\n--- 1/5: Deploying EnterpriseRegistry ---");
+  console.log("\n--- 1/6: Deploying EnterpriseRegistry ---");
   const EnterpriseRegistry = await ethers.getContractFactory("EnterpriseRegistry");
   const registry = await EnterpriseRegistry.deploy();
   await registry.waitForDeployment();
   const registryAddr = await registry.getAddress();
   console.log("  Address:", registryAddr);
 
-  console.log("\n--- 2/5: Deploying TraceabilityRegistry ---");
+  console.log("\n--- 2/6: Deploying TraceabilityRegistry ---");
   const TraceabilityRegistry = await ethers.getContractFactory("TraceabilityRegistry");
   const traceReg = await TraceabilityRegistry.deploy(registryAddr);
   await traceReg.waitForDeployment();
   const traceRegAddr = await traceReg.getAddress();
   console.log("  Address:", traceRegAddr);
 
-  console.log("\n--- 3/5: Deploying PLASMAConnector ---");
-  const PLASMAConnector = await ethers.getContractFactory("PLASMAConnector");
-  const plasma = await PLASMAConnector.deploy(registryAddr, traceRegAddr);
-  await plasma.waitForDeployment();
-  const plasmaAddr = await plasma.getAddress();
-  console.log("  Address:", plasmaAddr);
-
-  console.log("\n--- 4/5: Deploying TraceConnector ---");
-  const TraceConnector = await ethers.getContractFactory("TraceConnector");
-  const trace = await TraceConnector.deploy(registryAddr, traceRegAddr);
-  await trace.waitForDeployment();
-  const traceAddr = await trace.getAddress();
-  console.log("  Address:", traceAddr);
-
-  console.log("\n--- 5/5: Deploying ZKVerifier ---");
+  console.log("\n--- 3/6: Deploying ZKVerifier ---");
   const ZKVerifier = await ethers.getContractFactory("ZKVerifier");
   const zkVerifier = await ZKVerifier.deploy(registryAddr);
   await zkVerifier.waitForDeployment();
   const zkAddr = await zkVerifier.getAddress();
   console.log("  Address:", zkAddr);
 
-  // --- Register Enterprises ---
-  console.log("\n--- Registering enterprises ---");
-  const meta = ethers.toUtf8Bytes('{"type":"system_connector"}');
+  console.log("\n--- 4/6: Deploying StateCommitment ---");
+  const StateCommitment = await ethers.getContractFactory("StateCommitment");
+  const stateCommitment = await StateCommitment.deploy(registryAddr);
+  await stateCommitment.waitForDeployment();
+  const stateCommitmentAddr = await stateCommitment.getAddress();
+  console.log("  Address:", stateCommitmentAddr);
 
-  await (await registry.registerEnterprise(plasmaAddr, "PLASMAConnector", meta)).wait();
-  console.log("  PLASMAConnector registered");
+  console.log("\n--- 5/6: Deploying DACAttestation ---");
+  const DACAttestation = await ethers.getContractFactory("DACAttestation");
+  const dacAttestation = await DACAttestation.deploy(registryAddr, 1);
+  await dacAttestation.waitForDeployment();
+  const dacAddr = await dacAttestation.getAddress();
+  console.log("  Address:", dacAddr);
 
-  await (await registry.registerEnterprise(traceAddr, "TraceConnector", meta)).wait();
-  console.log("  TraceConnector registered");
+  console.log("\n--- 6/6: Deploying CrossEnterpriseVerifier ---");
+  const CrossEnterpriseVerifier = await ethers.getContractFactory("CrossEnterpriseVerifier");
+  const crossVerifier = await CrossEnterpriseVerifier.deploy(stateCommitmentAddr, registryAddr);
+  await crossVerifier.waitForDeployment();
+  const crossVerifierAddr = await crossVerifier.getAddress();
+  console.log("  Address:", crossVerifierAddr);
 
-  // NOTE: "Ingenio Sancarlos" was previously registered here using the deployer
-  // address, but it was removed because Ingenio Sancarlos is a CLIENT of PLASMA,
-  // not a SaaS enterprise.  Do not re-add it.
+  // --- Register Demo Enterprise ---
+  console.log("\n--- Registering demo enterprise (deployer) ---");
+  const meta = ethers.toUtf8Bytes('{"type":"demo_enterprise"}');
+  await (await registry.registerEnterprise(deployer.address, "DemoEnterprise", meta)).wait();
+  console.log("  Deployer registered as DemoEnterprise");
 
-  // --- PLASMA Demo Transactions ---
-  console.log("\n--- PLASMA demo transactions ---");
-  const plasmaContract = await ethers.getContractAt("PLASMAConnector", plasmaAddr);
+  // --- PLASMA Demo Transactions (generic TraceabilityRegistry calls) ---
+  console.log("\n--- PLASMA demo transactions (via TraceabilityRegistry) ---");
 
-  await (await plasmaContract.recordMaintenanceOrder(
-    ethers.encodeBytes32String("WO-2026-001"),
+  const ORDER_CREATED = ethers.keccak256(ethers.toUtf8Bytes("ORDER_CREATED"));
+  const EQUIPMENT_INSPECTION = ethers.keccak256(ethers.toUtf8Bytes("EQUIPMENT_INSPECTION"));
+  const ORDER_COMPLETED = ethers.keccak256(ethers.toUtf8Bytes("ORDER_COMPLETED"));
+
+  await (await traceReg.recordEvent(
+    ORDER_CREATED,
     ethers.encodeBytes32String("BOILER-A1"),
-    1,
-    ethers.toUtf8Bytes("Critical pressure valve replacement")
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint8", "string"],
+      [ethers.encodeBytes32String("WO-2026-001"), 1, "Critical pressure valve replacement"]
+    )
   )).wait();
-  console.log("  Work order WO-2026-001 created");
+  console.log("  ORDER_CREATED: WO-2026-001 for BOILER-A1");
 
-  await (await plasmaContract.recordMaintenanceOrder(
-    ethers.encodeBytes32String("WO-2026-002"),
-    ethers.encodeBytes32String("TURBINE-B3"),
-    2,
-    ethers.toUtf8Bytes("Scheduled bearing inspection")
-  )).wait();
-  console.log("  Work order WO-2026-002 created");
-
-  await (await plasmaContract.recordEquipmentInspection(
+  await (await traceReg.recordEvent(
+    EQUIPMENT_INSPECTION,
     ethers.encodeBytes32String("BOILER-A1"),
     ethers.toUtf8Bytes("Temperature: 185C, Pressure: 12bar, Status: nominal")
   )).wait();
-  console.log("  Equipment inspection recorded");
+  console.log("  EQUIPMENT_INSPECTION: BOILER-A1");
 
-  await (await plasmaContract.completeMaintenanceOrder(
-    ethers.encodeBytes32String("WO-2026-001"),
-    ethers.toUtf8Bytes("Valve replaced. Pressure test passed at 15bar.")
+  await (await traceReg.recordEvent(
+    ORDER_COMPLETED,
+    ethers.encodeBytes32String("BOILER-A1"),
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "string"],
+      [ethers.encodeBytes32String("WO-2026-001"), "Valve replaced. Pressure test passed at 15bar."]
+    )
   )).wait();
-  console.log("  Work order WO-2026-001 completed");
+  console.log("  ORDER_COMPLETED: WO-2026-001");
 
-  // --- Trace Demo Transactions ---
-  console.log("\n--- Trace demo transactions ---");
-  const traceContract = await ethers.getContractAt("TraceConnector", traceAddr);
+  // --- Trace Demo Transactions (generic TraceabilityRegistry calls) ---
+  console.log("\n--- Trace demo transactions (via TraceabilityRegistry) ---");
 
-  await (await traceContract.recordSale(
-    ethers.encodeBytes32String("SALE-001"),
+  const SALE_CREATED = ethers.keccak256(ethers.toUtf8Bytes("SALE_CREATED"));
+  const INVENTORY_MOVEMENT = ethers.keccak256(ethers.toUtf8Bytes("INVENTORY_MOVEMENT"));
+  const PURCHASE_ORDER_CREATED = ethers.keccak256(ethers.toUtf8Bytes("PURCHASE_ORDER_CREATED"));
+
+  await (await traceReg.recordEvent(
+    SALE_CREATED,
     ethers.encodeBytes32String("SUGAR-50KG"),
-    100, 5000000
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint256", "uint256"],
+      [ethers.encodeBytes32String("SALE-001"), 100, 5000000]
+    )
   )).wait();
-  console.log("  Sale SALE-001 recorded");
+  console.log("  SALE_CREATED: SALE-001 for SUGAR-50KG");
 
-  await (await traceContract.recordInventoryMovement(
+  await (await traceReg.recordEvent(
+    INVENTORY_MOVEMENT,
     ethers.encodeBytes32String("SUGAR-50KG"),
-    -100, ethers.encodeBytes32String("SALE")
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["int256", "string"],
+      [-100, "SALE"]
+    )
   )).wait();
-  console.log("  Inventory movement recorded");
+  console.log("  INVENTORY_MOVEMENT: SUGAR-50KG (-100)");
 
-  await (await traceContract.recordSupplierTransaction(
-    ethers.encodeBytes32String("SUPP-CANE-01"),
+  await (await traceReg.recordEvent(
+    PURCHASE_ORDER_CREATED,
     ethers.encodeBytes32String("RAW-CANE"),
-    10000
+    ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint256"],
+      [ethers.encodeBytes32String("SUPP-CANE-01"), 10000]
+    )
   )).wait();
-  console.log("  Supplier transaction recorded");
+  console.log("  PURCHASE_ORDER_CREATED: RAW-CANE from SUPP-CANE-01");
 
   // --- ZK Proof Verification ---
   console.log("\n--- ZK proof on-chain verification ---");
@@ -170,16 +184,17 @@ async function main() {
   console.log("\n========================================");
   console.log("       DEPLOYMENT SUMMARY");
   console.log("========================================");
-  console.log("EnterpriseRegistry:    ", registryAddr);
-  console.log("TraceabilityRegistry:  ", traceRegAddr);
-  console.log("PLASMAConnector:       ", plasmaAddr);
-  console.log("TraceConnector:        ", traceAddr);
-  console.log("ZKVerifier:            ", zkAddr);
+  console.log("EnterpriseRegistry:       ", registryAddr);
+  console.log("TraceabilityRegistry:     ", traceRegAddr);
+  console.log("ZKVerifier:               ", zkAddr);
+  console.log("StateCommitment:          ", stateCommitmentAddr);
+  console.log("DACAttestation:           ", dacAddr);
+  console.log("CrossEnterpriseVerifier:  ", crossVerifierAddr);
   console.log("========================================");
-  console.log("Enterprises: 2 (PLASMAConnector, TraceConnector)");
-  console.log("PLASMA: 2 work orders, 1 completed, 1 inspection");
-  console.log("Trace: 1 sale, 1 inventory movement, 1 supplier transaction");
-  console.log("ZK: 1 batch proof verified (4 transactions)");
+  console.log("Enterprises: 1 (DemoEnterprise)");
+  console.log("PLASMA: 1 order created, 1 inspection, 1 order completed");
+  console.log("Trace: 1 sale, 1 inventory movement, 1 purchase order");
+  console.log("ZK: 1 batch proof verified (4 transactions via Groth16)");
   console.log("========================================");
 }
 
