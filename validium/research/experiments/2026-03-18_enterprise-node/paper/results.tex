@@ -172,13 +172,14 @@ Table~\ref{tab:reconcile} validates our measurements against published data.
 \centering
 \caption{Benchmark Reconciliation with Published Data}
 \label{tab:reconcile}
-\begin{tabular}{llrl}
+\small
+\begin{tabular}{@{}llll@{}}
 \toprule
-\textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
+\textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assess.} \\
 \midrule
-Orch. overhead       & 593~ms  & push0: 5.2~ms & Expected$^*$ \\
-Batch formation only & 11.4~ms & push0: 5.2~ms & 2.2$\times$ (consistent) \\
-Memory per component & 85~MB   & push0: 8--14~MB & Expected$^\dagger$ \\
+Orch. overhead   & 593~ms  & push0: 5.2~ms   & Exp.$^*$ \\
+Batch form.      & 11.4~ms & push0: 5.2~ms   & 2.2$\times$ \\
+Mem./component   & 85~MB   & push0: 8--14~MB & Exp.$^\dagger$ \\
 \bottomrule
 \end{tabular}
 \begin{flushleft}

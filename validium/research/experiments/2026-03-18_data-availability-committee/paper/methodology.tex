@@ -36,7 +36,7 @@ or $O(k \cdot n \cdot m)$ total. For $(2,3)$-Shamir with a 500~KB batch
 
 Algorithm~\ref{alg:attestation} presents the attestation pipeline.
 
-\begin{algorithm}[h]
+\begin{algorithm}[htbp]
 \caption{Shamir-DAC Attestation Pipeline}
 \label{alg:attestation}
 \begin{algorithmic}[1]
@@ -122,11 +122,12 @@ scheme~\cite{nazirkhanova2022semiavidpr}.
 Table~\ref{tab:approaches} compares the design alternatives for private
 data availability in validium systems.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Design Alternatives for Private Data Availability}
 \label{tab:approaches}
-\begin{tabular}{lp{1.4cm}p{1.6cm}p{1.6cm}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lp{1.6cm}p{1.6cm}p{1.8cm}}
 \toprule
 \textbf{Approach} & \textbf{Privacy} & \textbf{Storage Overhead} & \textbf{Recovery Cost} \\
 \midrule
@@ -136,7 +137,8 @@ Encrypt-then-RS  & Computational & $n/k \times$ & $O(k \log^2 k)$ + decrypt \\
 Semi-AVID-PR     & Computational & $\sim$3.2$\times$ & $O(n/3)$ nodes \\
 \textbf{Shamir-DAC} & \textbf{Info.-theoretic} & $n \times$ & $O(k^2 \cdot m)$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Shamir-DAC trades higher per-node storage ($1\times$ original per member,

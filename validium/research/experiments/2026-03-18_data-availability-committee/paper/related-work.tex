@@ -67,10 +67,11 @@ Table~\ref{tab:production} summarizes the critical architectural differences
 across production DAC systems. The privacy column is the central contribution
 of this work: no existing system provides information-theoretic guarantees.
 
-\begin{table*}[t]
+\begin{table*}[!t]
 \centering
 \caption{Production Data Availability Systems: Architecture and Privacy Comparison}
 \label{tab:production}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 \textbf{System} & \textbf{Members} & \textbf{Threshold} & \textbf{Signature} &
@@ -87,7 +88,8 @@ Espresso (HotShot)   & All & 1/4 recovery & N/A & Partial (VID) & None & -- \\
 \textbf{Shamir-DAC (ours)} & \textbf{3} & \textbf{2/3} & \textbf{ECDSA} &
 \textbf{Information-theoretic} & \textbf{On-chain DA} & \textbf{--} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}
 
 \subsection{Academic Data Availability Protocols}
