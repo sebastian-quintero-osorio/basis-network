@@ -348,6 +348,32 @@ The 90-second target for batch-64 is achievable:
 | **Total E2E** | **2,784.8** | **7.8** | -- | Without proving time |
 | **Orchestration overhead** | **593.35** | -- | -- | Batch + witness only |
 
+### 5.2b Full Benchmark Results (all 5 scenarios, 30-50 iterations each)
+
+| Scenario | Batch | Total E2E (ms) | Overhead (ms) | Proving (ms) | Memory (MB) |
+|----------|-------|---------------|--------------|-------------|------------|
+| orchestration_overhead_only | 8 | 2,785 | 593 | 12 (timer) | 84.8 |
+| snarkjs_d32_b8 | 8 | 15,537 | 594 | 12,765 | 85.6 |
+| rapidsnark_d32_b8 | 8 | 5,281 | 594 | 2,507 | 86.2 |
+| snarkjs_d32_b16 | 16 | 31,371 | 1,187 | 28,008 | 85.9 |
+| **rapidsnark_d32_b64** | **64** | **18,889** | **4,704** | **12,006** | **87.1** |
+
+**Batch 64 breakdown (target scenario):**
+
+| Phase | Mean (ms) | Stddev (ms) | P95 (ms) |
+|-------|----------|------------|---------|
+| Batch formation (64 SMT inserts) | 90.31 | 1.88 | 92.43 |
+| Witness generation (64 txs) | 4,613.21 | 3.61 | 4,622.13 |
+| Proving (rapidsnark simulated) | 12,006.26 | 6.94 | 12,016.35 |
+| DAC attestation | 171.89 | 1.75 | 174.97 |
+| L1 submission | 2,007.35 | 6.82 | 2,015.34 |
+
+**Overhead scaling (linear in batch size):**
+- Batch 8: 593 ms (11ms formation + 582ms witness)
+- Batch 16: 1,187 ms (23ms formation + 1,164ms witness)
+- Batch 64: 4,704 ms (90ms formation + 4,613ms witness)
+- Overhead per tx: ~73.5 ms (dominated by witness generation at 72ms/tx)
+
 **Critical finding:** Orchestration overhead is **593 ms** per batch (11.4ms batch formation + 582ms witness generation). This is **0.66% of the 90-second budget**. The bottleneck is exclusively proof generation.
 
 **95% CI check:** Stddev 7.8ms on mean 2,784.8ms = CI < 0.3% of mean. PASS (threshold: <10%).
