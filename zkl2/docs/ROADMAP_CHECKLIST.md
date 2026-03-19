@@ -354,7 +354,7 @@ lab/3-architect/implementation-history/prover-witness-gen/
 
 ### [15] Architect | RU-L3: Witness Generation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Rust witness gen: 62/62 tests, 0 clippy warnings, thiserror, zero unwrap)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [14] complete, verified specs in `implementation-history/`.
