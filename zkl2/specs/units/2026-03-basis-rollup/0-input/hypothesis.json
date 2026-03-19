@@ -1,0 +1,58 @@
+{
+  "name": "basis-rollup",
+  "target": "zkl2",
+  "title": "L1 Rollup Contract for Enterprise zkEVM L2 with Block-Level State Tracking",
+  "hypothesis": "A Solidity rollup contract can verify validity proofs of L2 batches, maintain per-enterprise state root chains, and process batch submissions at < 500K gas, extending Validium RU-V3 patterns to the full zkEVM model with block-level tracking and commit-prove-execute lifecycle.",
+  "null_hypothesis": "The commit-prove-execute pattern introduces sufficient storage and call overhead that total gas per batch exceeds 500K, making the multi-phase approach infeasible without sacrificing on-chain data or safety invariants.",
+  "domain": "l2-architecture",
+  "independent_variables": [
+    "batch_lifecycle_pattern",
+    "storage_layout",
+    "blocks_per_batch",
+    "proof_verification_strategy"
+  ],
+  "dependent_variables": [
+    "commit_gas_cost",
+    "prove_gas_cost",
+    "execute_gas_cost",
+    "total_gas_per_batch",
+    "storage_bytes_per_batch",
+    "state_slots_written"
+  ],
+  "predictions": [
+    {
+      "id": "P1",
+      "statement": "Commit phase uses < 120K gas (batch metadata + L2 block range storage)",
+      "rationale": "2-3 new storage slots (66-88K) + calldata + event emission"
+    },
+    {
+      "id": "P2",
+      "statement": "Prove phase uses < 250K gas (ZK verification + proof linkage)",
+      "rationale": "Groth16 pairing check ~205K + minimal storage update ~20K"
+    },
+    {
+      "id": "P3",
+      "statement": "Execute phase uses < 80K gas (state finalization)",
+      "rationale": "1-2 SSTORE warm updates + event emission"
+    },
+    {
+      "id": "P4",
+      "statement": "Total gas across all three phases < 500K per batch",
+      "rationale": "Sum of P1+P2+P3 predictions: ~450K with margin"
+    },
+    {
+      "id": "P5",
+      "statement": "All validium safety invariants (ChainContinuity, ProofBeforeState, NoGap, EnterpriseIsolation) are preserved in the extended model",
+      "rationale": "Structural enforcement via auto-incrementing IDs and per-enterprise mappings"
+    }
+  ],
+  "baseline": {
+    "contract": "StateCommitment.sol (validium RU-V3)",
+    "gas_per_batch": 285756,
+    "storage_per_batch_bytes": 32,
+    "pattern": "single-phase submit (verify+commit atomic)"
+  },
+  "created": "2026-03-19",
+  "stage": 1,
+  "status": "in_progress"
+}

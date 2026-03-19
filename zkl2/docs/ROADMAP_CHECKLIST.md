@@ -421,7 +421,7 @@ lab/2-logicist/research-history/YYYY-MM-basis-rollup/0-input/
 
 ### [18] Logicist | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 12 invariants, commit-prove-execute lifecycle, extends RU-V3)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [17] complete, materials in `0-input/`.
