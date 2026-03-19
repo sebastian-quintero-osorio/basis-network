@@ -284,7 +284,7 @@ lab/4-prover/verification-history/YYYY-MM-l2-state-db/
 
 ### [12] Prover | RU-L4: State Database
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 22 theorems, 0 Admitted, BalanceConservation + AccountIsolation + StorageIsolation)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [11] complete, snapshots prepared.
