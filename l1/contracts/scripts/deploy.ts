@@ -2,77 +2,74 @@ import { ethers } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", (await ethers.provider.getBalance(deployer.address)).toString());
+  console.log("Deploying with:", deployer.address);
+  console.log("Balance:", (await ethers.provider.getBalance(deployer.address)).toString());
 
-  // 1. Deploy EnterpriseRegistry
-  console.log("\n--- Deploying EnterpriseRegistry ---");
-  const EnterpriseRegistry = await ethers.getContractFactory("EnterpriseRegistry");
-  const enterpriseRegistry = await EnterpriseRegistry.deploy();
-  await enterpriseRegistry.waitForDeployment();
-  const enterpriseRegistryAddress = await enterpriseRegistry.getAddress();
-  console.log("EnterpriseRegistry deployed to:", enterpriseRegistryAddress);
+  // 1. EnterpriseRegistry
+  console.log("\n[1/7] EnterpriseRegistry");
+  const ER = await ethers.getContractFactory("EnterpriseRegistry");
+  const er = await ER.deploy();
+  await er.waitForDeployment();
+  const erAddr = await er.getAddress();
+  console.log("  ->", erAddr);
 
-  // 2. Deploy TraceabilityRegistry
-  console.log("\n--- Deploying TraceabilityRegistry ---");
-  const TraceabilityRegistry = await ethers.getContractFactory("TraceabilityRegistry");
-  const traceabilityRegistry = await TraceabilityRegistry.deploy(enterpriseRegistryAddress);
-  await traceabilityRegistry.waitForDeployment();
-  const traceabilityRegistryAddress = await traceabilityRegistry.getAddress();
-  console.log("TraceabilityRegistry deployed to:", traceabilityRegistryAddress);
+  // 2. TraceabilityRegistry
+  console.log("[2/7] TraceabilityRegistry");
+  const TR = await ethers.getContractFactory("TraceabilityRegistry");
+  const tr = await TR.deploy(erAddr);
+  await tr.waitForDeployment();
+  console.log("  ->", await tr.getAddress());
 
-  // 3. Deploy ZKVerifier
-  console.log("\n--- Deploying ZKVerifier ---");
-  const ZKVerifier = await ethers.getContractFactory("ZKVerifier");
-  const zkVerifier = await ZKVerifier.deploy(enterpriseRegistryAddress);
-  await zkVerifier.waitForDeployment();
-  const zkVerifierAddress = await zkVerifier.getAddress();
-  console.log("ZKVerifier deployed to:", zkVerifierAddress);
+  // 3. ZKVerifier
+  console.log("[3/7] ZKVerifier");
+  const ZK = await ethers.getContractFactory("ZKVerifier");
+  const zk = await ZK.deploy(erAddr);
+  await zk.waitForDeployment();
+  console.log("  ->", await zk.getAddress());
 
-  // 4. Deploy StateCommitment
-  console.log("\n--- Deploying StateCommitment ---");
-  const StateCommitment = await ethers.getContractFactory("StateCommitment");
-  const stateCommitment = await StateCommitment.deploy(enterpriseRegistryAddress);
-  await stateCommitment.waitForDeployment();
-  const stateCommitmentAddress = await stateCommitment.getAddress();
-  console.log("StateCommitment deployed to:", stateCommitmentAddress);
+  // 4. Groth16Verifier (snarkjs-generated, VK baked in)
+  console.log("[4/7] Groth16Verifier");
+  const GV = await ethers.getContractFactory("Groth16Verifier");
+  const gv = await GV.deploy();
+  await gv.waitForDeployment();
+  const gvAddr = await gv.getAddress();
+  console.log("  ->", gvAddr);
 
-  // 5. Deploy DACAttestation
-  console.log("\n--- Deploying DACAttestation ---");
-  const DACAttestation = await ethers.getContractFactory("DACAttestation");
-  const dacAttestation = await DACAttestation.deploy(enterpriseRegistryAddress, 2);
-  await dacAttestation.waitForDeployment();
-  const dacAttestationAddress = await dacAttestation.getAddress();
-  console.log("DACAttestation deployed to:", dacAttestationAddress);
+  // 5. StateCommitment
+  console.log("[5/7] StateCommitment");
+  const SC = await ethers.getContractFactory("StateCommitment");
+  const sc = await SC.deploy(erAddr);
+  await sc.waitForDeployment();
+  const scAddr = await sc.getAddress();
+  console.log("  ->", scAddr);
 
-  // 6. Deploy CrossEnterpriseVerifier
-  console.log("\n--- Deploying CrossEnterpriseVerifier ---");
-  const CrossEnterpriseVerifier = await ethers.getContractFactory("CrossEnterpriseVerifier");
-  const crossEnterpriseVerifier = await CrossEnterpriseVerifier.deploy(
-    stateCommitmentAddress,
-    enterpriseRegistryAddress
-  );
-  await crossEnterpriseVerifier.waitForDeployment();
-  const crossEnterpriseVerifierAddress = await crossEnterpriseVerifier.getAddress();
-  console.log("CrossEnterpriseVerifier deployed to:", crossEnterpriseVerifierAddress);
+  // Set Groth16Verifier on StateCommitment
+  await sc.setVerifier(gvAddr);
+  console.log("  Verifier set!");
 
-  // Summary
+  // 6. DACAttestation
+  console.log("[6/7] DACAttestation");
+  const DAC = await ethers.getContractFactory("DACAttestation");
+  const dac = await DAC.deploy(erAddr, 2);
+  await dac.waitForDeployment();
+  console.log("  ->", await dac.getAddress());
+
+  // 7. CrossEnterpriseVerifier
+  console.log("[7/7] CrossEnterpriseVerifier");
+  const CEV = await ethers.getContractFactory("CrossEnterpriseVerifier");
+  const cev = await CEV.deploy(scAddr, erAddr);
+  await cev.waitForDeployment();
+  console.log("  ->", await cev.getAddress());
+
   console.log("\n========================================");
-  console.log("       DEPLOYMENT SUMMARY");
+  console.log("EnterpriseRegistry:     ", erAddr);
+  console.log("TraceabilityRegistry:   ", await tr.getAddress());
+  console.log("ZKVerifier:             ", await zk.getAddress());
+  console.log("Groth16Verifier:        ", gvAddr);
+  console.log("StateCommitment:        ", scAddr);
+  console.log("DACAttestation:         ", await dac.getAddress());
+  console.log("CrossEnterpriseVerifier:", await cev.getAddress());
   console.log("========================================");
-  console.log("EnterpriseRegistry:       ", enterpriseRegistryAddress);
-  console.log("TraceabilityRegistry:     ", traceabilityRegistryAddress);
-  console.log("ZKVerifier:               ", zkVerifierAddress);
-  console.log("StateCommitment:          ", stateCommitmentAddress);
-  console.log("DACAttestation:           ", dacAttestationAddress);
-  console.log("CrossEnterpriseVerifier:  ", crossEnterpriseVerifierAddress);
-  console.log("========================================");
-  console.log("\nSave these addresses in your .env files.");
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
