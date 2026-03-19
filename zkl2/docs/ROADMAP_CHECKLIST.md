@@ -145,7 +145,7 @@ lab/2-logicist/research-history/YYYY-MM-sequencer/0-input/
 
 ### [06] Logicist | RU-L2: Sequencer
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 4.8M states, 6 invariants incl ForcedInclusion + FIFO)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [05] complete, materials in `0-input/`.
