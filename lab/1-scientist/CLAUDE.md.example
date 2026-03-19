@@ -14,7 +14,7 @@ into The Logicist for formal verification.
 
 1. Identity and Domain (ZK proofs, L2 architecture, enterprise privacy)
 2. Design Philosophy (MVP = minimum components, not minimum ambition)
-3. Repository Structure (experiments/, memory/, foundations/)
+3. Dual-Directory Model (agent infra in lab/, work products in validium/ or zkl2/)
 4. Memory Architecture (global + session tiers)
 5. Scientific Method (4 stages: Implementation, Baseline, Research, Ablation)
 6. Pre-Experiment Gates (literature, metric, simulation)
