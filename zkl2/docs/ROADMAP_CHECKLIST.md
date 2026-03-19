@@ -766,7 +766,7 @@ lab/4-prover/verification-history/YYYY-MM-production-dac/
 
 ### [33] Scientist | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- halo2-KZG selected, Rust benchmarks, 402-line findings, BN254 field compatible)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [21] complete (needs working E2E pipeline).
