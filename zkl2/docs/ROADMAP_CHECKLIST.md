@@ -559,7 +559,7 @@ lab/4-prover/verification-history/YYYY-MM-e2e-pipeline/
 
 ### [24] Prover | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 5 theorems, PipelineIntegrity + AtomicFailure proved, 0 Admitted)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [23] complete, snapshots prepared.
