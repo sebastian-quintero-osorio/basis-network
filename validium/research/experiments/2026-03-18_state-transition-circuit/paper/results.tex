@@ -6,11 +6,11 @@
 Table~\ref{tab:benchmarks} presents the complete benchmark results across
 all seven configurations.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{State transition circuit benchmarks (Groth16, SnarkJS 0.7.6, commodity desktop)}
 \label{tab:benchmarks}
-\resizebox{\textwidth}{!}{%
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}rr|rrr|rrrr|r@{}}
 \toprule
 \multicolumn{2}{c|}{\textbf{Configuration}} &
@@ -32,9 +32,10 @@ $d$ & $n$ & Total & Per-Tx & PoT & Compile & Witness & Prove & Verify & (bytes) 
 \end{tabular}%
 }
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize $d$ = tree depth, $n$ = batch size, PoT = Powers of Tau power.
+\parbox{\columnwidth}{\footnotesize $d$ = tree depth, $n$ = batch size, PoT = Powers of Tau power.
 Platform: Windows 11, Node.js v22.13.1, Circom 2.2.3, SnarkJS 0.7.6.}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 \subsection{Constraint Scaling Law}
 
@@ -87,7 +88,7 @@ the Circom compiler flattens into the $(d+1)$ factor.
 Constraint count scales perfectly linearly with batch size at each
 depth. Table~\ref{tab:batch-scaling} demonstrates this for depth~10.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Linear batch scaling at depth 10}
 \label{tab:batch-scaling}
@@ -101,9 +102,10 @@ $n$ & Measured & Predicted & Residual \\
 \bottomrule
 \end{tabular}
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize Predicted = $11{,}418 \times n + 3$. Residuals are below
+\parbox{\columnwidth}{\footnotesize Predicted = $11{,}418 \times n + 3$. Residuals are below
 0.01\%, attributable to sub-expression sharing by the Circom compiler.}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 \subsection{Depth Scaling}
 
@@ -113,7 +115,7 @@ doubling the tree depth from 16 to 32 increases per-transaction
 constraints by a factor of $33/17 = 1.94$, not~$2.0$.
 Table~\ref{tab:depth-scaling} shows the depth scaling at batch size~4.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Depth scaling at batch size 4}
 \label{tab:depth-scaling}
@@ -126,7 +128,8 @@ $d$ & Per-Tx & Ratio to $d{=}10$ & Predicted Ratio \\
 32 & 34,254 & 3.00$\times$ & $33/11 = 3.00\times$ \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 \subsection{Proving Time Analysis}
 
@@ -134,7 +137,7 @@ Proving time with SnarkJS exhibits approximately linear scaling with
 constraint count, though with notable variance attributable to
 differing Powers of Tau ceremony sizes and OS scheduling effects.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Proving time scaling (SnarkJS, commodity desktop)}
 \label{tab:proving-time}
@@ -151,9 +154,10 @@ Constraints & Prove (ms) & $\mu$s/constraint & $d \times n$ \\
 \bottomrule
 \end{tabular}
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize Mean: 58~$\mu$s/constraint. Variance driven by PoT size
+\parbox{\columnwidth}{\footnotesize Mean: 58~$\mu$s/constraint. Variance driven by PoT size
 differences across configurations.}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 The mean proving cost is approximately 58~$\mu$s per constraint, with
 a conservative upper bound of 65~$\mu$s suitable for extrapolation.
@@ -172,7 +176,7 @@ Using the derived formula and conservative proving time estimates,
 Table~\ref{tab:extrapolation} projects performance for production-scale
 configurations.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Extrapolated performance for production targets (depth 32)}
 \label{tab:extrapolation}
@@ -187,6 +191,7 @@ Batch & Constraints & SnarkJS (s) & Rapidsnark (s) \\
 \bottomrule
 \end{tabular}
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize SnarkJS: 58--65~$\mu$s/constraint (measured). Rapidsnark:
+\parbox{\columnwidth}{\footnotesize SnarkJS: 58--65~$\mu$s/constraint (measured). Rapidsnark:
 4--10$\times$ speedup per published benchmarks~\cite{tachyon2024,zkmopro2024}.}
-\end{table*}
+\end{table}
+\FloatBarrier

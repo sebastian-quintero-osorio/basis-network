@@ -47,7 +47,7 @@ requirements.
 Table~\ref{tab:production-comparison} summarizes the constraint characteristics
 of production systems that incorporate Merkle-based state transitions.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Constraint comparison with production ZK systems}
 \label{tab:production-comparison}
@@ -63,10 +63,11 @@ Polygon zkEVM~\cite{polygon2024zkevm} & --- & var. & STARK+Groth16 \\
 \bottomrule
 \end{tabular}
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize Per-tx constraints at depth 32. Hermez includes EdDSA signature
+\parbox{\columnwidth}{\footnotesize Per-tx constraints at depth 32. Hermez includes EdDSA signature
 verification, token transfer, and fee processing. This work measures only
 Merkle-based state transition cost.}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 Hermez~\cite{hermez2021circuits} uses circomlib's \texttt{SMTProcessor}
 within a much larger circuit that includes EdDSA signature verification,
@@ -91,7 +92,7 @@ Proving time is ultimately the binding constraint for enterprise batch
 processing. Table~\ref{tab:prover-benchmarks} summarizes published prover
 benchmarks.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \centering
 \caption{Published Groth16 proving time benchmarks}
 \label{tab:prover-benchmarks}
@@ -108,9 +109,10 @@ SnarkJS~\cite{snarkjs} & $\sim$100K & $\sim$60 & Commodity \\
 \bottomrule
 \end{tabular}
 \par\vspace{1mm}
-\parbox{\textwidth}{\footnotesize Rapidsnark and Tachyon benchmarks from \cite{tachyon2024}.
+\parbox{\columnwidth}{\footnotesize Rapidsnark and Tachyon benchmarks from \cite{tachyon2024}.
 SnarkJS estimates from zk-email and RSA circuit reports~\cite{zkmopro2024}.}
-\end{table*}
+\end{table}
+\FloatBarrier
 
 Rapidsnark achieves approximately 2.5~$\mu$s per constraint at 1.2~million
 constraints on a 32-core AMD Threadripper. SnarkJS, being a pure JavaScript
