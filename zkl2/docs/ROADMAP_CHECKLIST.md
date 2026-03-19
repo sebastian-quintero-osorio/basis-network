@@ -629,7 +629,7 @@ lab/3-architect/implementation-history/contract-bridge/
 
 ### [27] Architect | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisBridge.sol + Go relayer, 6 TLA+ invariants, escape hatch, nullifiers)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [26] complete, verified specs in `implementation-history/`.
