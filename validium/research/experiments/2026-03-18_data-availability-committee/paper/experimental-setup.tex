@@ -10,7 +10,8 @@ comprises:
 
 \begin{itemize}
 \item \textbf{Shamir module}: $(k,n)$-secret sharing over the BN128 scalar
-  field ($p = 21888242871839275222246405745257275088548364400416034343698204186575808495617$),
+  field ($p \approx 2^{254}$, 254-bit prime)\footnote{%
+  $p = 218882428718392752222464057452572750885$\-$48364400416034343698204186575808495617$},
   with 31-byte field element packing, polynomial evaluation for share
   generation, and Lagrange interpolation for reconstruction.
 \item \textbf{DACNode}: Share storage, attestation signing (SHA-256 based

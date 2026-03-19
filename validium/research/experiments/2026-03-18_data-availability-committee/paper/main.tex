@@ -1,5 +1,5 @@
 % main.tex -- Master document
-% Information-Theoretic Data Availability for Enterprise Validium:
+% BNR-2026-006: Information-Theoretic Data Availability for Enterprise Validium:
 % Shamir Secret Sharing in DAC Design
 %
 % Compile:
@@ -9,11 +9,12 @@
 %   pdflatex main.tex
 
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
 % Packages
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{url}
@@ -22,23 +23,39 @@
 \usepackage{array}
 \usepackage{multirow}
 \usepackage{xcolor}
+\usepackage{fancyhdr}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-006}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Peer-Reviewed Publication Track. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
 % Metadata
-\title{Information-Theoretic Data Availability for Enterprise Validium: Shamir Secret Sharing in DAC Design}
+\title{Information-Theoretic Data Availability for Enterprise Validium:\\Shamir Secret Sharing in DAC Design}
 
 \author{
-  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
   \IEEEauthorblockA{
-    Medellin, Colombia\\
-    social@basecomputing.com.co
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
   }
 }
 
 \begin{document}
 
 \maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
 
 % Abstract
 \input{abstract}
@@ -57,6 +74,12 @@ data availability committee, Shamir secret sharing, information-theoretic privac
 \input{results}
 \input{discussion}
 \input{conclusion}
+
+% Acknowledgment
+\section*{Acknowledgment}
+
+This work was produced by the Basis Network Automated R\&D Laboratory,
+a 4-agent research pipeline operated by Base Computing S.A.S.
 
 % References
 \bibliographystyle{IEEEtran}

@@ -13,6 +13,7 @@ Table~\ref{tab:hash-performance} presents the native JavaScript execution perfor
 \centering
 \caption{Hash function performance in native JavaScript (BN128 field).}
 \label{tab:hash-performance}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrr}
 \hline
 \textbf{Configuration} & \textbf{Latency ($\mu$s/hash)} & \textbf{Throughput (hash/s)} \\
@@ -23,6 +24,7 @@ MiMC-Feistel ($x^7$, 91 rounds) & 278.55 & 3{,}590 \\
 Poseidon chain-32 & 53.54/hash & 18{,}677 \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 Poseidon achieves a \textbf{4.97$\times$ speedup} over MiMC in native JavaScript execution. This is consistent with the theoretical ratio of constraint counts ($340/240 = 1.42\times$) amplified by MiMC's higher round count (91 rounds versus Poseidon's ${\sim}65$ effective rounds) and the quadratic cost of BigInt modular exponentiation for $x^7$ versus $x^5$.
@@ -93,7 +95,7 @@ Table~\ref{tab:proof-verify} presents verification times, which require 32 seque
 \end{tabular}
 \end{table}
 
-Verification time is constant at approximately 1.7\,ms across all tree sizes, as expected (always 32 Poseidon hashes regardless of population). This is consistent with the chain-32 benchmark (1.71\,ms) from Section~\ref{sec:results}.A. The P95 at 100K entries (1.869\,ms) is within the 2\,ms target with a 7\% margin.
+Verification time is constant at approximately 1.7\,ms across all tree sizes, as expected (always 32 Poseidon hashes regardless of population). This is consistent with the chain-32 benchmark (1.71\,ms) from the hash function comparison above. The P95 at 100K entries (1.869\,ms) is within the 2\,ms target with a 7\% margin.
 
 \subsection{Memory Usage}
 
@@ -125,7 +127,8 @@ Table~\ref{tab:reconciliation} compares our measurements against published refer
 \centering
 \caption{Benchmark reconciliation with published data.}
 \label{tab:reconciliation}
-\begin{tabular}{lllp{3.5cm}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllp{3cm}}
 \hline
 \textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
 \hline
@@ -135,6 +138,7 @@ Proof generation & 0.018\,ms & 20--83\,$\mu$s~\cite{reilabs2024largesmt} & Compa
 Poseidon constraints & 240 & 240~\cite{guohanze2024benchmarking} & Exact match \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 The 950$\times$ gap between our JavaScript insert latency and Rust implementations is expected and not concerning: Rust uses native 256-bit arithmetic while JavaScript relies on BigInt with heap-allocated arbitrary-precision integers. The relevant comparison is against the stated performance targets, all of which pass.

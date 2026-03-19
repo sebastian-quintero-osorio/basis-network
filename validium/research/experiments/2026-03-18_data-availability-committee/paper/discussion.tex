@@ -79,11 +79,12 @@ schemes~\cite{gentry2022pvss} are more appropriate.
 
 Table~\ref{tab:reconcile} validates our measurements against published data.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Benchmark Reconciliation with Published Data}
 \label{tab:reconcile}
-\begin{tabular}{lllp{3cm}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lllp{3.2cm}}
 \toprule
 \textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
 \midrule
@@ -95,7 +96,8 @@ Semi-AVID-PR & N/A & $<$3s / 22MB~\cite{nazirkhanova2022semiavidpr}
   & Different system; directionally consistent \\
 ECDSA verify & 9K gas & 3K/sig (spec) & Consistent \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 No divergence exceeds $10\times$ from literature estimates. The JavaScript

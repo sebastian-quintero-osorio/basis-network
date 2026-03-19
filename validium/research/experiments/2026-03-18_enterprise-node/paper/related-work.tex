@@ -47,7 +47,8 @@ across production systems and our proposed design.
 \centering
 \caption{Production ZK Node Architecture Comparison}
 \label{tab:architecture_comparison}
-\begin{tabular}{llllll}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llllll@{}}
 \toprule
 \textbf{System} & \textbf{Architecture} & \textbf{Proving Model} & \textbf{Batch Pipeline} & \textbf{Crash Recovery} & \textbf{Scale Target} \\
 \midrule
@@ -57,7 +58,7 @@ Scroll        & Seq + Coord + Pool    & Coord assigns to pool & Blocks$\to$Chunk
 push0/Zircuit & Dispatchers + Bus     & Stateless dispatchers & Ranges$\to$Recursive$\to$Groth16 & At-least-once replay & Public L2 \\
 \textbf{Ours} & \textbf{Single node, 3 loops} & \textbf{Child process} & \textbf{Txs$\to$Batch$\to$Prove$\to$Submit} & \textbf{WAL + checkpoint} & \textbf{Enterprise} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table*}
 
 \subsection{State Machine Design Patterns}

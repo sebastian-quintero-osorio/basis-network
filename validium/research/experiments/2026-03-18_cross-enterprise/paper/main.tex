@@ -1,5 +1,5 @@
 % main.tex -- Master document
-% Cross-Enterprise Verification in ZK Validium:
+% BNR-2026-007: Cross-Enterprise Verification in ZK Validium:
 % Privacy-Preserving Inter-Company Proof Aggregation
 %
 % Compile:
@@ -9,6 +9,7 @@
 %   pdflatex main.tex
 
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -24,21 +25,38 @@
 \usepackage{xcolor}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{fancyhdr}
+\usepackage[section]{placeins}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-007}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Workshop Paper. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 
 % Metadata
-\title{Cross-Enterprise Verification in ZK Validium: Privacy-Preserving Inter-Company Proof Aggregation}
+\title{Cross-Enterprise Verification in ZK Validium:\\Privacy-Preserving Inter-Company Proof Aggregation}
 
 \author{
-  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
   \IEEEauthorblockA{
-    Medellin, Colombia\\
-    social@basecomputing.com.co
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
   }
 }
 
 \begin{document}
 
 \maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
 
 % Abstract
 \input{abstract}

@@ -18,7 +18,7 @@ The trust model assumes an honest L1 (Avalanche consensus with sub-second finali
 
 \subsection{Sparse Merkle Tree Design}
 
-We implement a binary SMT of fixed depth $d = 32$, providing $2^{32} \approx 4.3 \times 10^9$ addressable leaf positions. The tree stores key-value pairs where keys are field elements in $\mathbb{F}_p$ (the BN128 scalar field, $p = 21888242871839275222246405745257275088548364400416034343698204186575808495617$).
+We implement a binary SMT of fixed depth $d = 32$, providing $2^{32} \approx 4.3 \times 10^9$ addressable leaf positions. The tree stores key-value pairs where keys are field elements in $\mathbb{F}_p$, where $p$ is the BN128 scalar field prime (a 254-bit prime of order ${\sim}2^{254}$).
 
 \paragraph{Node storage.} Only non-empty nodes are stored in a hash map keyed by $(level, index)$. Empty subtree hashes are precomputed at initialization: $h_0 = 0$ (empty leaf), $h_i = \text{Poseidon}(h_{i-1}, h_{i-1})$ for $i \in [1, d]$. This precomputation avoids redundant hashing of the $2^{32} - n$ empty leaves, where $n$ is the number of populated entries.
 
