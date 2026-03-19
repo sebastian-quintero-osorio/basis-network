@@ -1,0 +1,19 @@
+=== VERIFICATION LOG ===
+Date: Thu, Mar 19, 2026  3:24:07 AM
+Rocq Version: The Rocq Prover, version 9.0.1
+compiled with OCaml 4.14.2
+
+--- Compiling Common.v ---
+RESULT: PASS
+
+--- Compiling Spec.v ---
+RESULT: PASS
+
+--- Compiling Impl.v ---
+RESULT: PASS
+
+--- Compiling Refinement.v ---
+RESULT: PASS
+
+=== ALL FILES COMPILED SUCCESSFULLY ===
+Admitted count: 0
