@@ -72,17 +72,19 @@ validium trust assumption, shared by all systems in Table~\ref{tab:production}.
 
 We formalize five invariants that Shamir-DAC must satisfy:
 
-\begin{enumerate}
-\item[\textbf{INV-DA1}] \textbf{Privacy.} No individual DAC member can
-  reconstruct the complete batch data from their share alone.
-\item[\textbf{INV-DA2}] \textbf{Availability.} If at least $k$ of $n$ members
-  respond, the complete batch data can be reconstructed byte-perfectly.
-\item[\textbf{INV-DA3}] \textbf{Attestation Soundness.} A batch is attested as
-  available on-chain only if at least $m$ of $n$ members have signed the data
-  commitment hash ($m$ = attestation threshold, aligned with $k$).
-\item[\textbf{INV-DA4}] \textbf{Liveness Fallback.} If fewer than $m$ members
-  are available, the system falls back to on-chain DA within a bounded timeout.
-\item[\textbf{INV-DA5}] \textbf{Commitment Binding.} The data commitment hash
-  committed on-chain binds to the exact batch data; no two distinct batches
-  produce the same commitment (collision resistance of SHA-256).
-\end{enumerate}
+\noindent\textbf{INV-DA1} \textbf{Privacy.} No individual DAC member can
+reconstruct the complete batch data from their share alone.
+
+\smallskip\noindent\textbf{INV-DA2} \textbf{Availability.} If at least $k$ of $n$ members
+respond, the complete batch data can be reconstructed byte-perfectly.
+
+\smallskip\noindent\textbf{INV-DA3} \textbf{Attestation Soundness.} A batch is attested as
+available on-chain only if at least $m$ of $n$ members have signed the data
+commitment hash ($m$ = attestation threshold, aligned with $k$).
+
+\smallskip\noindent\textbf{INV-DA4} \textbf{Liveness Fallback.} If fewer than $m$ members
+are available, the system falls back to on-chain DA within a bounded timeout.
+
+\smallskip\noindent\textbf{INV-DA5} \textbf{Commitment Binding.} The data commitment hash
+committed on-chain binds to the exact batch data; no two distinct batches
+produce the same commitment (collision resistance of SHA-256).

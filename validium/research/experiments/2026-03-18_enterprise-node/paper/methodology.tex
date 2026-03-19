@@ -74,28 +74,26 @@ Error      & ShutdownRequested     & Idle \\
 Six invariants govern correctness and are formalized for downstream
 TLA+ specification:
 
-\begin{description}
-\item[INV-NO1] \emph{Liveness}: If $|\text{pendingTx}| > 0$ and
-  $s = \text{Idle}$, then eventually $s = \text{Proving}$.
+\noindent\textbf{INV-NO1} \emph{Liveness}: If $|\text{pendingTx}| > 0$ and
+$s = \text{Idle}$, then eventually $s = \text{Proving}$.
 
-\item[INV-NO2] \emph{Safety}: If $s = \text{Submitting}$, then
-  $\text{proof.prevRoot} = \text{smt.prevRoot}$ and
-  $\text{proof.newRoot} = \text{smt.currentRoot}$.
+\smallskip\noindent\textbf{INV-NO2} \emph{Safety}: If $s = \text{Submitting}$, then
+$\text{proof.prevRoot} = \text{smt.prevRoot}$ and
+$\text{proof.newRoot} = \text{smt.currentRoot}$.
 
-\item[INV-NO3] \emph{Privacy}: The only data transmitted outside
-  the node boundary are: proof $(a, b, c)$, public signals
-  $(r_\text{prev}, r_\text{new}, \text{batchNum}, \text{enterpriseId})$,
-  and Shamir shares to DAC nodes.
+\smallskip\noindent\textbf{INV-NO3} \emph{Privacy}: The only data transmitted outside
+the node boundary are: proof $(a, b, c)$, public signals
+$(r_\text{prev}, r_\text{new}, \text{batchNum}, \text{enterpriseId})$,
+and Shamir shares to DAC nodes.
 
-\item[INV-NO4] \emph{Crash Recovery}: After crash and restart,
-  $|\text{walReplayed}| + |\text{committed}| = |\text{totalEnqueued}|$.
+\smallskip\noindent\textbf{INV-NO4} \emph{Crash Recovery}: After crash and restart,
+$|\text{walReplayed}| + |\text{committed}| = |\text{totalEnqueued}|$.
 
-\item[INV-NO5] \emph{State Root Continuity}: For batch $N$,
-  $\text{submit}(N).\text{prevRoot} = \text{batch}(N-1).\text{newRoot}$.
+\smallskip\noindent\textbf{INV-NO5} \emph{State Root Continuity}: For batch $N$,
+$\text{submit}(N).\text{prevRoot} = \text{batch}(N-1).\text{newRoot}$.
 
-\item[INV-NO6] \emph{Single Writer}: Only the batch loop
-  modifies the SMT. No concurrent write access is permitted.
-\end{description}
+\smallskip\noindent\textbf{INV-NO6} \emph{Single Writer}: Only the batch loop
+modifies the SMT. No concurrent write access is permitted.
 
 \subsection{Pipelined Architecture}
 
