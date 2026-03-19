@@ -1,0 +1,92 @@
+% related-work.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{Related Work}
+
+\subsection{ZK-Rollup Batch Formation}
+
+Production ZK-rollup systems universally employ hybrid batch formation strategies
+that combine size and time triggers. zkSync Era uses a median batch size of
+3,895~transactions with combined size and time thresholds, achieving over
+15,000~TPS for ERC-20 transfers with 250--500~ms inclusion
+latency~\cite{chaliasos2024analyzing}. Polygon zkEVM uses smaller batches with
+proof aggregation, where the sequencer forms batches at its discretion and
+STARK-to-FFLONK recursive proving requires 190--200 seconds per
+batch~\cite{chaliasos2024analyzing}. Scroll employs a three-level hierarchy
+(chunks, batches, bundles) where chunks serve as the proof unit and batches
+as the L1 submission unit~\cite{scroll2025architecture}. Aztec processes up to
+16,348 transactions per block through a 14-level proof tree with client-side
+Noir proof generation~\cite{aztec2025ignition}.
+
+All of these systems use some form of durable transaction persistence before batch
+formation, but none publish formal specifications of their crash recovery protocols.
+The Ethrex L2 project by LambdaClass~\cite{ethrex2024approach} documents batch
+sealing strategies, distinguishing between sealed (provable) and unsealed
+(mutable) batches---a distinction relevant to our checkpoint timing analysis.
+
+\subsection{Write-Ahead Logging and Crash Recovery}
+
+Write-ahead logging (WAL) is the standard mechanism for crash-safe persistence in
+database systems. PostgreSQL's WAL achieves over 10,000~tx/s throughput with
+configurable durability guarantees~\cite{postgresql2024wal}. Individual WAL
+append latency on SSD storage ranges from approximately 529~ns without fsync to
+880~$\mu$s with fsync per entry~\cite{chia2024database}. Message queue systems
+such as Apache Kafka achieve 2 million writes per second using append-only
+log-structured storage~\cite{linkedin2024kafka}, while RabbitMQ with quorum
+queues achieves approximately 2,000 messages per second with full fsync
+durability~\cite{softwaremill2020mq}. The ARIES algorithm~\cite{mohan1992aries}
+provides the theoretical foundation for checkpoint-based recovery protocols.
+
+Our WAL design follows these established patterns: append-only JSON-lines format,
+periodic group commit (fsync per batch of entries), and checkpoint-based truncation.
+The key distinction is the interaction between WAL checkpointing and downstream
+batch consumption---a concern absent from traditional database WAL literature,
+where committed transactions are immediately durable. In a validium node, a
+``committed'' batch must survive an additional processing pipeline (ZK proving
+and L1 submission) lasting 1.9--12.8 seconds.
+
+\subsection{Formal Verification of Distributed Protocols}
+
+TLA+ (Temporal Logic of Actions)~\cite{lamport2002specifying} is widely used for
+formal verification of distributed systems. Amazon Web
+Services~\cite{newcombe2015aws} reported that TLA+ model checking discovered
+subtle bugs in production systems that extensive testing missed, including issues
+in DynamoDB and S3. Ethereum's consensus layer specifications have been partially
+formalized in TLA+~\cite{zksec2024formal}. Recent work by
+Springer~\cite{springer2024lockfree} applies formal verification to lock-free
+queue algorithms, demonstrating the effectiveness of state-space exploration for
+concurrent data structures.
+
+Our work contributes to this literature by applying TLA+ model checking to a
+ZK-rollup batch aggregation protocol. To our knowledge, this is the first formal
+verification of a validium node's crash recovery semantics.
+
+\subsection{Comparison with Published Systems}
+
+Table~\ref{tab:comparison} compares our batch aggregation benchmarks with
+published production system data.
+
+\begin{table*}[t]
+\centering
+\caption{Comparison with Production L2 and Message Queue Systems}
+\label{tab:comparison}
+\begin{tabular}{llllll}
+\toprule
+\textbf{System} & \textbf{Batch Size} & \textbf{Formation Strategy} & \textbf{Throughput} & \textbf{Crash Safety} & \textbf{Formal Spec} \\
+\midrule
+zkSync Era~\cite{chaliasos2024analyzing}          & 3,895 (median) & HYBRID (size + time) & $>$15K TPS & Undisclosed    & No  \\
+Polygon zkEVM~\cite{chaliasos2024analyzing}       & Variable       & Sequencer discretion & Variable   & Undisclosed    & No  \\
+Scroll~\cite{scroll2025architecture}              & 3-level        & Chunk/batch/bundle   & Variable   & Undisclosed    & No  \\
+Aztec~\cite{aztec2025ignition}                    & 16,348         & Proof tree           & Variable   & Undisclosed    & No  \\
+Kafka~\cite{linkedin2024kafka}                    & Configurable   & Time-based           & 2M/s       & WAL + acks     & No  \\
+RabbitMQ (quorum)~\cite{softwaremill2020mq}       & 1              & Per-message          & 2K msg/s   & fsync + Raft   & No  \\
+\textbf{This work}                                & 4--16          & HYBRID (size + time) & 274K tx/min& WAL + deferred & \textbf{Yes (TLA+)} \\
+                                                  &                &                      &            & checkpoint     & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Our system targets a different scale (enterprise validium with 100+ tx/min
+requirement) compared to public rollups (thousands of TPS). The distinguishing
+feature is the combination of formal crash safety verification with empirical
+performance benchmarks---no other system in Table~\ref{tab:comparison} provides
+a formally verified crash recovery protocol.

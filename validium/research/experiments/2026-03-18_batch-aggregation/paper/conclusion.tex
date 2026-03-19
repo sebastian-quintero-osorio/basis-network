@@ -1,0 +1,28 @@
+% conclusion.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{Conclusion}
+
+We presented a crash-safe batch aggregation protocol for enterprise ZK validium
+nodes, combining a WAL-backed persistent queue with a HYBRID batch formation
+strategy. Empirical evaluation across 17 configurations with 30 replications
+each demonstrates 274,438~tx/min peak throughput, sub-millisecond batch
+formation latency, 450/450 determinism, and 150/150 crash recovery success.
+
+The primary contribution is the discovery and resolution of a silent transaction
+loss bug through TLA+ formal verification. The bug---a premature WAL checkpoint
+that creates a durability gap between batch formation and ZK proof
+completion---was invisible to 150 crash recovery tests but found by TLC model
+checking in under one second via a 6-step counterexample. The corrected protocol
+(deferred checkpoint) is verified to satisfy all 6 safety invariants and 1
+liveness property across 2,630 distinct states with zero errors.
+
+This result demonstrates that formal verification and empirical testing are
+complementary, not redundant, for crash-safe protocol design. We recommend that
+ZK infrastructure projects adopt lightweight formal methods---TLA+ specifications
+can be written in hours and model-checked in seconds, yet they catch bugs that
+may never surface in testing until production deployment.
+
+Future work includes adversarial testing (concurrent writers, WAL corruption
+injection, large-batch stress), binary WAL format for high-throughput
+deployments, and integration with the Sparse Merkle Tree and ZK proving
+pipeline for end-to-end batch-to-proof benchmarks.
