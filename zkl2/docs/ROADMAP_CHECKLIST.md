@@ -168,7 +168,7 @@ lab/3-architect/implementation-history/node-sequencer/
 
 ### [07] Architect | RU-L2: Sequencer
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go sequencer: mempool, block builder, forced inclusion, adversarial tests)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [06] complete, verified specs in `implementation-history/`.
