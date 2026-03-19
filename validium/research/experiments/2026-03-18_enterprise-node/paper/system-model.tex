@@ -1,0 +1,76 @@
+% system-model.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{System Model}
+
+\subsection{Network Architecture}
+
+The Basis Network enterprise ZK validium operates on a three-tier architecture:
+
+\begin{enumerate}
+\item \textbf{Enterprise Systems Layer}: Client applications (PLASMA for
+  industrial maintenance, Trace for SME ERP) that produce business
+  transactions. These systems hash all data client-side before submission;
+  the node never receives raw enterprise data.
+
+\item \textbf{Validium Node Layer}: A single Node.js service per enterprise
+  that maintains off-chain state (Sparse Merkle Tree), aggregates
+  transactions into batches, generates Groth16 ZK proofs, distributes
+  witness data to a Data Availability Committee (DAC), and submits proofs
+  to the settlement layer.
+
+\item \textbf{Settlement Layer}: The Basis Network L1, an Avalanche
+  Subnet-EVM chain (Chain ID 43199) with zero-fee permissioned transactions
+  and sub-second Snowman consensus finality.
+\end{enumerate}
+
+\subsection{Trust Assumptions}
+
+\begin{itemize}
+\item The enterprise node operator is trusted for liveness but not for
+  data integrity (proofs enforce correctness).
+\item The DAC operates under a $t$-of-$n$ threshold (default 2-of-3):
+  data remains available if at least $t$ committee members are honest.
+\item The L1 settlement layer is assumed correct (Avalanche consensus
+  with permissioned validator set).
+\item Enterprise client systems are trusted to correctly hash data
+  before submission (the node verifies signatures but not data content).
+\end{itemize}
+
+\subsection{Privacy Model}
+
+The zero data leakage invariant requires that no raw enterprise data
+crosses the node boundary. The data flow is:
+
+\begin{enumerate}
+\item Enterprise systems compute $h = \text{SHA-256}(\text{record data})$ and
+  submit transaction tuples $(k, h, \sigma)$ where $k$ is a deterministic
+  key derived from the record identifier and $\sigma$ is the enterprise
+  signature.
+
+\item The node inserts $(k, h)$ into the Sparse Merkle Tree, generating
+  state root transitions $r_{\text{prev}} \to r_{\text{new}}$.
+
+\item The ZK proof reveals only: $r_{\text{prev}}$, $r_{\text{new}}$,
+  batch number, and enterprise identifier. No transaction keys, values,
+  or counts are disclosed.
+
+\item Witness data is distributed to the DAC via Shamir secret sharing
+  (information-theoretically secure: no single committee member can
+  reconstruct the witness).
+
+\item The L1 contract stores only: state roots, proofs, and batch metadata.
+\end{enumerate}
+
+\subsection{Performance Requirements}
+
+The orchestrator must satisfy:
+\begin{itemize}
+\item \textbf{End-to-end latency}: $< 90$~s for a batch of 64 transactions
+  (60~s proving budget + 30~s overhead budget).
+\item \textbf{Continuous availability}: The node must accept new transactions
+  during proof generation and L1 submission (no downtime windows).
+\item \textbf{Crash recovery}: Zero transaction loss under arbitrary crash
+  scenarios, with bounded recovery time.
+\item \textbf{Memory footprint}: $< 500$~MB for a single enterprise node
+  with up to 100K state entries.
+\end{itemize}

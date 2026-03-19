@@ -1,0 +1,84 @@
+% main.tex -- Master document
+% L1 State Commitment for Enterprise ZK Validium:
+% Gas-Optimal Storage Design on Avalanche Subnet-EVM
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{listings}
+
+% Listings style for Solidity
+\lstdefinelanguage{Solidity}{
+  keywords={contract, struct, mapping, function, external, internal, view, returns,
+            if, revert, emit, uint256, uint64, bytes32, address, bool, storage,
+            modifier, error, event, indexed, calldata, memory, public, private},
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  sensitive=true
+}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2
+}
+
+% Metadata
+\title{L1 State Commitment for Enterprise ZK Validium:\\Gas-Optimal Storage Design on Avalanche Subnet-EVM}
+
+\author{
+  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockA{
+    Medellin, Colombia\\
+    social@basecomputing.com.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+state commitment, ZK validium, gas optimization, storage layout, Groth16 verification,
+enterprise blockchain, Avalanche Subnet-EVM
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

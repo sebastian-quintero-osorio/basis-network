@@ -1,0 +1,88 @@
+% system-model.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{System Model}
+
+\subsection{Network Model}
+
+The system comprises an \emph{enterprise validium node} (the operator) and a
+\emph{data availability committee} of $n$ nodes. The operator receives
+transactions from enterprise systems (e.g., industrial traceability, ERP),
+maintains an off-chain Sparse Merkle Tree of enterprise state, aggregates
+transactions into batches, generates Groth16 ZK proofs~\cite{groth2016size},
+and submits proofs with state roots to the Basis Network L1 (an Avalanche
+Subnet-EVM chain with zero-fee gas model).
+
+Communication between the operator and DAC nodes is over authenticated
+channels. We assume eventual delivery: messages may be delayed but are not
+permanently lost between non-faulty nodes. DAC nodes maintain persistent
+storage for their assigned shares.
+
+\subsection{Trust Assumptions}
+
+We adopt a $(k,n)$-threshold trust model where:
+
+\begin{itemize}
+\item At least $k$ of $n$ committee members are honest (store their shares
+  faithfully and respond to attestation and recovery requests).
+\item Honest members do not collude to reconstruct data outside the
+  protocol-specified recovery procedure.
+\item The operator is trusted to generate shares correctly (verifiable share
+  generation is a non-goal for the MVP; see Section~\ref{sec:limitations}).
+\end{itemize}
+
+For the enterprise deployment target, $n = 3$ and $k = 2$: any 2 of 3 members
+can attest data availability and reconstruct the original batch. This is an
+honest-majority model. Following the AnyTrust design
+pattern~\cite{arbitrum2024anytrust}, the system includes a liveness fallback:
+if fewer than $k$ members are available for attestation, the operator posts
+batch data directly on-chain, temporarily converting the system from validium
+to rollup mode.
+
+\subsection{Enterprise Threat Model}
+
+We consider four classes of adversary:
+
+\textbf{Curious Committee Member.} A single DAC member attempts to learn
+the contents of a batch from their stored share alone. Under $(k,n)$-Shamir
+secret sharing with $k \geq 2$, a single share is uniformly distributed over
+$\mathrm{GF}(p)$ and is consistent with \emph{every possible secret}
+value~\cite{shamir1979share}. The information leakage is exactly 0 bits---this
+holds against computationally unbounded adversaries.
+
+\textbf{Colluding Minority.} Up to $k-1$ committee members pool their shares
+to learn batch contents. Under Shamir's scheme, $k-1$ shares are jointly
+uniformly distributed and reveal zero information about the secret. For
+$(2,3)$: a single compromised member learns nothing. For $(3,5)$: two
+colluding members learn nothing.
+
+\textbf{Data Withholding.} Committee members sign the attestation certificate
+without actually storing their shares. This is the classical DAC trust
+assumption~\cite{ethereum2024validium}. Mitigation requires either
+proof-of-custody challenges (future work) or reputational/contractual
+enforcement.
+
+\textbf{Operator Collusion.} The operator colludes with $k$ or more committee
+members to finalize state with unavailable data. The ZK proof guarantees state
+transition \emph{validity} (the new root is correctly derived from the old
+root and the batch), but data \emph{availability} is compromised: users cannot
+reconstruct state to generate withdrawal proofs. This is the fundamental
+validium trust assumption, shared by all systems in Table~\ref{tab:production}.
+
+\subsection{Security Properties}
+
+We formalize five invariants that Shamir-DAC must satisfy:
+
+\begin{enumerate}
+\item[\textbf{INV-DA1}] \textbf{Privacy.} No individual DAC member can
+  reconstruct the complete batch data from their share alone.
+\item[\textbf{INV-DA2}] \textbf{Availability.} If at least $k$ of $n$ members
+  respond, the complete batch data can be reconstructed byte-perfectly.
+\item[\textbf{INV-DA3}] \textbf{Attestation Soundness.} A batch is attested as
+  available on-chain only if at least $m$ of $n$ members have signed the data
+  commitment hash ($m$ = attestation threshold, aligned with $k$).
+\item[\textbf{INV-DA4}] \textbf{Liveness Fallback.} If fewer than $m$ members
+  are available, the system falls back to on-chain DA within a bounded timeout.
+\item[\textbf{INV-DA5}] \textbf{Commitment Binding.} The data commitment hash
+  committed on-chain binds to the exact batch data; no two distinct batches
+  produce the same commitment (collision resistance of SHA-256).
+\end{enumerate}

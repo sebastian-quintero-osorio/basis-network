@@ -1,0 +1,92 @@
+% system-model.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{System Model}
+
+\subsection{Network Architecture}
+
+We consider a hub-and-spoke validium architecture deployed on an Avalanche L1
+(Subnet-EVM) with zero gas fees and permissioned access. The system comprises:
+
+\begin{itemize}
+\item \textbf{Enterprise nodes} ($E_1, \ldots, E_N$): Each enterprise
+  operates an independent validium node maintaining a depth-32 sparse Merkle
+  tree (SMT) over the BN128 scalar field. Enterprises process private
+  transactions, aggregate them into batches, generate Groth16 proofs of
+  correct state transitions, and submit proofs to the L1.
+
+\item \textbf{Settlement layer} (Basis Network L1): An Avalanche Subnet-EVM
+  chain (Chain ID 43199) that verifies ZK proofs and stores state roots for
+  each enterprise. The L1 is the single source of truth for state root
+  progression.
+
+\item \textbf{Hub coordinator}: A logical entity (implemented as an L1
+  contract or off-chain service) that collects cross-reference proofs from
+  enterprise pairs and, optionally, batches them for aggregated verification.
+\end{itemize}
+
+\subsection{Trust Assumptions}
+
+\begin{enumerate}
+\item \textbf{Proof system soundness}: Groth16 proofs on BN128 are
+  computationally sound under the $q$-type assumption in the generic bilinear
+  group model~\cite{groth2016size}. An adversary cannot produce a valid proof
+  for a false statement except with negligible probability.
+
+\item \textbf{Hash function security}: Poseidon over BN128~\cite{grassi2021poseidon}
+  provides 128-bit collision resistance and preimage resistance. The
+  interaction commitment $c = \text{Poseidon}(k_A, v_A, k_B, v_B)$ is
+  computationally binding and hiding.
+
+\item \textbf{Enterprise isolation}: Each enterprise's SMT is maintained
+  independently. Enterprise $A$ does not have access to Enterprise $B$'s tree,
+  keys, values, or Merkle proofs.
+
+\item \textbf{State root integrity}: State roots submitted to the L1 are
+  verified by ZK proofs. A malicious enterprise cannot submit a false state
+  root without breaking Groth16 soundness.
+
+\item \textbf{Hub coordinator honesty}: The hub coordinator is \emph{not}
+  trusted with data. In the batched pairing approach, the coordinator receives
+  only Groth16 proofs and public inputs (state roots and interaction
+  commitments)---it never sees private keys, values, or Merkle paths.
+\end{enumerate}
+
+\subsection{Threat Model}
+
+We consider three adversary classes:
+
+\textbf{Passive observer}: Has access to all L1 transactions and public
+signals. Can see state roots, interaction commitments, and proof submission
+timestamps. Cannot break Poseidon preimage resistance (128-bit). Learns 1 bit
+per cross-reference submission: the existence of an interaction between two
+identified enterprises.
+
+\textbf{Malicious enterprise}: Enterprise $A$ attempts to learn Enterprise
+$B$'s private data by manipulating its own state or crafting adversarial
+cross-reference proofs. Cannot succeed because: (a) the ZK proof system
+ensures $A$ cannot produce a valid cross-reference proof without a valid
+Merkle path in $B$'s tree, and (b) $A$ does not have access to $B$'s SMT.
+
+\textbf{Compromised hub coordinator}: The coordinator receives proofs and
+public inputs but not private witness data. Even if fully compromised, the
+coordinator learns only what a passive observer learns: state roots (already
+public) and interaction commitments (Poseidon hashes revealing no content).
+
+\subsection{Privacy Definition}
+
+We define cross-enterprise privacy as follows:
+
+\begin{definition}[Cross-Enterprise Privacy]
+A cross-enterprise verification protocol satisfies \emph{interaction privacy}
+if, for any two valid cross-reference proofs $\pi_1$ and $\pi_2$ with the
+same public inputs $(r_A, r_B, c_1)$ and $(r_A, r_B, c_2)$ where $c_1 \neq
+c_2$, no probabilistic polynomial-time adversary can determine the private
+witness $(k_A, v_A, k_B, v_B)$ from the public signals with probability
+non-negligibly greater than random guessing.
+\end{definition}
+
+This follows directly from the zero-knowledge property of Groth16 and the
+preimage resistance of Poseidon. The \emph{unavoidable} leakage is 1 bit per
+interaction: the fact that a cross-reference proof was submitted, which
+inherently reveals that an interaction exists between the two enterprises
+identified by their state roots.

@@ -1,0 +1,123 @@
+% discussion.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Discussion}
+
+\subsection{Hypothesis Evaluation}
+
+The hypothesis stated that a Node.js event-driven orchestrator can process
+a 64-transaction batch in under 90 seconds with zero data leakage and crash
+recovery. Stage~1 results provide partial confirmation:
+
+\begin{itemize}
+\item \textbf{Orchestration overhead}: 4,704~ms for batch 64, well below
+  the 30-second budget (H0 rejected with 6.4$\times$ margin).
+
+\item \textbf{E2E latency with rapidsnark}: 18.9~s (sequential) or 14.6~s
+  (pipelined), meeting the 90~s target with 4.8--6.2$\times$ margin.
+
+\item \textbf{E2E latency with snarkjs}: 156.9~s at batch 64, exceeding
+  the target by 1.7$\times$. H0 cannot be rejected for the WASM backend
+  at this batch size.
+
+\item \textbf{State machine correctness}: 46/46 tests pass, pipelined
+  model validated.
+
+\item \textbf{Crash recovery}: Design supports zero-loss recovery via
+  WAL + checkpoint; empirical validation deferred to Stage~3.
+
+\item \textbf{Privacy}: Zero data leakage by construction (node receives
+  only hashes); formal audit deferred to Stage~3.
+\end{itemize}
+
+\subsection{The Proving Bottleneck}
+
+Across all configurations, ZK proof generation dominates end-to-end latency,
+consuming 64\% (rapidsnark b64) to 85\% (snarkjs b8) of the total cycle
+time. Orchestration overhead---the sum of batch formation, witness
+generation, state management, and scheduling---is a negligible fraction
+of the proving budget. This finding is consistent with the push0
+architecture~\cite{push0_2025orchestration}, which reports orchestration
+overhead of 0.05--0.1\% of proving time.
+
+The practical implication is that node performance optimization should
+focus exclusively on prover selection and circuit optimization, not on
+orchestration layer engineering. A 2$\times$ improvement in orchestration
+overhead (from 593~ms to 296~ms) saves 297~ms, while a 2$\times$
+improvement in proving (from 12,757~ms to 6,378~ms) saves 6,379~ms---a
+21$\times$ greater impact.
+
+\subsection{Prover Backend Constraint}
+
+The snarkjs WASM backend, while sufficient for batch sizes up to 16,
+cannot achieve the 90-second target at batch 64. Three mitigation
+strategies are available, ordered by recommendation:
+
+\begin{enumerate}
+\item \textbf{Rapidsnark} (recommended for production): C++ native prover
+  achieving 4--10$\times$ speedup over snarkjs, reducing batch-64 proving
+  from $\sim$150~s to $\sim$12~s. Requires native binary installation.
+
+\item \textbf{Batch size reduction} (safest for MVP): Reducing batch size
+  to 16 keeps snarkjs within 31.4~s E2E, at the cost of lower throughput
+  (0.53~tx/s vs. 4.37~tx/s).
+
+\item \textbf{GPU prover} (future): ICICLE-Snark~\cite{icicle2025snark}
+  achieves 63$\times$ MSM improvement, potentially reducing batch-64
+  proving to 1--3~s. Requires GPU infrastructure.
+\end{enumerate}
+
+\subsection{Pipeline Speedup Characteristics}
+
+The 1.29$\times$ speedup at batch 64 with rapidsnark is modest but
+meaningful: it reduces 10-batch processing from 189~s to 146~s, saving
+43~s. The speedup is inherently bounded because the proving phase
+dominates---even with perfect overlap, preparation cannot be fully hidden
+behind proving when $T_\text{prep} < T_\text{prove+submit}$.
+
+The speedup would increase under two conditions: (1) faster provers that
+reduce $T_\text{prove+submit}$ closer to $T_\text{prep}$, or (2) larger
+batch sizes that increase $T_\text{prep}$ via witness generation. With
+GPU provers (1--3~s proving), preparation time (4.7~s for b64) would
+exceed proving time, making the preparation phase the bottleneck and
+increasing speedup toward 2.0$\times$.
+
+\subsection{Comparison with Production Systems}
+
+Our single-node architecture differs fundamentally from production L2
+systems (Table~\ref{tab:architecture_comparison}) in scale target:
+Polygon, zkSync, and Scroll serve millions of users with horizontally
+scaled prover pools, while our node serves a single enterprise. This
+simplification eliminates the need for prover coordination, task
+scheduling, and consensus mechanisms, but preserves the core
+orchestration challenge: managing the asynchronous proof lifecycle while
+maintaining continuous availability.
+
+The push0 comparison is most informative. Our batch formation latency
+(11.4~ms) is 2.2$\times$ push0's P50 (5.2~ms), attributable to our
+node performing actual state tree operations (8 hash computations) versus
+push0's pure message routing. When comparing equivalent operations
+(message routing vs. batch formation without SMT), the overhead is
+comparable.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Mock components}: Stage~1 uses calibrated mocks, not real
+  components. Real SMT, snarkjs, and ethers.js may introduce variability
+  not captured by deterministic mocks. Stage~2 will replace all mocks.
+
+\item \textbf{Single enterprise}: All benchmarks use a single enterprise
+  identifier. Concurrent enterprises sharing a node may introduce
+  contention on the SMT and queue.
+
+\item \textbf{Crash recovery not tested}: The WAL + checkpoint design
+  is described but not empirically validated. Stage~3 will inject crashes
+  at each pipeline phase.
+
+\item \textbf{No network latency}: L1 submission uses a 2~s mock.
+  Actual Avalanche Fuji latency may vary with network conditions.
+
+\item \textbf{Pipeline simulation}: The pipeline comparison uses
+  analytical simulation, not concurrent thread execution. Real pipelining
+  may encounter event loop contention in Node.js.
+\end{enumerate}

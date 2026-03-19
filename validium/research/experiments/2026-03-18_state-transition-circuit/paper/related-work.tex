@@ -1,0 +1,120 @@
+\section{Related Work}
+
+\subsection{ZK Proof Systems for Blockchain State}
+
+Groth16~\cite{groth2016size} remains the most widely deployed SNARK
+construction for blockchain applications due to its constant-size proofs
+(3 group elements, approximately 128~bytes uncompressed) and fast
+verification. Its main limitation---a per-circuit trusted setup---is
+acceptable in enterprise deployments where the operator controls the
+proving infrastructure. PLONK~\cite{gabizon2019plonk} offers a universal
+setup but produces larger proofs and slower verification. For the
+validium use case, where proof generation latency matters more than
+setup flexibility, Groth16 is the established choice.
+
+The Poseidon hash function~\cite{grassi2021poseidon} was designed
+specifically for arithmetic circuits over prime fields, achieving
+approximately 240~R1CS constraints per 2-to-1 hash in Circom~\cite{elamrani2020merkle}---orders of magnitude fewer than SHA-256
+(26,170 constraints) or Keccak-256 (144,830 constraints)~\cite{bkomuves2023hash}.
+Poseidon2~\cite{grassi2023poseidon2} further reduces constraint counts
+but has not yet been integrated into the standard Circom library
+(circomlib). Recent cryptanalysis~\cite{grassi2025grobner} and the
+Ethereum Foundation's ongoing Poseidon Cryptanalysis
+Initiative~\cite{ethereum2024poseidon} have confirmed adequate security
+margins for the parameter sets used in practice.
+
+\subsection{Sparse Merkle Trees in ZK Systems}
+
+Sparse Merkle Trees~\cite{baylina2019smt} provide deterministic,
+collision-free key-to-leaf mappings suitable for authenticated state
+management. The Iden3/circomlib SMT implementation~\cite{iden3smt}
+offers \texttt{SMTVerifier} and \texttt{SMTProcessor} circuit templates,
+with the latter handling insert, update, and delete operations at
+approximately $1{,}000 + 250d$ constraints for a tree of depth~$d$~\cite{elamrani2020merkle}.
+Our circuit takes a different approach: rather than using \texttt{SMTProcessor},
+we implement explicit dual-path Merkle verification (old root + new root)
+to keep the circuit minimal and update-only.
+
+Binary Merkle path verification in circomlib requires 219~constraints per
+tree level, combining a Poseidon(2) hash with a Mux1
+selector~\cite{elamrani2020merkle}. Quinary Poseidon trees reduce the
+number of levels (capacity $5^d$ vs $2^d$) but increase per-level cost to
+approximately 441~constraints, yielding no net benefit for fixed-capacity
+requirements.
+
+\subsection{Production ZK State Transition Systems}
+
+Table~\ref{tab:production-comparison} summarizes the constraint characteristics
+of production systems that incorporate Merkle-based state transitions.
+
+\begin{table}[t]
+\centering
+\caption{Constraint comparison with production ZK systems}
+\label{tab:production-comparison}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{System} & \textbf{Per-Tx} & \textbf{Batch} & \textbf{Notes} \\
+\midrule
+Tornado Cash~\cite{tornadocash2019} & 5--7K & 1 & Merkle + nullifier \\
+Semaphore v4~\cite{semaphore2024v4} & $\sim$5K & 1 & Identity proof \\
+Hermez rollup~\cite{hermez2021circuits} & $\sim$58K & 2048 & Full tx logic \\
+Polygon zkEVM~\cite{polygon2024zkevm} & --- & var. & STARK+Groth16 \\
+\textbf{This work} & \textbf{34.3K} & \textbf{4--16} & \textbf{SMT update only} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\footnotesize{Per-tx constraints at depth 32. Hermez includes EdDSA signature
+verification, token transfer, and fee processing. This work measures only
+Merkle-based state transition cost.}
+\end{table}
+
+Hermez~\cite{hermez2021circuits} uses circomlib's \texttt{SMTProcessor}
+within a much larger circuit that includes EdDSA signature verification,
+token balance updates, and fee distribution, resulting in approximately
+58,000~constraints per transaction. Their 2048-transaction circuit
+exceeds 118~million constraints and requires a custom C++ prover.
+Our per-transaction cost of 34,254~constraints at depth~32 is 0.59$\times$
+the Hermez figure, consistent with the fact that our circuit omits
+signature and token logic.
+
+Tornado Cash~\cite{tornadocash2019} implements a single Merkle inclusion
+proof at depth~20 with a nullifier check, requiring approximately
+5,000--7,000~constraints. Semaphore~v4~\cite{semaphore2024v4} achieves
+similar constraint counts for identity set membership proofs. Both systems
+prove membership in a single tree without state modification, making
+direct comparison with our update circuit inappropriate; however, they
+establish the baseline cost of a single Merkle path verification.
+
+\subsection{Groth16 Proving Performance}
+
+Proving time is ultimately the binding constraint for enterprise batch
+processing. Table~\ref{tab:prover-benchmarks} summarizes published prover
+benchmarks.
+
+\begin{table}[t]
+\centering
+\caption{Published Groth16 proving time benchmarks}
+\label{tab:prover-benchmarks}
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+\textbf{Prover} & \textbf{Constraints} & \textbf{Time (s)} & \textbf{Hardware} \\
+\midrule
+Rapidsnark~\cite{rapidsnark2024} & 157K & 1.0 & 32-core server \\
+Rapidsnark~\cite{rapidsnark2024} & 1.2M & 3.0 & 32-core server \\
+Tachyon~\cite{tachyon2024} & 157K & 0.4 & 32-core server \\
+Tachyon~\cite{tachyon2024} & 1.2M & 2.55 & 32-core server \\
+SnarkJS~\cite{snarkjs} & $\sim$15K & $\sim$15 & Commodity \\
+SnarkJS~\cite{snarkjs} & $\sim$100K & $\sim$60 & Commodity \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\footnotesize{Rapidsnark and Tachyon benchmarks from \cite{tachyon2024}.
+SnarkJS estimates from zk-email and RSA circuit reports~\cite{zkmopro2024}.}
+\end{table}
+
+Rapidsnark achieves approximately 2.5~$\mu$s per constraint at 1.2~million
+constraints on a 32-core AMD Threadripper. SnarkJS, being a pure JavaScript
+implementation, is 4--10$\times$ slower. GPU-accelerated provers such as
+ICICLE-Snark~\cite{ingonyama2024icicle} report further 3--5$\times$
+speedups. These benchmarks establish the range of proving times that our
+constraint counts imply.

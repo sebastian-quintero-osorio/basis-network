@@ -1,0 +1,25 @@
+% abstract.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\begin{abstract}
+Zero-knowledge validium nodes for enterprise blockchain require orchestrating
+a multi-phase pipeline---transaction ingestion, Sparse Merkle Tree state
+updates, witness generation, ZK proof computation, data availability committee
+attestation, and L1 settlement---while maintaining continuous availability and
+zero data leakage. We present the design and empirical evaluation of a
+pipelined, event-driven state machine orchestrator for the Basis Network
+enterprise ZK validium node on Avalanche. The orchestrator implements six
+states with 17 valid transitions, enabling concurrent transaction ingestion
+during proof generation and L1 submission through three decoupled processing
+loops. Benchmarks across five configurations with 30--50 replications each
+demonstrate that orchestration overhead (batch formation plus witness
+generation) consumes 593~ms per 8-transaction batch---just 0.66\% of the
+90-second end-to-end budget. ZK proof generation dominates latency at
+64--85\% of total cycle time across all tested backends. Pipelined execution
+achieves a 1.29$\times$ throughput improvement over sequential processing for
+64-transaction batches with the rapidsnark backend, yielding 4.37~tx/s
+sustained throughput. The results identify a critical constraint: the snarkjs
+WASM prover exceeds the 90-second target at batch size 64 (156.9~s per batch),
+requiring either a native prover (rapidsnark: 18.9~s) or batch size reduction
+to 16 (31.4~s) for production deployment. All findings are parameterized for
+downstream TLA+ formalization and implementation.
+\end{abstract}

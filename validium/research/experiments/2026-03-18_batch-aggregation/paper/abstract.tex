@@ -1,0 +1,24 @@
+% abstract.tex -- Batch Aggregation Paper (RU-V4)
+
+\begin{abstract}
+Enterprise ZK validium nodes require crash-safe transaction persistence with
+zero data loss, deterministic batch formation, and bounded latency---properties
+that are difficult to verify through testing alone. We present a WAL-based
+(Write-Ahead Log) batch aggregation protocol that combines size-based and
+time-based triggers in a HYBRID formation strategy, targeting enterprise
+blockchain deployments on Avalanche. Empirical evaluation across 17
+configurations with 30 replications each demonstrates 274,438~tx/min peak
+throughput (2,744$\times$ the 100~tx/min target), sub-millisecond batch
+formation latency, 450/450 determinism tests passing, and 150/150 crash
+recovery tests with zero transaction loss. Despite these results, TLA+ model
+checking of the protocol discovered a critical \emph{silent transaction loss
+bug}: a crash during the 1.9--12.8 second ZK proving window causes
+irrecoverable data loss because the WAL checkpoint advances at batch formation
+rather than batch processing. The model checker found a 6-step counterexample
+in under one second by exploring 2,899 distinct states---a failure mode that
+150 empirical crash tests did not cover. We present the corrected deferred
+checkpoint protocol, verified against 6 safety invariants and 1 liveness
+property across 2,630 distinct states with zero errors. The key finding is
+methodological: formal verification and empirical testing are complementary,
+not redundant, for crash-safe protocol design in ZK infrastructure.
+\end{abstract}

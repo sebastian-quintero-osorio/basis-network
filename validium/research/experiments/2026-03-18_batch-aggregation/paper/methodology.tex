@@ -1,0 +1,139 @@
+% methodology.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{Methodology}
+
+\subsection{Protocol Design}
+
+The batch aggregation protocol consists of three subsystems: a persistent queue
+backed by a write-ahead log, a configurable batch aggregator, and a
+checkpoint-based crash recovery mechanism.
+
+\subsubsection{Write-Ahead Log (WAL)}
+
+Every incoming transaction is first appended to an on-disk WAL before being added
+to the in-memory queue. Each WAL entry contains:
+
+\begin{center}
+\texttt{\{seq, timestamp, tx, checksum\}}
+\end{center}
+
+where \texttt{seq} is a monotonically increasing sequence number,
+\texttt{timestamp} is the arrival time (used for FIFO ordering), \texttt{tx} is
+the full transaction payload, and \texttt{checksum} is a SHA-256 integrity digest.
+The WAL uses a JSON-lines append-only format, chosen for debuggability at the
+target scale ($<$10K tx/min). Durability is configurable: per-entry fsync for
+maximum safety or group commit (fsync per $N$ entries) for throughput.
+
+\subsubsection{Batch Formation Strategies}
+
+Three strategies are implemented and evaluated:
+
+\begin{itemize}
+\item \textbf{SIZE}: Form a batch when the queue reaches a size threshold $N$.
+  Guarantees fixed-size batches optimal for circuit proving. Unbounded latency
+  under low load.
+\item \textbf{TIME}: Form a batch every $T$ milliseconds regardless of queue
+  size. Bounded latency but variable batch sizes that may not match circuit
+  capacity.
+\item \textbf{HYBRID}: Form a batch when either threshold triggers
+  ($|queue| \geq N$ OR $elapsed \geq T$ with $|queue| > 0$). This combines the
+  bounded latency of TIME with the bounded batch size of SIZE, matching the
+  approach used by all major production ZK-rollups~\cite{chaliasos2024analyzing}.
+\end{itemize}
+
+\subsubsection{Checkpoint Protocol}
+
+The WAL checkpoint marks the high-water sequence number below which transactions
+are considered ``committed.'' After crash recovery, only entries above the
+checkpoint are replayed into the queue.
+
+In our initial design, the checkpoint advanced at \emph{batch formation} time:
+once transactions were dequeued into a batch, the WAL considered them committed.
+Section~\ref{sec:formal} demonstrates why this is incorrect. The corrected
+protocol defers the checkpoint to \emph{batch processing} time (after successful
+ZK proof generation and L1 confirmation), ensuring that unprocessed batch
+transactions remain recoverable from the WAL.
+
+\subsubsection{Determinism Contract}
+
+Batch identity is defined as $\text{BatchID} = \text{SHA-256}(h_1 \| h_2 \| \ldots \| h_n)$
+where $h_i$ are the transaction hashes in FIFO order. Transactions within a
+batch are ordered by arrival timestamp with sequence number tie-breaking.
+This guarantees that the same set of transactions always produces an identical
+batch, enabling replay-based verification.
+
+\subsection{Empirical Evaluation}
+
+\subsubsection{Benchmark Suite}
+
+Five experimental phases evaluate the protocol across its parameter space:
+
+\begin{enumerate}
+\item \textbf{Strategy comparison}: SIZE vs.\ TIME vs.\ HYBRID under identical
+  load conditions.
+\item \textbf{Batch size sweep}: Threshold values $\{4, 8, 16, 32, 64\}$ to
+  match ZK circuit batch capacities established in prior work (RU-V2).
+\item \textbf{Arrival rate sweep}: Transaction rates $\{50, 100, 200, 500, 1000\}$
+  tx/min spanning the target range.
+\item \textbf{Time threshold sweep}: Values $\{1000, 2000, 5000\}$ ms to evaluate
+  latency bounds under low load.
+\item \textbf{fsync strategy comparison}: Per-entry fsync vs.\ group commit
+  (batch size 16).
+\end{enumerate}
+
+Each configuration runs 30 replications with different random seeds. Two
+warmup batches are discarded. Synthetic transactions are generated with
+Poisson-like arrival jitter (exponential inter-arrival times around the mean
+rate). We report mean, standard deviation, and 95\% confidence intervals.
+CI half-width must be within 10\% of the mean (all configurations pass this
+criterion).
+
+\subsubsection{Determinism Tests}
+
+450 test cases across 3 strategies and 5 batch sizes (30 replications each).
+For each test, the same set of deterministic transactions is fed to the
+aggregator twice, and the resulting batch IDs and transaction orderings are
+compared for exact equality.
+
+\subsubsection{Crash Recovery Tests}
+
+150 test cases across 5 crash scenarios (30 replications each):
+\begin{enumerate}
+\item Crash after enqueue, before batch formation
+\item Crash during batch formation (mid-batch)
+\item Corrupted WAL entry (simulated partial write)
+\item Crash after checkpoint (clean state)
+\item Multiple sequential crashes (3 cycles)
+\end{enumerate}
+
+Each test verifies zero transaction loss after recovery.
+
+\subsection{Formal Verification}
+\label{sec:formal}
+
+We formalize the batch aggregation protocol in TLA+ (Temporal Logic of
+Actions)~\cite{lamport2002specifying} with the following structure:
+
+\begin{itemize}
+\item \textbf{8 state variables}: \texttt{queue}, \texttt{wal},
+  \texttt{checkpointSeq}, \texttt{batches}, \texttt{processed}, \texttt{pending},
+  \texttt{systemUp}, \texttt{timerExpired}
+\item \textbf{6 actions}: \texttt{Enqueue(tx)}, \texttt{FormBatch},
+  \texttt{ProcessBatch}, \texttt{Crash}, \texttt{Recover}, \texttt{TimerTick}
+\item \textbf{6 safety invariants}: \texttt{TypeOK}, \texttt{NoLoss},
+  \texttt{NoDuplication}, \texttt{QueueWalConsistency}, \texttt{FIFOOrdering},
+  \texttt{BatchSizeBound}
+\item \textbf{1 liveness property}: \texttt{EventualProcessing} (every tx
+  eventually appears in a processed batch)
+\end{itemize}
+
+The crash model clears all volatile state (queue, batches) while preserving
+durable state (WAL, checkpoint, processed). Recovery replays the WAL from the
+checkpoint to reconstruct the queue. The nondeterministic \texttt{TimerTick}
+over-approximates real-time behavior (fires at any point), making safety
+results strictly stronger than reality.
+
+Model checking uses TLC with exhaustive breadth-first search. The initial
+model (v0) uses 10 transaction identifiers and batch threshold 4. The
+corrected model (v1-fix) uses 4 identifiers and threshold 2 for complete
+state-space exploration.

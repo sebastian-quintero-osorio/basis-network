@@ -1,0 +1,120 @@
+% discussion.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{Discussion}
+
+\subsection{Hypothesis Verdict}
+
+All four components of the hypothesis are confirmed with large margins:
+
+\begin{enumerate}
+\item \textbf{Throughput $\geq$ 100 tx/min}: Confirmed. Measured
+  14,150--274,438~tx/min across configurations, exceeding the target by
+  141$\times$ to 2,744$\times$.
+\item \textbf{Batch formation latency $<$ 5,000~ms}: Confirmed. Measured
+  0.010--0.022~ms, exceeding the target by over 200,000$\times$.
+\item \textbf{Zero transaction loss}: Confirmed empirically (150/150 tests)
+  and formally (TLA+ model check PASS after protocol correction).
+\item \textbf{Batch determinism}: Confirmed (450/450 tests).
+\end{enumerate}
+
+However, the zero-loss claim requires qualification. The \emph{implemented}
+protocol (checkpoint at formation) contains a silent loss bug detectable only
+through formal verification. The \emph{corrected} protocol (deferred
+checkpoint) achieves true zero loss, verified by exhaustive model checking.
+
+\subsection{Trade-off Analysis}
+
+The deferred checkpoint protocol introduces one trade-off: on crash recovery,
+the system must re-prove at most one batch of transactions (1.9--12.8 seconds
+of redundant computation). This is acceptable given that the mean time between
+failures (MTBF) for enterprise server hardware is measured in thousands of
+hours, while the re-proving cost is under 13 seconds. The WAL segment also
+grows slightly larger (uncommitted entries include batched transactions),
+requiring post-checkpoint compaction---already planned as an optimization.
+
+The HYBRID strategy dominates SIZE-only batching (16\% higher throughput,
+equal safety) and TIME-only batching (which fails entirely under burst
+arrivals). This matches the universal design choice across production
+ZK-rollups~\cite{chaliasos2024analyzing}.
+
+\subsection{The Value of Formal Verification}
+
+The central finding of this work is methodological. The TLA+ model checker
+discovered a critical safety violation in under one second that 150 empirical
+crash recovery tests did not detect. This is not because the test suite was
+poorly designed---the 5 crash scenarios represent a reasonable partition of
+the failure space. Rather, it demonstrates a fundamental limitation of
+example-based testing: tests verify specific execution paths, while model
+checking explores \emph{all} interleavings.
+
+The missing scenario (crash between checkpoint and batch processing) is
+subtle because it requires reasoning about the interaction between two
+design decisions:
+\begin{itemize}
+\item The WAL checkpoint advances at formation, not processing (a design choice).
+\item Formed batches exist only in volatile memory (an implementation fact).
+\end{itemize}
+
+Neither fact alone is dangerous. Their \emph{combination} creates a
+durability gap. This is precisely the class of bugs that formal methods
+excel at finding: emergent properties of component interactions that are
+invisible to unit testing.
+
+The severity is high: the loss is \emph{silent} (no error raised), the
+window is \emph{long} (seconds, not microseconds), and the consequence
+is \emph{irrecoverable} (lost transactions cannot be re-enqueued from the
+enterprise source without external intervention). For an enterprise
+traceability system where missing records can invalidate audit chains,
+this represents a critical safety failure.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Synchronous benchmark}: All transactions arrive in a tight
+  loop (burst mode). Real enterprise workloads have Poisson-like arrival
+  patterns. The TIME strategy requires asynchronous evaluation to
+  demonstrate its value as a timeout-based fallback.
+
+\item \textbf{Windows fsync semantics}: Windows NTFS may not guarantee
+  true \texttt{fdatasync}. Production benchmarks on Linux with ext4/XFS
+  and \texttt{O\_DIRECT} will show different WAL write latencies (likely
+  higher, closer to the published 880~$\mu$s benchmark).
+
+\item \textbf{Single writer}: The benchmark uses a single writer thread.
+  Multi-enterprise scenarios with concurrent writers require partitioned
+  queues or lock-free data structures.
+
+\item \textbf{JSON WAL format}: At $>$10K~tx/min, JSON serialization
+  overhead (300~bytes per entry vs.\ $\sim$50 bytes binary) becomes
+  significant. Production deployments should evaluate binary WAL formats.
+
+\item \textbf{No SMT integration}: The benchmark does not perform Sparse
+  Merkle Tree state transitions. In production, batch formation includes
+  SMT updates (1.8~ms per insert from RU-V1), adding latency proportional
+  to batch size.
+
+\item \textbf{Finite model}: The TLA+ model uses 4 transaction identifiers
+  and batch threshold 2. While TLC achieves complete state-space coverage
+  for this configuration, the result generalizes by symmetry reduction
+  only---larger models may exhibit behaviors not present in the small model.
+  The safety properties are structurally independent of the number of
+  transactions (they depend on partition invariants, not cardinality).
+\end{enumerate}
+
+\subsection{Reconciliation with Literature}
+
+Our WAL write latencies (149--210~$\mu$s) are consistent with published
+database WAL benchmarks when accounting for JSON serialization and SHA-256
+checksum computation. The 300$\times$ difference from the raw binary
+benchmark (529~ns~\cite{chia2024database}) is fully attributable to format
+overhead, not implementation inefficiency.
+
+Our throughput (274K~tx/min peak) is consistent with single-process
+in-memory queue performance. It falls between RabbitMQ quorum queues
+(2K~msg/s with fsync) and Kafka (2M/s distributed). The comparison is
+directional---our system targets enterprise validium (single-tenant,
+100+~tx/min) rather than public infrastructure.
+
+The HYBRID strategy recommendation aligns with all surveyed production
+systems: zkSync Era, Polygon zkEVM, Scroll, and Ethrex all use combined
+size-time triggers for batch formation.

@@ -1,0 +1,130 @@
+\section{Discussion}
+
+\subsection{Hypothesis Evaluation}
+
+Our pre-registered hypothesis stated that a batch-64 state transition
+circuit at depth~32 could be generated in under 60~seconds with fewer
+than 100,000~R1CS constraints. The results require nuanced evaluation:
+
+\textbf{Constraint target (100K): Rejected.} Batch~64 at depth~32
+requires 2,192,256~constraints---21.9$\times$ over the 100K target.
+Even with the most aggressive optimization (circomlib's
+\texttt{SMTProcessor} at approximately 9,000 constraints per transaction),
+the minimum is approximately 576,000~constraints. The 100K target was
+based on an incorrect assumption about the relationship between constraint
+count and proving feasibility; in practice, modern Groth16 provers
+handle millions of constraints within acceptable time budgets.
+
+\textbf{Proving time target (60s): Partially confirmed.}
+\begin{itemize}
+\item SnarkJS (JavaScript, commodity hardware): estimated 120--143~seconds.
+  \textbf{Rejected} (2.0--2.4$\times$ over target).
+\item Rapidsnark (C++, commodity hardware): estimated 14--35~seconds.
+  \textbf{Confirmed} with 1.7--4.3$\times$ margin.
+\item Rapidsnark (C++, server hardware): estimated 8--15~seconds.
+  \textbf{Confirmed} with wide margin.
+\item GPU-accelerated (ICICLE-Snark): estimated 3--8~seconds.
+  \textbf{Confirmed}.
+\end{itemize}
+
+The overall verdict is that the engineering goal---batch-64 state
+transition proofs in under 60~seconds---is achievable, but \emph{only}
+with production-grade native provers. SnarkJS is suitable for development
+and testing, not production deployment.
+
+\subsection{Constraint Formula Significance}
+
+The exact formula $C_{\text{tx}} = 1{,}038 \cdot (d+1)$ has direct
+engineering implications:
+
+\begin{enumerate}
+\item \textbf{Capacity planning}: Given a proving time budget $T$ and a
+  prover's throughput in constraints per second, the maximum batch size
+  is $n_{\max} = \lfloor T \cdot \text{throughput} / C_{\text{tx}} \rfloor$.
+  For Rapidsnark at 400K constraints/second and $T = 30$s:
+  $n_{\max} = \lfloor 12{,}000{,}000 / 34{,}254 \rfloor = 350$ transactions
+  at depth~32.
+
+\item \textbf{Depth selection}: Reducing depth from 32 to 20 decreases
+  per-transaction cost by $1 - (21/33) = 36\%$, enabling proportionally
+  larger batches. Depth~20 still supports $2^{20} \approx 1$M unique
+  keys, sufficient for most enterprise deployments.
+
+\item \textbf{Circuit predictability}: The zero-residual fit means that
+  the Circom compiler introduces no unexpected constraint overhead
+  for this circuit structure. Constraint counts can be predicted
+  exactly before compilation.
+\end{enumerate}
+
+\subsection{Comparison with Production Systems}
+
+Our per-transaction constraint count of 34,254 at depth~32 is
+0.59$\times$ the Hermez rollup figure of approximately 58,000 per
+transaction~\cite{hermez2021circuits}. This is consistent: Hermez
+includes EdDSA signature verification ($\sim$6,000 constraints),
+token balance updates, fee processing, and nonce management that
+our circuit omits. The delta of $\sim$24,000 constraints represents
+the cost of full transaction validation beyond Merkle state updates.
+
+Relative to Tornado Cash~\cite{tornadocash2019} (5,000--7,000
+constraints for a single depth-20 Merkle proof), our per-transaction
+cost at depth~20 (21,798 constraints) is 3.1--4.4$\times$ higher,
+consistent with the factor of performing \emph{two} Merkle path
+computations (old and new) plus leaf hashing at each of the 21
+effective levels.
+
+\subsection{Optimization Paths}
+
+Several optimization strategies could reduce the constraint count:
+
+\textbf{SMTProcessor integration.} Circomlib's \texttt{SMTProcessor}
+shares intermediate computations between the old-root verification and
+new-root computation, potentially reducing per-transaction cost by
+up to 40\%. However, it introduces state machine complexity (insert,
+update, delete modes) that is unnecessary for an update-only circuit.
+For the enterprise validium use case, the simplicity and auditability
+of the dual-path approach may outweigh the constraint savings.
+
+\textbf{Batch-level sibling sharing.} When multiple transactions in a
+batch update keys that share common Merkle path prefixes, the
+corresponding sibling hashes are identical. A circuit-level optimization
+could detect and reuse these shared siblings. In the worst case (random
+keys), no sharing occurs; in enterprise scenarios with sequential keys,
+significant sharing is possible. This optimization complicates the circuit
+but could reduce effective constraints by 20--50\% for favorable
+access patterns.
+
+\textbf{Reduced tree depth.} Depth~20 provides $2^{20} \approx 1$M
+key slots at 36\% fewer constraints. For MVP deployments where the
+key space is bounded, this is the simplest optimization.
+
+\textbf{Proof aggregation.} Rather than increasing batch size, multiple
+smaller proofs can be aggregated using recursive SNARKs. This approach
+decouples per-batch proving time from total throughput: four parallel
+batch-16 proofs aggregated into a single recursive proof could achieve
+batch-64 effective throughput with each individual proof requiring only
+548K constraints.
+
+\subsection{Limitations}
+
+\textbf{Single-run measurements.} Each configuration was benchmarked
+once. While the constraint counts are deterministic (verified by the
+exact formula fit), proving times exhibit variance due to OS scheduling,
+memory allocation, and Powers of Tau ceremony size. A full stochastic
+analysis with 30+ repetitions per configuration would strengthen the
+proving time estimates.
+
+\textbf{SnarkJS only.} All proving time measurements use SnarkJS, a
+pure JavaScript prover. Production proving time estimates for Rapidsnark
+and GPU-accelerated provers are extrapolated from published benchmarks,
+not measured directly. The 4--10$\times$ speedup range is broad.
+
+\textbf{Update-only semantics.} The circuit assumes all transactions
+are updates to existing key-value pairs. Insertions (new keys) and
+deletions require different Merkle proof structures not covered by
+this circuit.
+
+\textbf{No signature verification.} Unlike production rollup circuits
+(Hermez, Polygon zkEVM), our circuit does not verify transaction
+authorization. In the enterprise validium model, authorization is
+handled by the permissioned node, not the ZK circuit.

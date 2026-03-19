@@ -1,0 +1,28 @@
+% conclusion.tex -- Sparse Merkle Trees with Poseidon Hash
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented the design, implementation, and empirical evaluation of a depth-32 Sparse Merkle Tree with Poseidon hash for enterprise ZK validium state management on the Basis Network. Our results demonstrate that this configuration meets all performance requirements for the enterprise use case:
+
+\begin{itemize}
+  \item Insert latency of 1.825\,ms mean (5.5$\times$ below the 10\,ms target), constant across tree sizes from 100 to 100{,}000 entries, confirming O($d$) complexity.
+  \item Proof generation in 0.018\,ms mean (278$\times$ below the 5\,ms target), achieved through traversal-only proof collection.
+  \item Proof verification in 1.744\,ms mean (within the 2\,ms target), dominated by 32 sequential Poseidon hashes.
+  \item Memory usage of 233.9\,MB at 100{,}000 entries, well within enterprise server constraints.
+  \item Full BN128 field compatibility via circomlibjs, enabling direct integration with Circom/SnarkJS Groth16 circuits.
+\end{itemize}
+
+The hash function comparison confirms Poseidon as the definitive choice for ZK-friendly state trees, with a 4.97$\times$ native speedup over MiMC and 29\% fewer R1CS constraints per hash, consistent with production system choices across the industry.
+
+\subsection{Future Work}
+
+Three directions emerge from this evaluation:
+
+\paragraph{Performance optimization.} Replacing JavaScript BigInt with WebAssembly or native Poseidon implementations can reduce verification latency by 10--100$\times$, eliminating the tightest performance margin. This is a straightforward engineering task with no algorithmic changes required.
+
+\paragraph{Persistent storage.} For deployments exceeding 100{,}000 entries, migrating the in-memory hash map to a database-backed store (LevelDB or RocksDB) with path-aware caching will enable scaling to millions of entries without memory constraints.
+
+\paragraph{Batch update optimization.} Integrating the one-phase batch update technique of Chen et~al.~\cite{chen2023batch} will reduce amortized insert cost for the batch aggregation pipeline, where multiple transactions share common tree paths.
+
+These results establish the SMT as a validated foundation for the enterprise validium pipeline. The implementation serves as the reference design for the production Architect agent and the formal specification target for TLA+ model checking in subsequent pipeline stages.

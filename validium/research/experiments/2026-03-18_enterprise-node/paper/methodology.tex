@@ -1,0 +1,185 @@
+% methodology.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Methodology}
+
+\subsection{State Machine Design}
+
+The orchestrator is modeled as a typed finite state machine
+$\mathcal{M} = (S, E, \delta, s_0)$ where $S$ is the set of states,
+$E$ is the set of events, $\delta: S \times E \to S$ is the transition
+function, and $s_0 = \text{Idle}$ is the initial state.
+
+\subsubsection{States}
+
+The state set $S = \{\text{Idle}, \text{Receiving}, \text{Batching},
+\text{Proving}, \text{Submitting}, \text{Error}\}$ captures the six
+phases of the validium proof cycle:
+
+\begin{itemize}
+\item \textbf{Idle}: No pending work. The node polls for new transactions.
+\item \textbf{Receiving}: Actively accepting transactions from enterprise
+  systems via REST or WebSocket API.
+\item \textbf{Batching}: Batch threshold reached. The node forms a batch,
+  applies state updates to the SMT, and generates the circuit witness.
+\item \textbf{Proving}: ZK proof generation in progress. Runs in a child
+  process to avoid blocking the event loop.
+\item \textbf{Submitting}: Proof generated. DAC attestation and L1
+  settlement in progress.
+\item \textbf{Error}: Recoverable error state. Transitions back to Idle
+  via retry with exponential backoff.
+\end{itemize}
+
+\subsubsection{Transition Table}
+
+Table~\ref{tab:transitions} enumerates all 17 valid transitions. The
+critical design feature is pipelined receiving: the \textsc{TransactionReceived}
+event is accepted in the Proving and Submitting states, enabling continuous
+ingestion while a proof cycle completes.
+
+\begin{table}[h]
+\centering
+\caption{State Machine Transition Table}
+\label{tab:transitions}
+\begin{tabular}{lll}
+\toprule
+\textbf{Source} & \textbf{Event} & \textbf{Target} \\
+\midrule
+Idle       & TransactionReceived   & Receiving \\
+Idle       & ShutdownRequested     & Idle \\
+\midrule
+Receiving  & TransactionReceived   & Receiving \\
+Receiving  & BatchThresholdReached & Batching \\
+Receiving  & ErrorOccurred         & Error \\
+\midrule
+Batching   & WitnessGenerated      & Proving \\
+Batching   & ErrorOccurred         & Error \\
+\midrule
+Proving    & ProofGenerated        & Submitting \\
+Proving    & TransactionReceived   & Proving \\
+Proving    & ErrorOccurred         & Error \\
+\midrule
+Submitting & BatchSubmitted        & Submitting \\
+Submitting & L1Confirmed           & Idle \\
+Submitting & TransactionReceived   & Submitting \\
+Submitting & ErrorOccurred         & Error \\
+\midrule
+Error      & RetryRequested        & Idle \\
+Error      & ShutdownRequested     & Idle \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Invariants}
+
+Six invariants govern correctness and are formalized for downstream
+TLA+ specification:
+
+\begin{enumerate}
+\item[\textbf{INV-NO1}] \emph{Liveness}: If $|\text{pendingTx}| > 0$ and
+  $s = \text{Idle}$, then eventually $s = \text{Proving}$.
+
+\item[\textbf{INV-NO2}] \emph{Safety}: If $s = \text{Submitting}$, then
+  $\text{proof.prevRoot} = \text{smt.prevRoot}$ and
+  $\text{proof.newRoot} = \text{smt.currentRoot}$.
+
+\item[\textbf{INV-NO3}] \emph{Privacy}: The only data transmitted outside
+  the node boundary are: proof $(a, b, c)$, public signals
+  $(r_\text{prev}, r_\text{new}, \text{batchNum}, \text{enterpriseId})$,
+  and Shamir shares to DAC nodes.
+
+\item[\textbf{INV-NO4}] \emph{Crash Recovery}: After crash and restart,
+  $|\text{walReplayed}| + |\text{committed}| = |\text{totalEnqueued}|$.
+
+\item[\textbf{INV-NO5}] \emph{State Root Continuity}: For batch $N$,
+  $\text{submit}(N).\text{prevRoot} = \text{batch}(N-1).\text{newRoot}$.
+
+\item[\textbf{INV-NO6}] \emph{Single Writer}: Only the batch loop
+  modifies the SMT. No concurrent write access is permitted.
+\end{enumerate}
+
+\subsection{Pipelined Architecture}
+
+The sequential execution model (Idle $\to$ Receive $\to$ Batch $\to$
+Prove $\to$ Submit $\to$ Idle) blocks transaction ingestion during proof
+generation, creating unavailability windows of 12+ seconds. Following
+the zkSync Era~\cite{zksync2025lifecycle} and push0~\cite{push0_2025orchestration}
+patterns, we decompose the pipeline into three concurrent loops:
+
+\begin{enumerate}
+\item \textbf{Ingestion Loop}: Continuously accepts transactions via the
+  Fastify REST/WebSocket API, writes to the WAL, and enqueues to the
+  transaction queue.
+
+\item \textbf{Batch Loop}: Monitors the queue size. When the batch
+  threshold is reached, dequeues transactions, applies SMT updates,
+  and generates the circuit witness.
+
+\item \textbf{Proving/Submission Loop}: Takes formed batches, invokes
+  the ZK prover (child process), distributes witness data to the DAC,
+  and submits the proof to L1.
+\end{enumerate}
+
+The pipelined speedup arises when the batch loop prepares the next
+batch while the proving loop processes the current one. The speedup
+is bounded by:
+
+\begin{equation}
+\text{Speedup} = \frac{N \cdot T_\text{seq}}{T_\text{cold} + (N-1) \cdot \max(T_\text{prep}, T_\text{prove+submit})}
+\end{equation}
+
+\noindent where $T_\text{seq}$ is the sequential batch time, $T_\text{cold}$
+is the first batch (no overlap), $T_\text{prep}$ is preparation time
+(batch formation + witness generation), and $T_\text{prove+submit}$ is
+the proving and submission phase. The speedup increases with batch size
+because $T_\text{prep}$ grows (more witness generation work) while
+$T_\text{prove+submit}$ grows more slowly.
+
+\subsection{Component Integration}
+
+The orchestrator integrates five components, each characterized by prior
+research units in this pipeline:
+
+\begin{table}[h]
+\centering
+\caption{Component Latencies from Prior Research}
+\label{tab:components}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Component} & \textbf{Operation} & \textbf{Latency} & \textbf{Source} \\
+\midrule
+SparseMerkleTree & Insert (d32) & 1.825~ms & RU-V1 \\
+SparseMerkleTree & Proof generation & 0.018~ms & RU-V1 \\
+TransactionQueue & WAL write (group) & 149~$\mu$s & RU-V4 \\
+BatchAggregator  & Batch formation & 0.02~ms & RU-V4 \\
+BatchBuilder     & Witness gen (d32, b8) & 578~ms & RU-V2 \\
+DACProtocol      & Full attestation & 163~ms & RU-V6 \\
+StateCommitment  & L1 submission & 268K gas & RU-V3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{API Design}
+
+The node exposes a Fastify-based REST API and WebSocket event stream for
+enterprise client integration:
+
+\begin{itemize}
+\item \texttt{POST /v1/transactions} -- Submit a single transaction
+\item \texttt{POST /v1/transactions/batch} -- Submit multiple transactions
+\item \texttt{GET /v1/status} -- Node health and current state
+\item \texttt{GET /v1/batches/:id} -- Query batch status and proof
+\item \texttt{GET /v1/state/:enterprise} -- Current state root
+\end{itemize}
+
+WebSocket events (\texttt{ws://node/v1/events}) provide real-time
+notifications for transaction acceptance, batch proving progress, and
+L1 confirmation.
+
+\subsection{Technology Selection}
+
+Fastify v4 was selected over Express.js based on published
+benchmarks~\cite{fastify2025comparison} showing 2--4$\times$ higher
+request throughput with native TypeScript support and JSON schema
+validation. WebSocket integration uses the
+\texttt{@fastify/websocket}~\cite{fastify2025websocket} plugin for
+real-time enterprise event streaming.

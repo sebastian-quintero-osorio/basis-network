@@ -1,0 +1,49 @@
+% introduction.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{Introduction}
+
+Enterprise blockchain deployments require that operational data---supply chain
+records, industrial process telemetry, financial transactions---remain
+confidential to the originating organization, while counterparties, auditors,
+and regulators must be able to verify state transition correctness without
+accessing the underlying data. Zero-knowledge validium architectures address
+this tension by maintaining enterprise state off-chain and submitting succinct
+validity proofs to a shared settlement layer~\cite{ethereum2024validium}. The
+data availability committee (DAC) is the mechanism by which off-chain data
+persistence is attested: a quorum of committee members signs a certificate
+confirming that the batch data is stored and retrievable, and this certificate
+is verified on-chain alongside the ZK proof.
+
+Despite the critical role of DACs in validium security, \emph{no production
+DAC provides data privacy}. StarkEx~\cite{starkware2024da}, Polygon
+CDK~\cite{polygon2024cdk}, and Arbitrum Nova~\cite{arbitrum2024anytrust} all
+distribute the \emph{complete} batch data to every committee member. Each
+member sees every transaction, every state update, every enterprise record in
+the clear. Privacy relies entirely on trust in committee members---a single
+compromised or malicious member can exfiltrate the entire dataset. For
+enterprise deployments where the batch data contains proprietary operational
+information, this is a fundamental architectural limitation. EigenDA achieves
+partial privacy through erasure coding (each node sees only one
+chunk)~\cite{eigenlayer2025v2}, but chunks contain partial plaintext data and
+the disperser sees the complete blob before encoding.
+
+This paper introduces \emph{Shamir-DAC}, a data availability committee design
+that replaces full data replication with Shamir's $(k,n)$-threshold secret
+sharing~\cite{shamir1979share} over the BN128 scalar field. The protocol
+achieves \emph{information-theoretic privacy}: fewer than $k$ committee
+members learn \emph{zero} information about the batch data, regardless of
+their computational power. This is strictly stronger than the computational
+privacy offered by encryption-based approaches (e.g., encrypt-then-erasure-code),
+as it holds against adversaries with unbounded resources. To our knowledge,
+this is the first DAC design that provides information-theoretic data privacy
+while maintaining sub-second attestation latency for enterprise batch sizes.
+
+Our experimental evaluation demonstrates that Shamir-DAC achieves 175~ms P95
+attestation latency for 500~KB enterprise batches in a $(2,3)$-threshold
+configuration---11$\times$ below the 2-second target---with 51/51 privacy
+tests confirming zero information leakage from individual shares, 61/61
+recovery tests confirming fault tolerance under single-node failure, and
+3.87$\times$ storage overhead (less than EigenDA's 8$\times$ expansion). All
+benchmarks are implemented in JavaScript BigInt arithmetic, establishing a
+conservative worst-case baseline; production deployment with native field
+arithmetic is expected to improve performance by 10--50$\times$.

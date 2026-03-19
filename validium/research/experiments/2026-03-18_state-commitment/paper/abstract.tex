@@ -1,0 +1,22 @@
+\begin{abstract}
+Enterprise ZK validium architectures require an L1 state commitment contract that verifies
+zero-knowledge proofs and maintains per-enterprise state root histories. The gas cost of
+this contract determines the economic and throughput feasibility of batch submissions. We
+analyze the gas cost decomposition of three storage layouts for a state commitment contract
+on Avalanche Subnet-EVM with integrated Groth16 verification: minimal (32 bytes/batch,
+roots in mappings), rich (64 bytes/batch, packed metadata structs), and events-only
+(0 bytes/batch, metadata in logs). Our key finding is that BN256 pairing-based ZK proof
+verification dominates the gas budget at 71.9\% of total cost (205,600 of 285,756 gas),
+leaving only 28.1\% for all storage, logic, events, and access control. This decomposition
+establishes that integrated verification---embedding Groth16 directly in the commitment
+contract---is an architectural requirement, not a preference: delegated verification via a
+separate contract adds approximately 56,000 gas in cross-contract call and redundant storage
+overhead, exceeding a 300,000 gas budget. The minimal layout achieves 285,756 gas per
+first-batch submission and 268,656 gas steady-state, with 32 bytes of persistent storage
+per batch (33--50\% less than production ZK rollups), while enforcing chain continuity,
+gap detection, reversal prevention, and enterprise isolation invariants with 100\%
+correctness across 7 targeted tests. We compare against zkSync Era, Polygon zkEVM, and
+Scroll commitment patterns and demonstrate that the enterprise validium trust model enables
+single-phase atomic commitment, eliminating the 2--3 phase separation required by public
+rollups.
+\end{abstract}

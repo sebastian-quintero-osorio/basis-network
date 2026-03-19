@@ -1,0 +1,50 @@
+% introduction.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Introduction}
+
+Enterprise blockchain deployments in regulated industries---industrial
+traceability, supply chain management, financial record-keeping---face a
+fundamental architectural challenge: how to orchestrate the complete
+lifecycle of a zero-knowledge validity proof while maintaining continuous
+transaction availability and strict data privacy. Unlike public rollup
+sequencers where proof generation latency is amortized across thousands of
+users, enterprise validium nodes serve a single organization with
+deterministic performance requirements and zero tolerance for data
+leakage~\cite{ethereum2024zkrollups}.
+
+Production ZK L2 systems such as Polygon zkEVM~\cite{polygon2024architecture,
+hermez2023deepdive}, zkSync Era~\cite{zksync2025lifecycle, zksync2025server},
+and Scroll~\cite{scroll2023architecture, scroll2025euclid} decompose node
+operations into specialized components---sequencers, aggregators, provers,
+relayers---connected by internal queues. Recent work on orchestration
+frameworks, particularly the push0 system deployed on
+Zircuit~\cite{push0_2025orchestration}, demonstrates that event-driven
+orchestration with message bus coordination achieves sub-10~ms overhead with
+fault-tolerant recovery. However, these architectures target public L2
+infrastructure with horizontally scaled prover pools and are
+over-provisioned for enterprise validium deployments where a single node
+serves one organization.
+
+This paper addresses the gap between public L2 orchestration patterns and
+enterprise validium requirements. We present the design of a pipelined,
+event-driven state machine orchestrator for the Basis Network enterprise
+ZK validium node deployed on Avalanche. The orchestrator integrates five
+previously characterized components---Sparse Merkle Tree (RU-V1), ZK state
+transition circuit (RU-V2), L1 state commitment contract (RU-V3), crash-safe
+batch aggregation (RU-V4), and Shamir-based data availability committee
+(RU-V6)---into a single Node.js service that processes the complete
+receive-to-settlement cycle.
+
+Our contributions are threefold. First, we define a typed finite state
+machine with six states and 17 transitions that supports pipelined execution:
+the node continues ingesting transactions while a proof is being generated
+or submitted. Second, we provide comprehensive benchmarks demonstrating that
+orchestration overhead is 593~ms per batch (0.66\% of the 90-second budget),
+with proof generation consuming 64--85\% of end-to-end latency across all
+tested configurations. Third, we quantify the pipeline speedup (1.03--1.29$\times$)
+as a function of batch size and prover backend, establishing that the
+speedup increases with batch size because witness generation time grows
+relative to proving time, enabling greater overlap between preparation and
+proving phases. These results, together with six formal invariants for
+downstream TLA+ specification, provide a complete blueprint for enterprise
+ZK validium node implementation.

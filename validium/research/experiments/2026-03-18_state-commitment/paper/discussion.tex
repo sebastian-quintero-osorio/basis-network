@@ -1,0 +1,125 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Hypothesis Evaluation}
+
+All five pre-registered predictions were confirmed:
+
+\begin{enumerate}
+\item[\textbf{P1}] Integrated verification with Layout A uses 285,756 gas (first batch)
+and 268,656 gas (steady state), both under 300K. \textbf{Confirmed.}
+
+\item[\textbf{P2}] Delegated verification is analytically estimated at $\sim$341,856 gas,
+exceeding 300K by 14\%. \textbf{Confirmed} (analytically; not directly benchmarked).
+
+\item[\textbf{P3}] Layout A uses 32 bytes per batch (1 storage slot), well under the
+100-byte target. \textbf{Confirmed.}
+
+\item[\textbf{P4}] Layout B uses 64 bytes per batch (2 storage slots), well under the
+200-byte target. \textbf{Confirmed.}
+
+\item[\textbf{P5}] The root chain continuity check ($\mathit{prevRoot} =
+\mathit{currentRoot}$) catches 100\% of gap and reversal attempts.
+\textbf{Confirmed} (7/7 invariant tests passed).
+\end{enumerate}
+
+\subsection{The 72\% Verification Dominance}
+
+The most significant finding is the gas budget decomposition: 71.9\% verification, 28.1\%
+storage and logic. This has three important architectural implications.
+
+First, \emph{storage layout optimization has diminishing returns}. The difference between
+the cheapest layout (Events Only, 57,887 gas storage) and the most expensive (Rich,
+102,799 gas storage) is 44,912 gas---but this represents only 15.7\% of the total budget.
+Even eliminating all storage operations entirely would save less gas than a single pairing
+check (181,000 gas).
+
+Second, \emph{integrated verification is a hard constraint, not a preference}. Delegating
+verification to a separate contract adds $\sim$56K gas from the cross-contract call and
+redundant storage, pushing even the minimal layout over 300K. There is no storage layout
+that compensates for the delegation overhead within a 300K budget.
+
+Third, \emph{future gas optimization must target the verification cost}. Migrating from
+Groth16 to a proof system with cheaper on-chain verification (e.g., PLONK with KZG
+commitments verified via a single pairing, or recursive proof aggregation that amortizes
+verification across batches) would expand the storage budget proportionally.
+
+\subsection{Layout A as the Optimal Trade-off}
+
+Layout A (Minimal) achieves the best trade-off among the three candidates:
+
+\begin{itemize}
+\item \textbf{vs. Layout C (Events Only):} Layout A adds 22,269 gas (+8.4\% of total) to
+store each batch's state root on-chain. This cost buys \emph{direct on-chain queryability}:
+any contract or cross-enterprise verifier can call \texttt{getBatchRoot(enterprise, batchId)}
+to verify a historical state root without relying on event log indexing. For an enterprise
+system where cross-enterprise verification and audit compliance are requirements, this
+on-chain availability is essential.
+
+\item \textbf{vs. Layout B (Rich):} Layout B adds 22,643 gas (+7.9\% of total) over
+Layout A to store batch metadata (size, timestamp, cumulative transactions) on-chain.
+This metadata is already available via event logs, which are queryable through standard
+Ethereum JSON-RPC (\texttt{eth\_getLogs}). The marginal benefit of on-chain metadata
+storage does not justify exceeding the 300K target on first batch submissions.
+\end{itemize}
+
+\subsection{Single-Phase vs. Multi-Phase Commitment}
+
+Our single-phase atomic design diverges from all three production systems, which use 2--3
+phases. This is not an oversight but a deliberate architectural choice enabled by the
+enterprise validium trust model:
+
+\begin{itemize}
+\item \textbf{No sequencer-prover separation:} In public rollups, the sequencer and prover
+are typically different entities, necessitating a commit phase where the sequencer posts
+data and a prove phase where the prover submits the proof. In our model, the enterprise
+node performs both roles atomically.
+
+\item \textbf{No challenge period:} Public rollups may need to delay execution to allow
+for fraud proofs or proof verification disputes. Enterprise validium verifies the proof
+on-chain in the same transaction, achieving immediate finality.
+
+\item \textbf{Reduced L1 transaction count:} A single L1 transaction per batch (vs. 2--3
+for public rollups) halves the per-batch overhead on the L1 chain, which matters even in
+a zero-fee model because of block gas limits and throughput constraints.
+\end{itemize}
+
+The trade-off is that our model cannot aggregate proofs across multiple committed-but-unproved
+batches. Each batch requires its own proof. Future work on recursive proof aggregation would
+enable amortizing a single on-chain verification across multiple batches while preserving the
+single-transaction submission model.
+
+\subsection{Comparison with Production Systems}
+
+Our per-batch storage of 32 bytes compares favorably with production systems (64--96 bytes),
+achieved through the simpler trust model that eliminates the need for batch hashes, status
+flags, and withdrawal roots. However, this comparison must be qualified: production systems
+store additional data to support features (L2$\to$L1 messaging, withdrawal proofs,
+challenge windows) that enterprise validium does not require.
+
+The gas comparison is less direct because production systems amortize verification across
+many batches. zkSync Era, for example, can prove hundreds of committed batches in a single
+\texttt{proveBatches} call. Our per-batch verification cost of 205,600 gas would be
+amortized to $205{,}600 / B$ per batch with $B$-batch aggregation, but this requires
+recursive proofs or proof aggregation---a separate research question.
+
+\subsection{Limitations}
+
+\textbf{Mock verification.} ZK verification gas was added analytically rather than measured
+end-to-end. While EIP-1108 precompile costs are fixed constants, the Solidity overhead for
+proof deserialization and precompile invocation may add 1--3K gas not captured in our model.
+
+\textbf{Single EVM implementation.} All benchmarks were run on Hardhat's JavaScript EVM.
+Gas costs on Subnet-EVM (go-ethereum based) should be identical per the specification, but
+minor implementation differences in gas accounting are possible.
+
+\textbf{No production calldata.} Our benchmarks used minimal calldata (two 32-byte roots +
+one uint256 batch size). A production submission with a full Groth16 proof ($\sim$800 bytes)
+adds approximately 12,800 gas in calldata costs (800 nonzero bytes $\times$ 16 gas/byte),
+which is accounted for in our analytical budget but not directly measured.
+
+\textbf{Analytical delegated verification.} P2 (delegated verification exceeds 300K) was
+confirmed analytically, not by deploying and benchmarking a full \texttt{ZKVerifier}
+contract. The estimate is conservative (likely underestimates the actual overhead) because
+it does not account for function selector dispatch, argument encoding, and return value
+decoding in the cross-contract call.
