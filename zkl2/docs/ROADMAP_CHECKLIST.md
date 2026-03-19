@@ -55,7 +55,7 @@ lab/2-logicist/research-history/YYYY-MM-evm-executor/0-input/
 
 ### [02] Logicist | RU-L1: EVM Executor
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 6,217 states, 7 invariants incl Determinism + TraceCompleteness)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [01] complete, materials in `0-input/`.

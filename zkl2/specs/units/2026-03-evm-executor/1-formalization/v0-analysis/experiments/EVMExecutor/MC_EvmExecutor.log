@@ -1,0 +1,27 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 33 and seed 4785531728585636122 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-evm-executor\1-formalization\v0-analysis\experiments\EVMExecutor\_build\MC_EvmExecutor.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-evm-executor\1-formalization\v0-analysis\experiments\EVMExecutor\_build\EvmExecutor.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module EvmExecutor
+Semantic processing of module MC_EvmExecutor
+Starting... (2026-03-19 02:26:09)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-19 02:26:09.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 0.0
+6217 states generated, 6217 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 11.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 31 and the 95th percentile is 1).
+Finished in 01s at (2026-03-19 02:26:10)
