@@ -1,0 +1,28 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 84 and seed 5761002338496918538 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-bridge\1-formalization\v0-analysis\experiments\BasisBridge\_build\MC_BasisBridge.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-bridge\1-formalization\v0-analysis\experiments\BasisBridge\_build\BasisBridge.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module BasisBridge
+Semantic processing of module MC_BasisBridge
+Starting... (2026-03-19 13:47:44)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-19 13:47:45.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 5.4E-10
+  based on the actual fingerprints:  val = 7.6E-11
+211453 states generated, 69726 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 23.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 7 and the 95th percentile is 3).
+Finished in 01s at (2026-03-19 13:47:46)

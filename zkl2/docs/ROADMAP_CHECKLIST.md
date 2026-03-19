@@ -606,7 +606,7 @@ lab/2-logicist/research-history/YYYY-MM-bridge/0-input/
 
 ### [26] Logicist | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: NoDoubleSpend + EscapeHatchLiveness + BalanceConservation)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [25] complete, materials in `0-input/`.
