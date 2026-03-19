@@ -256,6 +256,68 @@ Measured: 13.37 ms for 1000 tx (0.004% of 5-minute budget). Margin is 22,000x.
 | Witness determinism | 100% | RU-L3 experiment (verified: PASS) |
 | Storage table share | ~60-80% | RU-L3 experiment (measured: 78.4%) |
 
+### I-20: L1 Rollup Chain Continuity
+
+The L1 rollup contract MUST enforce that for each enterprise, batch execution advances
+the state root chain without gaps, reversals, or forks:
+- Batches execute in strict sequential order (no skipping)
+- Each batch's new state root becomes the current root atomically
+- Committed but unexecuted batches can be reverted; executed batches cannot
+
+**Source:** RU-L5 (Basis Rollup), extends validium INV-S1
+**Why:** The three-phase commit-prove-execute model separates state commitment from
+finalization. Without sequential execution enforcement, a malicious sequencer could skip
+batches or fork the state chain.
+
+### I-21: Proof Before State Finalization
+
+The L1 rollup contract MUST verify a ZK validity proof before finalizing any state root
+transition. The three-phase lifecycle enforces: Committed -> Proven -> Executed.
+No batch may skip the Proven state.
+
+**Source:** RU-L5 (Basis Rollup), extends validium INV-S2
+**Why:** The commit-prove-execute pattern adds a window between commitment and finalization.
+If execution could occur without proof verification, invalid state transitions could be finalized.
+
+### I-22: Monotonic L2 Block Ranges
+
+Each batch committed to the L1 rollup MUST declare an L2 block range [l2BlockStart, l2BlockEnd]
+where l2BlockStart[N+1] = l2BlockEnd[N] + 1. Block ranges must be non-overlapping and
+contiguous.
+
+**Source:** RU-L5 (Basis Rollup)
+**Why:** L2 block numbers are used for bridge withdrawal references and forced inclusion
+verification. Overlapping or gapped block ranges would break cross-reference integrity.
+
+### I-23: Enterprise Batch Isolation
+
+Each enterprise maintains an independent batch lifecycle (commit/prove/execute counters,
+state root chain, L2 block range). Operations on one enterprise's batches MUST NOT affect
+any other enterprise's state.
+
+**Source:** RU-L5 (Basis Rollup), extends validium EnterpriseIsolation
+**Why:** Per-enterprise L2 chains are the core privacy model. Cross-contamination of batch
+state would violate enterprise data boundaries.
+
+### I-24: Batch Revert Safety
+
+Only batches in Committed or Proven status can be reverted. Executed batches MUST NOT be
+revertible. Reverting a batch restores all counters and block ranges to their pre-commit
+state.
+
+**Source:** RU-L5 (Basis Rollup)
+**Why:** Finalized state transitions must be permanent. Allowing revert of executed batches
+would break bridge withdrawal guarantees and cross-enterprise references.
+
+## Performance Targets (Updated with L1 Rollup)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| L1 rollup commit gas | < 120K (steady) | RU-L5 experiment (measured: 116,147) |
+| L1 rollup prove gas (with Groth16) | < 275K | RU-L5 projected (256,455 steady) |
+| L1 rollup execute gas | < 80K | RU-L5 experiment (measured: 52,624 steady) |
+| L1 rollup total gas/batch | < 500K | RU-L5 projected (425,226 steady with Groth16) |
+
 ## Experiment Log
 
 | Date | Experiment | Invariants Affected | Update |
@@ -264,3 +326,4 @@ Measured: 13.37 ms for 1000 tx (0.004% of 5-minute budget). Margin is 22,000x.
 | 2026-03-19 | RU-L2: Sequencer | I-09 through I-12 | Added sequencer invariants, performance targets |
 | 2026-03-19 | RU-L4: State Database | I-06 (refined), I-13 through I-15 | State root latency, trie isolation, hash alignment |
 | 2026-03-19 | RU-L3: Witness Generation | I-08 (refined), I-16 through I-19 | Witness completeness, determinism, multi-table, performance budget |
+| 2026-03-19 | RU-L5: Basis Rollup | I-20 through I-24 | L1 rollup contract invariants, gas performance targets |
