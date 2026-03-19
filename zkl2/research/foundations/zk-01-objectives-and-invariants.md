@@ -398,6 +398,65 @@ Separating from the state trie prevents coupling between state management and br
 | Withdrawal latency | < 30 min | RU-L7 experiment (estimated: 21.1s default) |
 | Escape hatch timeout | 24 hours | RU-L7 design (configurable) |
 
+### I-32: DAC Verifiable Encoding
+
+Every erasure-coded chunk distributed to DAC members MUST be verifiable against a
+polynomial commitment (KZG). A node receiving an invalid chunk MUST reject it and
+not attest to data availability.
+
+**Source:** RU-L8 (Production DAC)
+**Why:** Without verifiable encoding, a malicious disperser could send invalid RS chunks.
+Nodes would attest to "available" data that is actually irrecoverable.
+
+### I-33: DAC Data Recoverability
+
+If at least k=5 of n=7 DAC nodes store valid chunks, the complete batch data MUST be
+recoverable by: (a) collecting any 5 RS chunks, (b) RS-decoding to ciphertext,
+(c) collecting 5 Shamir key shares, (d) recovering AES key, (e) decrypting.
+
+**Source:** RU-L8 (Production DAC)
+**Why:** This is the fundamental availability guarantee. If data cannot be recovered
+from k nodes, the DAC fails its purpose.
+
+### I-34: DAC Enterprise Privacy
+
+No individual DAC node (or coalition of fewer than k=5 nodes) can reconstruct the
+batch data. Each chunk is AES-256-GCM encrypted ciphertext, and each Shamir key share
+reveals zero information about the AES key (information-theoretic guarantee).
+
+**Source:** RU-L8 (Production DAC), extends validium INV-DA1
+**Why:** Enterprise data must remain private from individual DAC operators. The hybrid
+AES+Shamir approach provides computational data privacy with perfect key secrecy.
+
+### I-35: DAC Attestation Liveness
+
+If at least 5 of 7 DAC nodes are online and the batch data is correctly encoded,
+attestation MUST complete within 1 second. If fewer than 5 nodes are available,
+the system MUST fall back to on-chain DA.
+
+**Source:** RU-L8 (Production DAC)
+**Why:** The 1-second target ensures attestation does not become a bottleneck in the
+batch proving pipeline. Measured: 8.9 ms at 1 MB (96x margin).
+
+### I-36: DAC Availability Guarantee
+
+With per-node availability p >= 0.99 (enterprise-grade infrastructure), the probability
+that batch data is available (at least k=5 of n=7 nodes online) MUST exceed 99.99%.
+
+**Source:** RU-L8 (Production DAC)
+**Why:** Enterprise SLAs require high availability. Measured: 99.997% (4.5 nines) at p=0.99.
+
+## Performance Targets (Updated with Production DAC)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| DAC attestation latency (500 KB) | < 1s | RU-L8 experiment (measured: 4.5 ms) |
+| DAC attestation latency (1 MB) | < 1s | RU-L8 experiment (measured: 8.9 ms) |
+| DAC storage overhead | < 2x | RU-L8 experiment (measured: 1.40x) |
+| DAC recovery time (1 MB) | < 100 ms | RU-L8 experiment (measured: 0.95 ms) |
+| DAC availability (p=0.99) | > 99.9% | RU-L8 experiment (measured: 99.997%) |
+| DAC failure tolerance | 2 nodes | RU-L8 experiment (verified: 2 of 7) |
+
 ## Experiment Log
 
 | Date | Experiment | Invariants Affected | Update |
@@ -408,3 +467,4 @@ Separating from the state trie prevents coupling between state management and br
 | 2026-03-19 | RU-L3: Witness Generation | I-08 (refined), I-16 through I-19 | Witness completeness, determinism, multi-table, performance budget |
 | 2026-03-19 | RU-L5: Basis Rollup | I-20 through I-24 | L1 rollup contract invariants, gas performance targets |
 | 2026-03-19 | RU-L7: Bridge | I-25 through I-31 | Bridge security invariants, gas and latency targets |
+| 2026-03-19 | RU-L8: Production DAC | I-32 through I-36 | DAC verifiable encoding, recoverability, privacy, liveness, availability |
