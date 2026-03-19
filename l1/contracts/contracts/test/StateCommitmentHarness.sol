@@ -3,28 +3,21 @@ pragma solidity 0.8.24;
 
 import "../core/StateCommitment.sol";
 
-/// @title StateCommitmentHarness
-/// @notice Test helper that overrides Groth16 verification with a configurable mock.
-/// @dev Allows testing all business logic (chain continuity, batch sequencing,
-///      authorization, events) independently from BN256 precompile behavior.
-contract StateCommitmentHarness is StateCommitment {
-    bool private _mockProofValid = true;
+/// @title MockGroth16Verifier
+/// @notice Mock verifier for testing. Returns a configurable result.
+contract MockGroth16Verifier is IGroth16Verifier {
+    bool public mockResult = true;
 
-    constructor(address _enterpriseRegistry) StateCommitment(_enterpriseRegistry) {}
-
-    /// @notice Configure the mock proof verification result.
-    /// @param valid If true, all proofs pass. If false, all proofs fail.
-    function setMockProofResult(bool valid) external {
-        _mockProofValid = valid;
+    function setResult(bool _result) external {
+        mockResult = _result;
     }
 
-    /// @dev Overrides Groth16 verification with the mock result.
-    function _verifyProof(
-        uint256[2] calldata,
-        uint256[2][2] calldata,
-        uint256[2] calldata,
-        uint256[] calldata
-    ) internal view override returns (bool) {
-        return _mockProofValid;
+    function verifyProof(
+        uint[2] calldata,
+        uint[2][2] calldata,
+        uint[2] calldata,
+        uint[4] calldata
+    ) external view override returns (bool) {
+        return mockResult;
     }
 }
