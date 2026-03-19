@@ -13,6 +13,8 @@
 | 2026-03-18 | state-commitment (RU-V3) | validium | CONFIRMED | 285,756 gas (Layout A), 32 bytes/batch, 7/7 invariant tests |
 | 2026-03-18 | enterprise-node (RU-V5) | validium | PARTIAL CONFIRM | Overhead 593ms (0.66% of 90s), E2E 14.6s (b64 rapidsnark), 46/46 SM tests |
 | 2026-03-18 | cross-enterprise (RU-V7) | validium | CONFIRMED | 1.41x overhead (seq), 0.64x (batched), 68,868 constraints, 4/4 privacy |
+| 2026-03-19 | sequencer (RU-L2) | zkl2 | CONFIRMED | 0.14ms@500tx, 2.8M tx/s insert, 100% FIFO, 100% forced inclusion |
+| 2026-03-19 | state-database (RU-L4) | zkl2 | CONFIRMED | Poseidon2 4.46us/hash, 125us insert, 18.77ms@100tx batch, 46ms@250tx |
 
 ## Key Patterns
 
@@ -93,6 +95,41 @@
 - Dense interactions (interactions > enterprises) break Sequential; always use Batched
 - Groth16 sufficient for MVP; PLONK + StarkPack for heterogeneous future aggregation
 
+## EVM Execution Patterns (zkL2)
+
+- Import Geth as Go module (Strategy A) over forking (Strategy B) -- op-geth changed only 34 EVM lines
+- core/tracing hooks API for ZK trace generation: OnStorageChange, OnBalanceChange, OnNonceChange, OnLog
+- Selective tracing (state changes only) = 10-30% overhead; full opcode trace = 40-70% overhead
+- KECCAK256 = ~150K R1CS constraints (1000x Poseidon) -- use preimage oracle with lookup table
+- SLOAD/SSTORE = 255 Poseidon ops in Polygon zkEVM -- dominates proving cost for state-heavy contracts
+- No production zkEVM proves execution inline -- all separate execution layer from proving layer
+- Scroll moving from custom zktrie to MPT + OpenVM (2025) -- validates Strategy A (interface, not fork)
+
+## Sequencer Patterns (zkL2)
+
+- Single-operator sequencer is standard (zkSync, Polygon, Scroll, Arbitrum all centralized)
+- Block production is NOT the bottleneck: 0.14ms at 500 tx/block, 0.89ms at 5000 tx/block
+- Mempool insert: 2.8M tx/s (365 ns/op), 168 bytes/insert in Go
+- FIFO ordering is trivial for single-operator: 100% accuracy, no complex fair ordering needed
+- Arbitrum DelayedInbox = gold standard for forced inclusion: FIFO queue, can't skip front
+- Forced inclusion deadlines: Arbitrum 24h, Polygon CDK 5 days, OP Stack 12h
+- Block lifecycle: pending -> sealed -> committed -> proved -> finalized
+- Go 1.22.10 installed at /c/Users/BASSEE/go-sdk/go/ (zip extraction, not MSI)
+
+## State Database Patterns (zkL2)
+
+- gnark-crypto Poseidon2: 4.46 us/hash in Go (12.6x faster than JS circomlibjs)
+- Poseidon2 (gnark-crypto) != Poseidon (circomlibjs) -- different hash values, MUST align with prover
+- Go SMT insert: 125-183 us at depth 32 (10-14x faster than TypeScript)
+- Batch update cost is linear: ~183 us/update regardless of tree size or batch size
+- Depth scaling is linear: depth-160 operations are 5x slower than depth-32
+- At depth 32: 100-tx block = 18.77ms, 250-tx block = 46.05ms (both < 50ms target)
+- At depth 160 (EVM addresses): 100-tx block = ~94ms (FAILS 50ms) -- need compact SMT
+- vocdoni/arbo: best Go SMT library with circom-compatible Poseidon (production: Vocdoni)
+- gnark-crypto: best for Poseidon2 performance (assembly-optimized BN254 field ops)
+- Memory: ~2.9 KB/entry at depth 32, persistent storage needed for >100K entries
+- Two-level trie for EVM: AccountTrie (address -> accountHash) + StorageTrie per contract
+
 ## Experiment Index
 
 1. `validium/research/experiments/2026-03-18_sparse-merkle-tree/` -- RU-V1, Stage 2 complete
@@ -102,3 +139,6 @@
 5. `validium/research/experiments/2026-03-18_state-commitment/` -- RU-V3, Stage 1 complete
 6. `validium/research/experiments/2026-03-18_enterprise-node/` -- RU-V5, Stage 1 complete
 7. `validium/research/experiments/2026-03-18_cross-enterprise/` -- RU-V7, Stage 1 complete
+8. `zkl2/research/experiments/2026-03-19_evm-executor/` -- RU-L1, Stage 1 (benchmarks pending Go)
+9. `zkl2/research/experiments/2026-03-19_sequencer/` -- RU-L2, Stage 1 complete, CONFIRMED
+10. `zkl2/research/experiments/2026-03-19_state-database/` -- RU-L4, Stage 1 complete, CONFIRMED

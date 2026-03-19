@@ -1,0 +1,79 @@
+{
+  "comparisons": [
+    {
+      "entry_count": 100,
+      "orig_insert_us": 0,
+      "opt_insert_us": 182.64,
+      "speedup": 0,
+      "orig_verify_us": 0,
+      "opt_verify_us": 176.9,
+      "verify_speedup": 9.525155455059355,
+      "typescript_insert_us": 1877,
+      "go_vs_ts_speedup": 10.277047744196233
+    },
+    {
+      "entry_count": 1000,
+      "orig_insert_us": 0,
+      "opt_insert_us": 155.68,
+      "speedup": 0,
+      "orig_verify_us": 0,
+      "opt_verify_us": 170.82,
+      "verify_speedup": 9.817351598173516,
+      "typescript_insert_us": 1788,
+      "go_vs_ts_speedup": 11.485097636176773
+    },
+    {
+      "entry_count": 10000,
+      "orig_insert_us": 0,
+      "opt_insert_us": 125.66,
+      "speedup": 0,
+      "orig_verify_us": 0,
+      "opt_verify_us": 151.16,
+      "verify_speedup": 11.372056099497222,
+      "typescript_insert_us": 1792,
+      "go_vs_ts_speedup": 14.260703485596053
+    }
+  ],
+  "batch_updates": [
+    {
+      "tree_size": 10000,
+      "batch_size": 10,
+      "mean_ms": 1.86,
+      "p95_ms": 3,
+      "mean_per_update_us": 185.86,
+      "reps": 30
+    },
+    {
+      "tree_size": 10000,
+      "batch_size": 50,
+      "mean_ms": 9.03,
+      "p95_ms": 9.81,
+      "mean_per_update_us": 180.61,
+      "reps": 30
+    },
+    {
+      "tree_size": 10000,
+      "batch_size": 100,
+      "mean_ms": 18.77,
+      "p95_ms": 22.68,
+      "mean_per_update_us": 187.7,
+      "reps": 30
+    },
+    {
+      "tree_size": 10000,
+      "batch_size": 250,
+      "mean_ms": 46.05,
+      "p95_ms": 50.56,
+      "mean_per_update_us": 184.2,
+      "reps": 30
+    },
+    {
+      "tree_size": 10000,
+      "batch_size": 500,
+      "mean_ms": 91.07,
+      "p95_ms": 95.35,
+      "mean_per_update_us": 182.14,
+      "reps": 30
+    }
+  ]
+}

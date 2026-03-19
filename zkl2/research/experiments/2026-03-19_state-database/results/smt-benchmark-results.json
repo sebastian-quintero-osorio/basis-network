@@ -1,0 +1,155 @@
+{
+  "experiment": "state-database",
+  "target": "zkl2",
+  "go_version": "go1.25.7",
+  "platform": "windows/amd64",
+  "timestamp": "2026-03-19T06:01:39-05:00",
+  "hash_benchmarks": [
+    {
+      "function": "poseidon_2to1",
+      "mean_us": 4.837,
+      "hashes_per_second": 206739.71469919372,
+      "samples": 1000
+    },
+    {
+      "function": "poseidon_single",
+      "mean_us": 6.1948,
+      "hashes_per_second": 161425.71188738942,
+      "samples": 1000
+    },
+    {
+      "function": "poseidon_chain32",
+      "mean_us": 196.147,
+      "hashes_per_second": 163142.9489107659,
+      "samples": 100
+    }
+  ],
+  "tree_results": [
+    {
+      "entry_count": 100,
+      "tree_depth": 32,
+      "insert_latency": {
+        "mean": 195.66,
+        "stddev": 324.9639,
+        "min": 0,
+        "max": 1035,
+        "p50": 0,
+        "p95": 994,
+        "p99": 1035,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_generation": {
+        "mean": 20.14,
+        "stddev": 142.4113,
+        "min": 0,
+        "max": 1007,
+        "p50": 0,
+        "p95": 0,
+        "p99": 1007,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_verification": {
+        "mean": 153.8,
+        "stddev": 280.6985,
+        "min": 0,
+        "max": 1005,
+        "p50": 0,
+        "p95": 852,
+        "p99": 1005,
+        "unit": "us",
+        "samples": 50
+      },
+      "memory_usage_mb": 0.41,
+      "node_count": 2721,
+      "total_insert_time_ms": 19.58
+    },
+    {
+      "entry_count": 1000,
+      "tree_depth": 32,
+      "insert_latency": {
+        "mean": 180.3,
+        "stddev": 340.6353,
+        "min": 0,
+        "max": 1526,
+        "p50": 0,
+        "p95": 1002,
+        "p99": 1526,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_generation": {
+        "mean": 0,
+        "stddev": 0,
+        "min": 0,
+        "max": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_verification": {
+        "mean": 171.98,
+        "stddev": 342.1437,
+        "min": 0,
+        "max": 1505,
+        "p50": 0,
+        "p95": 1004,
+        "p99": 1505,
+        "unit": "us",
+        "samples": 50
+      },
+      "memory_usage_mb": 3.54,
+      "node_count": 23867,
+      "total_insert_time_ms": 211.12
+    },
+    {
+      "entry_count": 10000,
+      "tree_depth": 32,
+      "insert_latency": {
+        "mean": 174.08,
+        "stddev": 299.0097,
+        "min": 0,
+        "max": 1151,
+        "p50": 0,
+        "p95": 643,
+        "p99": 1151,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_generation": {
+        "mean": 21.16,
+        "stddev": 142.1731,
+        "min": 0,
+        "max": 1005,
+        "p50": 0,
+        "p95": 0,
+        "p99": 1005,
+        "unit": "us",
+        "samples": 50
+      },
+      "proof_verification": {
+        "mean": 177.56,
+        "stddev": 307.132,
+        "min": 0,
+        "max": 1085,
+        "p50": 0,
+        "p95": 1008,
+        "p99": 1085,
+        "unit": "us",
+        "samples": 50
+      },
+      "memory_usage_mb": 29.28,
+      "node_count": 202398,
+      "total_insert_time_ms": 2151.44
+    }
+  ],
+  "hypothesis_evaluation": {
+    "insert_latency": "PASS",
+    "proof_generation": "PASS",
+    "proof_verification": "PASS",
+    "state_root_10k": "FAIL (2126.2ms)"
+  }
+}
