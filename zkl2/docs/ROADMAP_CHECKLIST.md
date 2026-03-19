@@ -121,7 +121,7 @@ lab/4-prover/verification-history/YYYY-MM-evm-executor/
 
 ### [05] Scientist | RU-L2: Sequencer
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Sequencer design, forced inclusion, mempool, Go prototype with benchmarks)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete.

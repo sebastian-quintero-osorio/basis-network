@@ -1,0 +1,34 @@
+goos: windows
+goarch: amd64
+pkg: sequencer
+cpu: Genuine Intel(R) CPU 0000 @ 3.30GHz
+
+BenchmarkMempoolInsert-20          3160082    364.7 ns/op    168 B/op    3 allocs/op
+BenchmarkMempoolInsert-20          3527181    351.7 ns/op    168 B/op    3 allocs/op
+BenchmarkMempoolInsert-20          3698564    337.9 ns/op    168 B/op    3 allocs/op
+
+BenchmarkMempoolDrain-20             56463   28111 ns/op  81920 B/op    1 allocs/op
+BenchmarkMempoolDrain-20             81628   26590 ns/op  81920 B/op    1 allocs/op
+BenchmarkMempoolDrain-20             84849   26349 ns/op  81920 B/op    1 allocs/op
+
+BenchmarkBlockProduction/tx_10-20   262170    6388 ns/op   3392 B/op    7 allocs/op
+BenchmarkBlockProduction/tx_10-20   185151    6602 ns/op   3392 B/op    7 allocs/op
+BenchmarkBlockProduction/tx_10-20   178227    6623 ns/op   3392 B/op    7 allocs/op
+
+BenchmarkBlockProduction/tx_50-20    51688   23325 ns/op  16708 B/op    7 allocs/op
+BenchmarkBlockProduction/tx_50-20    56634   22538 ns/op  16708 B/op    7 allocs/op
+BenchmarkBlockProduction/tx_50-20    54020   22732 ns/op  16708 B/op    7 allocs/op
+
+BenchmarkBlockProduction/tx_100-20   36511   29460 ns/op  33091 B/op    7 allocs/op
+BenchmarkBlockProduction/tx_100-20   39943   31801 ns/op  33092 B/op    7 allocs/op
+
+Summary (averages across runs):
+  Mempool Insert:          351 ns/op  (~2.85M inserts/s)
+  Mempool Drain (500 tx):  27017 ns/op  (~18.5K drains/s = 9.25M tx/s drain)
+  Block Production (10 tx):  6538 ns/op  (0.007 ms, ~153K blocks/s)
+  Block Production (50 tx): 22865 ns/op  (0.023 ms, ~43.7K blocks/s)
+  Block Production (100 tx): 30631 ns/op (0.031 ms, ~32.6K blocks/s)
+
+Note: test timed out at 11 minutes (count=3 with ConcurrentInsertAndProduce was too slow).
+Data for tx_10, tx_50, and tx_100 is complete (3 runs each). Higher tx counts use
+direct measurement from block_production_scaling.json (30 reps each).
