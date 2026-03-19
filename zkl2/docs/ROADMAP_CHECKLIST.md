@@ -534,7 +534,7 @@ lab/3-architect/implementation-history/node-e2e-pipeline/
 
 ### [23] Architect | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go pipeline: 17/17 tests, 26 adversarial, Stages interface, concurrent batches)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [22] complete, verified specs in `implementation-history/`.
