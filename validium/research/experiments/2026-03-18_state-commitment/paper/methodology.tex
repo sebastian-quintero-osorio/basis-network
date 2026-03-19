@@ -1,0 +1,116 @@
+\section{System Model and Methodology}
+\label{sec:methodology}
+
+\subsection{System Model}
+
+The Basis Network L1 is an Avalanche Subnet-EVM chain (Chain ID 43199) configured for
+zero-fee permissioned operation. The L1 hosts smart contracts that serve as the trust
+anchor for enterprise ZK validium nodes. Each enterprise operates an independent off-chain
+node that: (1) receives transactions from enterprise systems (PLASMA, Trace); (2) maintains
+a Sparse Merkle Tree of enterprise state using Poseidon hashing over BN128; (3) aggregates
+transactions into batches; and (4) generates Groth16 proofs attesting to correct state
+transitions.
+
+The state commitment contract is the on-chain component that receives these proofs, verifies
+them, and maintains the auditable chain of state roots per enterprise. It must enforce three
+safety invariants:
+
+\begin{itemize}
+\item \textbf{INV-S1 (ChainContinuity):} For each enterprise, the $\mathit{prevStateRoot}$
+submitted with batch $n+1$ must equal the $\mathit{newStateRoot}$ committed by batch $n$.
+This is enforced by storing a $\mathit{currentRoot}$ per enterprise and checking equality
+before each state update.
+\item \textbf{INV-S2 (ProofBeforeState):} The ZK proof must be verified \emph{before} any
+state mutation occurs. This ensures that a failed verification cannot leave the contract in
+an inconsistent state.
+\item \textbf{INV-S3 (EnterpriseIsolation):} Enterprise A's state submissions must not
+affect Enterprise B's state chain, and Enterprise B cannot submit batches that reference
+Enterprise A's current root.
+\end{itemize}
+
+\noindent Two derived properties follow from INV-S1:
+
+\begin{itemize}
+\item \textbf{NoGap:} Batch IDs are auto-incremented from a per-enterprise counter. There
+is no mechanism to skip a batch ID, as the counter advances atomically with each
+successful submission.
+\item \textbf{NoReversal:} An attacker who replays a previous $\mathit{prevStateRoot}$
+(attempting to revert the enterprise chain) is rejected because $\mathit{currentRoot}$ has
+already advanced past that value.
+\end{itemize}
+
+\subsection{Trust Model}
+
+The enterprise validium model assumes a trusted operator: the enterprise itself generates
+proofs and submits them. The contract does \emph{not} trust the operator's claim about state
+transitions---it verifies the ZK proof---but it does trust that the operator is the
+authorized party for that enterprise's state chain. Authorization is enforced via an
+\texttt{EnterpriseRegistry} contract that maintains an allowlist of enterprise addresses.
+
+\subsection{Storage Layout Design Space}
+
+We evaluate three storage layouts for the state commitment contract, each representing a
+different trade-off between gas cost, on-chain queryability, and storage footprint.
+
+\textbf{Layout A (Minimal).} Stores one storage slot (32 bytes) per batch: the new state
+root in a $\mathit{batchRoots}[\mathit{enterprise}][\mathit{batchId}]$ mapping. All batch
+metadata (batch size, timestamp) is emitted exclusively via events. Enterprise state
+($\mathit{currentRoot}$, $\mathit{batchCount}$, $\mathit{lastTimestamp}$, $\mathit{initialized}$)
+occupies a single packed struct.
+
+\textbf{Layout B (Rich).} Stores two storage slots (64 bytes) per batch: the new state
+root plus a packed \texttt{BatchInfo} struct containing $\mathit{batchSize}$ (uint64),
+$\mathit{timestamp}$ (uint64), and $\mathit{cumulativeTx}$ (uint64). This provides full
+on-chain queryability of batch metadata without relying on event log indexing.
+
+\textbf{Layout C (Events Only).} Stores zero per-batch storage slots. All batch data
+including the new state root is emitted exclusively via events. Only the enterprise-level
+state struct ($\mathit{currentRoot}$, $\mathit{batchCount}$) is updated per submission.
+
+\subsection{Benchmark Methodology}
+
+All benchmarks were executed on Hardhat with Solidity 0.8.24, EVM target Cancun, optimizer
+enabled (200 runs). Each layout was implemented as a standalone Solidity contract with
+identical interface and invariant enforcement logic.
+
+ZK proof verification was \emph{mocked} (always-pass) to isolate storage and logic gas
+from the known-constant verification cost. The real Groth16 verification gas for 4 public
+inputs ($\mathit{prevStateRoot}$, $\mathit{newStateRoot}$, $\mathit{batchNum}$,
+$\mathit{enterpriseId}$) is computed analytically from EIP-1108 precompile costs:
+
+\begin{equation}
+\label{eq:groth16-gas}
+G_{\text{verify}} = N \cdot G_{\text{ecMul}} + N \cdot G_{\text{ecAdd}} + G_{\text{pairing}}(4)
+\end{equation}
+
+\noindent where $N = 4$ public inputs, $G_{\text{ecMul}} = 6{,}000$, $G_{\text{ecAdd}} = 150$,
+and $G_{\text{pairing}}(k) = 45{,}000 + 34{,}000 \cdot k$:
+
+\begin{equation}
+\label{eq:groth16-total}
+G_{\text{verify}} = 4 \times 6{,}000 + 4 \times 150 + 45{,}000 + 34{,}000 \times 4 = 205{,}600 \text{ gas}
+\end{equation}
+
+The total gas per submission is then $G_{\text{total}} = G_{\text{storage+logic}} +
+G_{\text{verify}}$. This decomposition is valid because the BN256 precompile costs are
+fixed constants independent of storage access patterns.
+
+\subsection{Measurement Protocol}
+
+For each layout, we measured:
+\begin{enumerate}
+\item \textbf{First batch gas} (cold storage): The first submission after enterprise
+initialization, where all storage slots are accessed cold and new mapping entries are
+created (zero-to-nonzero \texttt{SSTORE}).
+\item \textbf{Second batch gas} (warm enterprise state): The second submission, where the
+enterprise state struct is warm but the new batch root mapping entry is still
+zero-to-nonzero.
+\item \textbf{Steady-state gas} (10th batch): Gas after the storage access patterns have
+stabilized. We submit 9 batches and measure the 10th.
+\end{enumerate}
+
+Invariant correctness was verified via 7 targeted tests: ChainContinuity (wrong prevRoot
+rejected), NoGap (sequential batch IDs enforced), NoReversal (stale prevRoot rejected),
+EnterpriseIsolation (cross-enterprise access prevented), HistoryQueryability (all historical
+roots retrievable), EventRecovery (full metadata parseable from events), and
+CumulativeTracking (accurate running totals).

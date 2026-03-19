@@ -1,0 +1,44 @@
+% introduction.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{Introduction}
+
+Enterprise blockchain deployments face a fundamental tension between data privacy
+and verifiable correctness. Organizations in regulated industries require that
+operational data---supply chain events, industrial process records, financial
+transactions---remain confidential, yet auditors and counterparties must be able
+to verify the integrity of state transitions without accessing the underlying data.
+Zero-knowledge validium architectures address this tension by maintaining enterprise
+state off-chain while submitting succinct validity proofs to a shared settlement layer,
+achieving privacy through data withholding and correctness through cryptographic
+guarantees~\cite{chaliasos2024analyzing}.
+
+A critical but underexplored component of validium node architecture is the
+\emph{batch aggregation layer}: the subsystem responsible for collecting individual
+transactions, persisting them durably, and forming fixed-size batches suitable for
+ZK circuit proving. Unlike public rollup sequencers that can tolerate transaction
+reordering or soft-confirmation semantics, enterprise validium nodes must provide
+\emph{zero transaction loss} under arbitrary crash scenarios---a single lost
+industrial traceability record can invalidate an entire audit chain. Furthermore,
+batch formation must be deterministic (identical transaction sets always produce
+identical batches) to support replay-based verification and regulatory compliance.
+
+This paper makes three contributions. First, we present a WAL-based (Write-Ahead Log)
+batch aggregation protocol that combines size-based and time-based batch formation
+triggers in a HYBRID strategy, achieving bounded latency under low load and bounded
+batch size under high load. Second, we provide comprehensive benchmarks demonstrating
+274,000~tx/min peak throughput with sub-millisecond batch formation latency, 450/450
+determinism tests passing, and 150/150 crash recovery tests with zero transaction loss.
+Third---and most significantly---we report how TLA+ model checking of our protocol
+discovered a \emph{silent transaction loss bug} that 150 empirical crash recovery
+tests failed to detect. The bug manifests during a narrow window (1.9--12.8 seconds)
+between batch formation and ZK proof completion; a crash in this window causes
+irrecoverable data loss with no error indication. We present the formal diagnosis,
+the corrected protocol, and its exhaustive verification.
+
+The key finding is methodological: formal verification and empirical testing are
+complementary, not redundant. TLC model checking explored the full state space
+(2,630 distinct states) in under one second and found a 6-step counterexample that
+no reasonable test suite would have covered---not because the test suite was
+insufficient, but because the failure requires reasoning about the \emph{absence}
+of an action (crash at a specific interleaving point) rather than the presence of
+observable behavior.

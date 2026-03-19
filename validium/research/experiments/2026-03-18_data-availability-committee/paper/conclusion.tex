@@ -1,0 +1,33 @@
+% conclusion.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{Conclusion}
+
+This paper presented Shamir-DAC, a data availability committee design for
+enterprise ZK validium systems that achieves information-theoretic data
+privacy through Shamir's $(k,n)$-threshold secret sharing. We demonstrated
+that the protocol meets all four hypothesis targets: attestation latency
+of 175~ms P95 at 500~KB (11$\times$ below the 2-second target), zero
+information leakage from individual shares (51/51 privacy tests), reliable
+recovery under single-node failure (30/30 tests), and 3.87$\times$ storage
+overhead (less than EigenDA's 8$\times$).
+
+The primary contribution is the identification and resolution of a systematic
+privacy gap in production validium data availability designs. All deployed
+DACs---StarkEx, Polygon CDK, Arbitrum Nova---distribute complete batch data to
+every committee member, providing no confidentiality guarantee. For enterprise
+deployments handling proprietary operational data, this is a fundamental
+limitation. Shamir-DAC demonstrates that information-theoretic privacy
+(strictly stronger than computational privacy from encryption) can be
+achieved at negligible cost for enterprise batch sizes, requiring only
+standard field arithmetic over the BN128 scalar field and ECDSA multi-signature
+attestation natively supported by the EVM.
+
+Three directions for future work emerge from this research. First, verifiable
+share generation via KZG polynomial commitments or PVSS would remove the
+trusted-operator assumption, allowing committee members to independently
+verify that their shares are consistent. Second, a network-aware evaluation
+with WAN-distributed DAC nodes would quantify the impact of real network
+latency on attestation performance. Third, proof-of-custody challenges would
+provide cryptographic assurance that committee members retain their shares
+beyond the attestation signing event, addressing the data withholding attack
+vector.

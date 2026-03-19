@@ -1,0 +1,99 @@
+% experimental-setup.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Experimental Setup}
+
+\subsection{Benchmark Methodology}
+
+The experimental evaluation consists of two complementary benchmarks:
+(1)~an \emph{orchestration overhead benchmark} that measures per-phase
+latencies across the complete proof cycle, and (2)~a \emph{pipeline
+comparison benchmark} that quantifies the throughput improvement of
+pipelined over sequential execution.
+
+\subsubsection{Orchestration Overhead Benchmark}
+
+Five scenarios are evaluated, each varying the batch size and prover
+backend while holding the circuit depth constant at 32 levels:
+
+\begin{enumerate}
+\item \texttt{orchestration\_overhead\_only}: Batch 8, 0~ms proving
+  (isolates pure orchestration cost). 50 iterations.
+\item \texttt{snarkjs\_d32\_b8}: Batch 8, 12,757~ms proving (snarkjs
+  WASM, 274K constraints). 30 iterations.
+\item \texttt{rapidsnark\_d32\_b8}: Batch 8, 2,500~ms proving
+  (rapidsnark, 274K constraints). 30 iterations.
+\item \texttt{snarkjs\_d32\_b16}: Batch 16, 28,000~ms proving (snarkjs
+  WASM, $\sim$548K constraints). 30 iterations.
+\item \texttt{rapidsnark\_d32\_b64}: Batch 64, 12,000~ms proving
+  (rapidsnark, $\sim$2.2M constraints). 30 iterations.
+\end{enumerate}
+
+Each scenario executes 3 warm-up iterations (discarded) followed by the
+measurement iterations. Per-phase timings are recorded for: batch
+formation, witness generation, proving, DAC attestation, L1 submission,
+and checkpoint. Orchestration overhead is computed as the sum of batch
+formation and witness generation.
+
+\subsubsection{Pipeline Comparison Benchmark}
+
+Six configurations are simulated with 10 sequential batches each,
+comparing sequential and pipelined architectures. Component latencies
+are calibrated from prior research unit measurements:
+
+\begin{itemize}
+\item SMT insert: 1.8~ms/tx (RU-V1, Poseidon hash, depth 32)
+\item WAL write: 0.149~ms/tx (RU-V4, group commit)
+\item Batch formation: 0.02~ms (RU-V4)
+\item Witness generation: 72~ms/tx (RU-V2, 578~ms for 8~txs)
+\item DAC attestation: 163~ms (RU-V6, JavaScript, 500~KB)
+\item L1 submission: 2,000~ms (estimated Avalanche Fuji block time)
+\end{itemize}
+
+Proving times are parameterized per backend: snarkjs (12,757~ms for b8,
+28,000~ms for b16, 150,000~ms for b64) and rapidsnark (2,500~ms for b8,
+5,000~ms for b16, 12,000~ms for b64).
+
+\subsection{Mock Calibration}
+
+Stage~1 benchmarks use mock components calibrated to measured latencies
+from prior experiments to isolate orchestration overhead from component
+variability. Each mock implements the same TypeScript interface as the
+production component:
+
+\begin{itemize}
+\item \textbf{MockSMT}: Simulates Poseidon hash latency via CPU-bound
+  SHA-256 iterations (32 rounds per insert) with spin-wait padding
+  to match the 1.0--1.8~ms target from RU-V1.
+
+\item \textbf{MockBatchBuilder}: Simulates witness generation at 72~ms/tx,
+  scaling linearly with batch size. Calibrated to the 578~ms measurement
+  from RU-V2 for depth-32, batch-8 configurations.
+
+\item \textbf{MockProver}: Configurable timer-based delay returning a
+  valid Groth16 proof structure. Default: 12,757~ms (snarkjs d32, b8).
+
+\item \textbf{MockDAC}: 163~ms delay matching the JavaScript Shamir
+  attestation measurement from RU-V6.
+
+\item \textbf{MockL1Submitter}: 2,000~ms delay matching the estimated
+  Avalanche Fuji block confirmation time.
+\end{itemize}
+
+\subsection{Statistical Protocol}
+
+For each scenario, we report mean, standard deviation, minimum, maximum,
+and P95 latency. The 95\% confidence interval (CI) half-width must be
+within 10\% of the mean for the result to be accepted. All replications
+use independent random seeds for transaction generation.
+
+\subsection{Platform}
+
+All benchmarks execute on Node.js v22 (Windows 11, x64) with commodity
+hardware. Memory footprint is measured via \texttt{process.memoryUsage().heapUsed}.
+
+\subsection{State Machine Validation}
+
+A dedicated test suite validates the state machine implementation with
+46 test cases covering: happy path transitions, pipelined receiving during
+Proving and Submitting, error recovery from all states, invalid transition
+rejection, transition history tracking, and event emitter correctness.

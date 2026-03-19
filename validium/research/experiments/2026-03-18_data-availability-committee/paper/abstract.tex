@@ -1,0 +1,27 @@
+% abstract.tex -- Data Availability Committee Paper (RU-V6)
+
+\begin{abstract}
+Data availability committees (DACs) are the trust-critical component of
+validium architectures, attesting that off-chain batch data is stored and
+retrievable. Despite their centrality to validium security, all production
+DACs---StarkEx, Polygon CDK, Arbitrum Nova---distribute complete batch data
+to every committee member, providing zero data confidentiality. Each member
+can read every transaction in the clear; privacy relies entirely on trust.
+For enterprise deployments where batches contain proprietary operational
+data, this is a fundamental limitation. We present Shamir-DAC, a data
+availability committee design that replaces full data replication with
+Shamir's $(k,n)$-threshold secret sharing over the BN128 scalar field.
+The protocol achieves information-theoretic privacy: fewer than $k$
+committee members learn zero information about the batch data, regardless
+of computational power---strictly stronger than encryption-based
+approaches. Our experimental evaluation with a $(2,3)$-threshold
+configuration demonstrates 175~ms P95 attestation latency for 500~KB
+enterprise batches (11$\times$ below the 2-second target), 51/51 privacy
+tests confirming zero information leakage, 61/61 recovery tests confirming
+fault tolerance under single-node failure, and 3.87$\times$ storage
+overhead---less than EigenDA's 8$\times$ expansion. All benchmarks use
+JavaScript BigInt arithmetic (a conservative worst-case); native field
+implementations would improve performance by 10--50$\times$. To our
+knowledge, Shamir-DAC is the first DAC design providing
+information-theoretic data privacy for validium systems.
+\end{abstract}

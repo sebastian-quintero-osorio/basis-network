@@ -1,0 +1,142 @@
+% methodology.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Methodology}
+
+\subsection{Cross-Reference Circuit Design}
+
+The cross-reference circuit proves the following statement in zero knowledge:
+\emph{``There exist leaves in Enterprise $A$'s and Enterprise $B$'s sparse
+Merkle trees, at positions determined by keys $k_A$ and $k_B$, whose values
+satisfy an interaction predicate, and the Poseidon commitment of these values
+matches the public interaction commitment.''}
+
+\subsubsection{Public Inputs (3 field elements)}
+\begin{enumerate}
+\item $r_A$: Enterprise $A$'s state root (already public on L1 from prior
+  batch submission)
+\item $r_B$: Enterprise $B$'s state root (already public on L1)
+\item $c$: Interaction commitment, $c = \text{Poseidon}(k_A, h_A, k_B, h_B)$
+  where $h_X = \text{Poseidon}(k_X, v_X)$ is the leaf hash
+\end{enumerate}
+
+\subsubsection{Private Inputs (per interaction)}
+For each enterprise $X \in \{A, B\}$:
+\begin{itemize}
+\item $k_X$: Leaf key (field element)
+\item $v_X$: Leaf value (field element)
+\item $\mathbf{s}_X = (s_{X,0}, \ldots, s_{X,31})$: Merkle sibling hashes
+\item $\mathbf{b}_X = (b_{X,0}, \ldots, b_{X,31})$: Path direction bits
+\end{itemize}
+
+\subsubsection{Circuit Logic}
+
+The circuit performs three operations:
+
+\begin{enumerate}
+\item \textbf{Merkle path verification} (per enterprise): Starting from leaf
+  hash $h_X = \text{Poseidon}(k_X, v_X)$, iteratively hash with siblings
+  according to path bits for 32 levels, and constrain the result to equal $r_X$.
+  This is the \texttt{MerklePathVerifier} subcircuit from our prior
+  work~\cite{ruv1smt}.
+
+\item \textbf{Interaction commitment check}: Compute
+  $c' = \text{Poseidon}(k_A, h_A, k_B, h_B)$ and constrain $c' = c$.
+
+\item \textbf{Root binding}: The Merkle path verification inherently binds
+  the proof to specific state roots $r_A$ and $r_B$, which are verified on L1
+  as part of the public inputs.
+\end{enumerate}
+
+\subsubsection{Constraint Count}
+
+\begin{table}[t]
+\centering
+\caption{Cross-Reference Circuit Constraint Breakdown}
+\label{tab:constraints}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Component & Constraints \\
+\midrule
+Merkle path verification (side A, depth 32) & 34,254 \\
+Merkle path verification (side B, depth 32) & 34,254 \\
+Interaction predicate (Poseidon-4 + checks) & 360 \\
+\midrule
+\textbf{Total} & \textbf{68,868} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The constraint count follows the formula $2 \times 1{,}038 \times (d+1) + 360$
+where $d = 32$ is the tree depth and $1{,}038$ constraints per level is the
+established rate from our Merkle path verifier~\cite{ruv2circuit}. This
+circuit is approximately $2\times$ the size of a single-enterprise state
+transition circuit (34,254 constraints), which is expected since it performs
+two independent Merkle path verifications.
+
+\subsection{Verification Approaches}
+
+We evaluate three approaches for verifying cross-enterprise proofs on L1.
+
+\subsubsection{Approach 1: Sequential Verification}
+
+Each Groth16 proof is verified independently in separate transactions or
+within a single transaction that calls the verifier contract multiple times.
+For $N$ enterprises with $M$ cross-enterprise interactions:
+
+\begin{equation}
+G_\text{seq} = N \cdot G_\text{enterprise} + M \cdot G_\text{crossref}
+\end{equation}
+
+where $G_\text{enterprise} = 285{,}756$ gas (from RU-V3~\cite{ruv3gas}) and
+$G_\text{crossref}$ is the Groth16 verification gas for 3 public inputs plus
+cross-reference storage.
+
+\subsubsection{Approach 2: Batched Pairing Verification}
+
+All $N + M$ Groth16 proofs are batch-verified using a random linear
+combination of pairing equations. Instead of $N + M$ independent pairing
+checks (each requiring 4 pairings), a single combined pairing check is
+performed with random coefficients~\cite{bellare1998batchrsa}. The dominant
+savings come from replacing $(N + M - 1) \times 4$ pairings with scalar
+multiplications:
+
+\begin{equation}
+G_\text{batch} = G_\text{pairing} + (N + M) \cdot G_\text{scalar} + G_\text{storage}
+\end{equation}
+
+This requires a hub coordinator that collects all proofs before submitting a
+single batched verification transaction.
+
+\subsubsection{Approach 3: Hub Aggregation}
+
+An aggregation protocol (SnarkPack~\cite{gailly2022snarkpack} or Nebra
+UPA~\cite{nebra2024upa}) compresses $N + M$ proofs into a single $O(\log(N+M))$
+verification. We model this using the Nebra UPA gas formula:
+
+\begin{equation}
+G_\text{hub} = (N + M) \left(\frac{100K}{N+M} + 20K + \frac{350K}{N+M} + 7K + 25K\right) + G_\text{storage}
+\end{equation}
+
+Hub aggregation is most efficient at large proof counts (crossover at $\sim$32
+proofs for SnarkPack) but incurs setup overhead at small counts.
+
+\subsection{Privacy Analysis Methodology}
+
+We analyze information leakage by enumerating all public signals and
+determining what each reveals:
+
+\begin{itemize}
+\item $r_A, r_B$: Already public from individual enterprise submissions.
+  \textbf{Additional leakage: 0 bits.}
+\item $c = \text{Poseidon}(k_A, h_A, k_B, h_B)$: Under 128-bit preimage
+  resistance, reveals nothing about the preimage. The act of submitting $c$
+  reveals that an interaction exists. \textbf{Additional leakage: 1 bit}
+  (interaction existence).
+\item ZK proof $\pi$: Groth16 is zero-knowledge---the proof itself reveals
+  nothing beyond the truth of the statement. \textbf{Additional leakage: 0 bits.}
+\end{itemize}
+
+Total information leakage per cross-enterprise interaction: \textbf{1 bit}
+(interaction existence). This is the theoretical minimum: any protocol that
+verifies cross-enterprise interactions on a public ledger must submit
+\emph{something}, which inherently reveals that a verification occurred.

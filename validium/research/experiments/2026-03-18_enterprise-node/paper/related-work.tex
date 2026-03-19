@@ -1,0 +1,106 @@
+% related-work.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Related Work}
+
+\subsection{Production ZK Node Architectures}
+
+The architecture of ZK L2 nodes has converged toward a multi-component
+pattern where transaction sequencing, batch formation, proof generation,
+and L1 submission are handled by separate processes.
+
+Polygon zkEVM~\cite{polygon2024architecture} decomposes its node into a
+Sequencer (transaction ordering), Aggregator (proof orchestration), zkProver
+(recursive STARK-to-SNARK proving), and Synchronizer (L1 state recovery). The
+Aggregator delegates proof tasks to the zkProver and manages retries on
+failure. Hermez 2.0~\cite{hermez2023deepdive} introduced the Proof of
+Efficiency consensus mechanism, establishing the batch lifecycle pattern
+(sequence, aggregate, verify) that subsequent systems adopted.
+
+zkSync Era~\cite{zksync2025lifecycle, zksync2025server} separates execution
+from proving: the Sequencer processes transactions and produces soft
+confirmations (sub-second), while the Batcher groups blocks into batches for
+proving on a separate timeline. Recovery is idempotent---the Batcher resumes
+from the first uncommitted batch. This architecture explicitly decouples
+user-facing latency from proof generation latency.
+
+Scroll~\cite{scroll2023architecture, scroll2025euclid} introduces a
+two-stage proving pipeline: blocks are grouped into chunks, chunks are
+proved individually, and chunk proofs are aggregated into batch proofs. A
+Coordinator randomly assigns chunk proofs to a pool of provers, providing
+horizontal scalability. Failed proof tasks are reassigned to other provers.
+
+\subsection{Event-Driven ZK Orchestration}
+
+The push0 framework~\cite{push0_2025orchestration}, deployed on Zircuit
+since March 2025, represents the state of the art in ZK proof orchestration.
+push0 uses stateless dispatchers and collectors coordinated via NATS
+JetStream, achieving P50 orchestration latency of 5.2--5.3~ms and P99 of
+8.0--8.5~ms on a 3-node Kubernetes cluster. Orchestration overhead is
+0.05--0.1\% of proving time. Crash recovery achieves 0 task loss for
+dispatchers and 0.5~s mean time to recovery (MTTR) for collectors. The
+system scales to 32 concurrent dispatchers at 99\% efficiency.
+
+Table~\ref{tab:architecture_comparison} compares the architectural patterns
+across production systems and our proposed design.
+
+\begin{table*}[t]
+\centering
+\caption{Production ZK Node Architecture Comparison}
+\label{tab:architecture_comparison}
+\begin{tabular}{llllll}
+\toprule
+\textbf{System} & \textbf{Architecture} & \textbf{Proving Model} & \textbf{Batch Pipeline} & \textbf{Crash Recovery} & \textbf{Scale Target} \\
+\midrule
+Polygon zkEVM & Seq + Agg + zkProver & Recursive STARK$\to$SNARK & Seq forms, Agg proves & Sync replays from L1 & Public L2 \\
+zkSync Era    & Seq + Batcher + Prover & Execution $\neq$ proving & Blocks$\to$Batches$\to$L1 & Idempotent resume & Public L2 \\
+Scroll        & Seq + Coord + Pool    & Coord assigns to pool & Blocks$\to$Chunks$\to$Batches & Reassign failed tasks & Public L2 \\
+push0/Zircuit & Dispatchers + Bus     & Stateless dispatchers & Ranges$\to$Recursive$\to$Groth16 & At-least-once replay & Public L2 \\
+\textbf{Ours} & \textbf{Single node, 3 loops} & \textbf{Child process} & \textbf{Txs$\to$Batch$\to$Prove$\to$Submit} & \textbf{WAL + checkpoint} & \textbf{Enterprise} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{State Machine Design Patterns}
+
+Petrasch~\cite{petrasch2018statemachine} describes the transformation of
+state machines to event-driven architectures in enterprise systems,
+establishing the pattern of typed state enumerations with explicit transition
+guards. The Saga Orchestrator pattern~\cite{saga2024orchestrator} applies
+state machines to long-running transactions with compensating actions,
+directly analogous to the ZK proof pipeline where a failed proving step
+must roll back batch state. Event sourcing with the Decider
+pattern~\cite{eventsourcing2024typescript} provides a command-to-event
+model for TypeScript implementations.
+
+\subsection{Crash Recovery and Persistence}
+
+Write-ahead logging (WAL) is the foundational crash recovery mechanism for
+database systems. Mohan et al.~\cite{mohan1992aries} established the ARIES
+protocol with checkpoint-based recovery and log sequence number (LSN)
+tracking. Modern implementations for Node.js
+applications~\cite{wal2024architecture} and graceful shutdown
+patterns~\cite{nodejs2025shutdown} ensure that in-flight operations are
+persisted before process termination. Our prior work (RU-V4) demonstrated
+WAL-backed crash recovery for ZK batch aggregation with sub-150~$\mu$s
+write latency and zero transaction loss~\cite{baylina2019smt}.
+
+\subsection{ZK Prover Performance}
+
+Groth16~\cite{groth2016size} remains the standard for succinct ZK proofs
+with constant-size verification. Prover performance varies by implementation:
+snarkjs (WASM)~\cite{snarkjs} achieves 12,757~ms for 274K constraints on
+commodity hardware, while rapidsnark (C++ with native field arithmetic)
+offers 4--10$\times$ speedup~\cite{mopro2025comparison}. ICICLE-Snark
+(GPU-accelerated) achieves 63$\times$ MSM improvement~\cite{icicle2025snark},
+reducing proving time to 1--3~s for circuits in the 1--3M constraint range.
+The ZK proving infrastructure landscape~\cite{zkcloud2024landscape} shows a
+trend toward prover decentralization and hardware acceleration.
+
+\subsection{HTTP Framework Selection}
+
+For the enterprise node API layer, framework selection directly impacts
+throughput. Empirical comparisons~\cite{fastify2025comparison} demonstrate
+that Fastify achieves 2--4$\times$ higher request throughput than Express.js
+with native JSON schema validation and lower memory overhead. Fastify's
+WebSocket integration~\cite{fastify2025websocket} enables real-time event
+streaming for enterprise client applications.

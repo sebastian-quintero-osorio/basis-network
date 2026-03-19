@@ -1,0 +1,65 @@
+% main.tex -- Master document
+% Enterprise Node Orchestration for ZK Validium:
+% Pipelined State Machine Design and Performance Analysis
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Metadata
+\title{Enterprise Node Orchestration for ZK Validium:\\Pipelined State Machine Design and Performance Analysis}
+
+\author{
+  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockA{
+    Medellin, Colombia\\
+    social@basecomputing.com.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+ZK validium, node orchestration, pipelined state machine, enterprise blockchain, zero-knowledge proofs, Groth16, Avalanche
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{system-model}
+\input{methodology}
+\input{experimental-setup}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

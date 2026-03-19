@@ -1,0 +1,112 @@
+% related-work.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Related Work}
+
+\subsection{ZK Proof Aggregation Systems}
+
+Proof aggregation reduces L1 verification cost by combining multiple proofs
+into a single verification operation. SnarkPack~\cite{gailly2022snarkpack}
+uses an inner product argument to aggregate Groth16 proofs, achieving 163~ms
+verification time for 8,192 proofs with a crossover point at 32 proofs where
+aggregation becomes cheaper than individual verification.
+aPlonK~\cite{zapico2022aplonk} extends this to PLONK proofs via
+multi-polynomial commitment, but requires approximately 300 proofs before
+efficiency gains materialize. SnarkFold~\cite{ozdemir2023snarkfold} applies
+folding-based aggregation to PLONK, achieving 4.5~ms verification at 4,096
+proofs. Nebra UPA~\cite{nebra2024upa} introduces universal proof aggregation
+that works across different circuit types, with gas savings starting from just
+2 proofs (per-proof cost: $100K/M + 20K$ submission, $350K/N + 7K$
+aggregation, plus $25K$ query).
+
+These systems target public rollups and assume all proofs can be collected by
+a central aggregator. Our work extends aggregation to the enterprise setting
+where each proof originates from a private state tree and the aggregator must
+not learn the underlying data.
+
+\subsection{Multi-Chain and Cross-Rollup Architectures}
+
+Polygon AggLayer~\cite{polygon2025agglayer} implements shared bridge
+infrastructure with multi-chain ZK proof aggregation, achieving
+\$0.002--0.003 per transaction. zkSync Gateway~\cite{zksync2025gateway}
+serves as a proof aggregation hub for ZKsync chains at approximately
+\$0.0047 per transaction with batch sizes around 3,895 transactions. Both
+systems focus on cost reduction through aggregation but operate with public
+or semi-public state---enterprise data confidentiality is not a design goal.
+
+StarkPack~\cite{starkpack2024} proposes heterogeneous proof aggregation
+(aggregating proofs from different circuits), which is relevant to
+cross-enterprise settings where different enterprises may run different
+circuit configurations. However, StarkPack does not address the privacy
+dimension of cross-enterprise interactions.
+
+\subsection{Enterprise Privacy Systems}
+
+Table~\ref{tab:enterprise-privacy} summarizes production and research systems
+addressing enterprise privacy on blockchain.
+
+\begin{table}[t]
+\centering
+\caption{Enterprise Privacy Systems Comparison}
+\label{tab:enterprise-privacy}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+System & Privacy Model & Cross-Ent. & Proof & Status \\
+\midrule
+Rayls~\cite{rayls2025privacy} & Subnets + ZKP + HE & Hub chain & Enygma & Production \\
+Prividium~\cite{zksync2025prividium} & Private execution & Selective & PLONK & Announced \\
+zkCross~\cite{zkcross2024} & Cross-chain audit & Compliance & zk-SNARK & Research \\
+ZK-InterChain~\cite{zkinterchain2025} & Cross-chain privacy & Limited & Various & Research \\
+\textbf{Ours} & Per-ent. validium & Hub-spoke & Groth16 & Research \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Rayls, developed by Parfin for the Drex (Brazilian CBDC) ecosystem and
+adopted by institutions including Nuclea and Cielo, implements private subnets
+where each enterprise maintains isolated state with ZK proofs and homomorphic
+encryption (the Enygma protocol). Cross-enterprise interactions pass through
+a hub chain that coordinates transfers. While Rayls achieves strong
+intra-enterprise privacy, the hub chain serves as a coordination point that
+sees transaction metadata. ZKsync Prividium~\cite{zksync2025prividium},
+announced in December 2025, proposes privacy-default execution with selective
+disclosure but has not yet published cross-enterprise verification benchmarks.
+
+\subsection{Cross-Privacy Research}
+
+zkCross~\cite{zkcross2024} introduces privacy-preserving cross-chain auditing
+using ZK proofs, targeting compliance scenarios where an auditor verifies
+properties across chains without seeing the data. Chainlink
+CCIP~\cite{chainlink2024ccip} provides cross-chain interoperability with
+privacy features but focuses on message passing rather than state
+verification.
+
+\subsection{Benchmark Comparison}
+
+Table~\ref{tab:benchmarks} positions our cross-enterprise verification gas
+costs against published benchmarks.
+
+\begin{table}[t]
+\centering
+\caption{Verification Gas Cost Comparison}
+\label{tab:benchmarks}
+\begin{tabular}{@{}llr@{}}
+\toprule
+System & Configuration & Gas/Proof \\
+\midrule
+Groth16 individual~\cite{nebra2024upa} & 4 public inputs & 205,600 \\
+Nebra UPA (N=4)~\cite{nebra2024upa} & Aggregated & 167,457 \\
+Nebra UPA (N=32)~\cite{nebra2024upa} & Aggregated & 65,901 \\
+\midrule
+Ours (Sequential) & 2 ent., 1 int. & 269K/proof \\
+Ours (Batched) & 2 ent., 1 int. & 122K/proof \\
+Ours (Hub Agg.) & 2 ent., 1 int. & 221K/proof \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Our per-proof gas costs are higher than Nebra UPA at scale because our system
+includes cross-reference verification and storage operations alongside
+enterprise proof verification. At equivalent proof counts (N=3), our batched
+approach achieves 156K gas per proof including cross-reference storage,
+comparable to Nebra UPA at N=4 (167K) which excludes application-level
+storage.

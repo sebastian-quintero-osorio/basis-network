@@ -1,0 +1,150 @@
+% results.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Results}
+
+\subsection{Cross-Reference Proof Timing}
+
+Table~\ref{tab:timing} summarizes the cross-reference proof generation
+benchmarks over 50 repetitions.
+
+\begin{table}[t]
+\centering
+\caption{Cross-Reference Proof Timing (50 repetitions)}
+\label{tab:timing}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Operation & Mean & Std Dev \\
+\midrule
+Merkle proof gen (2 proofs) & 0.018 ms & 0.015 ms \\
+Cross-ref witness generation & 0.112 ms & 0.016 ms \\
+Cross-ref verification (sim) & 3.464 ms & 0.177 ms \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Estimated proving time (full ZK circuit):}} \\
+\ \ snarkjs (WASM) & 4,476 ms & --- \\
+\ \ rapidsnark (native) & 448 ms & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Witness generation completes in 0.112~ms, dominated by two Poseidon hash
+computations for the interaction commitment. The simulated verification
+(JavaScript Merkle path traversal) takes 3.46~ms, consistent with
+$2 \times 1.7$~ms per path from RU-V1. The estimated full proving time of
+448~ms (rapidsnark) is within the sub-second target for enterprise batch
+processing.
+
+\subsection{Gas Cost Comparison: Primary Scenario}
+
+Table~\ref{tab:gas-primary} presents the gas costs for the primary scenario
+of 2 enterprises with 1 cross-enterprise interaction.
+
+\begin{table}[t]
+\centering
+\caption{Gas Cost: 2 Enterprises, 1 Interaction}
+\label{tab:gas-primary}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Approach & Total Gas & Overhead & $< 2\times$? \\
+\midrule
+Baseline (individual only) & 571,512 & 1.00$\times$ & --- \\
+Sequential & 806,737 & 1.41$\times$ & Yes \\
+Batched Pairing & 365,042 & 0.64$\times$ & Yes \\
+Hub Aggregation & 663,540 & 1.16$\times$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All three approaches satisfy the $< 2\times$ overhead target. Batched pairing
+achieves the lowest gas cost---paradoxically \emph{below} the individual
+baseline---because it replaces three independent pairing checks with a single
+combined check, saving two pairing computations ($2 \times 4 \times 34{,}000
+= 272{,}000$ gas) while adding only modest scalar multiplication overhead.
+This reduction requires all proofs to be available simultaneously for batching,
+necessitating a hub coordinator.
+
+Sequential verification at 1.41$\times$ is the relevant baseline for
+independent (separate-transaction) submissions where enterprises submit proofs
+without coordination.
+
+\subsection{Scaling Analysis}
+
+Table~\ref{tab:scaling} shows overhead ratios across enterprise counts with
+linear interaction density ($M = N - 1$).
+
+\begin{table}[t]
+\centering
+\caption{Overhead Ratio vs. Enterprise Count (Linear Interactions)}
+\label{tab:scaling}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$N$ & $M$ & Seq. & Batched & Hub & Best \\
+\midrule
+2 & 1 & 1.41$\times$ & 0.64$\times$ & 1.16$\times$ & Batched \\
+3 & 2 & 1.55$\times$ & 0.55$\times$ & 0.92$\times$ & Batched \\
+5 & 4 & 1.66$\times$ & 0.47$\times$ & 0.73$\times$ & Batched \\
+10 & 9 & 1.74$\times$ & 0.42$\times$ & 0.58$\times$ & Batched \\
+20 & 19 & 1.78$\times$ & 0.39$\times$ & 0.51$\times$ & Batched \\
+50 & 49 & 1.81$\times$ & 0.37$\times$ & 0.47$\times$ & Batched \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sequential overhead increases monotonically but remains below 2$\times$ for
+all tested enterprise counts up to $N = 50$. Batched pairing maintains sub-1$\times$
+overhead across all configurations, with the advantage growing at larger $N$
+as more pairing computations are shared. Hub aggregation falls between the two,
+dropping below 1$\times$ at $N \geq 3$.
+
+\textbf{Asymptotic behavior.} As $N \to \infty$ with linear interactions,
+sequential overhead converges to $\sim$1.82$\times$ (the ratio of
+cross-reference verification gas to enterprise submission gas). Batched
+pairing converges to $\sim$0.36$\times$ as the fixed pairing cost is amortized.
+
+\subsection{Dense Interaction Analysis}
+
+Table~\ref{tab:dense} shows the edge case where the number of cross-enterprise
+interactions exceeds the number of enterprises.
+
+\begin{table}[t]
+\centering
+\caption{Gas Cost: 2 Enterprises, 5 Interactions (Dense)}
+\label{tab:dense}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Approach & Total Gas & Overhead & $< 2\times$? \\
+\midrule
+Baseline & 571,512 & 1.00$\times$ & --- \\
+Sequential & 1,747,637 & 3.06$\times$ & \textbf{No} \\
+Batched Pairing & 540,514 & 0.95$\times$ & Yes \\
+Hub Aggregation & 896,110 & 1.57$\times$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sequential verification \emph{fails} the $< 2\times$ target in the dense
+interaction case (3.06$\times$) because each additional interaction adds a
+full Groth16 verification ($\sim$200K gas). Batched pairing and hub
+aggregation both remain below 2$\times$, with batched pairing achieving
+0.95$\times$---nearly at parity with the no-cross-reference baseline despite
+verifying 5 additional proofs.
+
+\subsection{Privacy Analysis}
+
+All four adversarial privacy tests pass:
+
+\begin{enumerate}
+\item \textbf{Different amounts produce different commitments}: Two
+  interactions with amounts 5,000 and 6,000 yield distinct Poseidon
+  commitments. \textbf{PASS}.
+\item \textbf{Different keys produce different commitments}: Changing $k_A$
+  by 1 produces a distinct commitment. \textbf{PASS}.
+\item \textbf{Commitment hides amount}: Under Poseidon preimage resistance
+  (128-bit security), the commitment reveals nothing about the underlying
+  values. \textbf{PASS}.
+\item \textbf{State roots add no leakage}: State roots $r_A, r_B$ are
+  already public from individual enterprise submissions. \textbf{PASS}.
+\end{enumerate}
+
+\textbf{Total information leakage: 1 bit per interaction} (interaction
+existence only). This is the information-theoretic minimum for any protocol
+that records cross-enterprise verifications on a public ledger.

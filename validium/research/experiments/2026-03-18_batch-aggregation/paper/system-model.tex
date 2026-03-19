@@ -1,0 +1,71 @@
+% system-model.tex -- Batch Aggregation Paper (RU-V4)
+
+\section{System Model}
+
+\subsection{Network Architecture}
+
+The Basis Network Enterprise ZK Validium operates as a permissioned
+application-specific node serving a single enterprise tenant. Transactions
+originate from enterprise systems (PLASMA industrial maintenance or Trace ERP)
+and represent state transitions in a Sparse Merkle Tree (SMT) of enterprise
+state~\cite{baylina2019smt}. The node collects transactions, aggregates them
+into fixed-size batches, generates Groth16 ZK proofs via
+Circom/SnarkJS~\cite{groth2016size, snarkjs}, and submits proof-state root
+pairs to the Basis Network L1 on Avalanche for settlement.
+
+The batch aggregation layer sits between transaction ingestion and proof
+generation:
+\begin{center}
+\small
+Enterprise Tx $\rightarrow$ [Queue + WAL] $\rightarrow$ [BatchAggregator] $\rightarrow$ [ZK Prover] $\rightarrow$ L1
+\end{center}
+
+\subsection{Trust Model}
+
+The enterprise node is operated by a single entity with administrative
+access. The trust model assumes:
+
+\begin{itemize}
+\item \textbf{Honest operator}: The enterprise operator does not intentionally
+  corrupt the WAL or manipulate batch formation. Malicious operators are outside
+  the threat model (they control the data source).
+\item \textbf{Byzantine faults excluded}: The node is a single process on a
+  single machine. There is no consensus protocol between nodes.
+\item \textbf{Crash-stop failures}: The node may crash at any point due to
+  hardware failure, power loss, out-of-memory conditions, or process termination.
+  After crash, the node restarts and recovers from durable state.
+\item \textbf{Durable storage reliability}: The WAL on disk survives crashes.
+  Storage corruption (bit rot, sector failures) is excluded from the model.
+\end{itemize}
+
+\subsection{Safety Requirements}
+
+The batch aggregation protocol must satisfy four invariants:
+
+\begin{enumerate}
+\item \textbf{NoLoss}: Every transaction that enters the system is eventually
+  included in a processed batch. No transaction is silently dropped, even under
+  crash-recovery sequences.
+\item \textbf{NoDuplication}: No transaction appears in more than one batch or
+  is processed more than once.
+\item \textbf{FIFOOrdering}: Transactions are batched and processed in the
+  exact order they were received. The concatenation of all processed and pending
+  batches equals the WAL in arrival order.
+\item \textbf{BatchSizeBound}: Every batch contains at most
+  \texttt{BatchSizeThreshold} transactions, ensuring compatibility with the
+  ZK circuit's constraint capacity.
+\end{enumerate}
+
+These requirements are formalized as TLA+ invariants in Section~\ref{sec:formal}.
+
+\subsection{Performance Requirements}
+
+Based on the enterprise deployment context (industrial traceability at
+Ingenio Sancarlos, Colombia), the system must achieve:
+
+\begin{itemize}
+\item Throughput $\geq$ 100 tx/min sustained
+\item Batch formation latency $<$ 5,000 ms
+\item Zero transaction loss under crash recovery
+\item Deterministic batch formation (same inputs produce identical outputs)
+\end{itemize}

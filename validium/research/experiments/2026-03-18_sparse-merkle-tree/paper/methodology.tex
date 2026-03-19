@@ -1,0 +1,96 @@
+% methodology.tex -- Sparse Merkle Trees with Poseidon Hash
+
+\section{System Model and Design}
+\label{sec:system-model}
+
+\subsection{Enterprise Validium Architecture}
+
+The Basis Network operates as a permissioned Avalanche Layer~1 (Subnet-EVM) with zero transaction fees. Each registered enterprise runs an off-chain validium node that processes transactions privately, maintains a Sparse Merkle Tree of enterprise state, and periodically submits ZK validity proofs to the L1. The L1 verifies these proofs and stores the resulting state roots, providing a public commitment to each enterprise's state without revealing its contents.
+
+The trust model assumes an honest L1 (Avalanche consensus with sub-second finality) and potentially adversarial enterprises. The SMT must therefore provide:
+
+\begin{itemize}
+  \item \textbf{Soundness}: A valid Merkle proof can only be produced for data actually in the tree.
+  \item \textbf{Completeness}: Every entry in the tree has a valid proof.
+  \item \textbf{Determinism}: The same set of key-value pairs always produces the same root hash.
+  \item \textbf{Non-membership}: The tree must prove that a key does \emph{not} exist, which is critical for double-spend prevention.
+\end{itemize}
+
+\subsection{Sparse Merkle Tree Design}
+
+We implement a binary SMT of fixed depth $d = 32$, providing $2^{32} \approx 4.3 \times 10^9$ addressable leaf positions. The tree stores key-value pairs where keys are field elements in $\mathbb{F}_p$ (the BN128 scalar field, $p = 21888242871839275222246405745257275088548364400416034343698204186575808495617$).
+
+\paragraph{Node storage.} Only non-empty nodes are stored in a hash map keyed by $(level, index)$. Empty subtree hashes are precomputed at initialization: $h_0 = 0$ (empty leaf), $h_i = \text{Poseidon}(h_{i-1}, h_{i-1})$ for $i \in [1, d]$. This precomputation avoids redundant hashing of the $2^{32} - n$ empty leaves, where $n$ is the number of populated entries.
+
+\paragraph{Key mapping.} Keys are mapped to leaf indices by extracting the lower $d$ bits of the key's field representation. For keys derived from Poseidon hashes of application identifiers (e.g., $\text{Poseidon}(\textit{enterpriseId}, \textit{recordId})$), this provides uniform distribution across the tree.
+
+\paragraph{Leaf hashing.} Non-empty leaves store $\text{Poseidon}(key, value)$; empty leaves store $0$. This binding of key to value in the leaf hash prevents second-preimage attacks where an adversary substitutes a different key at the same index.
+
+\paragraph{Proof structure.} A Merkle proof consists of $d = 32$ sibling hashes and $d$ direction bits, totaling $32 \times 32 + 4 = 1{,}028$ bytes. Verification recomputes the root by hashing the leaf with each sibling in sequence, following the direction bits from leaf to root.
+
+\subsection{Hash Function Selection}
+
+We select Poseidon~\cite{grassi2021poseidon} based on the following criteria:
+
+\begin{enumerate}
+  \item \textbf{Constraint efficiency}: 240 R1CS constraints per 2-to-1 hash on BN254, the lowest among production-ready ZK hash functions~\cite{guohanze2024benchmarking}.
+  \item \textbf{Field compatibility}: Operates natively over the BN128 scalar field, matching the field used by our Circom/SnarkJS Groth16 proof pipeline.
+  \item \textbf{Library availability}: circomlibjs (v0.1.7) provides a JavaScript implementation used by both the SMT and the existing \texttt{batch\_verifier.circom} circuit.
+  \item \textbf{Production validation}: Used by Polygon zkEVM, Scroll, Iden3, and Semaphore.
+\end{enumerate}
+
+For a depth-32 path verification in a Groth16 circuit, Poseidon requires $32 \times 240 = 7{,}680$ R1CS constraints, compared to $10{,}880$ for MiMC and an infeasible $4{,}800{,}000$ for Keccak-256.
+
+\section{Experimental Methodology}
+\label{sec:methodology}
+
+\subsection{Implementation}
+
+The SMT is implemented in TypeScript targeting Node.js v22.13.1. The implementation uses circomlibjs (v0.1.7) for Poseidon hashing, which internally operates on JavaScript BigInt values in the BN128 scalar field. The complete implementation comprises three components:
+
+\begin{itemize}
+  \item \texttt{smt-implementation.ts}: Core SMT class (330 lines) with insert, update, delete, proof generation, and proof verification operations.
+  \item \texttt{hash-comparison.ts}: Benchmark harness comparing Poseidon against a reference MiMC-Feistel implementation ($x^7$ S-box, 91 rounds).
+  \item \texttt{smt-benchmark.ts}: SMT operation benchmark suite across four tree sizes.
+\end{itemize}
+
+\subsection{Benchmark Configuration}
+
+\paragraph{Hash comparison.} 1{,}000 hash computations per function, preceded by 100 warmup iterations to allow JIT compilation. Measured: per-hash latency ($\mu$s), throughput (hashes/s). A 32-hash chain benchmark simulates Merkle path verification.
+
+\paragraph{SMT operations.} Four tree sizes: $n \in \{100, 1{,}000, 10{,}000, 100{,}000\}$. For each size, 50 measurement samples are collected after 10 warmup iterations. Three operations are measured independently:
+
+\begin{itemize}
+  \item \textbf{Insert latency}: Time to insert a single key-value pair, sampled uniformly across all insertions after warmup.
+  \item \textbf{Proof generation}: Time to generate a Merkle proof for a random existing key (tree traversal only, no hashing).
+  \item \textbf{Proof verification}: Time to verify a Merkle proof against the current root (32 Poseidon hashes).
+\end{itemize}
+
+Memory usage is measured via Node.js \texttt{process.memoryUsage().heapUsed}. Node counts reflect the number of non-default entries in the storage map.
+
+\paragraph{Statistical reporting.} For each metric, we report mean, standard deviation, median (P50), 95th percentile (P95), and 99th percentile (P99). Key generation uses a deterministic linear congruential generator to ensure reproducibility.
+
+\subsection{Performance Targets}
+
+The performance targets derive from the enterprise validium use case, where the SMT is one component in a pipeline that must complete within enterprise SLA constraints:
+
+\begin{table}[htbp]
+\centering
+\caption{Performance targets for SMT operations at $n = 100{,}000$ entries.}
+\label{tab:targets}
+\begin{tabular}{lll}
+\hline
+\textbf{Metric} & \textbf{Target} & \textbf{Rationale} \\
+\hline
+Insert latency & $< 10$\,ms & Transaction ingestion rate \\
+Proof generation & $< 5$\,ms & Batch proving pipeline \\
+Proof verification & $< 2$\,ms & On-chain verification budget \\
+Memory usage & $< 2$\,GB & Enterprise server constraints \\
+BN128 compatibility & Full & Circom circuit integration \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Benchmark Validation}
+
+To ensure our measurements are credible, we reconcile results against published benchmarks from peer-reviewed sources and production systems. Any divergence exceeding one order of magnitude is investigated and documented. We note that direct JavaScript-to-Rust comparisons are expected to show large gaps ($100\times$--$1000\times$) due to BigInt overhead and absence of native field arithmetic in JavaScript; the relevant comparison is against the stated performance targets, not against native implementations in systems languages.

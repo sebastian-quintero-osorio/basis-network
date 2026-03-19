@@ -1,0 +1,61 @@
+% main.tex -- Master document
+% State Transition Circuits for Enterprise ZK Validium:
+% Constraint Analysis and Proving Time Benchmarks
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+% Metadata
+\title{State Transition Circuits for Enterprise ZK Validium:\\Constraint Analysis and Proving Time Benchmarks}
+
+\author{
+  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockA{
+    Medellin, Colombia\\
+    social@basecomputing.com.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+zero-knowledge proofs, Groth16, state transition circuit, Circom, Poseidon hash, validium, enterprise blockchain, Sparse Merkle Tree
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

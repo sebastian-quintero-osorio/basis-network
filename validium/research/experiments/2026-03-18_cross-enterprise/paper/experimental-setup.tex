@@ -1,0 +1,97 @@
+% experimental-setup.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Experimental Setup}
+
+\subsection{Implementation}
+
+The benchmark implementation is written in TypeScript using
+circomlibjs~\cite{circomlibjs2024} for Poseidon hashing over the BN128 scalar
+field ($p = 2^{254} + \epsilon$). The sparse Merkle tree implementation follows
+the design validated in RU-V1~\cite{ruv1smt}, with depth 32 and Poseidon-2
+internal nodes.
+
+Gas costs are computed analytically using the EVM gas schedule (Cancun fork),
+calibrated against on-chain measurements from RU-V3~\cite{ruv3gas}. The
+analytical model accounts for:
+\begin{itemize}
+\item \texttt{ecPairing} precompile: 45,000 base + 34,000 per pair
+\item MSM for public inputs: 6,150 per input + ecMul/ecAdd operations
+\item Storage operations: SSTORE (22,100 cold / 5,000 warm), SLOAD (2,100
+  cold / 100 warm)
+\item Event emission: 375 base + 8 per byte
+\item Calldata: 16 per nonzero byte, 4 per zero byte
+\end{itemize}
+
+The baseline single-enterprise gas cost ($285{,}756$ gas) was measured on
+Subnet-EVM in RU-V3 and used as the reference for overhead ratio computation.
+
+\subsection{Enterprise Configuration}
+
+Five enterprises are configured with populated SMTs:
+\begin{itemize}
+\item Enterprises A, B: 100 entries each (simulating active enterprises)
+\item Enterprises C, D: 50 entries each
+\item Enterprise E: 25 entries
+\end{itemize}
+
+Cross-enterprise interactions are simulated by inserting matching records in
+two enterprises' trees: Enterprise $A$ records an outgoing transaction and
+Enterprise $B$ records the corresponding incoming transaction, both with the
+same value.
+
+\subsection{Parameters Varied}
+
+\begin{itemize}
+\item \textbf{Enterprise count} ($N$): 2, 3, 5, 10, 20, 50
+\item \textbf{Interaction count} ($M$): Linear ($M = N-1$) and dense
+  ($M > N$) configurations
+\item \textbf{Verification approach}: Sequential, Batched Pairing, Hub
+  Aggregation
+\end{itemize}
+
+\subsection{Metrics}
+
+\begin{itemize}
+\item \textbf{Total gas}: L1 gas cost for verifying all enterprise proofs
+  plus cross-reference proofs, including storage and event emissions
+\item \textbf{Overhead ratio}: Total gas divided by baseline gas (individual
+  enterprise verification only, $N \times 285{,}756$)
+\item \textbf{Cross-reference constraint count}: Number of R1CS constraints
+  in the cross-reference circuit
+\item \textbf{Proving time}: Estimated from the constraint-to-time ratio
+  established in RU-V2~\cite{ruv2circuit} (65~$\mu$s/constraint for snarkjs,
+  6.5~$\mu$s/constraint for rapidsnark)
+\item \textbf{Privacy leakage}: Bits of information revealed beyond what is
+  already public
+\item \textbf{Merkle proof generation time}: Wall-clock time for SMT proof
+  extraction
+\item \textbf{Witness generation time}: Wall-clock time for cross-reference
+  witness computation
+\end{itemize}
+
+\subsection{Statistical Methodology}
+
+Timing benchmarks (Merkle proof generation, witness generation, verification
+simulation) use 50 repetitions with independent invocations. We report mean
+and standard deviation. Gas costs are deterministic (analytical model) and
+require no statistical treatment.
+
+\subsection{Benchmark Validation}
+
+To ensure our analytical gas model is accurate, we validate against published
+benchmarks and our own on-chain measurements:
+
+\begin{itemize}
+\item Groth16 verification gas (4 inputs): Our model yields 205,600 gas;
+  Nebra~\cite{nebra2024upa} reports $\sim$205K gas for the same configuration.
+  Ratio: 1.00$\times$.
+\item SMT proof generation (depth 32): 0.018~ms mean; RU-V1 reported 0.02~ms.
+  Ratio: 0.9$\times$.
+\item Verification simulation (2 paths): 3.46~ms; RU-V1 reported 1.7~ms per
+  path ($2 \times 1.7 = 3.4$~ms expected). Ratio: 1.02$\times$.
+\item Constraint count formula: $1{,}038 \times (d+1)$ per path, validated
+  in RU-V2. Our depth-32 path yields 34,254, matching exactly.
+\end{itemize}
+
+All metrics are directionally consistent with published benchmarks with no
+divergence exceeding 1.1$\times$.

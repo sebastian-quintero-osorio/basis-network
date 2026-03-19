@@ -1,0 +1,23 @@
+\begin{abstract}
+Enterprise validium architectures require zero-knowledge circuits that prove
+batches of state transitions over Sparse Merkle Trees (SMTs) while meeting
+strict latency constraints. We present \textsc{ChainedBatchStateTransition},
+a Circom circuit that proves sequential state updates over a Poseidon-based
+SMT by chaining Merkle path verifications: each transaction's computed new
+root becomes the next transaction's verified old root. We benchmark seven
+configurations spanning tree depths 10, 20, and 32 with batch sizes 4, 8,
+and 16 using Groth16 via SnarkJS~0.7.6 on commodity hardware. Our
+measurements yield an exact per-transaction constraint formula of
+$1{,}038 \cdot (d+1)$ R1CS constraints, where $d$ is the tree depth,
+with zero residual error across all configurations. At depth~32 with
+batch size~8, the circuit produces 274,027 constraints and generates a
+Groth16 proof in 12.8~seconds. Extrapolation to the production target of
+depth~32, batch~64 yields approximately 2.19~million constraints, requiring
+an estimated 14--35~seconds with Rapidsnark but exceeding 120~seconds with
+SnarkJS. Proof size remains constant at 803--807~bytes regardless of
+circuit complexity. These results demonstrate that enterprise-grade
+batch state transition proofs are feasible within sub-minute latency
+budgets when paired with optimized native provers, and provide the
+constraint scaling laws necessary for capacity planning in validium
+deployments.
+\end{abstract}

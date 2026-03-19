@@ -1,0 +1,62 @@
+% main.tex -- Master document
+% Crash-Safe Batch Aggregation for Enterprise ZK Validium:
+% A WAL-Based Approach with Formal Verification
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+% Metadata
+\title{Crash-Safe Batch Aggregation for Enterprise ZK Validium:\\A WAL-Based Approach with Formal Verification}
+
+\author{
+  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockA{
+    Medellin, Colombia\\
+    social@basecomputing.com.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+batch aggregation, write-ahead log, crash recovery, formal verification, TLA+, zero-knowledge proofs, validium, enterprise blockchain
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{system-model}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

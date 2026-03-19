@@ -1,0 +1,30 @@
+% abstract.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\begin{abstract}
+Enterprise validium systems enable organizations to maintain private off-chain
+state while submitting zero-knowledge proofs to a shared settlement layer, but
+no existing protocol addresses the verification of \emph{cross-enterprise}
+interactions---transactions recorded in two or more independent private state
+trees---without breaking privacy boundaries. We present a cross-enterprise
+verification protocol that uses a Groth16 cross-reference circuit (68,868
+R1CS constraints) to prove the consistency of entries across two enterprise
+sparse Merkle trees, bound by a Poseidon interaction commitment, with exactly
+1 bit of information leakage per interaction (the existence of the
+interaction---no keys, values, or transaction details are exposed). We
+evaluate three verification approaches on an Avalanche L1 (Subnet-EVM):
+Sequential verification achieves $1.41\times$ gas overhead over individual
+enterprise verification, Batched Pairing verification achieves $0.64\times$
+(below baseline through shared pairing computation), and Hub Aggregation
+achieves $1.16\times$---all below the $2\times$ target. Cross-reference proof
+generation takes an estimated 448~ms with rapidsnark (4,476~ms with snarkjs).
+Scaling analysis across 2--50 enterprises confirms that batched pairing
+maintains sub-$1\times$ overhead at all tested scales, while sequential
+verification stays below $2\times$ for sparse interaction graphs but exceeds
+the target in dense configurations (interactions $\gg$ enterprises). Compared
+to Rayls (Parfin/Drex), which routes cross-enterprise interactions through a
+metadata-visible hub chain, our protocol's hub coordinator sees only Groth16
+proofs and Poseidon commitments. These results demonstrate that
+privacy-preserving cross-enterprise verification is practical for enterprise
+validium deployments with manageable gas overhead and sub-second proof
+generation.
+\end{abstract}

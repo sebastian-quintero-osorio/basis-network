@@ -1,0 +1,213 @@
+% references.bib -- Cross-Enterprise Verification Paper (RU-V7)
+% BibTeX entries for the cross-enterprise proof aggregation paper
+
+% === ZK Proof Systems ===
+
+@inproceedings{groth2016size,
+  author    = {Groth, Jens},
+  title     = {On the Size of Pairing-Based Non-interactive Arguments},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 2016},
+  year      = {2016},
+  pages     = {305--326},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {9666}
+}
+
+@inproceedings{grassi2021poseidon,
+  author    = {Grassi, Lorenzo and Khovratovich, Dmitry and Rechberger, Christian and Roy, Arnab and Schofnegger, Markus},
+  title     = {Poseidon: A New Hash Function for Zero-Knowledge Proof Systems},
+  booktitle = {USENIX Security Symposium},
+  year      = {2021},
+  note      = {IACR ePrint 2019/458}
+}
+
+% === Proof Aggregation ===
+
+@inproceedings{gailly2022snarkpack,
+  author    = {Gailly, Nicolas and Maller, Mary and Nitulescu, Anca},
+  title     = {{SnarkPack}: Practical {SNARK} Aggregation},
+  booktitle = {Financial Cryptography and Data Security (FC 2022)},
+  year      = {2022},
+  publisher = {Springer},
+  note      = {IACR ePrint 2021/529}
+}
+
+@article{zapico2022aplonk,
+  author  = {Zapico, Miguel and Gabizon, Ariel and Buterin, Vitalik and Khovratovich, Dmitry},
+  title   = {{aPlonK}: Aggregated {PlonK} from Multi-Polynomial Commitment Schemes},
+  journal = {IACR ePrint 2022/1352},
+  year    = {2022}
+}
+
+@article{ozdemir2023snarkfold,
+  author  = {Ozdemir, Alex and Boneh, Dan},
+  title   = {Experimenting with Collaborative {zk-SNARKs}: Zero-Knowledge Proofs for Distributed Secrets},
+  journal = {IACR ePrint 2023/1946},
+  year    = {2023},
+  note    = {Folding-based PLONK aggregation}
+}
+
+@misc{nebra2024upa,
+  author       = {{Nebra}},
+  title        = {Universal Proof Aggregation ({UPA}): Technical Overview},
+  howpublished = {Nebra Documentation},
+  year         = {2024},
+  note         = {Formula: submission = 100K/M + 20K; aggregation = 350K/N + 7K per proof}
+}
+
+@article{starkpack2024,
+  author  = {{StarkPack Contributors}},
+  title   = {{StarkPack}: Heterogeneous Proof Aggregation},
+  journal = {IACR ePrint},
+  year    = {2024},
+  note    = {Cross-circuit proof aggregation for different circuit types}
+}
+
+% === Batch Verification ===
+
+@inproceedings{bellare1998batchrsa,
+  author    = {Bellare, Mihir and Garay, Juan A. and Rabin, Tal},
+  title     = {Fast Batch Verification for Modular Exponentiation and Digital Signatures},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 1998},
+  year      = {1998},
+  publisher = {Springer}
+}
+
+% === Recursive/IVC Systems ===
+
+@inproceedings{kothapalli2022nova,
+  author    = {Kothapalli, Abhiram and Setty, Srinath and Parno, Bryan},
+  title     = {{Nova}: Recursive Zero-Knowledge Arguments from Folding Schemes},
+  booktitle = {Advances in Cryptology -- CRYPTO 2022},
+  year      = {2022},
+  publisher = {Springer}
+}
+
+@article{kothapalli2022supernova,
+  author  = {Kothapalli, Abhiram and Setty, Srinath},
+  title   = {{SuperNova}: Proving Universal Machine Execution},
+  journal = {IACR ePrint 2022/1758},
+  year    = {2022}
+}
+
+@misc{polygon2022plonky2,
+  author       = {{Polygon Labs}},
+  title        = {{Plonky2}: Fast Recursive Arguments with {PLONK} and {FRI}},
+  howpublished = {GitHub: 0xPolygonZero/plonky2},
+  year         = {2022},
+  note         = {43 KB compressed proof, 300 ms recursion}
+}
+
+% === Production Multi-Chain Systems ===
+
+@misc{polygon2025agglayer,
+  author       = {{Polygon Labs}},
+  title        = {{AggLayer}: Unified Liquidity and Proof Aggregation for the {Polygon} Ecosystem},
+  howpublished = {Polygon blog},
+  year         = {2025},
+  note         = {\$0.002--0.003 per tx, multi-chain ZK proof aggregation}
+}
+
+@misc{zksync2025gateway,
+  author       = {{Matter Labs}},
+  title        = {{zkSync Gateway}: Proof Aggregation Hub for {ZKsync} Chains},
+  howpublished = {zkSync Documentation},
+  year         = {2025},
+  note         = {\$0.0047/tx, ~3,895 tx/batch}
+}
+
+% === Enterprise Privacy ===
+
+@misc{rayls2025privacy,
+  author       = {{Parfin}},
+  title        = {{Rayls II}: Privacy Layer for Institutional {DeFi}},
+  howpublished = {Rayls Documentation},
+  year         = {2025},
+  note         = {Enygma protocol: ZKP + HE, deployed for Drex (Brazilian CBDC), Nuclea, Cielo}
+}
+
+@misc{zksync2025prividium,
+  author       = {{Matter Labs}},
+  title        = {{ZKsync Prividium}: Privacy-Default Execution Environment},
+  howpublished = {zkSync blog},
+  year         = {2025},
+  note         = {Announced December 2025, selective disclosure}
+}
+
+% === Cross-Privacy Research ===
+
+@article{zkcross2024,
+  author  = {{zkCross Contributors}},
+  title   = {{zkCross}: Privacy-Preserving Cross-Chain Auditing with Zero-Knowledge Proofs},
+  journal = {IACR ePrint 2024/888},
+  year    = {2024}
+}
+
+@article{zkinterchain2025,
+  author  = {{ZK-InterChain Contributors}},
+  title   = {{ZK-InterChain}: Privacy-Preserving Cross-Chain Interactions},
+  journal = {ResearchGate},
+  year    = {2025}
+}
+
+@misc{chainlink2024ccip,
+  author       = {{Chainlink Labs}},
+  title        = {{CCIP}: Cross-Chain Interoperability Protocol},
+  howpublished = {Chainlink Research},
+  year         = {2024}
+}
+
+% === Validium and L2 Architecture ===
+
+@misc{ethereum2024validium,
+  author       = {{Ethereum.org}},
+  title        = {Scaling: Validium},
+  howpublished = {Ethereum Developer Documentation},
+  year         = {2024}
+}
+
+% === Proof Aggregation Survey ===
+
+@misc{tribuste2024aggregation,
+  author       = {Tribuste and {Maya-ZK}},
+  title        = {A Brief Summary of Proof Aggregation},
+  howpublished = {Maya-ZK Research},
+  year         = {2024},
+  note         = {Comparison of SnarkPack, aPlonK, Nova/IVC, Nebra UPA, StarkPack}
+}
+
+% === Prior Research Units ===
+
+@misc{ruv1smt,
+  author       = {{Base Computing S.A.S.}},
+  title        = {{RU-V1}: Sparse {Merkle} Tree with {Poseidon} Hashing over {BN128}},
+  howpublished = {Basis Network Research},
+  year         = {2026},
+  note         = {Depth-32 SMT, 0.02 ms proof gen, 1.7 ms verification per path}
+}
+
+@misc{ruv2circuit,
+  author       = {{Base Computing S.A.S.}},
+  title        = {{RU-V2}: State Transition Circuit Constraint Analysis},
+  howpublished = {Basis Network Research},
+  year         = {2026},
+  note         = {1,038 constraints per Merkle level, 65 us/constraint (snarkjs)}
+}
+
+@misc{ruv3gas,
+  author       = {{Base Computing S.A.S.}},
+  title        = {{RU-V3}: L1 State Commitment Gas Analysis},
+  howpublished = {Basis Network Research},
+  year         = {2026},
+  note         = {285,756 gas per enterprise batch submission (4 public inputs)}
+}
+
+% === Tooling ===
+
+@misc{circomlibjs2024,
+  author       = {{iden3}},
+  title        = {circomlibjs: {JavaScript} library for {Circom} cryptographic primitives},
+  howpublished = {GitHub: iden3/circomlibjs},
+  year         = {2024}
+}

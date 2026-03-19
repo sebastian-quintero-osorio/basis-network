@@ -1,0 +1,150 @@
+% related-work.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{Related Work}
+
+We organize related work into three categories: production DAC systems,
+academic data availability protocols, and cryptographic primitives for
+secret sharing and signature aggregation.
+
+\subsection{Production DAC Systems}
+
+\subsubsection{StarkEx Validium DAC}
+
+StarkWare's StarkEx~\cite{starkware2024da} pioneered the validium model in
+2020, operating in three DA modes: ZK-Rollup (on-chain), Validium (off-chain
+with DAC), and Volition (per-vault choice). DAC members run a Committee
+Service that receives complete batch data from the operator, validates it
+against the STARK proof, and returns ECDSA signatures. The ImmutableX instance
+uses a 7-member committee with 5-of-7 threshold; ApeX uses 5 members with
+3-of-5~\cite{l2beat2024da}. Each member sees all data---no secret sharing or
+erasure coding is employed.
+
+\subsubsection{Polygon CDK DAC}
+
+Polygon CDK~\cite{polygon2024cdk} implements a DAC for its validium mode via
+the \texttt{CDKDataCommittee.sol} smart contract~\cite{polygon2024cdknode}.
+Committee members store complete batch data. The contract verifies a
+configurable M-of-N ECDSA multi-signature with sorted addresses to prevent
+duplicates. Members are registered with URLs for data retrieval. As with
+StarkEx, each node stores the full dataset.
+
+\subsubsection{Arbitrum AnyTrust (Nova)}
+
+Arbitrum Nova~\cite{arbitrum2024anytrust} introduces the AnyTrust protocol
+with a distinctive $(N-1)$-of-$N$ threshold model. The system is secure as
+long as at least 2 of $N$ members are honest (honest minority). Committee
+members produce BLS-aggregated Data Availability Certificates (DACerts). If
+the DAC fails to attest, the system falls back to posting full data on-chain
+(rollup mode), providing a strict safety improvement over pure validium. Nova
+operates with 6 members and 5-of-6 threshold~\cite{l2beat2024da}. Despite the
+superior security model, each member still receives the complete batch data.
+
+\subsubsection{EigenDA}
+
+EigenDA~\cite{eigenlayer2025eigenda, eigenlayer2025v2} is a dedicated DA layer
+built on EigenLayer restaking. V2 achieves 100~MB/s write throughput with
+5-second average confirmation latency across 14 validators. Data is
+Reed-Solomon encoded with 8$\times$ redundancy (any 1,024 of 8,192 chunks
+suffice for reconstruction) and committed via KZG polynomial commitments.
+Individual operators see only their assigned chunks ($O(1/n)$ of total data),
+providing partial privacy. However, chunks contain partial plaintext data, and
+the Disperser sees the complete blob before encoding---this is computational
+privacy at best, not information-theoretic.
+
+\subsubsection{Celestia}
+
+Celestia~\cite{celestia2024da, celestia2024gosquare} uses Data Availability
+Sampling (DAS) rather than a committee. Block data is arranged in a $k \times
+k$ matrix, extended to $2k \times 2k$ via 2D Reed-Solomon encoding. Light
+nodes randomly sample shares; with $s$ samples, the false acceptance
+probability is $<2^{-s}$~\cite{albassam2018fraud}. All data is public---validators
+and light nodes see sampled shares in the clear---making it incompatible with
+enterprise confidentiality requirements.
+
+\subsection{Privacy Comparison of Production Systems}
+
+Table~\ref{tab:production} summarizes the critical architectural differences
+across production DAC systems. The privacy column is the central contribution
+of this work: no existing system provides information-theoretic guarantees.
+
+\begin{table*}[t]
+\centering
+\caption{Production Data Availability Systems: Architecture and Privacy Comparison}
+\label{tab:production}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{System} & \textbf{Members} & \textbf{Threshold} & \textbf{Signature} &
+\textbf{Privacy Model} & \textbf{Fallback} & \textbf{L2Beat Rating} \\
+\midrule
+StarkEx (ImmutableX) & 7 & 5/7 & ECDSA & None (full data) & None & WARNING \\
+StarkEx (ApeX)       & 5 & 3/5 & ECDSA & None (full data) & None & BAD \\
+Polygon CDK          & Config. & M/N & ECDSA & None (full data) & None & BAD \\
+Arbitrum Nova        & 6 & 5/6 & BLS   & None (full data) & Rollup mode & WARNING \\
+EigenDA V2           & 200+ & 55\% stake & BLS & Partial (chunks) & None & -- \\
+Celestia             & 100+ & 2/3 consensus & Ed25519 & None (public) & N/A & -- \\
+Espresso (HotShot)   & All & 1/4 recovery & N/A & Partial (VID) & None & -- \\
+\midrule
+\textbf{Shamir-DAC (ours)} & \textbf{3} & \textbf{2/3} & \textbf{ECDSA} &
+\textbf{Information-theoretic} & \textbf{On-chain DA} & \textbf{--} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Academic Data Availability Protocols}
+
+Al-Bassam et al.~\cite{albassam2018fraud} established the theoretical
+foundation for DAS, proving that probabilistic sampling can replace
+honest-majority assumptions for data availability verification. With $s$
+random samples and $>50\%$ data unavailable, false acceptance probability
+is $<(1/2)^s$. Hall-Andersen et al.~\cite{hallandersen2024foundations}
+provided the first formal cryptographic definitions for DAS as a primitive,
+establishing connections between DAS and erasure codes and constructing
+schemes without trusted setup.
+
+Nazirkhanova et al.~\cite{nazirkhanova2022semiavidpr} proposed Semi-AVID-PR,
+the first verifiable information dispersal protocol specifically designed for
+validium rollups that provides privacy against honest-but-curious storage
+nodes. Their benchmark achieved $<$3~seconds for 22~MB across 256 nodes with
+3.2$\times$ storage expansion. The privacy guarantee is computational (based
+on encryption), not information-theoretic. Alhaddad et
+al.~\cite{alhaddad2022avid} optimized AVID to near-optimal communication
+complexity: $O(|M| + kn^2)$ dispersal with $O(|M|/n + k)$ per-node storage.
+
+Gentry et al.~\cite{gentry2022pvss} demonstrated practical non-interactive
+publicly verifiable secret sharing (PVSS) scaling to thousands of parties
+based on LWE encryption. While providing public verifiability (anyone can
+verify shares were correctly generated), the scheme targets large committees;
+for small enterprise DACs ($n \leq 10$), standard Shamir suffices.
+
+\subsection{Cryptographic Primitives}
+
+\subsubsection{Shamir's Secret Sharing}
+
+Shamir~\cite{shamir1979share} introduced the $(k,n)$-threshold scheme:
+a secret $S$ is encoded as the constant term of a random polynomial
+$f(x) = S + a_1 x + \cdots + a_{k-1} x^{k-1}$ over $\mathrm{GF}(p)$,
+and shares $(i, f(i))$ are distributed to $n$ parties. Any $k$ shares
+reconstruct $S$ via Lagrange interpolation; fewer than $k$ shares reveal
+\emph{zero information} about $S$ (information-theoretic security).
+Computational complexity is $O(kn)$ for share generation and $O(k^2)$
+for reconstruction.
+
+\subsubsection{BLS Signature Aggregation}
+
+Boneh et al.~\cite{boneh2018compact} introduced accountable-subgroup
+multi-signatures (ASM) from BLS, achieving $O(\kappa)$-bit aggregated
+signatures independent of signer count. Burdges et
+al.~\cite{burdges2022aggregatable} extended this with pairing-free
+individual verification. BLS aggregation is used by Arbitrum Nova and
+EigenDA. For small committees ($n \leq 10$), ECDSA multi-signature is
+simpler and natively supported by EVM via \texttt{ecrecover}, making it
+the preferred choice for enterprise DACs on Avalanche Subnet-EVM.
+
+\subsubsection{Poseidon Hash Function}
+
+Grassi et al.~\cite{grassi2021poseidon} designed Poseidon as a hash
+function operating natively over prime fields, achieving up to 8$\times$
+fewer ZK circuit constraints than Pedersen hashing. Operating over the
+BN128 scalar field, Poseidon is the natural choice for data commitment
+hashing within the Basis Network validium architecture, ensuring
+compatibility with existing ZK circuit infrastructure.

@@ -1,0 +1,105 @@
+% experimental-setup.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{Experimental Setup}
+
+\subsection{Implementation}
+
+We implement Shamir-DAC in TypeScript (1,255 lines across 8 modules) using
+native JavaScript BigInt for BN128 field arithmetic. The implementation
+comprises:
+
+\begin{itemize}
+\item \textbf{Shamir module}: $(k,n)$-secret sharing over the BN128 scalar
+  field ($p = 21888242871839275222246405745257275088548364400416034343698204186575808495617$),
+  with 31-byte field element packing, polynomial evaluation for share
+  generation, and Lagrange interpolation for reconstruction.
+\item \textbf{DACNode}: Share storage, attestation signing (SHA-256 based
+  ECDSA simulation), and share retrieval for recovery.
+\item \textbf{DACProtocol}: Orchestrator for distribution, attestation
+  collection, certificate assembly, and AnyTrust-style fallback.
+\item \textbf{Test suites}: 51 privacy tests (share independence,
+  information leakage, reconstruction correctness, edge cases) and 61
+  recovery tests (failure modes, multi-batch, multi-configuration).
+\end{itemize}
+
+JavaScript BigInt is approximately $950\times$ slower than native Rust/C
+for modular arithmetic (established in prior work on Sparse Merkle Trees
+with Poseidon hashing). All benchmarks therefore represent conservative
+worst-case performance bounds. Production deployment with native field
+libraries (e.g., \texttt{ffjavascript} or Rust \texttt{ark-ff}) would
+improve throughput by an estimated 10--50$\times$.
+
+\subsection{Experimental Parameters}
+
+\subsubsection{Independent Variables}
+
+\begin{itemize}
+\item \textbf{Batch size}: 10~KB, 100~KB, 500~KB, 1~MB (spanning typical
+  enterprise batch ranges from small transaction sets to large industrial
+  telemetry batches).
+\item \textbf{Threshold configuration}: $(2,3)$ and $(3,3)$, representing
+  honest-majority and unanimous (AnyTrust-compatible) attestation.
+\item \textbf{Failure scenario}: all nodes online, 1 node offline (during
+  distribution), 2 nodes offline (fallback trigger).
+\end{itemize}
+
+\subsubsection{Dependent Variables}
+
+\begin{itemize}
+\item \textbf{Attestation latency} (ms): End-to-end time from share
+  generation through signature collection. The primary performance metric.
+\item \textbf{Share generation time} (ms): Time to generate all $n$ share
+  bundles from the batch data.
+\item \textbf{Recovery time} (ms): Time to reconstruct the original batch
+  from $k$ share bundles via Lagrange interpolation.
+\item \textbf{Storage overhead ratio}: Total storage across all nodes
+  divided by original batch size.
+\item \textbf{Privacy test pass rate}: Fraction of information leakage
+  tests that confirm zero leakage.
+\end{itemize}
+
+\subsection{Statistical Methodology}
+
+\subsubsection{Replications}
+
+Due to the computational cost of JavaScript BigInt arithmetic at large
+batch sizes, we use adaptive replications:
+
+\begin{itemize}
+\item 10~KB: 50 replications (+ 3 warm-up, discarded)
+\item 100~KB: 30 replications (+ 3 warm-up)
+\item 500~KB and 1~MB: 10 replications (+ 3 warm-up)
+\end{itemize}
+
+All configurations achieve 95\% confidence interval (CI) half-widths below
+5\% of the mean, well within the 10\% threshold required by our experimental
+protocol.
+
+\subsubsection{Statistical Measures}
+
+For each configuration, we report: arithmetic mean, standard deviation, 95\%
+CI (assuming normal distribution), and P95 (95th percentile). Linearity of
+scaling is validated by computing $R^2$ for a linear regression of latency
+against element count.
+
+\subsection{Benchmark Validation}
+
+We validate measurements against published data to detect instrumentation
+errors or unrealistic results:
+
+\begin{itemize}
+\item \textbf{SSS share generation}: Literature estimates 0.6--3~$\mu$s per
+  field element for native code~\cite{shamir1979share}. Our measured
+  $\sim$9.5~$\mu$s per element (JavaScript BigInt) represents a 3--16$\times$
+  overhead, consistent with the known BigInt performance gap.
+\item \textbf{Semi-AVID-PR}: Nazirkhanova et al.~\cite{nazirkhanova2022semiavidpr}
+  report $<$3~seconds for 22~MB across 256 nodes. Our 3-node system handles
+  500~KB in 163~ms---not directly comparable (different scale), but
+  directionally consistent.
+\item \textbf{On-chain ECDSA verification}: 3 $\times$ 3,000 gas per
+  \texttt{ecrecover} = 9,000 gas total, consistent with Ethereum
+  specifications. On Basis Network (zero gas), this is negligible.
+\end{itemize}
+
+No metric diverges by more than $10\times$ from published benchmarks after
+accounting for platform and workload differences.
