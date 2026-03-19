@@ -1,0 +1,57 @@
+BasisRollup Verification Log
+============================
+Date: 2026-03-19
+Target: zkl2
+Unit: 2026-03-basis-rollup
+Compiler: The Rocq Prover, version 9.0.1 (compiled with OCaml 4.14.2)
+Namespace: BasisRollup
+Command: coqc -Q . BasisRollup <file>.v
+
+Compilation Results
+-------------------
+Common.v      PASS  (0 errors, 0 warnings)
+Spec.v        PASS  (0 errors, 0 warnings)
+Impl.v        PASS  (0 errors, 0 warnings)
+Refinement.v  PASS  (0 errors, 0 warnings)
+
+Admitted Count: 0
+Axiom Count: 0 (no custom axioms)
+
+Artifacts Generated
+-------------------
+Common.vo       8,529 bytes
+Spec.vo        17,595 bytes
+Impl.vo         8,991 bytes
+Refinement.vo  76,771 bytes
+Total:        111,886 bytes
+
+All .vok and .vos files generated (kernel-checked).
+
+Theorems Proved
+---------------
+ T1. inv_init_state              Inv init_state
+ T2. inv_preserved               Inv s -> step s s' -> Inv s'
+ T3. batch_chain_continuity      Inv s -> BatchChainContinuity s
+ T4. prove_before_execute        Inv s -> ProveBeforeExecute s
+ T5. counter_monotonicity        Inv s -> CounterMonotonicity s
+ T6. execute_in_order            Inv s -> ExecuteInOrder s
+ T7. status_consistency          Inv s -> StatusConsistency s
+ T8. batch_root_integrity        Inv s -> BatchRootIntegrity s
+ T9. no_reversal                 Inv s -> NoReversal s
+T10. init_before_batch           Inv s -> InitBeforeBatch s
+T11. impl_inv_preserved          Inv s -> impl_step s s' -> Inv s'
+T12. impl_batch_chain_continuity Inv s -> BatchChainContinuity s
+T13. impl_prove_before_execute   Inv s -> ProveBeforeExecute s
+
+Supporting Lemmas (5 preservation lemmas, all without Admitted):
+  inv_initialize   : Inv s -> can_initialize s -> Inv (do_initialize s r)
+  inv_commit       : Inv s -> can_commit s     -> Inv (do_commit s r)
+  inv_prove        : Inv s -> can_prove s      -> Inv (do_prove s)
+  inv_execute      : Inv s -> can_execute s    -> Inv (do_execute s)
+  inv_revert       : Inv s -> can_revert s     -> Inv (do_revert s)
+
+Refinement Lemmas (bidirectional):
+  impl_refines_spec : impl_step s s' -> step s s'
+  spec_refines_impl : step s s' -> impl_step s s'
+
+Verdict: PASS -- All proofs verified by Coq kernel.

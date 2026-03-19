@@ -468,7 +468,7 @@ lab/4-prover/verification-history/YYYY-MM-basis-rollup/
 
 ### [20] Prover | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 13 theorems, 0 Admitted, 0 axioms, bidirectional refinement)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [19] complete, snapshots prepared.
