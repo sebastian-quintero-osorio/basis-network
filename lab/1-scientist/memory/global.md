@@ -15,6 +15,7 @@
 | 2026-03-18 | cross-enterprise (RU-V7) | validium | CONFIRMED | 1.41x overhead (seq), 0.64x (batched), 68,868 constraints, 4/4 privacy |
 | 2026-03-19 | sequencer (RU-L2) | zkl2 | CONFIRMED | 0.14ms@500tx, 2.8M tx/s insert, 100% FIFO, 100% forced inclusion |
 | 2026-03-19 | state-database (RU-L4) | zkl2 | CONFIRMED | Poseidon2 4.46us/hash, 125us insert, 18.77ms@100tx batch, 46ms@250tx |
+| 2026-03-19 | witness-generation (RU-L3) | zkl2 | CONFIRMED | 13.37ms@1000tx, 3.0MB witness, 78.4% storage, determinism PASS |
 
 ## Key Patterns
 
@@ -130,6 +131,18 @@
 - Memory: ~2.9 KB/entry at depth 32, persistent storage needed for >100K entries
 - Two-level trie for EVM: AccountTrie (address -> accountHash) + StorageTrie per contract
 
+## Witness Generation Patterns (zkL2)
+
+- Multi-table architecture is universal: Polygon (13 SMs), Scroll (bus-mapping), zkSync (Boojum)
+- Witness gen is I/O-bound (field conversions, Merkle retrieval), NOT compute-bound
+- Storage table dominates witness: 78.4% at depth 32 (Merkle siblings per SLOAD/SSTORE)
+- BN254 Fr via ark-bn254: 13.37 ms for 1000 tx witness generation (Rust, release)
+- 256-bit EVM word: split into 2 x 128-bit limbs (both fit in 254-bit Fr)
+- Determinism: BTreeMap, sequential processing, no HashMap, no floating-point
+- Witness gen is < 0.01% of total proving time -- optimize prover, not witness gen
+- Depth sensitivity: linear (depth 256 = ~3x vs depth 32 for time and size)
+- Production witness sizes: Polygon ~2 GB (full), our prototype ~3 MB (3 tables of ~10)
+
 ## Experiment Index
 
 1. `validium/research/experiments/2026-03-18_sparse-merkle-tree/` -- RU-V1, Stage 2 complete
@@ -142,3 +155,4 @@
 8. `zkl2/research/experiments/2026-03-19_evm-executor/` -- RU-L1, Stage 1 (benchmarks pending Go)
 9. `zkl2/research/experiments/2026-03-19_sequencer/` -- RU-L2, Stage 1 complete, CONFIRMED
 10. `zkl2/research/experiments/2026-03-19_state-database/` -- RU-L4, Stage 1 complete, CONFIRMED
+11. `zkl2/research/experiments/2026-03-19_witness-generation/` -- RU-L3, Stage 2 complete, CONFIRMED

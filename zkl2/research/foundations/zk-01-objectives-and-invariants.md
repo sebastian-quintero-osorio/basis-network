@@ -195,6 +195,67 @@ prover circuit. A mismatch would make state proofs unverifiable.
 **Why:** If the state DB uses Poseidon2 but the circuit expects original Poseidon (or
 vice versa), all state transition proofs would be invalid.
 
+### I-16: Witness Completeness
+
+The witness generator MUST produce a witness row for EVERY state-modifying trace entry.
+No trace entry may be silently dropped. The total witness row count across all tables
+MUST equal the total trace entry count (accounting for entries that produce multiple rows,
+e.g., SSTORE produces 2 storage rows for old and new Merkle paths).
+
+**Source:** RU-L3 (Witness Generation)
+**Why:** A missing witness row means a state transition goes unproven. The circuit would
+either reject the proof (safe) or accept an incomplete proof (catastrophic).
+
+### I-17: Witness Determinism
+
+For any execution trace T, the witness generator MUST produce the same witness W:
+```
+witness_gen(T) = W  (deterministic, bit-for-bit identical)
+```
+This applies across runs, machines, and compiler versions.
+
+**Source:** RU-L3 (Witness Generation), extends I-08
+**Why:** The prover and verifier must agree on the witness. Non-determinism (e.g., from
+HashMap ordering or floating-point arithmetic) would produce different witnesses on
+different machines, making proofs non-reproducible.
+
+### I-18: Multi-Table Witness Architecture
+
+The witness MUST be organized as separate tables per EVM operation category:
+- Arithmetic table: balance changes, nonce changes, value arithmetic
+- Storage table: SLOAD/SSTORE with Merkle proof paths
+- Call context table: CALL/CREATE context switches
+- (Future: bytecode, memory, stack, Keccak, copy, padding tables)
+
+Each table has a fixed column schema. The global counter field provides cross-table ordering.
+
+**Source:** RU-L3 (Witness Generation), validated by Polygon/Scroll/zkSync architectures
+**Why:** Multi-table design enables: (a) independent circuit verification per table,
+(b) parallel witness generation per table (future optimization), (c) modular circuit
+development (one circuit per table).
+
+### I-19: Witness Generation Performance Budget
+
+Witness generation MUST complete within 1% of total batch proving time. For the target
+of < 5 minute batch proving, witness generation must complete in < 3 seconds for any
+batch size up to 1000 transactions.
+
+**Source:** RU-L3 (Witness Generation)
+**Why:** Witness generation is I/O-bound (field conversions, Merkle proof retrieval).
+If it exceeds 1% of proving time, the architecture needs optimization (batch DB queries,
+binary serialization, parallel table generation).
+Measured: 13.37 ms for 1000 tx (0.004% of 5-minute budget). Margin is 22,000x.
+
+## Performance Targets (Updated)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| Witness gen time (1000 tx) | < 3s (1% of 5min) | RU-L3 experiment (measured: 13.37 ms) |
+| Witness gen per-tx cost | < 3 ms | RU-L3 experiment (measured: 13.4 us) |
+| Witness size (1000 tx, depth 32) | < 10 MB | RU-L3 experiment (measured: 3.0 MB) |
+| Witness determinism | 100% | RU-L3 experiment (verified: PASS) |
+| Storage table share | ~60-80% | RU-L3 experiment (measured: 78.4%) |
+
 ## Experiment Log
 
 | Date | Experiment | Invariants Affected | Update |
@@ -202,3 +263,4 @@ vice versa), all state transition proofs would be invalid.
 | 2026-03-19 | RU-L1: EVM Executor | I-01 through I-06 | Initial creation |
 | 2026-03-19 | RU-L2: Sequencer | I-09 through I-12 | Added sequencer invariants, performance targets |
 | 2026-03-19 | RU-L4: State Database | I-06 (refined), I-13 through I-15 | State root latency, trie isolation, hash alignment |
+| 2026-03-19 | RU-L3: Witness Generation | I-08 (refined), I-16 through I-19 | Witness completeness, determinism, multi-table, performance budget |
