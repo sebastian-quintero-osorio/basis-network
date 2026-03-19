@@ -1,0 +1,27 @@
+{
+  "name": "bridge",
+  "target": "zkl2",
+  "title": "L1-L2 Bridge with Escape Hatch for Enterprise zkEVM",
+  "hypothesis": "A bridge contract can process deposits (L1->L2) in < 5 minutes and withdrawals (L2->L1) in < 30 minutes, with an escape hatch that allows withdrawal via Merkle proof directly on L1 if the sequencer is offline for > 24 hours.",
+  "null_hypothesis": "The bridge cannot achieve sub-5-minute deposit or sub-30-minute withdrawal latency due to proof verification overhead, or the escape hatch mechanism introduces exploitable double-spend vectors that compromise bridge solvency.",
+  "domain": "l2-architecture",
+  "independent_variables": [
+    "bridge_design_pattern",
+    "finality_delay_blocks",
+    "escape_hatch_timeout_hours",
+    "batch_size",
+    "withdrawal_proof_depth"
+  ],
+  "dependent_variables": [
+    "deposit_latency_seconds",
+    "withdrawal_latency_seconds",
+    "deposit_gas_cost",
+    "withdrawal_gas_cost",
+    "escape_hatch_gas_cost",
+    "double_spend_resistance"
+  ],
+  "stage": 1,
+  "iteration": 0,
+  "created": "2026-03-19",
+  "status": "active"
+}

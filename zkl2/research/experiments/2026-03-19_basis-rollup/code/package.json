@@ -1,0 +1,16 @@
+{
+  "name": "basis-rollup-experiment",
+  "version": "0.0.1",
+  "description": "Experiment: L1 Rollup Contract for Enterprise zkEVM L2",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:gas": "REPORT_GAS=true hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0",
+    "hardhat-gas-reporter": "^1.0.10"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "reps": 30,
+  "batch_size": 100,
+  "fail_rate": 0.3,
+  "max_retries": 5,
+  "success_count": 30,
+  "fail_count": 0,
+  "success_rate_pct": 100.0,
+  "avg_retries": 0.27,
+  "avg_e2e_ms": 15852.6,
+  "stdev_e2e_ms": 5940.3
+}

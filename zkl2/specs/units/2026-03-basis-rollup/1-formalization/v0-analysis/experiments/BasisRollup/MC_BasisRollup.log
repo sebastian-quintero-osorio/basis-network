@@ -1,0 +1,29 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 86 and seed -3560120108855186710 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-basis-rollup\1-formalization\v0-analysis\experiments\BasisRollup\_build\MC_BasisRollup.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-basis-rollup\1-formalization\v0-analysis\experiments\BasisRollup\_build\BasisRollup.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module BasisRollup
+Semantic processing of module MC_BasisRollup
+Starting... (2026-03-19 10:14:22)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-19 10:14:23.
+Progress(10) at 2026-03-19 10:14:26: 178,333 states generated (178,333 s/min), 50,355 distinct states found (50,355 ds/min), 27,373 states left on queue.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 3.7E-8
+  based on the actual fingerprints:  val = 1.9E-9
+2187547 states generated, 383161 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 21.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 8 and the 95th percentile is 2).
+Finished in 18s at (2026-03-19 10:14:40)

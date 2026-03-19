@@ -378,7 +378,7 @@ lab/4-prover/verification-history/YYYY-MM-witness-generation/
 
 ### [16] Prover | RU-L3: Witness Generation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 key theorems, 14-field inductive invariant, Rust-TLA+ isomorphism)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [15] complete, snapshots prepared.
@@ -397,7 +397,7 @@ lab/4-prover/verification-history/YYYY-MM-witness-generation/
 
 ### [17] Scientist | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- CONFIRMED: BasisRollup.sol 400+ lines, 287K gas, commit-prove-execute, 61 tests)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [13] complete. Validium RU-V3 should be done.
@@ -421,7 +421,7 @@ lab/2-logicist/research-history/YYYY-MM-basis-rollup/0-input/
 
 ### [18] Logicist | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 12 invariants, commit-prove-execute lifecycle, extends RU-V3)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [17] complete, materials in `0-input/`.
@@ -444,7 +444,7 @@ lab/3-architect/implementation-history/contract-basis-rollup/
 
 ### [19] Architect | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisRollup.sol: 88 tests, 12/12 invariants, commit-prove-execute, 23 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [18] complete, verified specs in `implementation-history/`.
@@ -468,7 +468,7 @@ lab/4-prover/verification-history/YYYY-MM-basis-rollup/
 
 ### [20] Prover | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 13 theorems, 0 Admitted, 0 axioms, bidirectional refinement)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [19] complete, snapshots prepared.
@@ -487,7 +487,7 @@ lab/4-prover/verification-history/YYYY-MM-basis-rollup/
 
 ### [21] Scientist | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go pipeline orchestrator, 4 benchmark result files, bottleneck analysis)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [05], [09], [13], [17] complete (all Scientist work for Phase 1-2).
@@ -511,7 +511,7 @@ lab/2-logicist/research-history/YYYY-MM-e2e-pipeline/0-input/
 
 ### [22] Logicist | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: Safety 2,024 states + Liveness 10,648 states, pipeline integrity verified)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [21] complete, materials in `0-input/`.
@@ -534,7 +534,7 @@ lab/3-architect/implementation-history/node-e2e-pipeline/
 
 ### [23] Architect | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go pipeline: 17/17 tests, 26 adversarial, Stages interface, concurrent batches)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [22] complete, verified specs in `implementation-history/`.
@@ -559,7 +559,7 @@ lab/4-prover/verification-history/YYYY-MM-e2e-pipeline/
 
 ### [24] Prover | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 5 theorems, PipelineIntegrity + AtomicFailure proved, 0 Admitted)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [23] complete, snapshots prepared.
@@ -582,7 +582,7 @@ lab/4-prover/verification-history/YYYY-MM-e2e-pipeline/
 
 ### [25] Scientist | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisBridge.sol prototype + Go relayer, deposit/withdrawal/escape hatch)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [17], [21] complete.
@@ -606,7 +606,7 @@ lab/2-logicist/research-history/YYYY-MM-bridge/0-input/
 
 ### [26] Logicist | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: NoDoubleSpend + EscapeHatchLiveness + BalanceConservation)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [25] complete, materials in `0-input/`.
@@ -629,7 +629,7 @@ lab/3-architect/implementation-history/contract-bridge/
 
 ### [27] Architect | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisBridge.sol + Go relayer, 6 TLA+ invariants, escape hatch, nullifiers)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [26] complete, verified specs in `implementation-history/`.
@@ -653,7 +653,7 @@ lab/4-prover/verification-history/YYYY-MM-bridge/
 
 ### [28] Prover | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 9 theorems, 1,491 lines Coq, NoDoubleSpend + BalanceConservation + EscapeHatch)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [27] complete, snapshots prepared.
@@ -672,7 +672,7 @@ lab/4-prover/verification-history/YYYY-MM-bridge/
 
 ### [29] Scientist | RU-L8: Production DAC
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- CONFIRMED: 99.997% availability, 8.94ms attestation, Go + Reed-Solomon, 36x faster than validium)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [21] complete. Validium RU-V6 should be done.
