@@ -17,9 +17,12 @@ import {
   ENTERPRISE_REGISTRY_ABI,
   TRACEABILITY_REGISTRY_ABI,
   ZK_VERIFIER_ABI,
+  STATE_COMMITMENT_ABI,
+  DAC_ATTESTATION_ABI,
   type BlockInfo,
   type Enterprise,
   type Activity,
+  type ValidiumBatch,
 } from "./contracts";
 
 interface NetworkState {
@@ -36,6 +39,14 @@ interface NetworkState {
   totalZKVerified: number;
   totalTxVerified: number;
   totalZKBatches: number;
+
+  // Validium state
+  totalStateBatches: number;
+  verifyingKeySet: boolean;
+  dacCommitteeSize: number;
+  dacThreshold: number;
+  dacTotalCertified: number;
+  validiumBatches: ValidiumBatch[];
 
   enterprises: Enterprise[];
   activities: Activity[];
@@ -54,6 +65,12 @@ const defaultState: NetworkState = {
   totalZKVerified: 0,
   totalTxVerified: 0,
   totalZKBatches: 0,
+  totalStateBatches: 0,
+  verifyingKeySet: false,
+  dacCommitteeSize: 0,
+  dacThreshold: 0,
+  dacTotalCertified: 0,
+  validiumBatches: [],
   enterprises: [],
   activities: [],
   recentBlocks: [],
@@ -96,6 +113,12 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       let totalZKBatches = 0;
       let totalZKVerified = 0;
       let totalTxVerified = 0;
+      let totalStateBatches = 0;
+      let verifyingKeySet = false;
+      let dacCommitteeSize = 0;
+      let dacThreshold = 0;
+      let dacTotalCertified = 0;
+      let validiumBatches: ValidiumBatch[] = [];
       let enterpriseData: Enterprise[] = [];
 
       const calls: Promise<void>[] = [];
@@ -146,6 +169,57 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         );
       }
 
+      const stateCommitAddr = process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS;
+      const dacAddr = process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS;
+
+      if (stateCommitAddr) {
+        calls.push(
+          (async () => {
+            try {
+              const c = getContract(stateCommitAddr, STATE_COMMITMENT_ABI);
+              [totalStateBatches, verifyingKeySet] = await Promise.all([
+                c.totalBatchesCommitted().then(Number),
+                c.verifyingKeySet(),
+              ]);
+              // Fetch recent BatchCommitted events
+              const fromBlock = Math.max(0, blockNumber - 5000);
+              const events = await c.queryFilter(
+                c.filters.BatchCommitted(),
+                fromBlock
+              );
+              validiumBatches = events.map((ev) => {
+                const log = ev as ethers.EventLog;
+                return {
+                  batchId: Number(log.args[1]),
+                  prevRoot: String(log.args[2]).slice(0, 18) + "...",
+                  newRoot: String(log.args[3]).slice(0, 18) + "...",
+                  enterprise: String(log.args[0]),
+                  timestamp: new Date(
+                    Number(log.args[4]) * 1000
+                  ).toLocaleDateString(),
+                  blockNumber: log.blockNumber,
+                };
+              }).reverse();
+            } catch { /* StateCommitment not deployed yet */ }
+          })()
+        );
+      }
+
+      if (dacAddr) {
+        calls.push(
+          (async () => {
+            try {
+              const c = getContract(dacAddr, DAC_ATTESTATION_ABI);
+              [dacCommitteeSize, dacThreshold, dacTotalCertified] = await Promise.all([
+                c.committeeSize().then(Number),
+                c.threshold().then(Number),
+                c.totalCertified().then(Number),
+              ]);
+            } catch { /* DACAttestation not deployed yet */ }
+          })()
+        );
+      }
+
       const [recentBlocks, activities] = await Promise.all([
         fetchRecentBlocks(provider, 8),
         fetchRecentActivities(provider),
@@ -164,6 +238,12 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         totalZKVerified,
         totalTxVerified,
         totalZKBatches,
+        totalStateBatches,
+        verifyingKeySet,
+        dacCommitteeSize,
+        dacThreshold,
+        dacTotalCertified,
+        validiumBatches,
         enterprises: enterpriseData,
         activities,
         recentBlocks,

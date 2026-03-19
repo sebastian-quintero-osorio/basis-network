@@ -33,6 +33,36 @@ export const ZK_VERIFIER_ABI = [
   "event BatchVerified(bytes32 indexed batchId, address indexed enterprise, bool verified, uint256 timestamp)",
 ];
 
+export const STATE_COMMITMENT_ABI = [
+  "function admin() view returns (address)",
+  "function verifyingKeySet() view returns (bool)",
+  "function totalBatchesCommitted() view returns (uint256)",
+  "function enterprises(address) view returns (bytes32 currentRoot, uint64 batchCount, uint64 lastTimestamp, bool initialized)",
+  "function getCurrentRoot(address) view returns (bytes32)",
+  "function getBatchCount(address) view returns (uint256)",
+  "function getBatchRoot(address, uint256) view returns (bytes32)",
+  "event BatchCommitted(address indexed enterprise, uint256 indexed batchId, bytes32 prevRoot, bytes32 newRoot, uint256 timestamp)",
+  "event EnterpriseInitialized(address indexed enterprise, bytes32 genesisRoot, uint256 timestamp)",
+];
+
+export const DAC_ATTESTATION_ABI = [
+  "function totalBatches() view returns (uint256)",
+  "function totalCertified() view returns (uint256)",
+  "function committeeSize() view returns (uint256)",
+  "function threshold() view returns (uint256)",
+  "function verifyAttestation(bytes32) view returns (bool)",
+  "event AttestationSubmitted(bytes32 indexed batchId, bytes32 commitment, uint256 signatureCount, uint8 state, uint256 timestamp)",
+];
+
+export interface ValidiumBatch {
+  batchId: number;
+  prevRoot: string;
+  newRoot: string;
+  enterprise: string;
+  timestamp: string;
+  blockNumber: number;
+}
+
 export function getContract(address: string, abi: string[]): ethers.Contract {
   const provider = getProvider();
   return new ethers.Contract(address, abi, provider);
