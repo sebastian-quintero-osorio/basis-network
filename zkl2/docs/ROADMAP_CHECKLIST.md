@@ -444,7 +444,7 @@ lab/3-architect/implementation-history/contract-basis-rollup/
 
 ### [19] Architect | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisRollup.sol: 88 tests, 12/12 invariants, commit-prove-execute, 23 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [18] complete, verified specs in `implementation-history/`.

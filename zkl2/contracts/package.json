@@ -1,0 +1,17 @@
+{
+  "name": "zkl2-contracts",
+  "version": "0.1.0",
+  "description": "L1 settlement contracts for Basis Network zkEVM L2",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "clean": "hardhat clean"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.4.0",
+    "hardhat": "^2.19.0"
+  }
+}
