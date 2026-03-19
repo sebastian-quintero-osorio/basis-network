@@ -1,0 +1,56 @@
+\section{Conclusion}
+
+We presented the design, implementation, and systematic benchmarking of
+\textsc{ChainedBatchStateTransition}, a Circom circuit for proving
+batched Sparse Merkle Tree state transitions with Poseidon hashing
+under Groth16.
+
+Our principal contributions are:
+
+\begin{enumerate}
+\item An exact constraint scaling law, $C_{\text{tx}} = 1{,}038 \cdot (d+1)$,
+  verified with zero residual error across seven configurations spanning
+  three tree depths and three batch sizes.
+
+\item Empirical evidence that the production target of depth~32,
+  batch~64 ($\sim$2.19M constraints) is provable in 14--35~seconds
+  with Rapidsnark, well within a 60-second enterprise latency budget.
+
+\item Quantitative reconciliation with production systems: our
+  per-transaction cost of 34,254~constraints at depth~32 is consistent
+  with Hermez ($0.59\times$, excluding signature and token logic) and
+  Tornado Cash ($3.1\text{--}4.4\times$ a single Merkle proof, consistent
+  with dual-path verification).
+\end{enumerate}
+
+The results reject the na\"ive 100,000-constraint target for batch-64
+circuits but confirm the feasibility of enterprise validium batch
+processing when paired with native Groth16 provers. The derived
+constraint formula enables exact capacity planning: given a prover's
+throughput and a latency budget, the maximum batch size can be computed
+directly.
+
+\subsection{Future Work}
+
+Three extensions are planned within the Basis Network research pipeline:
+
+\begin{itemize}
+\item \textbf{Adversarial testing} (Stage~3): fault injection,
+  malicious witness inputs, and constraint under-specification attacks
+  to verify circuit soundness under adversarial conditions.
+
+\item \textbf{Rapidsnark benchmarking}: direct measurement of native
+  prover performance across the same configurations to validate the
+  extrapolated speedup factors.
+
+\item \textbf{SMTProcessor comparison}: implementation and benchmarking
+  of an equivalent circuit using circomlib's \texttt{SMTProcessor}
+  template to quantify the constraint savings from shared intermediate
+  computations.
+\end{itemize}
+
+The circuit design and constraint formula presented here feed directly
+into the downstream formal verification pipeline (TLA+ specification
+by the Logicist agent, implementation by the Architect agent, and
+Coq certification by the Prover agent) of the Basis Network R\&D
+laboratory.

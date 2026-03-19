@@ -1,0 +1,125 @@
+\section{System Model and Methodology}
+
+\subsection{Network and Trust Model}
+
+We consider an enterprise validium architecture in which a single
+organization operates an off-chain node that: (1)~receives state-changing
+transactions from enterprise applications, (2)~maintains a Sparse Merkle
+Tree of key-value state, (3)~aggregates transactions into fixed-size
+batches, (4)~generates a Groth16 zero-knowledge proof of correct batch
+execution, and (5)~submits the proof and new state root to an
+Avalanche Layer~1 blockchain for on-chain verification.
+
+The threat model assumes a trusted operator (the enterprise itself) but
+requires that the L1 contract can independently verify that the claimed
+state root is the result of applying valid state transitions to the
+previous root. The ZK proof provides this guarantee without revealing
+the transaction data.
+
+\subsection{Circuit Design}
+
+\subsubsection{MerklePathVerifier Template}
+
+The \texttt{MerklePathVerifier(depth)} template computes a Merkle root
+from a leaf hash, an array of sibling hashes, and path direction bits.
+At each level $i$, it uses a \texttt{Mux1} selector to order the current
+intermediate hash and the sibling according to the path bit, then hashes
+the pair with \texttt{Poseidon(2)}. The output is the computed root.
+
+\begin{equation}
+h_{i+1} = \text{Poseidon}\!\left(
+  \text{Mux}(h_i, s_i, b_i),\;
+  \text{Mux}(s_i, h_i, b_i)
+\right)
+\label{eq:merkle-level}
+\end{equation}
+
+where $h_0$ is the leaf hash, $s_i$ is the sibling at level $i$, and
+$b_i \in \{0,1\}$ indicates whether the current node is the left or
+right child.
+
+\subsubsection{ChainedBatchStateTransition Template}
+
+The main circuit template, \texttt{ChainedBatchStateTransition(depth,\allowbreak
+batchSize)}, processes a batch of $n$ sequential state transitions.
+For each transaction $i \in [0, n)$:
+
+\begin{enumerate}
+\item Compute old leaf hash: $\ell_{\text{old}} = \text{Poseidon}(k_i, v_i^{\text{old}})$
+\item Compute new leaf hash: $\ell_{\text{new}} = \text{Poseidon}(k_i, v_i^{\text{new}})$
+\item Verify old Merkle path: assert $\texttt{MerklePathVerifier}(\ell_{\text{old}}, \vec{s}_i, \vec{b}_i) = r_i$
+\item Compute new root: $r_{i+1} = \texttt{MerklePathVerifier}(\ell_{\text{new}}, \vec{s}_i, \vec{b}_i)$
+\end{enumerate}
+
+The root chain is initialized with $r_0 = \texttt{prevStateRoot}$ and
+must terminate at $r_n = \texttt{newStateRoot}$. Both endpoints are
+public inputs, along with \texttt{batchNum} and \texttt{enterpriseId}.
+All per-transaction inputs (keys, values, siblings, path bits) are
+private.
+
+The critical design decision is \emph{sibling sharing}: old and new
+Merkle path verifications use the same sibling array $\vec{s}_i$
+and path bits $\vec{b}_i$, since only the leaf value changes. This
+ensures consistency---the new root is computed over the same tree
+structure, differing only in the updated leaf.
+
+\subsubsection{Per-Transaction Constraint Decomposition}
+
+Each transaction instantiates:
+
+\begin{itemize}
+\item 2 Poseidon(2) leaf hashes: $2 \times 240 = 480$ constraints
+\item 2 MerklePathVerifier($d$) instances: each requires $d$ levels of
+  (Poseidon(2) + 2$\times$Mux1), yielding $2 \times 519d$ constraints
+\item 1 IsEqual root check: $\sim$5 constraints
+\end{itemize}
+
+The theoretical per-transaction cost is therefore:
+\begin{equation}
+C_{\text{tx}}^{\text{theory}} = 2 \times 519d + 480 + 5 = 1{,}038d + 485
+\label{eq:theory-cost}
+\end{equation}
+
+\subsection{Benchmark Methodology}
+
+We compiled and benchmarked seven circuit configurations spanning three
+tree depths ($d \in \{10, 20, 32\}$) and three batch sizes
+($n \in \{4, 8, 16\}$), with the $d{=}32, n{=}16$ configuration
+excluded due to prohibitive key generation time. For each configuration:
+
+\begin{enumerate}
+\item \textbf{Compilation}: Circom~2.2.3 compiles the circuit to R1CS
+  and WASM, reporting the constraint count.
+\item \textbf{Input generation}: A Node.js script constructs a valid
+  Poseidon-based SMT, inserts random key-value pairs, performs $n$
+  sequential updates, and records the witness (keys, old/new values,
+  Merkle siblings, path bits, intermediate roots).
+\item \textbf{Witness generation}: SnarkJS~0.7.6 generates the full
+  witness from the input JSON using the WASM binary.
+\item \textbf{Key generation}: A Groth16 trusted setup is performed
+  using an appropriate Powers of Tau ceremony (power selected to
+  exceed the circuit's constraint count).
+\item \textbf{Proof generation}: SnarkJS generates the Groth16 proof.
+\item \textbf{Verification}: SnarkJS verifies the proof against the
+  verification key and public inputs.
+\end{enumerate}
+
+All benchmarks were executed on a commodity desktop running Windows~11,
+Node.js~v22.13.1, Circom~2.2.3, and SnarkJS~0.7.6. Timing was measured
+via \texttt{Date.now()} surrounding each SnarkJS API call. Each
+configuration was run once; stochastic variance analysis is deferred
+to Stage~2 of the experiment protocol.
+
+\subsection{Extrapolation Method}
+
+For configurations beyond our direct benchmark capability (batch sizes
+32, 64, 128), we extrapolate using:
+
+\begin{itemize}
+\item \textbf{Constraint count}: The exact formula derived from
+  measurements (Section~\ref{sec:results}).
+\item \textbf{Proving time}: A linear model of 65~$\mu$s per constraint
+  for SnarkJS on commodity hardware, derived from the mean across all
+  seven benchmarks. For Rapidsnark, we apply the published 4--10$\times$
+  speedup factor from~\cite{tachyon2024,zkmopro2024}.
+\end{itemize}
