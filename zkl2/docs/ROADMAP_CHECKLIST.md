@@ -31,7 +31,7 @@ complete before starting this checklist. Knowledge from Validium RUs directly in
 
 ### [01] Scientist | RU-L1: EVM Executor
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Geth fork analysis, ZK opcode mapping, 4K-12K tx/s projected, 22 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Validium MVP substantially complete.

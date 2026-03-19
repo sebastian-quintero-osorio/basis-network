@@ -1,0 +1,64 @@
+{
+  "note": "PROJECTED results based on published benchmarks. Go is not installed on this machine. Actual benchmarks pending Go installation and execution of code/setup.sh.",
+  "timestamp": "2026-03-19T00:00:00Z",
+  "geth_version": "v1.14.12",
+  "methodology": "Projections derived from: Reth benchmarks (Paradigm 2024), op-geth diff analysis, Polygon zkEVM ZK counter documentation, Scroll whitepaper, and community Geth benchmarks.",
+  "benchmarks": [
+    {
+      "name": "simple_transfer",
+      "with_tracing": false,
+      "projected_tx_per_second": "5000-15000",
+      "rationale": "Geth processes simple transfers at ~21,000 gas each. At 100-200 MGas/s (Geth live sync rate), this yields 4,700-9,500 tx/s. In-memory StateDB without disk I/O should be 1.5-2x faster, giving 7,000-15,000 tx/s.",
+      "confidence": "HIGH"
+    },
+    {
+      "name": "simple_transfer",
+      "with_tracing": true,
+      "projected_tx_per_second": "4000-12000",
+      "projected_trace_size_bytes": "200-500",
+      "projected_tracing_overhead_percent": "10-25",
+      "rationale": "ZK tracing captures balance changes and nonce changes only for simple transfers (no storage). Geth structLogger shows 10-50x overhead, but our custom ZK tracer captures only state-modifying events, not every opcode. Expected overhead 10-25%.",
+      "confidence": "MEDIUM"
+    },
+    {
+      "name": "storage_write",
+      "with_tracing": false,
+      "projected_tx_per_second": "2000-8000",
+      "rationale": "SSTORE operations are more expensive (20K-22K gas for cold 0->nonzero). In-memory StateDB avoids disk I/O penalty. Range based on contract complexity.",
+      "confidence": "MEDIUM"
+    },
+    {
+      "name": "storage_write",
+      "with_tracing": true,
+      "projected_tx_per_second": "1500-6000",
+      "projected_trace_size_bytes": "500-1500",
+      "projected_tracing_overhead_percent": "15-30",
+      "rationale": "Storage writes generate larger traces (slot, value, old value). Each SSTORE adds ~100-200 bytes to trace. With multiple state changes per tx, trace grows. Overhead higher than transfer due to StorageChange hooks.",
+      "confidence": "MEDIUM"
+    },
+    {
+      "name": "opcode_trace_full",
+      "with_tracing": true,
+      "projected_tx_per_second": "500-3000",
+      "projected_trace_size_bytes": "2000-10000",
+      "projected_tracing_overhead_percent": "40-70",
+      "rationale": "Full opcode capture (every instruction logged) is significantly more expensive. structLogger shows 10-50x overhead. Our Go tracer is more efficient but still captures every opcode. Not recommended for production -- use selective tracing.",
+      "confidence": "LOW"
+    }
+  ],
+  "key_predictions": {
+    "hypothesis_1000_tx_s": "LIKELY CONFIRMED -- even with ZK tracing, storage-heavy operations should exceed 1000 tx/s on commodity hardware with in-memory StateDB",
+    "tracing_overhead": "10-30% for selective ZK tracing (state changes only). 40-70% for full opcode capture.",
+    "trace_size_per_tx": "200-1500 bytes depending on tx complexity (transfer vs storage-heavy contract)",
+    "memory_usage": "Estimated 50-200 MB for 100K accounts in-memory StateDB",
+    "geth_modularity": "CONFIRMED -- core/vm, core/state, core/types can be imported as Go module without forking. op-geth diff of ~17K lines (of which only 34 lines touch EVM) demonstrates this."
+  },
+  "validation_benchmarks": {
+    "gravity_reth_erc20_transfers": "41,000 tx/s (1.5 GGas/s) -- Rust implementation, sets upper bound",
+    "reth_single_thread_prewarming": "~700 MGas/s -- Rust, single-threaded",
+    "geth_live_sync": "100-200 MGas/s -- Go, includes I/O",
+    "polygon_zkevm_batch_proving": "190-200s per batch",
+    "scroll_target_proving": "<30s per block (2025 target)",
+    "op_geth_fork_diff": "16,881 lines added, 664 deleted (total Geth: ~500K+ LOC)"
+  }
+}

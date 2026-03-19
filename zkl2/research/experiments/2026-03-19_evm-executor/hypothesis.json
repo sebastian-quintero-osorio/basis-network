@@ -1,0 +1,25 @@
+{
+  "name": "evm-executor",
+  "target": "zkl2",
+  "title": "Minimal Geth Fork as EVM Execution Engine for Enterprise zkEVM L2",
+  "hypothesis": "A minimal fork of go-ethereum can execute EVM transactions with custom state management, producing execution traces (storage reads/writes, opcodes executed) necessary for ZK witness generation, while maintaining 100% Cancun opcode compatibility and processing 1000+ simple transactions per second.",
+  "domain": "l2-architecture",
+  "independent_variables": [
+    "transaction_type",
+    "trace_mode",
+    "batch_size",
+    "state_size"
+  ],
+  "dependent_variables": [
+    "transactions_per_second",
+    "trace_size_bytes_per_tx",
+    "memory_usage_mb",
+    "tracing_overhead_percent",
+    "opcode_coverage_percent"
+  ],
+  "null_hypothesis": "A minimal Geth fork cannot achieve 1000+ tx/s with trace generation, requiring either a custom EVM implementation or accepting lower throughput.",
+  "research_unit": "RU-L1",
+  "created": "2026-03-19",
+  "stage": 1,
+  "status": "active"
+}
