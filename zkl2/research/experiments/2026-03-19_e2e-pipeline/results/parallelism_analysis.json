@@ -1,0 +1,8 @@
+{
+  "n_batches": 5,
+  "batch_size": 100,
+  "single_batch_ms": 14016.5,
+  "sequential_total_ms": 70082.5,
+  "prove_bottleneck_ms": 10000,
+  "prove_is_bottleneck": true
+}

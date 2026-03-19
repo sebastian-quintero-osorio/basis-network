@@ -1,0 +1,14 @@
+{
+  "batch_size": 100,
+  "total_e2e_ms": 14016.5,
+  "execute_ms": 15.0,
+  "execute_pct": 0.11,
+  "witness_ms": 1.5,
+  "witness_pct": 0.01,
+  "prove_ms": 10000,
+  "prove_pct": 71.34,
+  "submit_ms": 4000,
+  "submit_pct": 28.54,
+  "bottleneck": "prove",
+  "constraint_count": 60000
+}

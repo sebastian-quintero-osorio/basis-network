@@ -487,7 +487,7 @@ lab/4-prover/verification-history/YYYY-MM-basis-rollup/
 
 ### [21] Scientist | RU-L6: E2E Pipeline
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go pipeline orchestrator, 4 benchmark result files, bottleneck analysis)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [05], [09], [13], [17] complete (all Scientist work for Phase 1-2).

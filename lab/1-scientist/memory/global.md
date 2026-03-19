@@ -16,6 +16,7 @@
 | 2026-03-19 | sequencer (RU-L2) | zkl2 | CONFIRMED | 0.14ms@500tx, 2.8M tx/s insert, 100% FIFO, 100% forced inclusion |
 | 2026-03-19 | state-database (RU-L4) | zkl2 | CONFIRMED | Poseidon2 4.46us/hash, 125us insert, 18.77ms@100tx batch, 46ms@250tx |
 | 2026-03-19 | witness-generation (RU-L3) | zkl2 | CONFIRMED | 13.37ms@1000tx, 3.0MB witness, 78.4% storage, determinism PASS |
+| 2026-03-19 | e2e-pipeline (RU-L6) | zkl2 | CONFIRMED | 14s@100tx E2E, prove=71.3% bottleneck, 100% retry reliability |
 
 ## Key Patterns
 
@@ -24,6 +25,17 @@
 - JavaScript BigInt field arithmetic is ~950x slower than native Rust implementations
 - In-memory Map storage: ~160 bytes/node overhead in V8, ~17 nodes per SMT entry
 - Depth-32 Merkle path (32 sequential Poseidon hashes): ~1.7ms in JS
+
+## E2E Pipeline Patterns (zkL2)
+
+- Proof generation is 71.3% of E2E latency; execute+witness combined <0.2%
+- Enterprise circuits: ~500 constraints/tx (4-5x simpler than full zkEVM)
+- Max batch under 5min: 5,791 tx (default), 2,761 tx (pessimistic)
+- Pipeline parallelism (concurrency=2): 2.42x speedup, near-100% prover utilization
+- JSON IPC sufficient for Go-Rust boundary when computation >> serialization
+- Exponential backoff (5 retries, 1s-30s): 100% reliability at 30% failure rate
+- push0 architecture: stateless dispatchers, persistent queues, partition-affine routing
+- L1 submission: 4s for 3 Avalanche txs (commit+prove+execute), 287K gas total
 
 ## Known Pitfalls
 
@@ -156,3 +168,4 @@
 9. `zkl2/research/experiments/2026-03-19_sequencer/` -- RU-L2, Stage 1 complete, CONFIRMED
 10. `zkl2/research/experiments/2026-03-19_state-database/` -- RU-L4, Stage 1 complete, CONFIRMED
 11. `zkl2/research/experiments/2026-03-19_witness-generation/` -- RU-L3, Stage 2 complete, CONFIRMED
+12. `zkl2/research/experiments/2026-03-19_e2e-pipeline/` -- RU-L6, Stage 2 complete, CONFIRMED
