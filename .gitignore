@@ -101,12 +101,14 @@ _build/
 **/experiments/**/*.sym
 **/experiments/**/*.ptau
 
-# LaTeX build artifacts (source .tex and compiled .pdf ARE committed)
-*.aux
+# LaTeX build artifacts (source .tex and final BNR-*.pdf ARE committed)
 *.bbl
 *.blg
 *.fdb_latexmk
 *.fls
-*.out
 *.synctex.gz
 *.toc
+
+# LaTeX intermediate PDF (the BNR-*.pdf renamed copy is the deliverable)
+**/paper/main.pdf
+**/paper/main.out
