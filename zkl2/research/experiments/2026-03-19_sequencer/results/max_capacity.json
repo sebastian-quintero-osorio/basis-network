@@ -1,0 +1,17 @@
+{
+  "scenario": "max_capacity",
+  "blocks_produced": 4,
+  "tx_inserted": 261,
+  "tx_included": 261,
+  "tx_dropped": 0,
+  "avg_block_production_ms": 0,
+  "mempool_high_watermark": 91,
+  "fifo_accuracy_pct": 100,
+  "forced_tx_submitted": 0,
+  "forced_tx_included": 0,
+  "max_forced_latency_ms": 0,
+  "empty_blocks": 0,
+  "block_fill_ratio_pct": 13.05,
+  "throughput_tps": 57.641919429980156,
+  "elapsed_ms": 4527
+}

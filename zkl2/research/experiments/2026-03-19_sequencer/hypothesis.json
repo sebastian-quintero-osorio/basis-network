@@ -1,0 +1,39 @@
+{
+  "name": "sequencer",
+  "target": "zkl2",
+  "title": "Enterprise L2 Sequencer: Single-Operator Block Production with Forced Inclusion",
+  "hypothesis": "A single-operator sequencer can produce L2 blocks every 1-2 seconds with FIFO ordering while a forced inclusion mechanism via L1 guarantees censorship resistance with maximum 24-hour latency for forced transactions.",
+  "null_hypothesis": "Single-operator block production cannot sustain 1-2 second block times under enterprise workloads, OR forced inclusion via L1 cannot guarantee sub-24-hour inclusion latency.",
+  "domain": "l2-architecture",
+  "research_unit": "RU-L2",
+  "independent_variables": [
+    "block_production_interval_ms",
+    "mempool_size",
+    "transaction_arrival_rate_tps",
+    "forced_inclusion_deadline_blocks",
+    "block_gas_limit"
+  ],
+  "dependent_variables": [
+    "block_production_latency_ms",
+    "mempool_throughput_tps",
+    "transaction_ordering_fairness",
+    "forced_inclusion_latency_s",
+    "block_fill_ratio",
+    "sequencer_cpu_utilization"
+  ],
+  "predictions": [
+    "Block production latency < 50ms per block at 100 TPS",
+    "Mempool can sustain 500+ TPS insertion rate",
+    "FIFO ordering deviation < 1% under normal load",
+    "Forced inclusion queue drains within deadline even under adversarial sequencer",
+    "Block fill ratio > 80% at steady-state 200 TPS"
+  ],
+  "prior_work": [
+    "RU-L1: EVM Executor (complete) -- provides execution engine that sequencer feeds",
+    "RU-V4: Batch Aggregation -- HYBRID batching strategy validated",
+    "RU-V5: Enterprise Node -- pipelined architecture pattern established"
+  ],
+  "created": "2026-03-19",
+  "stage": 1,
+  "status": "active"
+}

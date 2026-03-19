@@ -1,0 +1,11 @@
+{
+  "blocks_produced": 41,
+  "elapsed_ms": 630,
+  "fifo_accuracy_pct": 100,
+  "insert_throughput_kps": 31.699880745048638,
+  "producers": 4,
+  "scenario": "concurrent_insert_produce",
+  "total_tx": 20000,
+  "tx_included": 17801,
+  "tx_per_producer": 5000
+}

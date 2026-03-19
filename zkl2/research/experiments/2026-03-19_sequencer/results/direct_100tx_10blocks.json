@@ -1,0 +1,14 @@
+{
+  "scenario": "direct_100tx_10blocks",
+  "tx_preloaded": 1000,
+  "blocks_produced": 10,
+  "tx_included": 1000,
+  "avg_block_production_us": 50.5,
+  "min_block_production_us": 0,
+  "max_block_production_us": 505,
+  "mempool_insert_rate_kps": 4286.326618088298,
+  "mempool_drain_rate_kps": 1480.0343367966138,
+  "fifo_accuracy_pct": 100,
+  "forced_tx_included": 0,
+  "forced_tx_submitted": 0
+}

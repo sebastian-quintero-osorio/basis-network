@@ -1,0 +1,17 @@
+{
+  "scenario": "adversarial_censoring",
+  "blocks_produced": 6,
+  "tx_inserted": 342,
+  "tx_included": 362,
+  "tx_dropped": 0,
+  "avg_block_production_ms": 0,
+  "mempool_high_watermark": 70,
+  "fifo_accuracy_pct": 100,
+  "forced_tx_submitted": 20,
+  "forced_tx_included": 20,
+  "max_forced_latency_ms": 1014.493,
+  "empty_blocks": 0,
+  "block_fill_ratio_pct": 12.066666666666666,
+  "throughput_tps": 55.43987459071551,
+  "elapsed_ms": 6529
+}
