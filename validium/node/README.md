@@ -1,20 +1,35 @@
 # Enterprise ZK Validium Node
 
-This directory will contain the Enterprise ZK Validium Node service -- the core component that receives enterprise transactions, maintains state via Sparse Merkle Trees, generates ZK proofs, and submits them to the Basis Network L1.
+The Enterprise ZK Validium Node service -- receives enterprise transactions, maintains
+state via Sparse Merkle Trees, generates ZK proofs, and submits them to the Basis Network L1.
 
 ## Status
 
-**Planned.** Development is driven by the R&D pipeline (`lab/`).
+**R&D pipeline complete (28/28 agent executions).** All 7 modules implemented, tested,
+formally specified (TLA+), and verified (Coq). Integration pending (see POST_ROADMAP_TODO.md).
+
+## Modules
+
+| Module | Directory | Tests |
+|--------|-----------|-------|
+| SparseMerkleTree (Poseidon, BN128) | `src/state/` | 52 |
+| TransactionQueue + WAL | `src/queue/` | 66 |
+| BatchAggregator + BatchBuilder | `src/batch/` | 45 |
+| DACProtocol + Shamir SSS | `src/da/` | 67 |
+| ZK Prover (snarkjs Groth16) | `src/prover/` | -- |
+| L1 Submitter (ethers.js v6) | `src/submitter/` | -- |
+| REST API (Fastify) | `src/api/` | -- |
+| Orchestrator (state machine) | `src/orchestrator.ts` | 19 |
+| Cross-Enterprise | `src/cross-enterprise/` | 19 |
 
 ## References
 
-- [MVP Vision](../../docs/L2_MVP_VISION.md) -- Architecture and motivation
-- [Validium Roadmap](../ROADMAP.md) -- Research units and execution plan
-- [Execution Checklist](../ROADMAP_CHECKLIST.md) -- Sequential agent tasks
+- [R&D Pipeline Report](../docs/R&D_PIPELINE_REPORT.md) -- Full pipeline execution summary
+- [Post-Roadmap TODO](../docs/POST_ROADMAP_TODO.md) -- Integration plan
+- [Validium Roadmap](../docs/ROADMAP.md) -- Research units and execution plan
+- [Execution Checklist](../docs/ROADMAP_CHECKLIST.md) -- 28/28 complete
 
-## R&D Pipeline Output
-
-Research, formal specifications, and verification proofs for this component are stored alongside it:
+## R&D Artifacts
 
 | Artifact | Location |
 |----------|----------|
