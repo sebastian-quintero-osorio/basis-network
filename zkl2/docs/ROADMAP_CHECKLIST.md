@@ -653,7 +653,7 @@ lab/4-prover/verification-history/YYYY-MM-bridge/
 
 ### [28] Prover | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 9 theorems, 1,491 lines Coq, NoDoubleSpend + BalanceConservation + EscapeHatch)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [27] complete, snapshots prepared.
