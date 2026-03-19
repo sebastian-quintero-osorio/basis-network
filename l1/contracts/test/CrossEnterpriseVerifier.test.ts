@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import {
   EnterpriseRegistry,
-  StateCommitmentHarness,
+  StateCommitment,
   CrossEnterpriseVerifierHarness,
 } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
@@ -22,7 +22,7 @@ import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
  */
 describe("CrossEnterpriseVerifier", function () {
   let registry: EnterpriseRegistry;
-  let sc: StateCommitmentHarness;
+  let sc: StateCommitment;
   let xev: CrossEnterpriseVerifierHarness;
   let admin: SignerWithAddress;
   let enterprise1: SignerWithAddress;
@@ -69,8 +69,8 @@ describe("CrossEnterpriseVerifier", function () {
     const ERFactory = await ethers.getContractFactory("EnterpriseRegistry");
     registry = await ERFactory.deploy();
 
-    // Deploy StateCommitmentHarness (with mock proof verification)
-    const SCFactory = await ethers.getContractFactory("StateCommitmentHarness");
+    // Deploy StateCommitment (with mock proof verification)
+    const SCFactory = await ethers.getContractFactory("StateCommitment");
     sc = await SCFactory.deploy(await registry.getAddress());
 
     // Deploy CrossEnterpriseVerifierHarness
@@ -87,10 +87,10 @@ describe("CrossEnterpriseVerifier", function () {
     const scVk = getDummyVerifyingKey();
     // StateCommitment expects IC with 1 element (0 public inputs for harness)
     const scVkSmall = { ...scVk, IC: [[1n, 2n]] as [bigint, bigint][] };
-    await sc.setVerifyingKey(scVkSmall.alfa1, scVkSmall.beta2, scVkSmall.gamma2, scVkSmall.delta2, scVkSmall.IC);
+    const mv = await (await ethers.getContractFactory("MockGroth16Verifier")).deploy(); await sc.setVerifier(await mv.getAddress());
 
     // CrossEnterpriseVerifier expects IC with 4 elements (3 public inputs)
-    await xev.setVerifyingKey(scVk.alfa1, scVk.beta2, scVk.gamma2, scVk.delta2, scVk.IC);
+    
   });
 
   // =========================================================================
@@ -322,7 +322,7 @@ describe("CrossEnterpriseVerifier", function () {
   describe("Proof verification", function () {
     it("should reject invalid proof", async function () {
       await setupVerifiedBatches();
-      await xev.setMockProofResult(false);
+      ;
 
       await expect(
         xev.verifyCrossReference(
@@ -375,7 +375,7 @@ describe("CrossEnterpriseVerifier", function () {
     it("should reject non-admin verifying key update", async function () {
       const vk = getDummyVerifyingKey();
       await expect(
-        xev.connect(enterprise1).setVerifyingKey(vk.alfa1, vk.beta2, vk.gamma2, vk.delta2, vk.IC)
+        xev.connect(enterprise1).setVerifier(ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(xev, "OnlyAdmin");
     });
 

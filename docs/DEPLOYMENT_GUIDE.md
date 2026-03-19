@@ -8,8 +8,8 @@ Basis Network is live on Avalanche Fuji Testnet with the following infrastructur
 
 | Resource | Value |
 |---|---|
-| Subnet ID | `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx` |
-| Blockchain ID | `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX` |
+| Subnet ID | `AYdFRP6MsbHq51MnUqmg5o4Eb92jPTgyPvq92dDQULVo9pwAk` |
+| Blockchain ID | `2VtYqDeZ5RabHM8zA4x94T6DMdzs3svkfcpF7TLEmTpETUTufR` |
 | Chain ID | `43199` |
 | RPC | [rpc.basisnetwork.com.co](https://rpc.basisnetwork.com.co) |
 | Validator | DigitalOcean droplet (`144.126.220.103`) |
@@ -187,10 +187,7 @@ PRIVATE_KEY=<adapter wallet private key>
 RPC_URL=<Basis Network RPC URL>
 ENTERPRISE_REGISTRY_ADDRESS=<deployed address>
 TRACEABILITY_REGISTRY_ADDRESS=<deployed address>
-PLASMA_CONNECTOR_ADDRESS=<deployed address>
-TRACE_CONNECTOR_ADDRESS=<deployed address>
-PLASMA_API_URL=<PLASMA backend URL>
-TRACE_API_URL=<Trace backend URL>
+ZK_VERIFIER_ADDRESS=<deployed address>
 ```
 
 ### l1/dashboard/.env.local
@@ -201,8 +198,9 @@ NEXT_PUBLIC_CHAIN_ID=43199
 NEXT_PUBLIC_ENTERPRISE_REGISTRY_ADDRESS=<deployed address>
 NEXT_PUBLIC_TRACEABILITY_REGISTRY_ADDRESS=<deployed address>
 NEXT_PUBLIC_ZK_VERIFIER_ADDRESS=<deployed address>
-NEXT_PUBLIC_PLASMA_CONNECTOR_ADDRESS=<deployed address>
-NEXT_PUBLIC_TRACE_CONNECTOR_ADDRESS=<deployed address>
+NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS=<deployed address>
+NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS=<deployed address>
+NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS=<deployed address>
 ```
 
 ---

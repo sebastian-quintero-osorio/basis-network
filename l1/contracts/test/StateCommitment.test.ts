@@ -1,11 +1,12 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { EnterpriseRegistry, StateCommitmentHarness } from "../typechain-types";
+import { EnterpriseRegistry, StateCommitment, MockGroth16Verifier } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("StateCommitment", function () {
   let registry: EnterpriseRegistry;
-  let sc: StateCommitmentHarness;
+  let sc: StateCommitment;
+  let mockVerifier: MockGroth16Verifier;
   let admin: SignerWithAddress;
   let enterprise1: SignerWithAddress;
   let enterprise2: SignerWithAddress;
@@ -21,7 +22,7 @@ describe("StateCommitment", function () {
   const DUMMY_A: [bigint, bigint] = [0n, 0n];
   const DUMMY_B: [[bigint, bigint], [bigint, bigint]] = [[0n, 0n], [0n, 0n]];
   const DUMMY_C: [bigint, bigint] = [0n, 0n];
-  const DUMMY_SIGNALS: bigint[] = [];
+  const DUMMY_SIGNALS: bigint[] = [0n, 0n, 0n, 0n];
 
   function getDummyVerifyingKey() {
     return {
@@ -39,15 +40,17 @@ describe("StateCommitment", function () {
     const ERFactory = await ethers.getContractFactory("EnterpriseRegistry");
     registry = await ERFactory.deploy();
 
-    const SCFactory = await ethers.getContractFactory("StateCommitmentHarness");
+    const SCFactory = await ethers.getContractFactory("StateCommitment");
     sc = await SCFactory.deploy(await registry.getAddress());
+
+    const MVFactory = await ethers.getContractFactory("MockGroth16Verifier");
+    mockVerifier = await MVFactory.deploy();
+    await sc.setVerifier(await mockVerifier.getAddress());
 
     const metadata = ethers.toUtf8Bytes("{}");
     await registry.registerEnterprise(enterprise1.address, "Enterprise One", metadata);
     await registry.registerEnterprise(enterprise2.address, "Enterprise Two", metadata);
 
-    const vk = getDummyVerifyingKey();
-    await sc.setVerifyingKey(vk.alfa1, vk.beta2, vk.gamma2, vk.delta2, vk.IC);
   });
 
   // =========================================================================
@@ -73,24 +76,23 @@ describe("StateCommitment", function () {
   });
 
   // =========================================================================
-  // setVerifyingKey
+  // setVerifier
   // =========================================================================
 
-  describe("setVerifyingKey", function () {
-    it("should allow admin to set the verifying key", async function () {
-      const freshSC = await (await ethers.getContractFactory("StateCommitmentHarness"))
+  describe("setVerifier", function () {
+    it("should allow admin to set the verifier", async function () {
+      const freshSC = await (await ethers.getContractFactory("StateCommitment"))
         .deploy(await registry.getAddress());
       expect(await freshSC.verifyingKeySet()).to.be.false;
 
-      const vk = getDummyVerifyingKey();
-      await freshSC.setVerifyingKey(vk.alfa1, vk.beta2, vk.gamma2, vk.delta2, vk.IC);
+      const mv = await (await ethers.getContractFactory("MockGroth16Verifier")).deploy();
+      await freshSC.setVerifier(await mv.getAddress());
       expect(await freshSC.verifyingKeySet()).to.be.true;
     });
 
     it("should revert if called by non-admin", async function () {
-      const vk = getDummyVerifyingKey();
       await expect(
-        sc.connect(enterprise1).setVerifyingKey(vk.alfa1, vk.beta2, vk.gamma2, vk.delta2, vk.IC)
+        sc.connect(enterprise1).setVerifier(ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(sc, "OnlyAdmin");
     });
   });
@@ -237,7 +239,7 @@ describe("StateCommitment", function () {
 
   describe("submitBatch (error paths)", function () {
     it("should revert if verifying key not set", async function () {
-      const freshSC = await (await ethers.getContractFactory("StateCommitmentHarness"))
+      const freshSC = await (await ethers.getContractFactory("StateCommitment"))
         .deploy(await registry.getAddress());
       await freshSC.initializeEnterprise(enterprise1.address, GENESIS_ROOT);
 
@@ -278,7 +280,7 @@ describe("StateCommitment", function () {
 
     it("should revert if proof is invalid", async function () {
       await sc.initializeEnterprise(enterprise1.address, GENESIS_ROOT);
-      await sc.setMockProofResult(false);
+      await mockVerifier.setResult(false);
 
       await expect(
         sc.connect(enterprise1).submitBatch(
@@ -466,7 +468,7 @@ describe("StateCommitment", function () {
 
     // --- Proof Invalidity Blocks State Change ---
     it("should not mutate state when proof is invalid (ProofBeforeState)", async function () {
-      await sc.setMockProofResult(false);
+      await mockVerifier.setResult(false);
 
       await expect(
         sc.connect(enterprise1).submitBatch(

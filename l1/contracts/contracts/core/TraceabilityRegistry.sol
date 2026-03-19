@@ -3,17 +3,12 @@ pragma solidity 0.8.24;
 
 import "./EnterpriseRegistry.sol";
 
-/// @title TraceabilityRegistry
-/// @notice Records immutable, timestamped operational events from authorized enterprises.
+/// @title Generic event recording layer for the Basis Network L1
+/// @notice Application-agnostic event recording. Any authorized enterprise can record events
+///         with arbitrary, application-defined event types. The L1 does not interpret event types.
 /// @dev Only addresses registered as active enterprises in EnterpriseRegistry can record events.
+///      Event types are defined at the adapter/application level (typically keccak256 of a type string).
 contract TraceabilityRegistry {
-    bytes32 public constant MAINTENANCE_ORDER = keccak256("MAINTENANCE_ORDER");
-    bytes32 public constant SUPPLY_CHAIN_CHECKPOINT = keccak256("SUPPLY_CHAIN_CHECKPOINT");
-    bytes32 public constant QUALITY_CERTIFICATION = keccak256("QUALITY_CERTIFICATION");
-    bytes32 public constant EQUIPMENT_INSPECTION = keccak256("EQUIPMENT_INSPECTION");
-    bytes32 public constant INVENTORY_MOVEMENT = keccak256("INVENTORY_MOVEMENT");
-    bytes32 public constant SALE = keccak256("SALE");
-
     struct TraceEvent {
         bytes32 eventId;
         bytes32 eventType;
@@ -43,7 +38,6 @@ contract TraceabilityRegistry {
 
     error NotAuthorized();
     error EventNotFound();
-    error InvalidEventType();
 
     modifier onlyAuthorizedEnterprise() {
         if (!enterpriseRegistry.isAuthorized(msg.sender)) revert NotAuthorized();
@@ -55,7 +49,7 @@ contract TraceabilityRegistry {
     }
 
     /// @notice Records an immutable operational event.
-    /// @param eventType The type of event (use predefined constants).
+    /// @param eventType Application-defined event type identifier (typically keccak256 of a type string).
     /// @param assetId The identifier of the asset involved.
     /// @param data Encoded event-specific data.
     /// @return eventId The unique identifier for the recorded event.

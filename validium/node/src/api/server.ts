@@ -10,6 +10,12 @@
  *   GET  /v1/batches        -- List all batches
  *   GET  /health            -- Lightweight health probe
  *
+ * Security hardening:
+ *   - Rate limiting: per-IP token bucket (ATK-API-01)
+ *   - API key authentication: Bearer or X-API-Key header (ATK-API-02)
+ *   - Transaction deduplication: reject duplicate txHash (ATK-BA4)
+ *   - Input validation: hex format, field length limits
+ *
  * @module api/server
  */
 
@@ -20,6 +26,8 @@ import type { NodeConfig } from "../types";
 import { NodeError } from "../types";
 import type { Transaction } from "../queue/types";
 import { createLogger } from "../logger";
+import { RateLimiter } from "./rate-limiter";
+import { ApiKeyAuthenticator, type AuthConfig } from "./auth";
 
 const log = createLogger("api");
 
@@ -41,23 +49,110 @@ interface BatchParams {
 }
 
 // ---------------------------------------------------------------------------
+// Transaction Deduplication (ATK-BA4)
+// ---------------------------------------------------------------------------
+
+/**
+ * LRU-bounded set for tracking recently seen transaction hashes.
+ * Prevents replay attacks and duplicate submissions.
+ * Bounded to prevent unbounded memory growth.
+ */
+class TxDeduplicator {
+  private readonly seen: Map<string, number> = new Map();
+  private readonly maxSize: number;
+  private readonly ttlMs: number;
+
+  constructor(maxSize: number = 10000, ttlMs: number = 3600000) {
+    this.maxSize = maxSize;
+    this.ttlMs = ttlMs;
+  }
+
+  /**
+   * Check if a txHash has been seen recently.
+   * Returns true if the hash is a duplicate.
+   */
+  isDuplicate(txHash: string): boolean {
+    const ts = this.seen.get(txHash);
+    if (ts !== undefined) {
+      if (Date.now() - ts < this.ttlMs) {
+        return true;
+      }
+      // Expired entry, remove it
+      this.seen.delete(txHash);
+    }
+    return false;
+  }
+
+  /**
+   * Record a txHash as seen.
+   */
+  record(txHash: string): void {
+    // Evict oldest entries if at capacity
+    if (this.seen.size >= this.maxSize) {
+      const firstKey = this.seen.keys().next().value as string;
+      this.seen.delete(firstKey);
+    }
+    this.seen.set(txHash, Date.now());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Input Validation
+// ---------------------------------------------------------------------------
+
+/** Maximum length for hex-encoded field values. */
+const MAX_HEX_LENGTH = 128;
+
+/** Validate that a string is a valid hex value (no 0x prefix). */
+function isValidHex(value: string): boolean {
+  return /^[0-9a-fA-F]+$/.test(value) && value.length <= MAX_HEX_LENGTH;
+}
+
+/** Validate SHA-256 hash format. */
+function isValidTxHash(hash: string): boolean {
+  return /^[0-9a-fA-F]{64}$/.test(hash);
+}
+
+// ---------------------------------------------------------------------------
 // Server Factory
 // ---------------------------------------------------------------------------
 
 /**
- * Create and configure the Fastify API server.
+ * Create and configure the Fastify API server with security hardening.
  *
  * @param orchestrator - The Enterprise Node orchestrator instance
  * @param config - Node configuration
+ * @param authConfig - Optional authentication configuration
  * @returns Configured Fastify instance (not yet listening)
  */
 export function createServer(
   orchestrator: EnterpriseNodeOrchestrator,
-  config: NodeConfig
+  config: NodeConfig,
+  authConfig?: AuthConfig
 ): FastifyInstance {
   const server = Fastify({
     logger: false, // We use our own structured logger
     bodyLimit: 1048576, // 1MB max request body
+  });
+
+  // Security: Rate limiter
+  const rateLimiter = new RateLimiter({
+    maxTokens: 100,    // 100 requests burst
+    refillRate: 10,    // 10 requests/second sustained
+  });
+  rateLimiter.start();
+
+  // Security: API key authentication
+  const auth = new ApiKeyAuthenticator(
+    authConfig ?? { enabled: false, keys: [] }
+  );
+
+  // Security: Transaction deduplication (ATK-BA4)
+  const dedup = new TxDeduplicator();
+
+  // Graceful cleanup on server close
+  server.addHook("onClose", async () => {
+    rateLimiter.stop();
   });
 
   // -----------------------------------------------------------------------
@@ -73,9 +168,31 @@ export function createServer(
       request: FastifyRequest<{ Body: SubmitTxBody }>,
       reply: FastifyReply
     ) => {
+      const clientIp = request.ip;
+
+      // Security: Rate limiting (ATK-API-01)
+      if (!rateLimiter.allow(clientIp)) {
+        log.warn("Rate limited", { ip: clientIp });
+        return reply.status(429).send({
+          error: "Too many requests",
+          retryAfterMs: 1000,
+        });
+      }
+
+      // Security: Authentication (ATK-API-02)
+      const authResult = auth.validate(
+        request.headers.authorization,
+        request.headers["x-api-key"] as string | undefined
+      );
+      if (!authResult.valid) {
+        return reply.status(401).send({
+          error: authResult.reason ?? "Unauthorized",
+        });
+      }
+
       const body = request.body;
 
-      // Validate required fields
+      // Input validation: required fields
       if (
         !body ||
         typeof body !== "object" ||
@@ -91,6 +208,28 @@ export function createServer(
         });
       }
 
+      // Input validation: format checks
+      if (!isValidTxHash(body.txHash)) {
+        return reply.status(400).send({
+          error: "txHash must be a 64-character hex string (SHA-256)",
+        });
+      }
+
+      if (!isValidHex(body.key) || !isValidHex(body.newValue)) {
+        return reply.status(400).send({
+          error: "key and newValue must be valid hex strings (max 128 chars)",
+        });
+      }
+
+      // Security: Transaction deduplication (ATK-BA4)
+      if (dedup.isDuplicate(body.txHash)) {
+        log.warn("Duplicate transaction rejected", { txHash: body.txHash });
+        return reply.status(409).send({
+          error: "Duplicate transaction",
+          txHash: body.txHash,
+        });
+      }
+
       const tx: Transaction = {
         txHash: body.txHash,
         key: body.key,
@@ -102,10 +241,14 @@ export function createServer(
 
       try {
         const seq = orchestrator.submitTransaction(tx);
+        dedup.record(tx.txHash);
+
         log.debug("Transaction submitted via API", {
           txHash: tx.txHash,
           seq,
         });
+
+        reply.header("X-RateLimit-Remaining", String(rateLimiter.remaining(clientIp)));
         return reply.status(202).send({
           status: "accepted",
           walSeq: seq,
@@ -189,6 +332,12 @@ export function createServer(
       "GET /v1/batches",
       "GET /health",
     ],
+    security: {
+      rateLimiting: true,
+      authentication: authConfig?.enabled ?? false,
+      deduplication: true,
+      inputValidation: true,
+    },
   });
 
   return server;

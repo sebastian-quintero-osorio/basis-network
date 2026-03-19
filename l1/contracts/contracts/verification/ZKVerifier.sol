@@ -241,6 +241,8 @@ contract ZKVerifier {
         uint256[2] memory a3, uint256[2][2] memory b3,
         uint256[2] calldata a4, uint256[2][2] memory b4
     ) internal view returns (bool) {
+        // EIP-197 precompile: G2 points passed directly from snarkjs format.
+        // No coordinate swapping -- snarkjs exportSolidityCallData already provides correct order.
         uint256[24] memory input_data;
         input_data[0] = a1[0]; input_data[1] = a1[1];
         input_data[2] = b1[0][1]; input_data[3] = b1[0][0];

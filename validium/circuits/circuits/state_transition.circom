@@ -116,7 +116,11 @@ template StateTransition(depth, batchSize) {
     finalCheck.out === 1;
 }
 
-// Default instantiation for testing: depth 10 (1024 leaves), batch 4.
-// Production target: depth 32 (4.3B leaves), batch 16-64.
+// Production instantiation: depth 32 (4.3B leaves), batch 8.
+// ~274K constraints. Requires pot19 (2^19 = 524,288) for trusted setup.
+//
+// Development alternative: depth 10, batch 4 (~45K constraints, pot16).
+// See build/dev/ for fast iteration artifacts.
+//
 // Constraint formula: ~1,038 * (depth + 1) * batchSize + depth * batchSize (Num2Bits)
-component main {public [prevStateRoot, newStateRoot, batchNum, enterpriseId]} = StateTransition(10, 4);
+component main {public [prevStateRoot, newStateRoot, batchNum, enterpriseId]} = StateTransition(32, 8);

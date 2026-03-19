@@ -10,8 +10,8 @@ describe("TraceabilityRegistry", function () {
   let enterprise1: SignerWithAddress;
   let unauthorized: SignerWithAddress;
 
-  const MAINTENANCE_ORDER = ethers.keccak256(ethers.toUtf8Bytes("MAINTENANCE_ORDER"));
-  const EQUIPMENT_INSPECTION = ethers.keccak256(ethers.toUtf8Bytes("EQUIPMENT_INSPECTION"));
+  const EVENT_TYPE_A = ethers.keccak256(ethers.toUtf8Bytes("APP_EVENT_TYPE_A"));
+  const EVENT_TYPE_B = ethers.keccak256(ethers.toUtf8Bytes("APP_EVENT_TYPE_B"));
 
   beforeEach(async function () {
     [admin, enterprise1, unauthorized] = await ethers.getSigners();
@@ -44,7 +44,7 @@ describe("TraceabilityRegistry", function () {
       const assetId = ethers.encodeBytes32String("EQUIP-001");
       const data = ethers.toUtf8Bytes("test data");
 
-      await traceRegistry.connect(enterprise1).recordEvent(MAINTENANCE_ORDER, assetId, data);
+      await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_A, assetId, data);
       expect(await traceRegistry.eventCount()).to.equal(1);
     });
 
@@ -53,7 +53,7 @@ describe("TraceabilityRegistry", function () {
       const data = ethers.toUtf8Bytes("test data");
 
       await expect(
-        traceRegistry.connect(enterprise1).recordEvent(MAINTENANCE_ORDER, assetId, data)
+        traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_A, assetId, data)
       ).to.emit(traceRegistry, "EventRecorded");
     });
 
@@ -62,16 +62,28 @@ describe("TraceabilityRegistry", function () {
       const data = ethers.toUtf8Bytes("test data");
 
       await expect(
-        traceRegistry.connect(unauthorized).recordEvent(MAINTENANCE_ORDER, assetId, data)
+        traceRegistry.connect(unauthorized).recordEvent(EVENT_TYPE_A, assetId, data)
       ).to.be.revertedWithCustomError(traceRegistry, "NotAuthorized");
+    });
+
+    it("should accept any application-defined event type", async function () {
+      const customType = ethers.keccak256(ethers.toUtf8Bytes("MY_CUSTOM_EVENT"));
+      const assetId = ethers.encodeBytes32String("ASSET-X");
+      const data = ethers.toUtf8Bytes("custom data");
+
+      await traceRegistry.connect(enterprise1).recordEvent(customType, assetId, data);
+      expect(await traceRegistry.eventCount()).to.equal(1);
+
+      const events = await traceRegistry.getEventsByType(customType);
+      expect(events).to.have.lengthOf(1);
     });
 
     it("should record multiple events for the same asset", async function () {
       const assetId = ethers.encodeBytes32String("EQUIP-001");
       const data = ethers.toUtf8Bytes("event data");
 
-      await traceRegistry.connect(enterprise1).recordEvent(MAINTENANCE_ORDER, assetId, data);
-      await traceRegistry.connect(enterprise1).recordEvent(EQUIPMENT_INSPECTION, assetId, data);
+      await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_A, assetId, data);
+      await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_B, assetId, data);
 
       const history = await traceRegistry.getAssetHistory(assetId);
       expect(history).to.have.lengthOf(2);
@@ -83,7 +95,7 @@ describe("TraceabilityRegistry", function () {
       const assetId = ethers.encodeBytes32String("EQUIP-001");
       const data = ethers.toUtf8Bytes("inspection passed");
 
-      const tx = await traceRegistry.connect(enterprise1).recordEvent(MAINTENANCE_ORDER, assetId, data);
+      const tx = await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_A, assetId, data);
       const receipt = await tx.wait();
 
       // Find the EventRecorded log by parsing all logs
@@ -102,7 +114,7 @@ describe("TraceabilityRegistry", function () {
       expect(eventId).to.not.be.undefined;
 
       const result = await traceRegistry["getEvent(bytes32)"](eventId!);
-      expect(result.eventType).to.equal(MAINTENANCE_ORDER);
+      expect(result.eventType).to.equal(EVENT_TYPE_A);
       expect(result.assetId).to.equal(assetId);
       expect(result.enterprise).to.equal(enterprise1.address);
     });
@@ -119,8 +131,8 @@ describe("TraceabilityRegistry", function () {
       const assetId = ethers.encodeBytes32String("EQUIP-001");
       const data = ethers.toUtf8Bytes("test");
 
-      await traceRegistry.connect(enterprise1).recordEvent(MAINTENANCE_ORDER, assetId, data);
-      await traceRegistry.connect(enterprise1).recordEvent(EQUIPMENT_INSPECTION, assetId, data);
+      await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_A, assetId, data);
+      await traceRegistry.connect(enterprise1).recordEvent(EVENT_TYPE_B, assetId, data);
     });
 
     it("should return asset history", async function () {
@@ -135,10 +147,10 @@ describe("TraceabilityRegistry", function () {
     });
 
     it("should return events by type", async function () {
-      const maintenanceEvents = await traceRegistry.getEventsByType(MAINTENANCE_ORDER);
+      const maintenanceEvents = await traceRegistry.getEventsByType(EVENT_TYPE_A);
       expect(maintenanceEvents).to.have.lengthOf(1);
 
-      const inspectionEvents = await traceRegistry.getEventsByType(EQUIPMENT_INSPECTION);
+      const inspectionEvents = await traceRegistry.getEventsByType(EVENT_TYPE_B);
       expect(inspectionEvents).to.have.lengthOf(1);
     });
 

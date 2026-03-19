@@ -27,11 +27,13 @@ const config: HardhatUserConfig = {
       url: RPC_URL,
       chainId: CHAIN_ID,
       accounts: [PRIVATE_KEY],
+      gasPrice: 1000000000,
     },
     basisFuji: {
       url: process.env.FUJI_RPC_URL || "",
       chainId: CHAIN_ID,
       accounts: [PRIVATE_KEY],
+      gasPrice: 1000000000,
     },
   },
 };

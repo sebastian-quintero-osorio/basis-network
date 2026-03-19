@@ -21,9 +21,10 @@ graph TB
         subgraph SC["Smart Contract Layer"]
             ER["EnterpriseRegistry"]
             TR["TraceabilityRegistry"]
-            PC["PLASMAConnector"]
-            TC["TraceConnector"]
             ZK["ZKVerifier"]
+            SCM["StateCommitment"]
+            DAC["DACAttestation"]
+            CEV["CrossEnterpriseVerifier"]
         end
     end
 
@@ -36,8 +37,8 @@ graph TB
     E1 -->|"ZK Proofs"| ZK
     E2 -->|"ZK Proofs"| ZK
     E3 -->|"ZK Proofs"| ZK
-    E1 -->|"Maintenance Events"| PC
-    E2 -->|"Commercial Events"| TC
+    E1 -->|"Events via Adapters"| TR
+    E2 -->|"Events via Adapters"| TR
 
     PC2 -->|"Validator Registry"| VM
     CC <-->|"Cross-Chain"| AWM
@@ -56,12 +57,12 @@ The global Avalanche network provides security, interoperability, and validator 
 
 A customized Subnet-EVM blockchain with the native currency **Lithos** (LITHOS, smallest unit: Tomo):
 
-- **Zero-fee gas model** (`minBaseFee: 0`, `minBlockGasCost: 0`, `maxBlockGasCost: 0`)
+- **Near-zero-fee gas model** (`minBaseFee: 1` wei, effectively free; minimum of 1 wei prevents dynamic baseFee decay to 0)
 - **Transaction allowlist** -- only authorized enterprise wallets can send transactions
 - **Contract deployer allowlist** -- only admin addresses can deploy smart contracts
 - **Permissioned validators** -- participating enterprises validate the network
 
-Smart contracts deployed on this layer handle enterprise registration, event recording, product-specific connectors, and ZK proof verification.
+Smart contracts deployed on this layer handle enterprise registration, generic event recording, state commitment, ZK proof verification, DAC attestation, and cross-enterprise verification.
 
 ### Layer 3 -- Enterprise Instances (Future)
 
@@ -85,37 +86,34 @@ graph LR
         TR["TraceabilityRegistry.sol<br/><i>Immutable Event Log</i>"]
     end
 
-    subgraph Connectors["Product Connectors"]
-        PC["PLASMAConnector.sol<br/><i>Maintenance Data</i>"]
-        TC["TraceConnector.sol<br/><i>Commercial Data</i>"]
-    end
-
-    subgraph Verification["ZK Verification"]
+    subgraph StateVerification["State & Verification"]
         ZK["ZKVerifier.sol<br/><i>Groth16 Batch Proofs</i>"]
+        SCM["StateCommitment.sol<br/><i>Enterprise State Roots</i>"]
+        DAC["DACAttestation.sol<br/><i>Data Availability</i>"]
+        CEV["CrossEnterpriseVerifier.sol<br/><i>Inter-Enterprise Proofs</i>"]
     end
 
-    ER -->|"isAuthorized()"| PC
-    ER -->|"isAuthorized()"| TC
     ER -->|"isAuthorized()"| TR
     ER -->|"isAuthorized()"| ZK
-
-    PC -->|"recordEvent()"| TR
-    TC -->|"recordEvent()"| TR
+    ER -->|"isAuthorized()"| SCM
+    ER -->|"isAuthorized()"| DAC
+    ER -->|"isAuthorized()"| CEV
 
     style Core fill:#16213e,stroke:#e84142,color:#fff
-    style Connectors fill:#16213e,stroke:#00d4aa,color:#fff
-    style Verification fill:#16213e,stroke:#f5a623,color:#fff
+    style StateVerification fill:#16213e,stroke:#f5a623,color:#fff
 ```
 
 **EnterpriseRegistry** manages enterprise onboarding and permissions. Only the network admin (Base Computing) can register or deactivate enterprises. Enterprises can update their own metadata.
 
-**TraceabilityRegistry** records immutable, timestamped operational events. It supports predefined event types: maintenance orders, supply chain checkpoints, quality certifications, equipment inspections, and inventory movements.
-
-**PLASMAConnector** bridges the PLASMA industrial maintenance platform to the blockchain. It records work order creation, completion, and equipment inspections.
-
-**TraceConnector** bridges the Trace ERP platform. It records sales, inventory movements, and supplier transactions.
+**TraceabilityRegistry** is the generic event recording layer. Any authorized enterprise can record events with application-defined event types (typically `keccak256` of a type string). The L1 does not interpret or constrain event types -- this is fully application-agnostic.
 
 **ZKVerifier** verifies Groth16 zero-knowledge proofs on-chain. It validates that a batch of enterprise transactions is correct without accessing the underlying data.
+
+**StateCommitment** tracks per-enterprise state root history. Each enterprise maintains a verifiable chain of state roots representing their off-chain Merkle tree state.
+
+**DACAttestation** implements Data Availability Committee attestation. Committee members sign off on data availability for enterprise batches before they are certified on-chain.
+
+**CrossEnterpriseVerifier** verifies cross-references between enterprises. It enables provable inter-enterprise interactions without exposing private data from either party.
 
 ---
 
@@ -147,9 +145,11 @@ sequenceDiagram
 
 - Enterprise registration records (address, name, metadata hash, status)
 - Event hashes and metadata (event type, asset ID, timestamp, enterprise)
-- Maintenance order IDs, equipment IDs, priorities, completion status
-- Sale IDs, product IDs, quantities, amounts
+- Application-encoded event data (interpreted by adapters, not the L1)
 - ZK proof verification results (proof hash, verification status, batch size)
+- State roots per enterprise (state commitment chain)
+- DAC attestation records (committee signatures, certification status)
+- Cross-enterprise verification records (inter-enterprise proofs)
 
 ### Off-Chain Data (stays in enterprise databases)
 
@@ -276,7 +276,7 @@ Ecosystem navigation links connect the dashboard to the landing page and block e
 
 | Parameter | Value | Rationale |
 |---|---|---|
-| `minBaseFee` | 0 | Zero-fee model; costs covered by SaaS subscriptions |
+| `minBaseFee` | 1 wei | Near-zero-fee model; 1 wei minimum prevents baseFee decay to 0 (Subnet-EVM v0.8.0 rejects baseFee==0) |
 | `gasLimit` | 15,000,000 | Standard EVM block gas limit |
 | `targetBlockRate` | 2 seconds | Balance between throughput and finality |
 | `txAllowList` | Enabled | Only authorized enterprises can transact |

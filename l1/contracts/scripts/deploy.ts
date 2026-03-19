@@ -2,98 +2,74 @@ import { ethers } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", (await ethers.provider.getBalance(deployer.address)).toString());
+  console.log("Deploying with:", deployer.address);
+  console.log("Balance:", (await ethers.provider.getBalance(deployer.address)).toString());
 
-  // 1. Deploy EnterpriseRegistry
-  console.log("\n--- Deploying EnterpriseRegistry ---");
-  const EnterpriseRegistry = await ethers.getContractFactory("EnterpriseRegistry");
-  const enterpriseRegistry = await EnterpriseRegistry.deploy();
-  await enterpriseRegistry.waitForDeployment();
-  const enterpriseRegistryAddress = await enterpriseRegistry.getAddress();
-  console.log("EnterpriseRegistry deployed to:", enterpriseRegistryAddress);
+  // 1. EnterpriseRegistry
+  console.log("\n[1/7] EnterpriseRegistry");
+  const ER = await ethers.getContractFactory("EnterpriseRegistry");
+  const er = await ER.deploy();
+  await er.waitForDeployment();
+  const erAddr = await er.getAddress();
+  console.log("  ->", erAddr);
 
-  // 2. Deploy TraceabilityRegistry
-  console.log("\n--- Deploying TraceabilityRegistry ---");
-  const TraceabilityRegistry = await ethers.getContractFactory("TraceabilityRegistry");
-  const traceabilityRegistry = await TraceabilityRegistry.deploy(enterpriseRegistryAddress);
-  await traceabilityRegistry.waitForDeployment();
-  const traceabilityRegistryAddress = await traceabilityRegistry.getAddress();
-  console.log("TraceabilityRegistry deployed to:", traceabilityRegistryAddress);
+  // 2. TraceabilityRegistry
+  console.log("[2/7] TraceabilityRegistry");
+  const TR = await ethers.getContractFactory("TraceabilityRegistry");
+  const tr = await TR.deploy(erAddr);
+  await tr.waitForDeployment();
+  console.log("  ->", await tr.getAddress());
 
-  // 3. Deploy PLASMAConnector
-  console.log("\n--- Deploying PLASMAConnector ---");
-  const PLASMAConnector = await ethers.getContractFactory("PLASMAConnector");
-  const plasmaConnector = await PLASMAConnector.deploy(
-    enterpriseRegistryAddress,
-    traceabilityRegistryAddress
-  );
-  await plasmaConnector.waitForDeployment();
-  const plasmaConnectorAddress = await plasmaConnector.getAddress();
-  console.log("PLASMAConnector deployed to:", plasmaConnectorAddress);
+  // 3. ZKVerifier
+  console.log("[3/7] ZKVerifier");
+  const ZK = await ethers.getContractFactory("ZKVerifier");
+  const zk = await ZK.deploy(erAddr);
+  await zk.waitForDeployment();
+  console.log("  ->", await zk.getAddress());
 
-  // 4. Deploy TraceConnector
-  console.log("\n--- Deploying TraceConnector ---");
-  const TraceConnector = await ethers.getContractFactory("TraceConnector");
-  const traceConnector = await TraceConnector.deploy(
-    enterpriseRegistryAddress,
-    traceabilityRegistryAddress
-  );
-  await traceConnector.waitForDeployment();
-  const traceConnectorAddress = await traceConnector.getAddress();
-  console.log("TraceConnector deployed to:", traceConnectorAddress);
+  // 4. Groth16Verifier (snarkjs-generated, VK baked in)
+  console.log("[4/7] Groth16Verifier");
+  const GV = await ethers.getContractFactory("Groth16Verifier");
+  const gv = await GV.deploy();
+  await gv.waitForDeployment();
+  const gvAddr = await gv.getAddress();
+  console.log("  ->", gvAddr);
 
-  // 5. Deploy ZKVerifier
-  console.log("\n--- Deploying ZKVerifier ---");
-  const ZKVerifier = await ethers.getContractFactory("ZKVerifier");
-  const zkVerifier = await ZKVerifier.deploy(enterpriseRegistryAddress);
-  await zkVerifier.waitForDeployment();
-  const zkVerifierAddress = await zkVerifier.getAddress();
-  console.log("ZKVerifier deployed to:", zkVerifierAddress);
+  // 5. StateCommitment
+  console.log("[5/7] StateCommitment");
+  const SC = await ethers.getContractFactory("StateCommitment");
+  const sc = await SC.deploy(erAddr);
+  await sc.waitForDeployment();
+  const scAddr = await sc.getAddress();
+  console.log("  ->", scAddr);
 
-  // 6. Deploy StateCommitment
-  console.log("\n--- Deploying StateCommitment ---");
-  const StateCommitment = await ethers.getContractFactory("StateCommitment");
-  const stateCommitment = await StateCommitment.deploy(enterpriseRegistryAddress);
-  await stateCommitment.waitForDeployment();
-  const stateCommitmentAddress = await stateCommitment.getAddress();
-  console.log("StateCommitment deployed to:", stateCommitmentAddress);
+  // Set Groth16Verifier on StateCommitment
+  await sc.setVerifier(gvAddr);
+  console.log("  Verifier set!");
 
-  // 7. Register connector contracts as authorized enterprises
-  console.log("\n--- Registering connector contracts as authorized ---");
-  const connectorMetadata = ethers.toUtf8Bytes('{"type":"system_connector"}');
+  // 6. DACAttestation
+  console.log("[6/7] DACAttestation");
+  const DAC = await ethers.getContractFactory("DACAttestation");
+  const dac = await DAC.deploy(erAddr, 2);
+  await dac.waitForDeployment();
+  console.log("  ->", await dac.getAddress());
 
-  await enterpriseRegistry.registerEnterprise(
-    plasmaConnectorAddress,
-    "PLASMAConnector",
-    connectorMetadata
-  );
-  console.log("PLASMAConnector registered as authorized enterprise");
+  // 7. CrossEnterpriseVerifier
+  console.log("[7/7] CrossEnterpriseVerifier");
+  const CEV = await ethers.getContractFactory("CrossEnterpriseVerifier");
+  const cev = await CEV.deploy(scAddr, erAddr);
+  await cev.waitForDeployment();
+  console.log("  ->", await cev.getAddress());
 
-  await enterpriseRegistry.registerEnterprise(
-    traceConnectorAddress,
-    "TraceConnector",
-    connectorMetadata
-  );
-  console.log("TraceConnector registered as authorized enterprise");
-
-  // Summary
   console.log("\n========================================");
-  console.log("       DEPLOYMENT SUMMARY");
+  console.log("EnterpriseRegistry:     ", erAddr);
+  console.log("TraceabilityRegistry:   ", await tr.getAddress());
+  console.log("ZKVerifier:             ", await zk.getAddress());
+  console.log("Groth16Verifier:        ", gvAddr);
+  console.log("StateCommitment:        ", scAddr);
+  console.log("DACAttestation:         ", await dac.getAddress());
+  console.log("CrossEnterpriseVerifier:", await cev.getAddress());
   console.log("========================================");
-  console.log("EnterpriseRegistry:    ", enterpriseRegistryAddress);
-  console.log("TraceabilityRegistry:  ", traceabilityRegistryAddress);
-  console.log("PLASMAConnector:       ", plasmaConnectorAddress);
-  console.log("TraceConnector:        ", traceConnectorAddress);
-  console.log("ZKVerifier:            ", zkVerifierAddress);
-  console.log("StateCommitment:       ", stateCommitmentAddress);
-  console.log("========================================");
-  console.log("\nSave these addresses in your .env files.");
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
