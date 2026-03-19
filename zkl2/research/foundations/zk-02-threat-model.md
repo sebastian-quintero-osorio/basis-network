@@ -34,9 +34,13 @@
 
 **Threat:** Enterprise sequencer censors transactions or reorders for MEV.
 **Impact:** User transactions excluded or front-run.
-**Mitigation:** Forced inclusion via L1 (24h max delay). Enterprise context makes MEV
-unlikely but censorship possible.
-**Status:** Addressed in architecture (RU-L2).
+**Mitigation:** Forced inclusion via L1 (Arbitrum-style DelayedInbox, 24h FIFO queue).
+Enterprise context with zero-fee model eliminates MEV, but censorship remains possible.
+FIFO queue ordering prevents selective censorship (delaying one = delaying all).
+**Status:** VALIDATED in RU-L2. Prototype demonstrates 100% forced inclusion with FIFO ordering.
+**Residual risk:** On rich-state chains, sequencer can cause forced txs to fail by modifying
+shared state before inclusion (ref: "Practical Limitations on Forced Inclusion" 2025).
+Enterprise context mitigates this (enterprise controls both sequencer and contracts).
 
 ### T-02: Invalid State Transition
 
@@ -131,8 +135,78 @@ verified against committed state root on L1, (c) nullifier set prevents replay.
 | EXP | Variable-cost exponentiation | MEDIUM | Cost bounds, bit-length limits |
 | Precompile 0x08 | ecPairing ~100K constraints | HIGH | Limit pairings per batch |
 
+### T-11: Sequencer Liveness Failure
+
+**Threat:** Sequencer stops producing blocks (crash, resource exhaustion, operator error).
+**Impact:** L2 chain halts. No new transactions processed. Forced inclusion deadline
+begins ticking but no blocks to include them in.
+**Mitigation:** (a) Block production liveness invariant I-12 requires production even when
+empty, (b) L1 monitoring detects stall, (c) enterprise can restart sequencer from last
+committed batch, (d) escape hatch allows L1 withdrawal via Merkle proof.
+**Source:** RU-L2 experiment.
+
+### T-12: Mempool Overflow Under Burst Load
+
+**Threat:** Burst of transactions exceeds mempool capacity, causing drops.
+**Impact:** Legitimate enterprise transactions silently rejected.
+**Mitigation:** (a) Configurable mempool capacity (default 10K), (b) backpressure signaling
+via JSON-RPC error, (c) enterprise load is predictable and bounded (not DeFi-style bursts),
+(d) measured: mempool handles 2.8M inserts/s, well above enterprise target.
+**Source:** RU-L2 experiment (capacity enforcement test: 100% accurate).
+
+### T-13: Forced Inclusion State Manipulation
+
+**Threat:** Sequencer modifies L2 state to cause forced transactions to revert, effectively
+achieving censorship without violating forced inclusion deadline.
+**Impact:** Transaction included but fails execution (out-of-gas, revert).
+**Mitigation:** (a) Enterprise context: sequencer and contract deployer are same entity,
+(b) forced txs can target immutable contracts, (c) audit log on L1 records inclusion
+attempts, (d) L1 monitoring can detect pattern of forced tx reverts.
+**Source:** "Practical Limitations on Forced Inclusion Mechanisms" (2025), RU-L2 literature review.
+**Severity:** LOW for enterprise (sequencer is enterprise-operated), MEDIUM for general case.
+
+### T-14: State Root Computation Timeout
+
+**Threat:** Block contains too many state-modifying transactions, causing state root
+computation to exceed block time budget.
+**Impact:** Sequencer falls behind, block production stalls, forced inclusion deadlines
+may be missed.
+**Mitigation:** (a) Configurable transaction limit per block (max 250 for depth-32 SMT),
+(b) per-update cost is constant (~183 us at depth 32), so limit is deterministic,
+(c) batch optimization reduces per-update cost for deep trees,
+(d) block builder should enforce tx count limit before sealing block.
+**Source:** RU-L4 experiment (measured: 46ms for 250 tx, 91ms for 500 tx at depth 32).
+**Severity:** MEDIUM -- preventable with proper block size limits.
+
+### T-15: Hash Function Mismatch Between State DB and Prover
+
+**Threat:** State database uses Poseidon2 (gnark-crypto) but ZK circuit expects original
+Poseidon (circomlibjs/circom), or vice versa. Different hash functions produce different
+roots, making all proofs invalid.
+**Impact:** Complete system failure -- no valid proofs can be generated.
+**Mitigation:** (a) Architectural decision: align state DB hash with prover circuit hash
+from the start, (b) integration test: verify state root from DB matches circuit output,
+(c) document hash function choice in technical decisions.
+**Source:** RU-L4 library analysis (Poseidon vs Poseidon2 compatibility).
+**Severity:** HIGH -- catastrophic if undetected, trivially preventable with testing.
+
+### T-16: Deep Tree Performance Degradation
+
+**Threat:** EVM requires depth 160-256 for address/storage space. All operations scale
+linearly with depth: depth-160 is 5x slower than depth-32.
+**Impact:** At depth 160, a 100-tx block takes ~94ms (exceeds 50ms target). At depth
+256, it takes ~150ms.
+**Mitigation:** (a) Compact SMT with path compression (effective depth << nominal depth
+for sparse trees), (b) batch update optimization (arXiv:2310.13328),
+(c) parallel subtree updates via goroutines, (d) Poseidon assembly optimization.
+**Source:** RU-L4 depth sensitivity analysis.
+**Severity:** HIGH -- must be addressed before production deployment.
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
 |------|-----------|---------------------------|--------|
 | 2026-03-19 | RU-L1: EVM Executor | T-03 through T-07 | Initial creation from literature review |
+| 2026-03-19 | RU-L2: Sequencer | T-01 (updated), T-11 through T-13 | Sequencer-specific threats from literature + experiment |
+| 2026-03-19 | RU-L4: State Database | T-14 through T-16 | State root timeout, hash mismatch, deep tree degradation |
+| 2026-03-19 | RU-L2: Sequencer | T-01 (updated), T-11 through T-13 | Sequencer-specific threats from literature + experiment |

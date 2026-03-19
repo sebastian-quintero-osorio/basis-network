@@ -1,0 +1,28 @@
+{
+  "stage": 1,
+  "status": "complete",
+  "iteration": 1,
+  "last_action": "benchmark_and_analysis",
+  "last_action_description": "Implemented Go SMT with Poseidon2 (gnark-crypto), benchmarked insert/prove/verify at 100/1K/10K entries, ran batch update tests, compared with TypeScript RU-V1",
+  "next_action": "stage_2_baseline_or_downstream",
+  "metrics": {
+    "poseidon2_hash_us": 4.46,
+    "poseidon2_hashes_per_s": 224000,
+    "go_vs_ts_hash_speedup": "12.6x",
+    "insert_latency_10k_us": 125.66,
+    "go_vs_ts_insert_speedup": "14.3x",
+    "proof_gen_10k_us": 10.06,
+    "proof_verify_10k_us": 151.16,
+    "go_vs_ts_verify_speedup": "11.4x",
+    "batch_10tx_ms": 1.86,
+    "batch_50tx_ms": 9.03,
+    "batch_100tx_ms": 18.77,
+    "batch_250tx_ms": 46.05,
+    "batch_500tx_ms": 91.07,
+    "memory_10k_mb": 29.3,
+    "full_tree_10k_ms": 1989
+  },
+  "hypothesis_verdict": "CONFIRMED (for block-level updates up to 250 tx/block)",
+  "created": "2026-03-19T00:00:00Z",
+  "updated": "2026-03-19T06:01:00Z"
+}

@@ -212,7 +212,7 @@ lab/4-prover/verification-history/YYYY-MM-sequencer/
 
 ### [09] Scientist | RU-L4: State Database
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go SMT+Poseidon2: 4.46us/hash, 125us insert, 18.77ms@100tx batch, 20 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete. Validium RU-V1 (SMT) should be done.
