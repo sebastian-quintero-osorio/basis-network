@@ -81,8 +81,10 @@ CLAUDE.md
 # TLA+ tooling (downloaded at runtime)
 tla2tools.jar
 
-# TLC model checking state files (the .log certificate of truth IS committed)
-_build/states/
+# TLC model checking working directory (copies + binary state dumps)
+# The original .tla/.cfg are tracked in specs/ and experiments/
+# The MC_*.log certificate is tracked via the !**/MC_*.log exception
+_build/
 
 # Experiment runtime artifacts
 **/experiments/**/results/wal/
