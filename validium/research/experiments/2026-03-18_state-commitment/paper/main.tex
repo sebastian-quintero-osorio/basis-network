@@ -1,5 +1,5 @@
 % main.tex -- Master document
-% L1 State Commitment for Enterprise ZK Validium:
+% BNR-2026-003: L1 State Commitment for Enterprise ZK Validium:
 % Gas-Optimal Storage Design on Avalanche Subnet-EVM
 %
 % Compile:
@@ -9,6 +9,7 @@
 %   pdflatex main.tex
 
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -23,6 +24,18 @@
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{fancyhdr}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-003}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Internal Technical Report. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 
 % Listings style for Solidity
 \lstdefinelanguage{Solidity}{
@@ -49,16 +62,20 @@
 \title{L1 State Commitment for Enterprise ZK Validium:\\Gas-Optimal Storage Design on Avalanche Subnet-EVM}
 
 \author{
-  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
   \IEEEauthorblockA{
-    Medellin, Colombia\\
-    social@basecomputing.com.co
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
   }
 }
 
 \begin{document}
 
 \maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
 
 % Abstract
 \input{abstract}

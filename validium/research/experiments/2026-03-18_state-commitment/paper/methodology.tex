@@ -88,7 +88,10 @@ and $G_{\text{pairing}}(k) = 45{,}000 + 34{,}000 \cdot k$:
 
 \begin{equation}
 \label{eq:groth16-total}
-G_{\text{verify}} = 4 \times 6{,}000 + 4 \times 150 + 45{,}000 + 34{,}000 \times 4 = 205{,}600 \text{ gas}
+\begin{split}
+G_{\text{verify}} &= 4 \!\times\! 6{,}000 + 4 \!\times\! 150 + 45{,}000 + 34{,}000 \!\times\! 4 \\
+                  &= 205{,}600 \text{ gas}
+\end{split}
 \end{equation}
 
 The total gas per submission is then $G_{\text{total}} = G_{\text{storage+logic}} +

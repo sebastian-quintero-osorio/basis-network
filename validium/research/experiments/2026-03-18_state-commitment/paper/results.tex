@@ -10,7 +10,8 @@ submission (cold storage access pattern) across all three layouts.
 \centering
 \caption{Gas Cost -- First Batch Submission (Cold Storage)}
 \label{tab:gas-first-batch}
-\begin{tabular}{lrrrcc}
+\small
+\begin{tabular}{@{}lrrrcc@{}}
 \toprule
 \textbf{Layout} & \textbf{Storage} & \textbf{ZK Verify} & \textbf{Total} & \textbf{Bytes} & \textbf{$<$300K} \\
 \midrule
@@ -33,9 +34,10 @@ state slots are warm and only new batch-specific mapping entries incur cold
 \centering
 \caption{Gas Cost -- Steady State (10th Batch)}
 \label{tab:gas-steady-state}
-\begin{tabular}{lrrr}
+\small
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Layout} & \textbf{Storage+Logic} & \textbf{Total Estimate} & \textbf{$<$300K} \\
+\textbf{Layout} & \textbf{Storage+Logic} & \textbf{Total Est.} & \textbf{$<$300K} \\
 \midrule
 A: Minimal   & 63,056 & 268,656 & Yes \\
 B: Rich      & 88,053 & 293,653 & Yes \\
@@ -57,27 +59,28 @@ revealing the dominant cost component.
 \centering
 \caption{Gas Breakdown -- Layout A First Batch (285,756 total)}
 \label{fig:gas-breakdown}
-\begin{tabular}{lrr}
+\small
+\begin{tabular}{@{}lrr@{}}
 \toprule
-\textbf{Component} & \textbf{Gas} & \textbf{\% of Total} \\
+\textbf{Component} & \textbf{Gas} & \textbf{\%} \\
 \midrule
-BN256 pairing (4 pairs)      & 181,000 & 63.3\% \\
-BN256 scalar mul (4$\times$)   & 24,000  & 8.4\% \\
-BN256 point add (4$\times$)    & 600     & 0.2\% \\
+BN256 pairing (4 pairs)        & 181,000 & 63.3 \\
+BN256 scalar mul ($4\times$)   & 24,000  & 8.4 \\
+BN256 point add ($4\times$)    & 600     & 0.2 \\
 \cmidrule{1-3}
-\textit{ZK verification subtotal} & \textit{205,600} & \textit{71.9\%} \\
+\textit{ZK verify subtotal}    & \textit{205,600} & \textit{71.9} \\
 \midrule
-SSTORE batchRoots (0$\to$nz)  & 22,100  & 7.7\% \\
-SSTORE currentRoot (nz$\to$nz) & 5,000   & 1.8\% \\
-SSTORE batchCount (warm)      & 2,900   & 1.0\% \\
-SSTORE totalBatches (warm)    & 2,900   & 1.0\% \\
-SLOAD enterprise state (cold) & 4,200   & 1.5\% \\
-Event emission                & 2,150   & 0.8\% \\
-Calldata + tx base + logic    & 40,906  & 14.3\% \\
+SSTORE batchRoots (0$\to$nz)   & 22,100  & 7.7 \\
+SSTORE currentRoot (nz$\to$nz) & 5,000   & 1.8 \\
+SSTORE batchCount (warm)       & 2,900   & 1.0 \\
+SSTORE totalBatches (warm)     & 2,900   & 1.0 \\
+SLOAD enterprise state (cold)  & 4,200   & 1.5 \\
+Event emission                 & 2,150   & 0.8 \\
+Calldata + tx base + logic     & 40,906  & 14.3 \\
 \cmidrule{1-3}
-\textit{Storage+logic subtotal}   & \textit{80,156}  & \textit{28.1\%} \\
+\textit{Storage+logic subtotal} & \textit{80,156}  & \textit{28.1} \\
 \midrule
-\textbf{Total}                & \textbf{285,756} & \textbf{100\%} \\
+\textbf{Total}                 & \textbf{285,756} & \textbf{100.0} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -96,12 +99,13 @@ Table~\ref{tab:delta} isolates the marginal cost of each storage design decision
 \centering
 \caption{Marginal Gas Cost of Storage Decisions}
 \label{tab:delta}
-\begin{tabular}{lrr}
+\small
+\begin{tabular}{@{}p{3.4cm}rr@{}}
 \toprule
-\textbf{Comparison} & \textbf{First Batch} & \textbf{Steady State} \\
+\textbf{Comparison} & \textbf{1st Batch} & \textbf{Steady St.} \\
 \midrule
-Rich $-$ Minimal (metadata cost)      & +22,643 (+28.2\%) & +24,997 (+39.7\%) \\
-Minimal $-$ Events (root history cost) & +22,269           & +22,269 \\
+Rich $-$ Minimal (metadata)       & +22,643  & +24,997  \\
+Minimal $-$ Events (root hist.)   & +22,269  & +22,269 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -121,14 +125,15 @@ separate \texttt{ZKVerifier} contract):
 \centering
 \caption{Delegated vs. Integrated Verification (Analytical)}
 \label{tab:delegated}
-\begin{tabular}{lrr}
+\small
+\begin{tabular}{@{}lrr@{}}
 \toprule
-\textbf{Architecture} & \textbf{Est. Gas} & \textbf{$<$300K} \\
+\textbf{Architecture} & \textbf{Est.\ Gas} & \textbf{$<$300K} \\
 \midrule
-Integrated (Layout A)     & 285,756  & Yes \\
+Integrated (Layout A)      & 285,756       & Yes \\
 Delegated (A + ZKVerifier) & $\sim$341,856 & No \\
 \midrule
-\textit{Delta}            & +56,100  & --- \\
+\textit{Delta}             & +56,100       & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -147,9 +152,10 @@ All seven safety invariant tests passed across all three layouts (Table~\ref{tab
 \centering
 \caption{Invariant Test Results}
 \label{tab:invariants}
-\begin{tabular}{lccc}
+\small
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Invariant} & \textbf{Layout A} & \textbf{Layout B} & \textbf{Layout C} \\
+\textbf{Invariant} & \textbf{A} & \textbf{B} & \textbf{C} \\
 \midrule
 ChainContinuity (gap)     & Pass & Pass & Pass \\
 NoReversal                & Pass & Pass & Pass \\
