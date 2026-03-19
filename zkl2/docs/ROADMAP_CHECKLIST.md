@@ -78,7 +78,7 @@ lab/3-architect/implementation-history/node-evm-executor/
 
 ### [03] Architect | RU-L1: EVM Executor
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- 1,748 lines Go, 13 tests, 15 adversarial vectors, executor+tracer+opcodes)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [02] complete, verified specs in `implementation-history/`.
