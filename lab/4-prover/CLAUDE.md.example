@@ -13,7 +13,7 @@ a bug, the pipeline halts.
 ## Expected CLAUDE.md Sections
 
 1. Identity and Context (final gate in pipeline)
-2. Repository Structure (verification-history/, tools/)
+2. Dual-Directory Model (agent infra in lab/, proofs in validium/proofs/ or zkl2/proofs/)
 3. Verification Unit Structure (0-input-spec/, 0-input-impl/, 1-proofs/, 2-reports/)
 4. Operational Principles (isomorphism, mathematical rigor, skeptic's mindset)
 5. Multi-Language Modeling (TypeScript, Go, Rust, Solidity, Circom -> Coq)

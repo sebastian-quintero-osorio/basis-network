@@ -16,7 +16,7 @@ The Safety Latch is non-negotiable: no code is written without a verified TLA+ s
 ## Expected CLAUDE.md Sections
 
 1. Identity and Context (position in pipeline, dual implementation targets)
-2. Repository Structure (implementation-history/, target codebases)
+2. Dual-Directory Model (agent infra in lab/, code in validium/ or zkl2/ targets)
 3. Operational Principles (safety latch, first-principles, traceability, engineering rigor)
 4. Technology Selection Protocol (justified per-language decisions)
 5. Implementation Workflow (6 phases: input validation through quality assurance)

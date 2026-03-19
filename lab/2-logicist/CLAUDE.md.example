@@ -12,7 +12,7 @@ checking (TLC), and produces verified contracts that the downstream agents must 
 ## Expected CLAUDE.md Sections
 
 1. Identity and Context (position in pipeline, relationship to other agents)
-2. Repository Structure (research-history/, tools/, docs/)
+2. Dual-Directory Model (agent infra in lab/, specs in validium/specs/ or zkl2/specs/)
 3. Research Unit Structure (0-input/, 1-formalization/v0-analysis/, v1-fix/)
 4. Operational Principles (first-principles formalism, mathematical rigor, adversary within)
 5. The Five-Phase Verification Pipeline
