@@ -49,6 +49,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Exception: TLC model checking certificates and Coq verification logs ARE committed
+!**/MC_*.log
+!**/verification.log
+
 # Testing
 coverage/
 *.lcov

@@ -1,0 +1,28 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 30 and seed 3347528158796853186 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-cross-enterprise\1-formalization\v0-analysis\experiments\CrossEnterprise\_build\MC_CrossEnterprise.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-cross-enterprise\1-formalization\v0-analysis\experiments\CrossEnterprise\_build\CrossEnterprise.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module CrossEnterprise
+Semantic processing of module MC_CrossEnterprise
+Starting... (2026-03-18 18:06:58)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-18 18:06:58.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 1.2E-9
+  based on the actual fingerprints:  val = 1.1E-10
+461529 states generated, 54009 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 11.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 16 and the 95th percentile is 3).
+Finished in 02s at (2026-03-18 18:07:00)

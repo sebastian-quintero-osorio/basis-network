@@ -1,0 +1,31 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 104 and seed -191858209377963312 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-enterprise-node\1-formalization\v0-analysis\experiments\EnterpriseNode\_build\MC_EnterpriseNode.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\validium\specs\units\2026-03-enterprise-node\1-formalization\v0-analysis\experiments\EnterpriseNode\_build\EnterpriseNode.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module EnterpriseNode
+Semantic processing of module MC_EnterpriseNode
+Starting... (2026-03-18 16:32:24)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-18 16:32:25.
+Progress(20) at 2026-03-18 16:32:25: 3,958 states generated, 1,693 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 1693 total distinct states at (2026-03-18 16:32:25)
+Finished checking temporal properties in 01s at 2026-03-18 16:32:27
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 2.1E-13
+3958 states generated, 1693 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 20.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 4 and the 95th percentile is 3).
+Finished in 02s at (2026-03-18 16:32:27)
