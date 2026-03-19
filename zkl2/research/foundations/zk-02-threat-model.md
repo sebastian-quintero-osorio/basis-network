@@ -252,6 +252,55 @@ scale (>1000 tx per batch or complex contract interactions).
 **Source:** RU-L3 performance analysis.
 **Severity:** LOW -- optimization opportunity, not a blocker.
 
+### T-21: Batch Commitment Front-Running
+
+**Threat:** An attacker observes a sequencer's commitBatch transaction in the mempool
+and submits a conflicting batch with the same block range, front-running the legitimate
+sequencer.
+**Impact:** Legitimate batch rejected due to block range conflict (INV-R4 MonotonicBlockRange).
+**Mitigation:** (a) msg.sender authorization ensures only the registered enterprise can
+commit batches for its own chain, (b) permissioned L1 (zero-fee) reduces front-running
+incentive, (c) enterprise isolation means attackers cannot target other enterprises' chains.
+**Source:** RU-L5 design analysis.
+**Severity:** LOW -- structural mitigation via per-enterprise msg.sender isolation.
+
+### T-22: Stale Proof Submission
+
+**Threat:** A prover submits a valid proof for a committed batch, but the batch was
+reverted by admin between commitment and proof submission. The proof passes verification
+but references a no-longer-committed batch.
+**Impact:** Wasted gas (proof verified but batch no longer exists).
+**Mitigation:** (a) Sequential proving counter (totalBatchesProven) ensures only the next
+expected batch can be proven, (b) reverting a batch resets the committed counter, making
+the old batch ID unreachable, (c) reverted batch's StoredBatchInfo is deleted (status = None).
+**Source:** RU-L5 experiment, revert mechanism analysis.
+**Severity:** LOW -- structural protection via sequential counters and batch deletion.
+
+### T-23: Gas Exhaustion on First Batch
+
+**Threat:** The first batch for an enterprise costs ~493K gas (projected with Groth16),
+leaving only ~7K margin under the 500K target. If Subnet-EVM precompile costs differ
+from mainnet EIP-197, the first batch could exceed the gas budget.
+**Impact:** First batch fails; requires gas limit increase or contract optimization.
+**Mitigation:** (a) Measure real Groth16 verification gas on Basis Network Fuji testnet,
+(b) steady-state cost is 425K (75K margin) so only first batch is at risk,
+(c) batch range proving (future) would amortize verification across multiple batches,
+(d) can optimize first batch by pre-warming storage via initializeEnterprise.
+**Source:** RU-L5 gas benchmark analysis.
+**Severity:** MEDIUM -- first batch has tight margin; steady state is safe.
+
+### T-24: Cross-Enterprise State Poisoning via Batch Revert
+
+**Threat:** Admin reverts enterprise A's batch. If global counters are decremented
+incorrectly, enterprise B's state could be affected.
+**Impact:** Global counter desynchronization, breaking GlobalCountIntegrity invariant.
+**Mitigation:** (a) Global counters are always incremented/decremented alongside per-enterprise
+counters atomically, (b) revertBatch only modifies the target enterprise's state plus
+global counters, (c) enterprise B's mapping entries are never touched, (d) verified by
+adversarial test: GlobalCountIntegrity maintained across enterprises.
+**Source:** RU-L5 adversarial testing.
+**Severity:** LOW -- verified by test suite (61/61 passing).
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
@@ -260,3 +309,4 @@ scale (>1000 tx per batch or complex contract interactions).
 | 2026-03-19 | RU-L2: Sequencer | T-01 (updated), T-11 through T-13 | Sequencer-specific threats from literature + experiment |
 | 2026-03-19 | RU-L4: State Database | T-14 through T-16 | State root timeout, hash mismatch, deep tree degradation |
 | 2026-03-19 | RU-L3: Witness Generation | T-17 through T-20 | Witness completeness, determinism, IPC latency, JSON bottleneck |
+| 2026-03-19 | RU-L5: Basis Rollup | T-21 through T-24 | L1 rollup contract threats: front-running, stale proofs, gas exhaustion, cross-enterprise revert |

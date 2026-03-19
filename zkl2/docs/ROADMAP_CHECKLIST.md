@@ -397,7 +397,7 @@ lab/4-prover/verification-history/YYYY-MM-witness-generation/
 
 ### [17] Scientist | RU-L5: BasisRollup
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- CONFIRMED: BasisRollup.sol 400+ lines, 287K gas, commit-prove-execute, 61 tests)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [13] complete. Validium RU-V3 should be done.
