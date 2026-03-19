@@ -1,0 +1,19 @@
+=== Witness Generation Verification Log ===
+Date: 2026-03-19
+Rocq: 9.0.1 (OCaml 4.14.2)
+Namespace: WG
+
+=== Compiling Common.v ===
+=== Common.v: PASS ===
+
+=== Compiling Spec.v ===
+=== Spec.v: PASS ===
+
+=== Compiling Impl.v ===
+=== Impl.v: PASS ===
+
+=== Compiling Refinement.v ===
+=== Refinement.v: PASS ===
+
+=== ALL FILES: PASS ===
+No Admitted found.
