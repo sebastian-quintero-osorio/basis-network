@@ -1,0 +1,14 @@
+=== ALL PROOFS VERIFIED ===
+Date: Wed, Mar 18, 2026  5:32:26 PM
+Prover: Rocq 9.0.1
+Mode: standard (no --strict needed, zero Admitted)
+
+Files compiled:
+  Common.v     PASS
+  Spec.v       PASS
+  Impl.v       PASS
+  Refinement.v PASS
+
+Admitted count: 0
+Theorems proved: 13
+Axiom trust base: 1 (batch_threshold_pos)

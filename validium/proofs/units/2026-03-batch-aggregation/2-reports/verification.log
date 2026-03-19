@@ -1,0 +1,28 @@
+Verification Log -- Batch Aggregation Unit (RU-V4)
+==================================================
+
+Date: 2026-03-18
+Target: validium
+Coq Version: Rocq Platform 9.0 (2025.08)
+Compiler: C:\Rocq-Platform~9.0~2025.08\bin\coqc
+
+Compilation Order:
+  1. Common.v   -- PASS (0 errors, 0 warnings)
+  2. Spec.v     -- PASS (0 errors, 0 warnings)
+  3. Impl.v     -- PASS (0 errors, 0 warnings)
+  4. Refinement.v -- PASS (0 errors, 0 warnings)
+
+Admitted Count: 0
+Axiom Count: 1 (bst_positive: BST > 0)
+Total Theorems Proved: 55
+
+Compilation Command:
+  coqc -Q . BA Common.v && coqc -Q . BA Spec.v && coqc -Q . BA Impl.v && coqc -Q . BA Refinement.v
+
+Output Files:
+  Common.vo   (19,678 bytes)
+  Spec.vo     (13,720 bytes)
+  Impl.vo     (9,690 bytes)
+  Refinement.vo (52,211 bytes)
+
+Strict Mode: PASS (no Admitted, no admit, no give_up found)

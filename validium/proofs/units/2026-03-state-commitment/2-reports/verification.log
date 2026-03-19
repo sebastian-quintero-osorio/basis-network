@@ -1,0 +1,25 @@
+=== VERIFICATION LOG ===
+Date: 2026-03-18
+Coq: Rocq Prover 9.0.1 (OCaml 4.14.2)
+Target: validium/proofs/units/2026-03-state-commitment
+
+--- Compiling Common.v ---
+PASS
+
+--- Compiling Spec.v ---
+PASS
+
+--- Compiling Impl.v ---
+PASS
+
+--- Compiling Refinement.v ---
+PASS
+
+
+=== ADMITTED SCAN ===
+Refinement.v:404:   All proofs are from first principles. No axioms, no Admitted.
+
+=== AXIOM SCAN ===
+No custom axioms.
+
+RESULT: ALL PASS
