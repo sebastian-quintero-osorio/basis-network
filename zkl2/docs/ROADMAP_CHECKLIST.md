@@ -378,7 +378,7 @@ lab/4-prover/verification-history/YYYY-MM-witness-generation/
 
 ### [16] Prover | RU-L3: Witness Generation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 key theorems, 14-field inductive invariant, Rust-TLA+ isomorphism)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [15] complete, snapshots prepared.
