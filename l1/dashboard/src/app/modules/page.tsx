@@ -11,6 +11,9 @@ export default function ModulesPage() {
     totalZKBatches,
     totalZKVerified,
     totalTxVerified,
+    totalStateBatches,
+    dacTotalCertified,
+    dacCommitteeSize,
   } = useNetwork();
 
   const modules = [
@@ -45,6 +48,35 @@ export default function ModulesPage() {
         { label: "Verified", value: totalZKVerified },
         { label: "Tx Validated", value: totalTxVerified },
       ],
+    },
+    {
+      name: "State Commitment",
+      category: "ZK Validium",
+      address: process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS,
+      description:
+        "Per-enterprise state root chains with integrated Groth16 ZK proof verification. Enforces ChainContinuity, ProofBeforeState, and NoGap safety invariants atomically.",
+      metrics: [
+        { label: "Batches Committed", value: totalStateBatches },
+      ],
+    },
+    {
+      name: "DAC Attestation",
+      category: "Data Availability",
+      address: process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS,
+      description:
+        "On-chain Data Availability Committee registry with Shamir (k,n) secret sharing. Provides information-theoretic privacy for off-chain batch data with on-chain certificate verification.",
+      metrics: [
+        { label: "Committee", value: dacCommitteeSize },
+        { label: "Certified", value: dacTotalCertified },
+      ],
+    },
+    {
+      name: "Cross-Enterprise Verifier",
+      category: "Multi-Enterprise",
+      address: process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS,
+      description:
+        "Hub-and-spoke proof aggregation for cross-enterprise interactions. Verifies interaction commitments between enterprises without revealing private data from either party.",
+      metrics: [],
     },
   ];
 

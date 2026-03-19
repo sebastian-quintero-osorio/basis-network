@@ -52,6 +52,7 @@ export default function OverviewPage() {
     totalZKBatches,
     totalZKVerified,
     totalTxVerified,
+    totalStateBatches,
     recentBlocks,
     activities,
   } = useNetwork();
@@ -141,9 +142,9 @@ export default function OverviewPage() {
           className="animate-in delay-4"
         />
         <StatCard
-          title="Tx Validated"
-          value={totalTxVerified}
-          subtitle="Via ZK proofs"
+          title="State Batches"
+          value={totalStateBatches}
+          subtitle="ZK-proven on L1"
           className="animate-in delay-5"
         />
       </div>
