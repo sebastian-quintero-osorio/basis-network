@@ -57,7 +57,7 @@ The global Avalanche network provides security, interoperability, and validator 
 
 A customized Subnet-EVM blockchain with the native currency **Lithos** (LITHOS, smallest unit: Tomo):
 
-- **Zero-fee gas model** (`minBaseFee: 0`, `minBlockGasCost: 0`, `maxBlockGasCost: 0`)
+- **Near-zero-fee gas model** (`minBaseFee: 1` wei, effectively free; minimum of 1 wei prevents dynamic baseFee decay to 0)
 - **Transaction allowlist** -- only authorized enterprise wallets can send transactions
 - **Contract deployer allowlist** -- only admin addresses can deploy smart contracts
 - **Permissioned validators** -- participating enterprises validate the network
@@ -276,7 +276,7 @@ Ecosystem navigation links connect the dashboard to the landing page and block e
 
 | Parameter | Value | Rationale |
 |---|---|---|
-| `minBaseFee` | 0 | Zero-fee model; costs covered by SaaS subscriptions |
+| `minBaseFee` | 1 wei | Near-zero-fee model; 1 wei minimum prevents baseFee decay to 0 (Subnet-EVM v0.8.0 rejects baseFee==0) |
 | `gasLimit` | 15,000,000 | Standard EVM block gas limit |
 | `targetBlockRate` | 2 seconds | Balance between throughput and finality |
 | `txAllowList` | Enabled | Only authorized enterprises can transact |

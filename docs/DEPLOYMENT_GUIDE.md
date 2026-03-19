@@ -8,8 +8,8 @@ Basis Network is live on Avalanche Fuji Testnet with the following infrastructur
 
 | Resource | Value |
 |---|---|
-| Subnet ID | `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx` |
-| Blockchain ID | `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX` |
+| Subnet ID | `AYdFRP6MsbHq51MnUqmg5o4Eb92jPTgyPvq92dDQULVo9pwAk` |
+| Blockchain ID | `2VtYqDeZ5RabHM8zA4x94T6DMdzs3svkfcpF7TLEmTpETUTufR` |
 | Chain ID | `43199` |
 | RPC | [rpc.basisnetwork.com.co](https://rpc.basisnetwork.com.co) |
 | Validator | DigitalOcean droplet (`144.126.220.103`) |

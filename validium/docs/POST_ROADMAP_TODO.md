@@ -29,7 +29,7 @@ The R&D pipeline executed 28 agent sessions across 7 Research Units, producing:
 | DACAttestation.sol | `l1/contracts/contracts/verification/` | 28 | PASS | VERIFIED | **Deployment ready** |
 | CrossEnterpriseVerifier.sol | `l1/contracts/contracts/verification/` | 25 | PASS | VERIFIED | **Deployment ready** |
 
-**Updated totals:** 275+ unit tests passing (node), 163 contract tests passing (L1), 14 security tests.
+**Updated totals:** 275+ unit tests passing (node), 114+ contract tests passing (L1), 14 security tests.
 
 ## Integration Progress
 
@@ -41,31 +41,29 @@ The R&D pipeline executed 28 agent sessions across 7 Research Units, producing:
 - [x] Run the full test suite together (275/275 passing, 11/11 suites)
 - [x] Write real integration tests: 7 tests covering enqueue -> form batch -> update SMT -> build witness
 
-### 2. Circuit Production Setup -- IN PROGRESS
+### 2. Circuit Production Setup -- COMPLETE
 
 - [x] Compile `state_transition.circom` at depth 32, batch 8 (274,291 constraints)
 - [x] Run Powers of Tau ceremony (pot19, 2^19 = 524,288 max constraints)
-- [ ] Generate circuit-specific proving and verification keys (zkey generation in progress)
-- [ ] Generate the production `Groth16Verifier.sol` from the final keys
-- [ ] Verify proof generation works with real SMT data
-- [ ] Measure actual proving time on target hardware
+- [x] Generate circuit-specific proving and verification keys (state_transition_final.zkey, 127 MB)
+- [x] Generate the production `Groth16Verifier.sol` from the final keys (snarkjs-generated)
+- [x] Verify proof generation works with real SMT data
+- [x] Measure actual proving time: **12.9 seconds** on Windows 11 (matches R&D prediction of ~12.8s)
 
-### 3. L1 Contract Deployment -- BLOCKED (chain restart needed)
+### 3. L1 Contract Deployment -- COMPLETE
 
-- [x] Write deployment script (`l1/contracts/scripts/deploy-validium.ts`)
-- [x] Configure Hardhat for Basis Network Fuji (gasPrice, RPC)
-- [x] Verify contract compilation (10 contracts, 0 errors)
-- [x] Verify all 163 contract tests pass
-- [ ] Deploy `StateCommitment.sol` (waiting for chain to produce blocks)
-- [ ] Deploy `DACAttestation.sol` (waiting for chain)
-- [ ] Deploy `CrossEnterpriseVerifier.sol` (waiting for chain)
-- [ ] Update `StateCommitment.sol` with the production Groth16 verifying key
-- [ ] Test batch submission on actual L1
+- [x] Recreate L1 from scratch (old chain had irrecoverable baseFee: 0 bug)
+- [x] New Subnet: `AYdFRP6MsbHq51MnUqmg5o4Eb92jPTgyPvq92dDQULVo9pwAk`
+- [x] Deploy 7 contracts (6 core + Groth16Verifier) to live chain
+- [x] StateCommitment delegates to external Groth16Verifier (VK baked as constants)
+- [x] Register PLASMA as enterprise, initialize state
+- [x] ZK batch verified on-chain (block #54, 306K gas, TX 0x3605a9...)
 
-### 4. End-to-End Pipeline Test -- READY (pending chain + zkey)
+### 4. End-to-End Pipeline Test -- COMPLETE
 
 - [x] Write E2E test script (`validium/node/scripts/e2e-test.ts`)
-- [ ] Execute full pipeline (pending chain + circuit setup)
+- [x] Execute full pipeline on live chain: REST API -> WAL -> Batch -> Witness -> Proof (12s) -> L1 Submit -> On-Chain Verification -> State Root Updated
+- [x] Zero crashes during E2E execution
 
 ### 5. Dashboard Update -- COMPLETE
 
@@ -107,16 +105,31 @@ Unchanged from R&D pipeline. These are documented open questions for future phas
 - [x] Checkpoint file integrity hash (atomic write via temp + rename)
 - [x] Transaction deduplication by txHash (LRU-bounded set, ATK-BA4)
 
-## Remaining Items
+## Remaining Items -- ALL RESOLVED
 
-The following items are **blocked by external dependencies**, not by code:
+All 8 sections are complete. The system is fully operational:
 
-1. **Zkey generation** (in progress -- 274K constraints takes significant time)
-2. **L1 deployment** (blocked by validator reconnection -- chain not producing blocks)
-3. **E2E test execution** (depends on both 1 and 2)
+- Zkey generated (127 MB, 42 seconds)
+- L1 recreated from scratch (old chain had irrecoverable baseFee: 0 bug)
+- E2E pipeline verified on live chain (zero crashes, 306K gas per batch)
 
-Once these are unblocked, the deployment and E2E test can be executed immediately
-using the scripts already written and tested.
+### Bugs Found and Fixed During Integration
+
+1. **ZK Prover hex-to-decimal conversion**: `formatCircuitInput` passed hex strings
+   directly to snarkjs, which expects decimal strings. Fixed with `hexToDec()` converter.
+
+2. **L1 Submitter root padding**: SMT roots may have fewer than 64 hex characters.
+   `ethers.zeroPadValue` rejects odd-length hex. Fixed with `padStart(64, '0')`.
+
+3. **StateCommitment inline verifier storage bug**: `uint256[2][2]` VK points read
+   from storage had corrupted G2 coordinates due to Solidity storage layout behavior.
+   Fixed by delegating verification to external Groth16Verifier (snarkjs-generated,
+   VK baked as constants).
+
+4. **baseFee: 0 chain stall**: Subnet-EVM v0.8.0 rejects `baseFee == 0` during block
+   construction. The old L1 used `feeManager` precompile to set `minBaseFee: 0`, which
+   caused the dynamic baseFee to decay to 0 during validator downtime. Fixed by
+   recreating the L1 with `minBaseFee: 1` in genesis.
 
 ## Architecture Decisions Made During R&D
 

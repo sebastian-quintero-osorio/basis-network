@@ -125,21 +125,22 @@ basis-network/
 
 Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 
-- **Subnet ID:** `csFDHeZGWt36nqx3UuLeG6cs6daNUVrFEVGQ2tgoQfKPqPskx`
-- **Blockchain ID:** `qTRKhytrdbPMCNSVf6Sr5kRxRCyqwLKQCibDzAYLqhKKUvPJX`
+- **Subnet ID:** `AYdFRP6MsbHq51MnUqmg5o4Eb92jPTgyPvq92dDQULVo9pwAk`
+- **Blockchain ID:** `2VtYqDeZ5RabHM8zA4x94T6DMdzs3svkfcpF7TLEmTpETUTufR`
 - **RPC:** `https://rpc.basisnetwork.com.co`
 - **Dashboard:** [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co)
 
 | Contract | Address | Purpose |
 |---|---|---|
-| EnterpriseRegistry | `0xe10CCf26c7Cb6CB81b47C8Da72E427628c8a5E09` | Enterprise onboarding and permissions |
-| TraceabilityRegistry | `0xAC00F4920665b1eA43F4F7Da7ef3714DE7acf6Fc` | Generic event recording |
-| ZKVerifier | `0x6e28B9DD35C752DF4a38040df31c9A82c5285aF2` | Groth16 proof verification |
-| StateCommitment | TBD | Per-enterprise state root tracking |
-| DACAttestation | TBD | Data Availability Committee attestation |
-| CrossEnterpriseVerifier | TBD | Inter-enterprise cross-reference verification |
+| EnterpriseRegistry | `0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5` | Enterprise onboarding and permissions |
+| TraceabilityRegistry | `0x0a84C68Fe45d3036Fe66ad219f37963c79140fcb` | Generic event recording |
+| ZKVerifier | `0x51B072d47f40ab7aaeD2D7744a17Bf5b53fC916D` | Groth16 proof verification |
+| Groth16Verifier | `0xEe0149b9E547cfD7e31274EE3DA25DCEd48703a6` | snarkjs-generated verifier (VK baked in) |
+| StateCommitment | `0x0FD3874008ed7C1184798Dd555B3D9695771fb5b` | Per-enterprise state root tracking |
+| DACAttestation | `0xBa485D9b8b8b132E5eC4d7Bcf5F0B18aD10fCB22` | Data Availability Committee attestation |
+| CrossEnterpriseVerifier | `0x188125658E9Bd8D7a026A52052dB9B970d6441A9` | Inter-enterprise cross-reference verification |
 
-**On-chain activity:** 4 registered enterprises, 9 traceability events, 1 verified ZK batch proof (4 transactions via Groth16).
+**On-chain activity:** PLASMA registered as enterprise, ZK batch verified on-chain (8 transactions, Groth16, 306K gas, block #54).
 
 ---
 
@@ -156,8 +157,8 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 ```bash
 cd l1/contracts
 npm install
-npx hardhat compile    # Compiles 8 contracts (EVM target: cancun)
-npx hardhat test       # Runs 139 tests (all passing)
+npx hardhat compile    # Compiles 7 contracts (EVM target: cancun)
+npx hardhat test       # Runs 114+ tests (all passing)
 ```
 
 ### ZK Circuits
@@ -190,16 +191,17 @@ npm run demo     # Simulates PLASMA + Trace events writing on-chain
 
 ## Smart Contracts
 
-Eight contracts form the on-chain protocol:
+Seven contracts form the on-chain protocol (L1 as generic settlement layer):
 
 | Contract | Purpose | Tests |
 |---|---|---|
-| `EnterpriseRegistry.sol` | Enterprise onboarding, permissions, and metadata management | 24 |
-| `TraceabilityRegistry.sol` | Generic, application-agnostic event recording | 13 |
-| `ZKVerifier.sol` | Groth16 zero-knowledge proof verification | 9 |
-| `StateCommitment.sol` | Per-enterprise state root tracking and batch history | 30 |
+| `EnterpriseRegistry.sol` | Enterprise onboarding, permissions, and metadata management | 13 |
+| `TraceabilityRegistry.sol` | Generic, application-agnostic event recording | 16 |
+| `ZKVerifier.sol` | Groth16 zero-knowledge proof verification | 11 |
+| `Groth16Verifier.sol` | snarkjs-generated verifier with VK baked as constants | (via StateCommitment) |
+| `StateCommitment.sol` | Per-enterprise state root tracking with delegated ZK verification | 38 |
 | `DACAttestation.sol` | Data Availability Committee attestation and certification | 22 |
-| `CrossEnterpriseVerifier.sol` | Inter-enterprise cross-reference verification | 25 |
+| `CrossEnterpriseVerifier.sol` | Inter-enterprise cross-reference verification | 18 |
 
 All contracts use custom errors for gas-efficient reverts, NatSpec documentation for every public function, and role-based access control tied to `EnterpriseRegistry`.
 
