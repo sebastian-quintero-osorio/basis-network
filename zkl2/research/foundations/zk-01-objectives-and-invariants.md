@@ -457,6 +457,51 @@ that batch data is available (at least k=5 of n=7 nodes online) MUST exceed 99.9
 | DAC availability (p=0.99) | > 99.9% | RU-L8 experiment (measured: 99.997%) |
 | DAC failure tolerance | 2 nodes | RU-L8 experiment (verified: 2 of 7) |
 
+### I-37: Proof System Agnosticism
+
+The L1 rollup verification infrastructure MUST support multiple proof systems via a
+verifier router pattern. During migration periods, BasisRollup.sol accepts both legacy
+(Groth16) and target (PLONK/halo2-KZG) proof formats. A batch is valid if ANY accepted
+verifier confirms the proof.
+
+**Source:** RU-L9 (PLONK Migration)
+**Why:** Circuit evolution is frequent during active development. Per-circuit trusted setup
+(Groth16) creates a hard dependency between circuit changes and ceremony execution.
+Universal SRS (PLONK/halo2-KZG) eliminates this, but the migration itself requires a
+dual verification period to prevent gaps.
+
+### I-38: Universal SRS Reuse
+
+The ZK prover MUST use a proof system with a universal Structured Reference String (SRS)
+that is reusable across all circuit configurations. Per-circuit trusted setup ceremonies
+are not acceptable for production deployment due to operational overhead and security
+ceremony coordination requirements.
+
+**Source:** RU-L9 (PLONK Migration), TD-003
+**Why:** Enterprise circuits evolve as new EVM opcodes are supported, batch sizes change,
+and optimizations are applied. A universal SRS (one ceremony) enables circuit changes
+without re-running setup ceremonies.
+
+### I-39: Proof Size Bound
+
+ZK proofs submitted to the L1 rollup contract MUST be < 1KB in size. This ensures
+reasonable calldata costs and storage efficiency for on-chain proof archives.
+
+**Source:** RU-L9 (PLONK Migration)
+**Why:** Measured: Groth16 proofs are 128 bytes (constant). halo2-KZG proofs are 672-800
+bytes. FRI/STARK proofs are 43-130KB (rejected). The 1KB bound eliminates FRI-based
+systems from consideration for direct on-chain verification.
+
+## Performance Targets (Updated with PLONK Migration)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| Proof size (PLONK/halo2-KZG) | < 1KB | RU-L9 experiment (measured: 672-800 bytes) |
+| L1 verification gas (PLONK) | < 500K | RU-L9 literature (Axiom: 420K, general: 290-300K) |
+| Proving time ratio (PLONK/Groth16) | < 2x at production scale | RU-L9 experiment (measured: 1.2x at 500 steps) |
+| Custom gate row reduction (Poseidon) | > 5x vs R1CS | RU-L9 analysis (projected: 17x for full Poseidon) |
+| SRS degree (k) | k=20 (1M rows max) | RU-L9 analysis (enterprise circuits ~50K rows) |
+
 ## Experiment Log
 
 | Date | Experiment | Invariants Affected | Update |
@@ -468,3 +513,4 @@ that batch data is available (at least k=5 of n=7 nodes online) MUST exceed 99.9
 | 2026-03-19 | RU-L5: Basis Rollup | I-20 through I-24 | L1 rollup contract invariants, gas performance targets |
 | 2026-03-19 | RU-L7: Bridge | I-25 through I-31 | Bridge security invariants, gas and latency targets |
 | 2026-03-19 | RU-L8: Production DAC | I-32 through I-36 | DAC verifiable encoding, recoverability, privacy, liveness, availability |
+| 2026-03-19 | RU-L9: PLONK Migration | I-37 through I-39 | Proof system agnosticism, universal SRS, proof size bound |

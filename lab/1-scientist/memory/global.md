@@ -18,6 +18,7 @@
 | 2026-03-19 | witness-generation (RU-L3) | zkl2 | CONFIRMED | 13.37ms@1000tx, 3.0MB witness, 78.4% storage, determinism PASS |
 | 2026-03-19 | e2e-pipeline (RU-L6) | zkl2 | CONFIRMED | 14s@100tx E2E, prove=71.3% bottleneck, 100% retry reliability |
 | 2026-03-19 | production-dac (RU-L8) | zkl2 | CONFIRMED | 4.5ms@500KB attest, 1.40x storage, <1ms recovery, 7.5 nines@p=0.999 |
+| 2026-03-19 | plonk-migration (RU-L9) | zkl2 | CONFIRMED | halo2-KZG selected, 672-800B proof, 290-420K gas, 1.2x prove@500step |
 
 ## Key Patterns
 
@@ -168,6 +169,26 @@
 - Depth sensitivity: linear (depth 256 = ~3x vs depth 32 for time and size)
 - Production witness sizes: Polygon ~2 GB (full), our prototype ~3 MB (3 tables of ~10)
 
+## PLONK Migration Patterns (zkL2)
+
+- halo2-KZG (Axiom fork) is the selected proof system for Basis Network zkEVM L2
+- plonky2 eliminated: proof size 43-130KB, Goldilocks field incompatible with BN254, DEPRECATED
+- halo2-IPA eliminated: Pallas/Vesta curves have no EVM precompile support
+- halo2-KZG proving time overhead: 4.7x at 10 steps, converges to 1.2x at 500 steps
+- halo2-KZG proof size: 672-800 bytes (< 1KB target)
+- halo2-KZG verification gas: 290-420K (< 500K target; Axiom production: 420K)
+- Groth16 proof size: 128 bytes (constant, smallest SNARK)
+- Groth16 verification gas: ~220K (207K + 7.16K per public input)
+- FFLONK (Polygon): ~200K gas (cheapest, but requires specialized implementation)
+- Custom gate row reduction: 2.4x for x^5 gate, projected 17x for full Poseidon
+- R1CS to PLONKish naive transpilation: 2.35x constraint inflation; benefit is from NATIVE custom gates
+- PLONKish additions are NOT free (unlike R1CS); 50-70% of gates in hash circuits
+- PSE halo2 fork is in maintenance mode (Jan 2025); use Axiom fork for active development
+- Universal SRS: PSE perpetual-powers-of-tau (71+ participants), k=20 for enterprise circuits
+- Scroll migrating from halo2 to OpenVM (RISC-V zkVM); does NOT invalidate halo2 for enterprise
+- Every production zkEVM uses PLONKish arithmetization (not R1CS)
+- Every production zkEVM verifies on L1 via KZG-based SNARK (Groth16/PLONK/FFLONK)
+
 ## Experiment Index
 
 1. `validium/research/experiments/2026-03-18_sparse-merkle-tree/` -- RU-V1, Stage 2 complete
@@ -183,3 +204,4 @@
 11. `zkl2/research/experiments/2026-03-19_witness-generation/` -- RU-L3, Stage 2 complete, CONFIRMED
 12. `zkl2/research/experiments/2026-03-19_e2e-pipeline/` -- RU-L6, Stage 2 complete, CONFIRMED
 13. `zkl2/research/experiments/2026-03-19_production-dac/` -- RU-L8, Stage 1 complete, CONFIRMED
+14. `zkl2/research/experiments/2026-03-19_plonk-migration/` -- RU-L9, Stage 1 complete, CONFIRMED

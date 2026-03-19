@@ -385,6 +385,55 @@ restart relayer from last processed event.
 **Source:** RU-L7 design analysis.
 **Severity:** MEDIUM -- service disruption but no fund loss.
 
+### T-32: Proof System Migration Gap
+
+**Threat:** During migration from Groth16 to PLONK/halo2-KZG, a batch is committed with
+one proof system but the verifier only accepts the other, creating a window where no valid
+proof can be submitted.
+**Impact:** Batches stuck in Committed state, unable to advance to Proven/Executed.
+**Mitigation:** (a) Dual verification router: BasisRollup accepts both Groth16 AND PLONK
+proofs during transition period, (b) per-enterprise migration flag allowing controlled
+rollout, (c) migration can be rolled back by re-enabling legacy verifier.
+**Source:** RU-L9 PLONK Migration research.
+**Severity:** MEDIUM -- operational disruption if migration is not carefully coordinated.
+
+### T-33: Universal SRS Compromise
+
+**Threat:** The universal Structured Reference String (Powers-of-Tau) ceremony is compromised
+-- all MPC participants collude or leak their toxic waste.
+**Impact:** Attacker can forge proofs for any circuit using the SRS, breaking soundness.
+**Mitigation:** (a) Use PSE perpetual-powers-of-tau ceremony (71+ participants; only 1 honest
+participant needed), (b) SRS is updateable: any party can add randomness post-ceremony,
+(c) for maximum security, Basis Network can contribute its own participant to the ceremony,
+(d) enterprise context: the attacker would need to forge proofs AND control the sequencer.
+**Source:** RU-L9 PLONK Migration, PLONK paper (IACR 2019/953).
+**Severity:** LOW -- 71+ participants makes total compromise extremely unlikely.
+
+### T-34: Custom Gate Soundness Error
+
+**Threat:** A custom gate's polynomial constraint does not correctly encode the intended
+EVM operation. The gate accepts invalid witnesses, allowing false state transitions.
+**Impact:** Invalid state transitions pass proof verification. Potential fund theft via
+forged proofs.
+**Mitigation:** (a) halo2 MockProver detects constraint violations during development,
+(b) formal verification of each gate via Coq (RU-L9 Prover step), (c) extensive test
+vectors comparing gate output against reference EVM execution, (d) production zkEVMs
+(Scroll, Taiko) have validated the halo2 custom gate approach.
+**Source:** RU-L9 PLONK Migration research.
+**Severity:** HIGH -- soundness bugs are the most critical ZK vulnerability. Mitigated
+by formal verification and extensive testing.
+
+### T-35: halo2 Library Dependency Risk
+
+**Threat:** The selected halo2 fork (Axiom or PSE) introduces a regression, vulnerability,
+or becomes unmaintained.
+**Impact:** Security vulnerability in the proving system, or inability to update dependencies.
+**Mitigation:** (a) PSE fork is in maintenance mode (bug fixes), providing a stable fallback,
+(b) Axiom fork is actively maintained and production-grade, (c) halo2 API is stable; switching
+forks requires minimal code changes, (d) Basis Network can fork the library if needed.
+**Source:** RU-L9 PLONK Migration research (PSE maintenance mode announcement Jan 2025).
+**Severity:** MEDIUM -- library risk is real but mitigated by ecosystem breadth.
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
@@ -395,3 +444,4 @@ restart relayer from last processed event.
 | 2026-03-19 | RU-L3: Witness Generation | T-17 through T-20 | Witness completeness, determinism, IPC latency, JSON bottleneck |
 | 2026-03-19 | RU-L5: Basis Rollup | T-21 through T-24 | L1 rollup contract threats: front-running, stale proofs, gas exhaustion, cross-enterprise revert |
 | 2026-03-19 | RU-L7: Bridge | T-10 (updated), T-25 through T-31 | Bridge security threats: double-spend, escape hatch, reentrancy, relayer failure |
+| 2026-03-19 | RU-L9: PLONK Migration | T-32 through T-35 | Migration gap, SRS compromise, custom gate soundness, library dependency |
