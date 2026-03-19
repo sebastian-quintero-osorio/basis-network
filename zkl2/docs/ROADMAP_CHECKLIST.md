@@ -259,7 +259,7 @@ lab/3-architect/implementation-history/node-state-db/
 
 ### [11] Architect | RU-L4: State Database
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Go StateDB: two-level SMT, account+storage tries, Poseidon2, tests pass)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [10] complete, verified specs in `implementation-history/`.
