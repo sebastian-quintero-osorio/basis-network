@@ -13,27 +13,28 @@
     "subnetEVMTimestamp": 0,
     "feeConfig": {
       "gasLimit": 15000000,
-      "minBaseFee": 0,
-      "targetGas": 15000000,
-      "baseFeeChangeDenominator": 48,
+      "minBaseFee": 1,
+      "targetGas": 40000000,
+      "baseFeeChangeDenominator": 36,
       "minBlockGasCost": 0,
-      "maxBlockGasCost": 0,
+      "maxBlockGasCost": 1000000,
       "targetBlockRate": 2,
-      "blockGasCostStep": 50000
+      "blockGasCostStep": 200000
     },
     "allowFeeRecipients": false,
-    "contractDeployerAllowListConfig": {
-      "adminAddresses": [],
-      "managerAddresses": [],
-      "enabledAddresses": []
-    },
-    "txAllowListConfig": {
-      "adminAddresses": [],
-      "managerAddresses": [],
-      "enabledAddresses": []
+    "warpConfig": {
+      "quorumNumerator": 67,
+      "requirePrimaryNetworkSigners": true
     }
   },
-  "alloc": {},
+  "alloc": {
+    "a5ee89af692d47547dedf79df02a3e3e96e48bfd": {
+      "balance": "0xd3c21bcecceda1000000"
+    },
+    "43bc54e8774ea371c8b0ac471db19177fbb39535": {
+      "balance": "0x8ac7230489e80000"
+    }
+  },
   "nonce": "0x0",
   "timestamp": "0x0",
   "extraData": "0x",
