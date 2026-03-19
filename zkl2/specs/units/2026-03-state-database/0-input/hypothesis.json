@@ -1,0 +1,40 @@
+{
+  "name": "state-database",
+  "target": "zkl2",
+  "title": "State Database with Poseidon SMT in Go for Enterprise zkEVM L2",
+  "hypothesis": "A state database based on Sparse Merkle Tree with Poseidon hash implemented in Go can support 10,000+ accounts with state root computation < 50ms, compatible with witness generation for the ZK prover.",
+  "null_hypothesis": "A Go SMT with Poseidon cannot achieve state root computation < 50ms at 10,000+ accounts, or the implementation introduces incompatibility with the BN254 field arithmetic required by the ZK prover, or memory usage exceeds 1GB at 10,000 accounts.",
+  "domain": "state-management",
+  "independent_variables": [
+    "account_count",
+    "tree_depth",
+    "smt_library",
+    "operation_type"
+  ],
+  "dependent_variables": [
+    "insert_latency_us",
+    "state_root_computation_ms",
+    "proof_generation_us",
+    "proof_verification_us",
+    "memory_usage_mb",
+    "witness_data_size_bytes"
+  ],
+  "controls": {
+    "field": "BN254 scalar field (p = 21888242871839275222246405745257275088548364400416034343698204186575808495617)",
+    "tree_depth": 256,
+    "hash_function": "Poseidon (BN254)",
+    "benchmark_repetitions": 50,
+    "warmup_iterations": 10
+  },
+  "predictions": [
+    "Go Poseidon hash will be 50-200x faster than JavaScript BigInt implementation due to native field arithmetic",
+    "Insert latency will be < 100us per account (vs 1.8ms in TypeScript RU-V1)",
+    "Proof generation will be O(depth) traversal, < 10us per proof",
+    "State root computation for 10,000 accounts via batch insert will complete in < 50ms",
+    "Memory usage will be < 500MB at 10,000 accounts with in-memory storage"
+  ],
+  "reuses": "validium/research/experiments/2026-03-18_sparse-merkle-tree/ (RU-V1)",
+  "created": "2026-03-19",
+  "stage": 1,
+  "status": "active"
+}
