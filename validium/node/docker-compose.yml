@@ -1,0 +1,40 @@
+# Basis Network Enterprise Validium Node -- Docker Compose
+#
+# Starts the enterprise node with persistent storage for WAL and SMT checkpoints.
+# Circuit artifacts (WASM + zkey) are mounted from the host.
+#
+# Usage:
+#   docker-compose up -d          # Start in background
+#   docker-compose logs -f        # Follow logs
+#   docker-compose down           # Stop
+#   docker-compose down -v        # Stop and remove volumes
+
+services:
+  validium-node:
+    build: .
+    container_name: basis-validium-node
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      - WAL_DIR=/app/data/wal
+      - CIRCUIT_WASM_PATH=/app/circuits/state_transition.wasm
+      - PROVING_KEY_PATH=/app/circuits/state_transition_final.zkey
+    volumes:
+      # Persistent storage for WAL and SMT checkpoints
+      - validium-data:/app/data
+      # Circuit artifacts (read-only mount from host)
+      - ../circuits/build/production/state_transition_js/state_transition.wasm:/app/circuits/state_transition.wasm:ro
+      - ../circuits/build/production/state_transition_final.zkey:/app/circuits/state_transition_final.zkey:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  validium-data:
+    driver: local
