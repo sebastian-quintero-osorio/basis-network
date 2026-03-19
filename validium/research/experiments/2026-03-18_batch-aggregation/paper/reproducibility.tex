@@ -14,7 +14,7 @@ corrected protocol verification (v1-fix).
   Available from \url{https://github.com/tlaplus/tlaplus/releases}.
 \item \textbf{Java}: JDK 8 or later (required by TLC).
 \item Specifications are located in the repository under:\\
-  \texttt{validium/specs/units/2026-03-batch-aggregation/}
+  \url{validium/specs/units/2026-03-batch-aggregation/}
 \end{itemize}
 
 \subsection{Replicating the NoLoss Counterexample (v0)}
@@ -24,7 +24,7 @@ The original specification with the premature checkpoint bug is in
 
 \begin{enumerate}
 \item Navigate to the experiment directory:\\
-  \texttt{v0-analysis/experiments/BatchAggregation/}
+  \url{v0-analysis/experiments/BatchAggregation/}
 \item The model configuration (\texttt{MC\_BatchAggregation.cfg}) uses
   10 transaction identifiers (\texttt{tx1}--\texttt{tx10}),
   \texttt{BatchSizeThreshold~=~4}, and breadth-first search.
@@ -52,7 +52,7 @@ The corrected specification with deferred checkpoint is in
 
 \begin{enumerate}
 \item Navigate to the experiment directory:\\
-  \texttt{v1-fix/experiments/BatchAggregation/}
+  \url{v1-fix/experiments/BatchAggregation/}
 \item The model configuration uses 4 transaction identifiers
   (\texttt{tx1}--\texttt{tx4}), \texttt{BatchSizeThreshold~=~2},
   and breadth-first search with temporal property checking.
@@ -77,7 +77,7 @@ completes in under one second.
 \subsection{Replicating Empirical Benchmarks}
 
 The benchmark code is located in
-\texttt{validium/research/experiments/2026-03-18\_batch-aggregation/code/}.
+\url{validium/research/experiments/2026-03-18_batch-aggregation/code/}.
 Requirements: Node.js v22+ and TypeScript. Run:
 
 \begin{quote}

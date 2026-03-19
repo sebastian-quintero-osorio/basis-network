@@ -99,6 +99,7 @@ Table~\ref{tab:reconcile} validates our measurements against published data.
 \centering
 \caption{Benchmark Reconciliation with Published Data}
 \label{tab:reconcile}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lllp{3.8cm}}
 \toprule
 \textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
@@ -110,7 +111,8 @@ WAL write (fsync) & 210 $\mu$s   & 880 $\mu$s~\cite{chia2024database}
 Throughput (burst) & 274K tx/min  & Kafka 2M/s~\cite{linkedin2024kafka}
   & Consistent: single-threaded vs distributed \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 No metric diverges by more than $10\times$ from published benchmarks after
@@ -122,6 +124,7 @@ accounting for workload and platform differences.
 \centering
 \caption{Determinism and Crash Recovery Test Results}
 \label{tab:correctness}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llrrl}
 \toprule
 \textbf{Test Category} & \textbf{Scenarios} & \textbf{Total} & \textbf{Passed} & \textbf{Result} \\
@@ -138,7 +141,8 @@ Crash: sequential (3x)  & 1 & 30 & 30 & 0 loss \\
 \midrule
 \textbf{Total}       &   & \textbf{600} & \textbf{600} & \textbf{PASS} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 All 450 determinism tests and 150 crash recovery tests pass. Same transactions
