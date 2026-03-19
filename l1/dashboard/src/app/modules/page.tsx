@@ -11,8 +11,9 @@ export default function ModulesPage() {
     totalZKBatches,
     totalZKVerified,
     totalTxVerified,
-    totalStateBatches,
-    dacTotalCertified,
+    totalBatchesCommitted,
+    totalDACCertified,
+    totalCrossRefsVerified,
     dacCommitteeSize,
   } = useNetwork();
 
@@ -56,7 +57,7 @@ export default function ModulesPage() {
       description:
         "Per-enterprise state root chains with integrated Groth16 ZK proof verification. Enforces ChainContinuity, ProofBeforeState, and NoGap safety invariants atomically.",
       metrics: [
-        { label: "Batches Committed", value: totalStateBatches },
+        { label: "Batches Committed", value: totalBatchesCommitted },
       ],
     },
     {
@@ -67,7 +68,7 @@ export default function ModulesPage() {
         "On-chain Data Availability Committee registry with Shamir (k,n) secret sharing. Provides information-theoretic privacy for off-chain batch data with on-chain certificate verification.",
       metrics: [
         { label: "Committee", value: dacCommitteeSize },
-        { label: "Certified", value: dacTotalCertified },
+        { label: "Certified", value: totalDACCertified },
       ],
     },
     {
@@ -76,7 +77,9 @@ export default function ModulesPage() {
       address: process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS,
       description:
         "Hub-and-spoke proof aggregation for cross-enterprise interactions. Verifies interaction commitments between enterprises without revealing private data from either party.",
-      metrics: [],
+      metrics: [
+        { label: "Verified", value: totalCrossRefsVerified },
+      ],
     },
   ];
 
@@ -117,7 +120,7 @@ export default function ModulesPage() {
       </div>
 
       {/* Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {modules.map((m, i) => (
           <ModuleCard
             key={m.name}

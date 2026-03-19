@@ -54,6 +54,13 @@ export const DAC_ATTESTATION_ABI = [
   "event AttestationSubmitted(bytes32 indexed batchId, bytes32 commitment, uint256 signatureCount, uint8 state, uint256 timestamp)",
 ];
 
+export const CROSS_ENTERPRISE_VERIFIER_ABI = [
+  "function totalCrossRefsVerified() view returns (uint256)",
+  "function totalCrossRefsRejected() view returns (uint256)",
+  "event CrossReferenceVerified(bytes32 indexed refId, address indexed enterpriseA, address indexed enterpriseB, uint256 batchIdA, uint256 batchIdB, bytes32 interactionCommitment, uint256 timestamp)",
+  "event CrossReferenceRejected(bytes32 indexed refId, address indexed enterpriseA, address indexed enterpriseB, uint256 batchIdA, uint256 batchIdB, string reason, uint256 timestamp)",
+];
+
 export interface ValidiumBatch {
   batchId: number;
   prevRoot: string;
@@ -203,6 +210,87 @@ export async function fetchRecentActivities(
             type: "zk",
             description: `ZK batch proof ${log.args[2] ? "verified" : "rejected"} on-chain`,
             timestamp: new Date(Number(log.args[3]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+  }
+
+  const stateAddr = process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS;
+  const dacAddr = process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS;
+  const crossRefAddr = process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS;
+
+  if (stateAddr) {
+    const sc = new ethers.Contract(stateAddr, STATE_COMMITMENT_ABI, provider);
+    queries.push(
+      sc.queryFilter(sc.filters.BatchCommitted(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "state",
+            description: `Batch #${log.args[1]} committed by ${truncateAddress(log.args[0])}`,
+            timestamp: new Date(Number(log.args[4]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+    queries.push(
+      sc.queryFilter(sc.filters.EnterpriseInitialized(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "state",
+            description: `Enterprise ${truncateAddress(log.args[0])} state initialized`,
+            timestamp: new Date(Number(log.args[2]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+  }
+
+  if (dacAddr) {
+    const dac = new ethers.Contract(dacAddr, DAC_ATTESTATION_ABI, provider);
+    queries.push(
+      dac.queryFilter(dac.filters.AttestationSubmitted(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "dac",
+            description: `DAC attestation for batch ${log.args[0].slice(0, 10)}... (${log.args[2]} signatures)`,
+            timestamp: new Date(Number(log.args[4]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+  }
+
+  if (crossRefAddr) {
+    const cv = new ethers.Contract(crossRefAddr, CROSS_ENTERPRISE_VERIFIER_ABI, provider);
+    queries.push(
+      cv.queryFilter(cv.filters.CrossReferenceVerified(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "crossref",
+            description: `Cross-ref verified: ${truncateAddress(log.args[1])} ↔ ${truncateAddress(log.args[2])}`,
+            timestamp: new Date(Number(log.args[6]) * 1000).toLocaleDateString(),
+            blockNumber: log.blockNumber,
+          });
+        }
+      }).catch(() => {})
+    );
+    queries.push(
+      cv.queryFilter(cv.filters.CrossReferenceRejected(), fromBlock).then((events) => {
+        for (const ev of events) {
+          const log = ev as ethers.EventLog;
+          activities.push({
+            type: "crossref",
+            description: `Cross-ref rejected: ${truncateAddress(log.args[1])} ↔ ${truncateAddress(log.args[2])}`,
+            timestamp: new Date(Number(log.args[6]) * 1000).toLocaleDateString(),
             blockNumber: log.blockNumber,
           });
         }

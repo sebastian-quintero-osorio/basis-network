@@ -43,7 +43,7 @@ graph TB
     end
 
     subgraph L2["Basis Network L1"]
-        SC["Smart Contracts<br/><i>EnterpriseRegistry | TraceabilityRegistry<br/>PLASMAConnector | TraceConnector | ZKVerifier</i>"]
+        SC["Smart Contracts<br/><i>EnterpriseRegistry | TraceabilityRegistry | ZKVerifier<br/>StateCommitment | DACAttestation | CrossEnterpriseVerifier</i>"]
         VM["Subnet-EVM<br/><i>Zero-Fee | Permissioned | Allowlisted</i>"]
     end
 
@@ -78,10 +78,9 @@ basis-network/
 ├── l1/                         # Basis Network L1 (shared foundation)
 │   ├── contracts/              # Smart contracts (Hardhat + Solidity 0.8.24)
 │   │   ├── contracts/
-│   │   │   ├── core/           # EnterpriseRegistry, TraceabilityRegistry
-│   │   │   ├── connectors/     # PLASMAConnector, TraceConnector
-│   │   │   └── verification/   # ZKVerifier (Groth16)
-│   │   ├── test/               # 72 unit tests (all passing)
+│   │   │   ├── core/           # EnterpriseRegistry, TraceabilityRegistry, StateCommitment
+│   │   │   └── verification/   # ZKVerifier, DACAttestation, CrossEnterpriseVerifier
+│   │   ├── test/               # 139 unit tests (all passing)
 │   │   └── scripts/            # Deployment scripts
 │   ├── config/                 # Avalanche L1 genesis and node configuration
 │   └── dashboard/              # Network explorer (Next.js + Tailwind CSS)
@@ -134,12 +133,13 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 | Contract | Address | Purpose |
 |---|---|---|
 | EnterpriseRegistry | `0xe10CCf26c7Cb6CB81b47C8Da72E427628c8a5E09` | Enterprise onboarding and permissions |
-| TraceabilityRegistry | `0xAC00F4920665b1eA43F4F7Da7ef3714DE7acf6Fc` | Immutable event recording |
-| PLASMAConnector | `0xF486547C8bF764eA4E53a05D745543f8a6973133` | Industrial maintenance bridge |
-| TraceConnector | `0x3ABC06a56b7F7Ec3711C8282B5B778CE8e34Dda0` | ERP commercial bridge |
+| TraceabilityRegistry | `0xAC00F4920665b1eA43F4F7Da7ef3714DE7acf6Fc` | Generic event recording |
 | ZKVerifier | `0x6e28B9DD35C752DF4a38040df31c9A82c5285aF2` | Groth16 proof verification |
+| StateCommitment | TBD | Per-enterprise state root tracking |
+| DACAttestation | TBD | Data Availability Committee attestation |
+| CrossEnterpriseVerifier | TBD | Inter-enterprise cross-reference verification |
 
-**On-chain activity:** 4 registered enterprises, 9 traceability events (PLASMA work orders, Trace sales, inventory, supplier), 1 verified ZK batch proof (4 transactions via Groth16).
+**On-chain activity:** 4 registered enterprises, 9 traceability events, 1 verified ZK batch proof (4 transactions via Groth16).
 
 ---
 
@@ -156,8 +156,8 @@ Live on Basis Network L1 (Avalanche Subnet-EVM, Chain ID `43199`):
 ```bash
 cd l1/contracts
 npm install
-npx hardhat compile    # Compiles 5 contracts (EVM target: cancun)
-npx hardhat test       # Runs 72 tests (all passing)
+npx hardhat compile    # Compiles 8 contracts (EVM target: cancun)
+npx hardhat test       # Runs 139 tests (all passing)
 ```
 
 ### ZK Circuits
@@ -190,15 +190,16 @@ npm run demo     # Simulates PLASMA + Trace events writing on-chain
 
 ## Smart Contracts
 
-Five contracts form the on-chain protocol:
+Eight contracts form the on-chain protocol:
 
 | Contract | Purpose | Tests |
 |---|---|---|
 | `EnterpriseRegistry.sol` | Enterprise onboarding, permissions, and metadata management | 24 |
-| `TraceabilityRegistry.sol` | Immutable, timestamped operational event recording | 12 |
-| `PLASMAConnector.sol` | Bridge for PLASMA industrial maintenance data | 15 |
-| `TraceConnector.sol` | Bridge for Trace ERP commercial data | 12 |
+| `TraceabilityRegistry.sol` | Generic, application-agnostic event recording | 13 |
 | `ZKVerifier.sol` | Groth16 zero-knowledge proof verification | 9 |
+| `StateCommitment.sol` | Per-enterprise state root tracking and batch history | 30 |
+| `DACAttestation.sol` | Data Availability Committee attestation and certification | 22 |
+| `CrossEnterpriseVerifier.sol` | Inter-enterprise cross-reference verification | 25 |
 
 All contracts use custom errors for gas-efficient reverts, NatSpec documentation for every public function, and role-based access control tied to `EnterpriseRegistry`.
 

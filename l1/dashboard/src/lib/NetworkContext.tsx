@@ -19,6 +19,7 @@ import {
   ZK_VERIFIER_ABI,
   STATE_COMMITMENT_ABI,
   DAC_ATTESTATION_ABI,
+  CROSS_ENTERPRISE_VERIFIER_ABI,
   type BlockInfo,
   type Enterprise,
   type Activity,
@@ -39,6 +40,9 @@ interface NetworkState {
   totalZKVerified: number;
   totalTxVerified: number;
   totalZKBatches: number;
+  totalBatchesCommitted: number;
+  totalDACCertified: number;
+  totalCrossRefsVerified: number;
 
   // Validium state
   totalStateBatches: number;
@@ -65,6 +69,9 @@ const defaultState: NetworkState = {
   totalZKVerified: 0,
   totalTxVerified: 0,
   totalZKBatches: 0,
+  totalBatchesCommitted: 0,
+  totalDACCertified: 0,
+  totalCrossRefsVerified: 0,
   totalStateBatches: 0,
   verifyingKeySet: false,
   dacCommitteeSize: 0,
@@ -113,6 +120,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       let totalZKBatches = 0;
       let totalZKVerified = 0;
       let totalTxVerified = 0;
+      let totalBatchesCommitted = 0;
+      let totalDACCertified = 0;
+      let totalCrossRefsVerified = 0;
       let totalStateBatches = 0;
       let verifyingKeySet = false;
       let dacCommitteeSize = 0;
@@ -170,8 +180,6 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       }
 
       const stateCommitAddr = process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS;
-      const dacAddr = process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS;
-
       if (stateCommitAddr) {
         calls.push(
           (async () => {
@@ -181,6 +189,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
                 c.totalBatchesCommitted().then(Number),
                 c.verifyingKeySet(),
               ]);
+              totalBatchesCommitted = totalStateBatches;
               // Fetch recent BatchCommitted events
               const fromBlock = Math.max(0, blockNumber - 5000);
               const events = await c.queryFilter(
@@ -205,6 +214,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         );
       }
 
+      const dacAddr = process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS;
       if (dacAddr) {
         calls.push(
           (async () => {
@@ -215,7 +225,18 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
                 c.threshold().then(Number),
                 c.totalCertified().then(Number),
               ]);
+              totalDACCertified = dacTotalCertified;
             } catch { /* DACAttestation not deployed yet */ }
+          })()
+        );
+      }
+
+      const crossRefAddr = process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS;
+      if (crossRefAddr) {
+        calls.push(
+          (async () => {
+            const c = getContract(crossRefAddr, CROSS_ENTERPRISE_VERIFIER_ABI);
+            totalCrossRefsVerified = Number(await c.totalCrossRefsVerified());
           })()
         );
       }
@@ -238,6 +259,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         totalZKVerified,
         totalTxVerified,
         totalZKBatches,
+        totalBatchesCommitted,
+        totalDACCertified,
+        totalCrossRefsVerified,
         totalStateBatches,
         verifyingKeySet,
         dacCommitteeSize,

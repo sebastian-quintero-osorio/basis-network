@@ -2,16 +2,21 @@ import { ethers } from "ethers";
 import { getSigner, getContractAddress } from "../common/provider";
 import { TransactionQueue } from "../common/queue";
 
-// TraceConnector ABI (only the functions we need)
-const TRACE_CONNECTOR_ABI = [
-  "function recordSale(bytes32 saleId, bytes32 productId, uint256 quantity, uint256 amount) external",
-  "function recordInventoryMovement(bytes32 productId, int256 quantityChange, bytes32 reason) external",
-  "function recordSupplierTransaction(bytes32 supplierId, bytes32 productId, uint256 quantity) external",
-  "function totalSales() view returns (uint256)",
-  "function totalInventoryMovements() view returns (uint256)",
-  "function totalSupplierTransactions() view returns (uint256)",
-  "event SaleRecorded(bytes32 indexed saleId, bytes32 indexed productId, address indexed enterprise, uint256 amount, uint256 timestamp)",
+// TraceabilityRegistry ABI (generic event recording)
+const TRACEABILITY_REGISTRY_ABI = [
+  "function recordEvent(bytes32 eventType, bytes32 assetId, bytes data) external returns (bytes32)",
+  "function eventCount() view returns (uint256)",
 ];
+
+// Trace event types — application-defined, not in the contract
+const TRACE_EVENT_TYPES = {
+  SALE_CREATED: ethers.keccak256(ethers.toUtf8Bytes("SALE_CREATED")),
+  INVENTORY_MOVEMENT: ethers.keccak256(ethers.toUtf8Bytes("INVENTORY_MOVEMENT")),
+  PURCHASE_ORDER_CREATED: ethers.keccak256(ethers.toUtf8Bytes("PURCHASE_ORDER_CREATED")),
+  GOODS_RECEIVED: ethers.keccak256(ethers.toUtf8Bytes("GOODS_RECEIVED")),
+  GOODS_SHIPPED: ethers.keccak256(ethers.toUtf8Bytes("GOODS_SHIPPED")),
+  SUPPLIER_REGISTERED: ethers.keccak256(ethers.toUtf8Bytes("SUPPLIER_REGISTERED")),
+} as const;
 
 export class TraceAdapter {
   private contract: ethers.Contract;
@@ -19,8 +24,8 @@ export class TraceAdapter {
 
   constructor() {
     const signer = getSigner();
-    const address = getContractAddress("TRACE_CONNECTOR");
-    this.contract = new ethers.Contract(address, TRACE_CONNECTOR_ABI, signer);
+    const address = getContractAddress("TRACEABILITY_REGISTRY");
+    this.contract = new ethers.Contract(address, TRACEABILITY_REGISTRY_ABI, signer);
     this.queue = new TransactionQueue();
   }
 
@@ -31,11 +36,18 @@ export class TraceAdapter {
     quantity: number,
     amount: number
   ): Promise<void> {
-    const saleIdBytes = ethers.encodeBytes32String(saleId);
     const productIdBytes = ethers.encodeBytes32String(productId);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint256", "uint256"],
+      [ethers.encodeBytes32String(saleId), quantity, amount]
+    );
 
     await this.queue.enqueue(`sale-${saleId}`, () =>
-      this.contract.recordSale(saleIdBytes, productIdBytes, quantity, amount)
+      this.contract.recordEvent(
+        TRACE_EVENT_TYPES.SALE_CREATED,
+        productIdBytes,
+        data
+      )
     );
   }
 
@@ -46,10 +58,17 @@ export class TraceAdapter {
     reason: string
   ): Promise<void> {
     const productIdBytes = ethers.encodeBytes32String(productId);
-    const reasonBytes = ethers.encodeBytes32String(reason);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["int256", "string"],
+      [quantityChange, reason]
+    );
 
     await this.queue.enqueue(`inventory-${productId}-${Date.now()}`, () =>
-      this.contract.recordInventoryMovement(productIdBytes, quantityChange, reasonBytes)
+      this.contract.recordEvent(
+        TRACE_EVENT_TYPES.INVENTORY_MOVEMENT,
+        productIdBytes,
+        data
+      )
     );
   }
 
@@ -59,25 +78,24 @@ export class TraceAdapter {
     productId: string,
     quantity: number
   ): Promise<void> {
-    const supplierIdBytes = ethers.encodeBytes32String(supplierId);
     const productIdBytes = ethers.encodeBytes32String(productId);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint256"],
+      [ethers.encodeBytes32String(supplierId), quantity]
+    );
 
     await this.queue.enqueue(`supplier-${supplierId}-${Date.now()}`, () =>
-      this.contract.recordSupplierTransaction(supplierIdBytes, productIdBytes, quantity)
+      this.contract.recordEvent(
+        TRACE_EVENT_TYPES.PURCHASE_ORDER_CREATED,
+        productIdBytes,
+        data
+      )
     );
   }
 
   /// Returns current on-chain statistics.
-  async getStats(): Promise<{
-    totalSales: bigint;
-    totalInventoryMovements: bigint;
-    totalSupplierTransactions: bigint;
-  }> {
-    const [totalSales, totalInventoryMovements, totalSupplierTransactions] = await Promise.all([
-      this.contract.totalSales(),
-      this.contract.totalInventoryMovements(),
-      this.contract.totalSupplierTransactions(),
-    ]);
-    return { totalSales, totalInventoryMovements, totalSupplierTransactions };
+  async getStats(): Promise<{ eventCount: bigint }> {
+    const eventCount = await this.contract.eventCount();
+    return { eventCount };
   }
 }

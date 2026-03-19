@@ -124,3 +124,28 @@ This document records the key technical decisions made for Basis Network and the
 - Used by established companies: CockroachDB, Sentry, MariaDB, HashiCorp.
 - The 4-year sunset to Apache 2.0 demonstrates long-term commitment to the ecosystem.
 - Balances investor expectations (protected IP) with ecosystem participation (visible source).
+
+---
+
+## TD-009: L1 as Generic Settlement Layer (Remove Application Connectors)
+
+**Decision:** Remove `PLASMAConnector.sol` and `TraceConnector.sol` from the L1. Make `TraceabilityRegistry` fully application-agnostic by removing hardcoded event type constants.
+
+**Previous state:**
+- 2 connector contracts (`PLASMAConnector`, `TraceConnector`) on the L1, each with application-specific structs, mappings, and logic.
+- 6 hardcoded event type constants in `TraceabilityRegistry` (`MAINTENANCE_ORDER`, `SUPPLY_CHAIN_CHECKPOINT`, etc.).
+
+**Alternatives considered:**
+- Keep connectors as optional middleware: adds complexity, connectors still couple L1 to specific apps.
+- Move connectors to a separate "middleware" layer: over-engineered for the current scale.
+
+**Rationale:**
+- **Separation of concerns:** The L1 is a settlement/verification layer. Application logic belongs at the adapter/L2 level.
+- **Scalability:** Adding a new SaaS product no longer requires deploying a new contract on the L1. Adapters define their own event types as `keccak256` of strings.
+- **Consistency with validium model:** Enterprise validium nodes will call `TraceabilityRegistry.recordEvent()` directly; connectors were redundant.
+- **Reduced L1 surface area:** Fewer contracts to audit, deploy, and maintain.
+
+**Migration:**
+- Adapters now call `TraceabilityRegistry.recordEvent()` directly with application-defined event types.
+- Event type strings (e.g., `"ORDER_CREATED"`, `"SALE_CREATED"`) are defined at the adapter level, not the contract level.
+- The on-chain event data is identical; only the indirection through connector contracts is removed.

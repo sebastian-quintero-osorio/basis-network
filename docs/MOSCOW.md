@@ -7,7 +7,7 @@
 | M1 | Avalanche L1 deployed on Fuji with zero-fee transactions | l1/config | Deployed |
 | M2 | EnterpriseRegistry contract with role-based access | l1/contracts | Deployed |
 | M3 | TraceabilityRegistry contract for immutable event recording | l1/contracts | Deployed |
-| M4 | PLASMAConnector contract for maintenance data | l1/contracts | Deployed |
+| M4 | Generic event recording for maintenance data (via TraceabilityRegistry) | l1/contracts | Deployed |
 | M5 | At least one product (PLASMA) writing data on-chain | validium/adapters | Working |
 | M6 | Unit tests for all contracts (>85% coverage) | l1/contracts/test | Passing |
 | M7 | Demo video showing end-to-end pipeline | submission | Recorded |
@@ -17,7 +17,7 @@
 
 | ID | Feature | Component | Status |
 |---|---|---|---|
-| S1 | TraceConnector contract for commercial data | l1/contracts | Deployed |
+| S1 | Generic event recording for commercial data (via TraceabilityRegistry) | l1/contracts | Deployed |
 | S2 | Trace integration writing sales data on-chain | validium/adapters | Working |
 | S3 | ZKVerifier contract with Groth16 proof verification | l1/contracts | Deployed |
 | S4 | ZK proof generation PoC (Circom circuit + SnarkJS) | validium/circuits | Working |

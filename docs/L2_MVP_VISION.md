@@ -29,7 +29,7 @@ The ZK Validium architecture resolves this tension mathematically:
 
 ### Why Now
 
-1. **We already have the infrastructure**: Basis Network L1 is live on Avalanche Fuji with 5 deployed contracts, zero-fee gas, and a working ZK verifier.
+1. **We already have the infrastructure**: Basis Network L1 is live on Avalanche Fuji with 8 deployed contracts, zero-fee gas, and a working ZK verifier.
 2. **We already have the clients**: PLASMA is deployed at Ingenio Sancarlos (sugar mill), Trace is generating revenue with SME clients.
 3. **We already have the ZK pipeline**: Groth16 circuits, trusted setup, proof generation, and on-chain verification -- all working.
 4. **The market demands it**: Rayls (Brazil) was selected by J.P. Morgan, ZKsync Prividiums are used by Deutsche Bank, Polygon CDK Enterprise powers institutional chains. Enterprise ZK privacy is not a hypothesis -- it is a validated market.
@@ -42,9 +42,7 @@ The ZK Validium architecture resolves this tension mathematically:
 |-----------|--------|---------|
 | **L1 Network** | Live on Fuji testnet | Chain ID 43199, 412+ blocks, zero-fee, permissioned |
 | **EnterpriseRegistry.sol** | Deployed | 4 enterprises registered, role-based access control |
-| **TraceabilityRegistry.sol** | Deployed | 9 events recorded, immutable audit trail |
-| **PLASMAConnector.sol** | Deployed | Bridge for industrial maintenance data |
-| **TraceConnector.sol** | Deployed | Bridge for commercial ERP data |
+| **TraceabilityRegistry.sol** | Deployed | Generic event recording, application-agnostic |
 | **ZKVerifier.sol** | Deployed | Groth16 proof verification (~200K gas), working on-chain |
 | **batch_verifier.circom** | Working | 742 constraints, batch size 4, Groth16 proof generation |
 | **Adapter Layer** | Working | TypeScript adapters for PLASMA and Trace with transaction queue |

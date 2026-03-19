@@ -35,12 +35,12 @@ This document describes the end-to-end user journey for Basis Network, from ente
 1. Maintenance Technician opens PLASMA and creates a new work order for equipment maintenance.
 2. PLASMA backend processes the work order and saves it to the operational database.
 3. The Blockchain Adapter detects the new work order event.
-4. The Adapter calls `PLASMAConnector.recordMaintenanceOrder()` with the order ID, equipment ID, priority, and encoded details.
+4. The Adapter calls `TraceabilityRegistry.recordEvent(ORDER_CREATED, equipmentId, encodedDetails)` with application-defined event data.
 5. The transaction is submitted to Basis Network L1 at zero cost.
 6. The transaction confirms with sub-second finality.
 7. The maintenance event appears on the network dashboard.
-8. When the technician completes the work order, the Adapter calls `PLASMAConnector.completeMaintenanceOrder()`.
-9. The full maintenance timeline for any equipment is queryable on-chain via `getMaintenanceHistory()`.
+8. When the technician completes the work order, the Adapter calls `TraceabilityRegistry.recordEvent(ORDER_COMPLETED, orderId, completionData)`.
+9. The full maintenance timeline for any equipment is queryable on-chain via `getAssetHistory()`.
 
 ### Verification
 
@@ -64,11 +64,11 @@ At any time, an auditor can:
 1. Business Owner records a sale in Trace (product, quantity, amount).
 2. Trace backend processes the sale and updates inventory.
 3. The Blockchain Adapter detects the sale event and the inventory movement.
-4. The Adapter calls `TraceConnector.recordSale()` and `TraceConnector.recordInventoryMovement()`.
+4. The Adapter calls `TraceabilityRegistry.recordEvent(SALE_CREATED, productId, encodedSaleData)` and `TraceabilityRegistry.recordEvent(INVENTORY_MOVEMENT, productId, encodedMovementData)`.
 5. Both transactions confirm on-chain at zero cost.
 6. The sale and inventory movement appear on the network dashboard.
-7. The complete sales history for any product is queryable via `getSaleHistory()`.
-8. The complete inventory ledger is queryable via `getInventoryLedger()`.
+7. The complete history for any product is queryable via `getAssetHistory()`.
+8. Events by type are queryable via `getEventsByType()`.
 
 ---
 

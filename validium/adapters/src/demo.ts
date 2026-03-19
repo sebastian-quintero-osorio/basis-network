@@ -31,7 +31,7 @@ async function main() {
 
   // 4. Show stats
   const plasmaStats = await plasma.getStats();
-  console.log(`\nPLASMA Stats: ${plasmaStats.totalOrders} orders, ${plasmaStats.completedOrders} completed\n`);
+  console.log(`\nPLASMA Stats: ${plasmaStats.eventCount} events recorded on-chain\n`);
 
   // --- Trace: Simulate commercial transactions ---
   console.log("--- Trace: Commercial ERP ---\n");
@@ -52,7 +52,7 @@ async function main() {
 
   // 4. Show stats
   const traceStats = await trace.getStats();
-  console.log(`\nTrace Stats: ${traceStats.totalSales} sales, ${traceStats.totalInventoryMovements} inventory moves, ${traceStats.totalSupplierTransactions} supplier txns\n`);
+  console.log(`\nTrace Stats: ${traceStats.eventCount} events recorded on-chain\n`);
 
   console.log("=== Demo Complete ===");
   console.log("All events have been written to Basis Network L1.");
