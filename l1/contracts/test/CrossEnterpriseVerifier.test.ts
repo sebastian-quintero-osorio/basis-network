@@ -39,7 +39,7 @@ describe("CrossEnterpriseVerifier", function () {
   const DUMMY_A: [bigint, bigint] = [0n, 0n];
   const DUMMY_B: [[bigint, bigint], [bigint, bigint]] = [[0n, 0n], [0n, 0n]];
   const DUMMY_C: [bigint, bigint] = [0n, 0n];
-  const DUMMY_SIGNALS: bigint[] = [];
+  const DUMMY_SIGNALS: bigint[] = [0n, 0n, 0n, 0n];
 
   function getDummyVerifyingKey() {
     return {
@@ -90,7 +90,7 @@ describe("CrossEnterpriseVerifier", function () {
     const mv = await (await ethers.getContractFactory("MockGroth16Verifier")).deploy(); await sc.setVerifier(await mv.getAddress());
 
     // CrossEnterpriseVerifier expects IC with 4 elements (3 public inputs)
-    
+    await xev.setVerifyingKey(scVk.alfa1, scVk.beta2, scVk.gamma2, scVk.delta2, scVk.IC);
   });
 
   // =========================================================================
@@ -322,7 +322,7 @@ describe("CrossEnterpriseVerifier", function () {
   describe("Proof verification", function () {
     it("should reject invalid proof", async function () {
       await setupVerifiedBatches();
-      ;
+      await xev.setMockProofResult(false);
 
       await expect(
         xev.verifyCrossReference(
@@ -375,7 +375,7 @@ describe("CrossEnterpriseVerifier", function () {
     it("should reject non-admin verifying key update", async function () {
       const vk = getDummyVerifyingKey();
       await expect(
-        xev.connect(enterprise1).setVerifier(ethers.ZeroAddress)
+        xev.connect(enterprise1).setVerifyingKey(vk.alfa1, vk.beta2, vk.gamma2, vk.delta2, vk.IC)
       ).to.be.revertedWithCustomError(xev, "OnlyAdmin");
     });
 
