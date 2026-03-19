@@ -1,0 +1,24 @@
+{
+  "stage": 2,
+  "status": "baseline_complete",
+  "iteration": 1,
+  "last_action": "benchmark_1000tx_30reps",
+  "next_action": "adversarial_scenarios_stage3",
+  "metrics": {
+    "witness_gen_1000tx_ms": 13.37,
+    "witness_gen_1000tx_ci95_ms": 0.59,
+    "witness_gen_500tx_ms": 6.35,
+    "witness_gen_100tx_ms": 1.28,
+    "witness_size_1000tx_kb": 3012.5,
+    "total_field_elements_1000tx": 96400,
+    "storage_table_pct": 78.4,
+    "arithmetic_table_pct": 20.7,
+    "call_context_table_pct": 0.8,
+    "determinism_verified": true,
+    "scaling_linear": true,
+    "tests_passed": 17,
+    "tests_failed": 0
+  },
+  "created": "2026-03-19",
+  "updated": "2026-03-19"
+}

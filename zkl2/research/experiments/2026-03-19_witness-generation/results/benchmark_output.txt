@@ -1,0 +1,47 @@
+=== Basis Network zkL2 -- Witness Generation Experiment (RU-L3) ===
+
+TX Count   Time (ms)    Total FE        Size (KB)       Arith Rows   Storage Rows Call Rows
+------------------------------------------------------------------------------------------
+10         0.13         964             30.1            25           18           1
+50         0.66         4820            150.6           125          90           5
+100        1.28         9640            301.2           250          180          10
+           95% CI: 1.28 +/- 0.02 ms (std: 0.07, n=30, CI/mean: 1.8%)
+250        3.20         24100           753.1           625          450          25
+500        6.35         48200           1506.2          1250         900          50
+           95% CI: 6.35 +/- 0.18 ms (std: 0.52, n=30, CI/mean: 2.9%)
+1000       13.37        96400           3012.5          2500         1800         100
+           95% CI: 13.37 +/- 0.59 ms (std: 1.65, n=30, CI/mean: 4.4%)
+
+=== Determinism Verification ===
+  PASS: All 3 tables produce identical output across 2 runs (9640 total FE)
+  PASS: Identical synthetic batches produce identical witness sizes
+
+=== Depth Sensitivity Analysis ===
+  Depth      Time (ms)    Total FE        Size (KB)
+  -------------------------------------------------------
+  16         1.09         6760            211.2
+  32         1.27         9640            301.2
+  64         1.56         15400           481.2
+  128        2.17         26920           841.2
+  160        2.46         32680           1021.2
+  256        3.88         49960           1561.2
+
+=== Per-Table Field Element Breakdown (1000 tx) ===
+  arithmetic          2500 rows x   8 cols =      20000 FE ( 20.7%)
+  call_context         100 rows x   8 cols =        800 FE (  0.8%)
+  storage             1800 rows x  42 cols =      75600 FE ( 78.4%)
+  TOTAL                                                96400 FE (100.0%)
+  Witness size: 3012.5 KB (2.9 MB)
+
+=== Test Results ===
+17 passed, 0 failed
+All determinism checks: PASS
+Linear scaling verified: 500/100 ratio within [4.0, 6.0], 1000/100 ratio within [8.0, 12.0]
+
+=== Environment ===
+Platform: Windows 11 Pro
+Rust: release build (optimized)
+Field: BN254 Fr (ark-bn254 0.4.0, ark-ff 0.4.2)
+SMT Depth (default): 32
+Repetitions: 30 per configuration
+Date: 2026-03-19

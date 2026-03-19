@@ -307,7 +307,7 @@ lab/4-prover/verification-history/YYYY-MM-l2-state-db/
 
 ### [13] Scientist | RU-L3: Witness Generation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- CONFIRMED: Rust 1000tx in 13.37ms, 2,243x under target, Cargo compiled, 17/17 tests)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [09] complete (needs executor and state DB knowledge).

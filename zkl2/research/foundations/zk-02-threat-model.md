@@ -202,6 +202,56 @@ for sparse trees), (b) batch update optimization (arXiv:2310.13328),
 **Source:** RU-L4 depth sensitivity analysis.
 **Severity:** HIGH -- must be addressed before production deployment.
 
+### T-17: Witness Completeness Gap
+
+**Threat:** Witness generator drops trace entries for certain operation types, producing
+an incomplete witness that omits state transitions.
+**Impact:** Omitted state transitions are unproven. The circuit either rejects the proof
+(safety-preserving) or accepts a proof that does not cover all state changes (catastrophic
+if the circuit does not enforce completeness).
+**Mitigation:** (a) Unit test: total witness rows >= total trace entries, (b) circuit
+enforces that every trace entry has a corresponding witness row via global counter,
+(c) Coq proof of completeness (Prover agent, item [16]).
+**Source:** RU-L3 experiment.
+**Severity:** HIGH -- completeness is a security-critical property.
+
+### T-18: Witness Non-Determinism
+
+**Threat:** Witness generator produces different output for the same input trace due to
+non-deterministic container ordering, concurrency, or platform-dependent behavior.
+**Impact:** Prover and verifier disagree on witness. Proofs generated on one machine
+cannot be verified on another. Distributed proving becomes impossible.
+**Mitigation:** (a) Use BTreeMap (sorted) instead of HashMap everywhere, (b) sequential
+processing preserving trace execution order, (c) no floating-point arithmetic (all field
+arithmetic is exact), (d) determinism verified experimentally (PASS, n=30 runs).
+**Source:** RU-L3 experiment.
+**Severity:** HIGH -- non-determinism breaks the entire proving pipeline.
+
+### T-19: IPC Latency for Merkle Proof Retrieval
+
+**Threat:** In production, the Rust witness generator must query the Go state DB via
+gRPC/IPC to retrieve actual Merkle proof siblings. IPC latency could dominate witness
+generation time, especially for storage-heavy batches.
+**Impact:** Witness generation time increases 10-50x from prototype measurements,
+potentially approaching seconds for 1000 tx batches.
+**Mitigation:** (a) Batch DB queries: request all Merkle proofs for a batch in one call,
+(b) local proof cache for repeated slot accesses within a batch, (c) Go state DB exposes
+batch proof API, (d) measured prototype: 13.37 ms for 1000 tx, so even 50x overhead
+= 668 ms (still well under 3s budget from I-19).
+**Source:** RU-L3 architectural analysis.
+**Severity:** MEDIUM -- significant overhead but large margin available.
+
+### T-20: JSON Serialization Bottleneck
+
+**Threat:** JSON parsing of execution traces from Go executor becomes a bottleneck at
+scale (>1000 tx per batch or complex contract interactions).
+**Impact:** JSON parsing overhead (5-10x vs binary) could dominate witness generation.
+**Mitigation:** (a) Use protobuf or flatbuffers for Go-to-Rust trace serialization,
+(b) streaming deserialization to avoid loading entire trace into memory,
+(c) measured: JSON parsing is already fast for 1000 tx; address when needed.
+**Source:** RU-L3 performance analysis.
+**Severity:** LOW -- optimization opportunity, not a blocker.
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
@@ -209,4 +259,4 @@ for sparse trees), (b) batch update optimization (arXiv:2310.13328),
 | 2026-03-19 | RU-L1: EVM Executor | T-03 through T-07 | Initial creation from literature review |
 | 2026-03-19 | RU-L2: Sequencer | T-01 (updated), T-11 through T-13 | Sequencer-specific threats from literature + experiment |
 | 2026-03-19 | RU-L4: State Database | T-14 through T-16 | State root timeout, hash mismatch, deep tree degradation |
-| 2026-03-19 | RU-L2: Sequencer | T-01 (updated), T-11 through T-13 | Sequencer-specific threats from literature + experiment |
+| 2026-03-19 | RU-L3: Witness Generation | T-17 through T-20 | Witness completeness, determinism, IPC latency, JSON bottleneck |
