@@ -582,7 +582,7 @@ lab/4-prover/verification-history/YYYY-MM-e2e-pipeline/
 
 ### [25] Scientist | RU-L7: Bridge
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- BasisBridge.sol prototype + Go relayer, deposit/withdrawal/escape hatch)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [17], [21] complete.

@@ -309,7 +309,81 @@ state.
 **Why:** Finalized state transitions must be permanent. Allowing revert of executed batches
 would break bridge withdrawal guarantees and cross-enterprise references.
 
-## Performance Targets (Updated with L1 Rollup)
+### I-25: Bridge No Double Spend
+
+Each withdrawal from L2 can be claimed on L1 exactly once. The bridge contract MUST
+maintain a nullifier mapping: once a withdrawal hash is marked as claimed, subsequent
+claims with the same hash MUST revert.
+
+**Source:** RU-L7 (Bridge)
+**Why:** Double-spend is the most critical bridge vulnerability. If an attacker can claim
+the same withdrawal twice, the bridge becomes insolvent (more value leaves than entered).
+
+### I-26: Bridge Balance Conservation
+
+For each enterprise, the total ETH locked in the bridge contract MUST equal:
+```
+address(bridge).balance >= totalDeposited[enterprise] - totalWithdrawn[enterprise]
+```
+The bridge MUST NOT release more ETH than was deposited.
+
+**Source:** RU-L7 (Bridge)
+**Why:** Balance conservation is the solvency guarantee. Violation means the bridge
+cannot honor all withdrawal requests.
+
+### I-27: Escape Hatch Liveness
+
+If no batch is executed on BasisRollup for an enterprise within the configured timeout
+(default: 24 hours), ANY user MUST be able to withdraw their funds by providing a Merkle
+proof of their balance against the last finalized state root on L1.
+
+**Source:** RU-L7 (Bridge), arxiv 2503.23986
+**Why:** The escape hatch is the primary censorship resistance mechanism for the bridge.
+Without it, a failed sequencer permanently locks user funds. Enterprise context mitigates
+but does not eliminate this risk (hardware failure, natural disaster, legal seizure).
+
+### I-28: Withdrawal Proof Finality
+
+A withdrawal can ONLY be claimed after the batch containing the withdrawal transaction
+has reached Executed status on BasisRollup. The bridge MUST verify that the withdraw
+trie root corresponds to an executed batch before releasing funds.
+
+**Source:** RU-L7 (Bridge)
+**Why:** Claiming against a non-finalized batch would allow the sequencer to revert the
+batch after funds are released, creating a double-spend opportunity.
+
+### I-29: Deposit Ordering
+
+Deposits MUST be assigned monotonically increasing IDs per enterprise. The deposit
+counter MUST be strictly increasing and never reset.
+
+**Source:** RU-L7 (Bridge)
+**Why:** Deposit IDs are used by the relayer to track which deposits have been credited
+on L2. Out-of-order or duplicate IDs would cause double-crediting or missed deposits.
+
+### I-30: Escape No Double Spend
+
+In escape mode, each account can withdraw from a given enterprise exactly once. The
+escape nullifier is tracked separately from the withdrawal nullifier to prevent
+cross-contamination between normal and escape withdrawal paths.
+
+**Source:** RU-L7 (Bridge), arxiv 2503.23986
+**Why:** During escape mode, the L2 state is frozen. Users must claim their full balance
+in a single transaction. Partial claims would require tracking remaining balances, which
+the frozen state cannot support.
+
+### I-31: Withdraw Trie Integrity
+
+The withdraw trie is a keccak256 binary Merkle tree separate from the L2 Poseidon state
+trie. The withdraw trie MUST contain exactly the L2->L1 withdrawal messages for a given
+batch, and nothing else. The root is submitted to BasisBridge after batch execution.
+
+**Source:** RU-L7 (Bridge), Scroll architecture
+**Why:** Using keccak256 (not Poseidon) for the withdraw trie enables gas-efficient
+verification on L1 (~48K gas for depth 32 vs ~160K for Poseidon without precompile).
+Separating from the state trie prevents coupling between state management and bridge.
+
+## Performance Targets (Updated with Bridge)
 
 | Metric | Target | Source |
 |--------|--------|--------|
@@ -317,6 +391,12 @@ would break bridge withdrawal guarantees and cross-enterprise references.
 | L1 rollup prove gas (with Groth16) | < 275K | RU-L5 projected (256,455 steady) |
 | L1 rollup execute gas | < 80K | RU-L5 experiment (measured: 52,624 steady) |
 | L1 rollup total gas/batch | < 500K | RU-L5 projected (425,226 steady with Groth16) |
+| Bridge deposit gas | < 70K | RU-L7 experiment (estimated: 61,500) |
+| Bridge withdrawal gas | < 100K | RU-L7 experiment (estimated: 82,000) |
+| Bridge escape gas | < 150K | RU-L7 experiment (estimated: 118,500) |
+| Deposit latency | < 5 min | RU-L7 experiment (estimated: 4.6s default) |
+| Withdrawal latency | < 30 min | RU-L7 experiment (estimated: 21.1s default) |
+| Escape hatch timeout | 24 hours | RU-L7 design (configurable) |
 
 ## Experiment Log
 
@@ -327,3 +407,4 @@ would break bridge withdrawal guarantees and cross-enterprise references.
 | 2026-03-19 | RU-L4: State Database | I-06 (refined), I-13 through I-15 | State root latency, trie isolation, hash alignment |
 | 2026-03-19 | RU-L3: Witness Generation | I-08 (refined), I-16 through I-19 | Witness completeness, determinism, multi-table, performance budget |
 | 2026-03-19 | RU-L5: Basis Rollup | I-20 through I-24 | L1 rollup contract invariants, gas performance targets |
+| 2026-03-19 | RU-L7: Bridge | I-25 through I-31 | Bridge security invariants, gas and latency targets |

@@ -301,6 +301,90 @@ adversarial test: GlobalCountIntegrity maintained across enterprises.
 **Source:** RU-L5 adversarial testing.
 **Severity:** LOW -- verified by test suite (61/61 passing).
 
+### T-25: Bridge Double Spend via Proof Replay
+
+**Threat:** Attacker obtains a valid Merkle proof for a withdrawal and submits it multiple
+times to claim the same funds repeatedly.
+**Impact:** Bridge insolvency -- more ETH released than deposited.
+**Mitigation:** (a) Nullifier mapping: withdrawalNullifier[enterprise][withdrawalHash] tracks
+each unique withdrawal, (b) checks-effects-interactions pattern: nullifier set BEFORE transfer,
+(c) withdrawal hash includes enterprise, batchId, recipient, amount, and index -- all must match.
+**Source:** RU-L7 literature review (zkopru, Polygon LxLy).
+**Severity:** CRITICAL -- primary bridge vulnerability. Mitigated by nullifier design.
+
+### T-26: Escape Hatch Premature Activation
+
+**Threat:** Attacker triggers escape mode while sequencer is still operational by
+manipulating the lastBatchExecutionTime tracking.
+**Impact:** Users withdraw via escape hatch while L2 is live, creating state inconsistency.
+**Mitigation:** (a) lastBatchExecutionTime is only updated by admin (relayer), (b) escape
+timeout is 24 hours -- enough time for enterprise to recover from most failures, (c) even
+if escape activates prematurely, the state root is still valid (last finalized root on L1),
+(d) enterprise can deploy new sequencer and resume from last executed batch.
+**Source:** arxiv 2503.23986 (Practical Escape Hatch Design).
+**Severity:** MEDIUM -- premature escape causes L2 hard fork but does not lose funds.
+
+### T-27: Escape Hatch State Root Staleness
+
+**Threat:** The escape hatch uses the last finalized state root on L1. If the sequencer
+failed after committing but before executing batches, the escape root may not include
+recent transactions.
+**Impact:** Users who deposited or transacted after the last executed batch lose those funds.
+**Mitigation:** (a) Commit-prove-execute ensures only proven transitions are finalized, (b)
+users can see their last finalized balance via L1 before deciding to escape, (c) unexecuted
+batches can be replayed by a new sequencer (state is deterministic from executed root), (d)
+24h timeout gives enterprise time to execute pending batches before escape activates.
+**Source:** arxiv 2503.23986, Chaliasos et al. CCS'25.
+**Severity:** HIGH -- potential loss of unfinalized transactions. Mitigated by 24h window.
+
+### T-28: Withdraw Root Manipulation
+
+**Threat:** Compromised admin/relayer submits a fabricated withdraw root that includes
+unauthorized withdrawals.
+**Impact:** Attacker creates fake withdrawals and claims them with valid Merkle proofs.
+**Mitigation:** (a) Admin is enterprise-operated (same trust model as sequencer), (b) withdraw
+root submission requires batch to be in Executed state on BasisRollup, (c) in production:
+withdraw root can be derived from L2 state by any full node, enabling verification, (d) future:
+withdraw root can be included in the ZK proof itself, eliminating admin trust.
+**Source:** RU-L7 design analysis.
+**Severity:** HIGH for general case, LOW for enterprise (admin IS the enterprise).
+
+### T-29: Bridge Reentrancy via ETH Transfer
+
+**Threat:** Malicious recipient contract re-enters claimWithdrawal() or escapeWithdraw()
+during the ETH transfer to claim funds multiple times.
+**Impact:** Bridge drained via reentrancy.
+**Mitigation:** (a) Checks-effects-interactions pattern: nullifier set BEFORE transfer, (b)
+second call to claim reverts with AlreadyClaimed/AlreadyEscaped, (c) state updates (nullifier,
+totalWithdrawn) all happen before external call.
+**Source:** Standard Solidity security (OWASP, SWC-107).
+**Severity:** CRITICAL if unmitigated, LOW with checks-effects-interactions.
+
+### T-30: Bridge Liquidity Fragmentation
+
+**Threat:** Per-enterprise bridge accounting fragments liquidity. Enterprise A's deposits
+cannot be used to fund Enterprise B's withdrawals.
+**Impact:** Enterprise with high withdrawal volume may deplete its bridge balance even if
+the overall bridge has sufficient ETH.
+**Mitigation:** (a) Per-enterprise accounting is intentional for isolation (I-23), (b) enterprise
+controls its own deposit/withdrawal flow, (c) admin can provide liquidity injection if needed,
+(d) zero-fee model means enterprise can deposit additional liquidity at no cost.
+**Source:** RU-L7 design analysis.
+**Severity:** LOW -- enterprise-managed liquidity is a feature, not a bug.
+
+### T-31: Relayer Liveness Failure
+
+**Threat:** Relayer goes offline, preventing deposit crediting on L2 and withdraw root
+submission on L1.
+**Impact:** Deposits not credited on L2 (delayed, not lost). Withdrawals cannot be claimed
+(delayed, not lost). After 24h, escape hatch activates.
+**Mitigation:** (a) Deposits are locked on L1 and can be refunded by admin if relayer fails
+permanently, (b) withdrawals are recorded in L2 state and can be claimed once a new relayer
+submits the withdraw root, (c) escape hatch provides ultimate fallback, (d) enterprise can
+restart relayer from last processed event.
+**Source:** RU-L7 design analysis.
+**Severity:** MEDIUM -- service disruption but no fund loss.
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
@@ -310,3 +394,4 @@ adversarial test: GlobalCountIntegrity maintained across enterprises.
 | 2026-03-19 | RU-L4: State Database | T-14 through T-16 | State root timeout, hash mismatch, deep tree degradation |
 | 2026-03-19 | RU-L3: Witness Generation | T-17 through T-20 | Witness completeness, determinism, IPC latency, JSON bottleneck |
 | 2026-03-19 | RU-L5: Basis Rollup | T-21 through T-24 | L1 rollup contract threats: front-running, stale proofs, gas exhaustion, cross-enterprise revert |
+| 2026-03-19 | RU-L7: Bridge | T-10 (updated), T-25 through T-31 | Bridge security threats: double-spend, escape hatch, reentrancy, relayer failure |
