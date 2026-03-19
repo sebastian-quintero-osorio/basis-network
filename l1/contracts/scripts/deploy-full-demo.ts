@@ -43,7 +43,7 @@ async function main() {
 
   console.log("\n--- 5/6: Deploying DACAttestation ---");
   const DACAttestation = await ethers.getContractFactory("DACAttestation");
-  const dacAttestation = await DACAttestation.deploy(registryAddr, 1);
+  const dacAttestation = await DACAttestation.deploy(registryAddr, 2);
   await dacAttestation.waitForDeployment();
   const dacAddr = await dacAttestation.getAddress();
   console.log("  Address:", dacAddr);
