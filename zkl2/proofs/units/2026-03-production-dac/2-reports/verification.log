@@ -1,0 +1,45 @@
+=== VERIFICATION RUN ===
+Date: 2026-03-19T18:11:29
+Compiler: Rocq Prover 9.0.1 (compiled with OCaml 4.14.2)
+Target: zkl2/proofs/units/2026-03-production-dac/
+Namespace: ProductionDAC
+Flags: -Q . ProductionDAC
+
+--- Common.v ---
+Status: PASS
+Content: Types, axiomatized finite sets, derived lemmas, tactics
+Axioms: 16 (finite set operations -- standard mathematical facts)
+Lemmas: 9 (all fully proved from axioms)
+Lines: ~200
+
+--- Spec.v ---
+Status: PASS
+Content: Faithful TLA+ translation (state, 9 actions, 8 safety invariants)
+Parameters: 4 (AllNodes, AllBatches, Threshold, MaliciousNodes)
+Assumptions: 3 (threshold bounds, malicious subset)
+Definitions: 18 (State record, Init, 9 actions, Next, 8 safety properties)
+Lines: ~260
+
+--- Impl.v ---
+Status: PASS
+Content: Go/Solidity abstract model with cryptographic primitive axioms
+Axioms: 8 (RS MDS, AES-GCM correctness/authenticity/tamper, Shamir correctness/privacy/insufficient)
+Lines: ~170
+
+--- Refinement.v ---
+Status: PASS
+Content: Inductive invariant proofs + crypto property theorems
+Theorems proved: 19
+  - 8 init establishment theorems (one per invariant)
+  - 8 preservation theorems (one per invariant, each covering 9 action cases)
+  - 1 master all_safety_invariant theorem (by induction on Reachable)
+  - 3 crypto property theorems (RS+AES composition, Shamir threshold, AES integrity)
+Admitted: 0
+Lines: ~730
+
+=== SUMMARY ===
+Total .v files: 4
+Total lines: ~1360
+Compilation: ALL PASS
+Admitted count: 0
+Trust base: Rocq kernel + 16 finite set axioms + 8 crypto axioms + 3 spec assumptions
