@@ -9,6 +9,9 @@ const filterTypes = [
   { key: "registry", label: "Registry" },
   { key: "traceability", label: "Traceability" },
   { key: "zk", label: "Verification" },
+  { key: "state", label: "State" },
+  { key: "dac", label: "DAC" },
+  { key: "crossref", label: "Cross-Ref" },
 ];
 
 export default function ActivityPage() {

@@ -11,6 +11,9 @@ export default function ModulesPage() {
     totalZKBatches,
     totalZKVerified,
     totalTxVerified,
+    totalBatchesCommitted,
+    totalDACCertified,
+    totalCrossRefsVerified,
   } = useNetwork();
 
   const modules = [
@@ -44,6 +47,36 @@ export default function ModulesPage() {
         { label: "Batches", value: totalZKBatches },
         { label: "Verified", value: totalZKVerified },
         { label: "Tx Validated", value: totalTxVerified },
+      ],
+    },
+    {
+      name: "State Commitment",
+      category: "State Management",
+      address: process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS,
+      description:
+        "Tracks per-enterprise state root history. Each enterprise maintains a chain of verified state roots representing their off-chain Merkle tree state.",
+      metrics: [
+        { label: "Batches Committed", value: totalBatchesCommitted },
+      ],
+    },
+    {
+      name: "DAC Attestation",
+      category: "Data Availability",
+      address: process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS,
+      description:
+        "Data Availability Committee attestation. Committee members sign off on data availability for enterprise batches before they are certified on-chain.",
+      metrics: [
+        { label: "Certified", value: totalDACCertified },
+      ],
+    },
+    {
+      name: "Cross-Enterprise Verifier",
+      category: "Inter-Enterprise Verification",
+      address: process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS,
+      description:
+        "Verifies cross-references between enterprises. Enables provable inter-enterprise interactions without exposing private data from either party.",
+      metrics: [
+        { label: "Verified", value: totalCrossRefsVerified },
       ],
     },
   ];
@@ -85,7 +118,7 @@ export default function ModulesPage() {
       </div>
 
       {/* Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {modules.map((m, i) => (
           <ModuleCard
             key={m.name}

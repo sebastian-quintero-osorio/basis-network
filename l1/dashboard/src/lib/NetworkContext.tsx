@@ -17,6 +17,9 @@ import {
   ENTERPRISE_REGISTRY_ABI,
   TRACEABILITY_REGISTRY_ABI,
   ZK_VERIFIER_ABI,
+  STATE_COMMITMENT_ABI,
+  DAC_ATTESTATION_ABI,
+  CROSS_ENTERPRISE_VERIFIER_ABI,
   type BlockInfo,
   type Enterprise,
   type Activity,
@@ -36,6 +39,9 @@ interface NetworkState {
   totalZKVerified: number;
   totalTxVerified: number;
   totalZKBatches: number;
+  totalBatchesCommitted: number;
+  totalDACCertified: number;
+  totalCrossRefsVerified: number;
 
   enterprises: Enterprise[];
   activities: Activity[];
@@ -54,6 +60,9 @@ const defaultState: NetworkState = {
   totalZKVerified: 0,
   totalTxVerified: 0,
   totalZKBatches: 0,
+  totalBatchesCommitted: 0,
+  totalDACCertified: 0,
+  totalCrossRefsVerified: 0,
   enterprises: [],
   activities: [],
   recentBlocks: [],
@@ -96,6 +105,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       let totalZKBatches = 0;
       let totalZKVerified = 0;
       let totalTxVerified = 0;
+      let totalBatchesCommitted = 0;
+      let totalDACCertified = 0;
+      let totalCrossRefsVerified = 0;
       let enterpriseData: Enterprise[] = [];
 
       const calls: Promise<void>[] = [];
@@ -146,6 +158,36 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         );
       }
 
+      const stateAddr = process.env.NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS;
+      if (stateAddr) {
+        calls.push(
+          (async () => {
+            const c = getContract(stateAddr, STATE_COMMITMENT_ABI);
+            totalBatchesCommitted = Number(await c.totalBatchesCommitted());
+          })()
+        );
+      }
+
+      const dacAddr = process.env.NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS;
+      if (dacAddr) {
+        calls.push(
+          (async () => {
+            const c = getContract(dacAddr, DAC_ATTESTATION_ABI);
+            totalDACCertified = Number(await c.totalCertified());
+          })()
+        );
+      }
+
+      const crossRefAddr = process.env.NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS;
+      if (crossRefAddr) {
+        calls.push(
+          (async () => {
+            const c = getContract(crossRefAddr, CROSS_ENTERPRISE_VERIFIER_ABI);
+            totalCrossRefsVerified = Number(await c.totalCrossRefsVerified());
+          })()
+        );
+      }
+
       const [recentBlocks, activities] = await Promise.all([
         fetchRecentBlocks(provider, 8),
         fetchRecentActivities(provider),
@@ -164,6 +206,9 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         totalZKVerified,
         totalTxVerified,
         totalZKBatches,
+        totalBatchesCommitted,
+        totalDACCertified,
+        totalCrossRefsVerified,
         enterprises: enterpriseData,
         activities,
         recentBlocks,

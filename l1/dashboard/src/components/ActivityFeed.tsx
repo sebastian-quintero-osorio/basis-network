@@ -11,18 +11,27 @@ const badgeClass: Record<string, string> = {
   registry: "badge-registry",
   traceability: "badge-traceability",
   zk: "badge-zk",
+  state: "badge-state",
+  dac: "badge-dac",
+  crossref: "badge-crossref",
 };
 
 const badgeLabel: Record<string, string> = {
   registry: "Registry",
   traceability: "Traceability",
   zk: "Verification",
+  state: "State",
+  dac: "DAC",
+  crossref: "Cross-Ref",
 };
 
 const dotColor: Record<string, string> = {
   registry: "#00FFCC",
   traceability: "#3B82F6",
   zk: "#00CCFF",
+  state: "#F59E0B",
+  dac: "#8B5CF6",
+  crossref: "#EC4899",
 };
 
 export default function ActivityFeed({
