@@ -17,6 +17,7 @@
 | 2026-03-19 | state-database (RU-L4) | zkl2 | CONFIRMED | Poseidon2 4.46us/hash, 125us insert, 18.77ms@100tx batch, 46ms@250tx |
 | 2026-03-19 | witness-generation (RU-L3) | zkl2 | CONFIRMED | 13.37ms@1000tx, 3.0MB witness, 78.4% storage, determinism PASS |
 | 2026-03-19 | e2e-pipeline (RU-L6) | zkl2 | CONFIRMED | 14s@100tx E2E, prove=71.3% bottleneck, 100% retry reliability |
+| 2026-03-19 | production-dac (RU-L8) | zkl2 | CONFIRMED | 4.5ms@500KB attest, 1.40x storage, <1ms recovery, 7.5 nines@p=0.999 |
 
 ## Key Patterns
 
@@ -74,6 +75,18 @@
 - Recovery time scales O(k^2): 2-of-3 is 8x faster than 3-of-3 for Lagrange interpolation
 - AnyTrust fallback: post data on-chain if <k nodes available (validium -> rollup mode)
 - Field element packing: 31 bytes/element (not 32) to stay within 254-bit BN128 field
+
+## Production DAC Patterns (zkL2)
+
+- Hybrid AES+RS+Shamir: AES-256-GCM for data, RS (5,7) for redundancy, Shamir (5,7) for key
+- klauspost/reedsolomon: SIMD-optimized Go RS, used by MinIO/Storj/CockroachDB, ~8 GB/s
+- Attestation: 4.5ms@500KB, 8.9ms@1MB in Go (36x faster than JS BigInt Shamir)
+- Storage: 1.40x overhead (RS) vs 3.87x (Shamir) -- 2.77x improvement
+- Recovery: <1ms at 1MB (RS decode) vs 2.5s (Lagrange) -- 2,600x faster
+- AES key must be reduced mod BN254 prime before Shamir (32 bytes > 254-bit field)
+- Availability (5,7): 99.997% at p=0.99, 99.99999% at p=0.999
+- Honest minority: 3 honest nodes block false attestation (7-5+1=3)
+- AnyTrust fallback: on-chain DA when <5 nodes available
 
 ## L1 State Commitment Patterns
 
@@ -169,3 +182,4 @@
 10. `zkl2/research/experiments/2026-03-19_state-database/` -- RU-L4, Stage 1 complete, CONFIRMED
 11. `zkl2/research/experiments/2026-03-19_witness-generation/` -- RU-L3, Stage 2 complete, CONFIRMED
 12. `zkl2/research/experiments/2026-03-19_e2e-pipeline/` -- RU-L6, Stage 2 complete, CONFIRMED
+13. `zkl2/research/experiments/2026-03-19_production-dac/` -- RU-L8, Stage 1 complete, CONFIRMED
