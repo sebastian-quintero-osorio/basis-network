@@ -236,7 +236,7 @@ lab/2-logicist/research-history/YYYY-MM-l2-state-db/0-input/
 
 ### [10] Logicist | RU-L4: State Database
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 883 states, 5 invariants, two-level trie verified)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [09] complete, materials in `0-input/`.
