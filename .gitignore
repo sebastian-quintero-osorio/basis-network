@@ -109,6 +109,8 @@ _build/
 *.synctex.gz
 *.toc
 
-# LaTeX intermediate PDF (the BNR-*.pdf renamed copy is the deliverable)
+# LaTeX intermediate outputs in paper/src/ (BNR-*.pdf at paper/ root is the deliverable)
+**/paper/src/main.pdf
+**/paper/src/main.out
 **/paper/main.pdf
 **/paper/main.out
