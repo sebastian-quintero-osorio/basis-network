@@ -1,0 +1,42 @@
+% related-work.tex -- Sparse Merkle Trees with Poseidon Hash
+
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{ZK-Friendly Hash Functions}
+
+The design of hash functions optimized for zero-knowledge proof systems has been an active area of research since the introduction of MiMC~\cite{albrecht2016mimc}, which minimized multiplicative complexity through high-degree S-boxes over prime fields. Poseidon~\cite{grassi2021poseidon} advanced this line of work with the HADES permutation strategy, combining full and partial S-box rounds to achieve 240 R1CS constraints per 2-to-1 hash over BN254---a 29\% reduction from MiMC's 340 constraints. Poseidon2~\cite{grassi2023poseidon2} further optimizes native computation speed while maintaining the same constraint count.
+
+Guohanze et~al.~\cite{guohanze2024benchmarking} provide the most comprehensive cross-system benchmark to date, measuring constraint counts and proving times across hash functions and SNARK backends on EVM-compatible chains. Their results confirm Poseidon's 240-constraint figure for R1CS/Groth16 on BN254 and report Groth16 proof sizes of approximately 800 bytes with verification gas of ${\sim}219{,}000$ on Ethereum. Nielsen~\cite{nielsen2023snark} extends this with empirical measurements showing Poseidon proof sizes of 112\,KB versus MiMC's 203\,KB in the SnarkJS pipeline.
+
+Recent cryptanalysis by Grassi et~al.~\cite{grassi2025grobner} identified inaccuracies in original round-count security estimates through Gr\"{o}bner basis attacks exploiting subspace trails. However, the Ethereum Foundation's Poseidon Cryptanalysis Initiative~\cite{ethereum2024poseidon} confirms the overall security of Poseidon with recommended parameters, and no practical attacks have been demonstrated against production configurations.
+
+The Rescue hash function~\cite{aly2019rescue} offers higher security margins at approximately 600 R1CS constraints per hash, representing a 2.5$\times$ cost increase over Poseidon with no compensating advantage for our use case. Traditional hash functions (SHA-256 at ${\sim}25{,}000$ constraints, Keccak-256 at ${\sim}150{,}000$ constraints) remain infeasible for in-circuit use at the scale required for Merkle tree verification.
+
+\subsection{Sparse Merkle Trees}
+
+Sparse Merkle Trees extend the original Merkle tree construction~\cite{merkle1987digital} to support deterministic key-value storage with both membership and non-membership proofs. Dahlberg et~al.~\cite{dahlberg2016efficient} formalized efficient non-membership proofs and caching strategies. Haider~\cite{haider2018compact} introduced compact representations that reduce proof sizes. Baylina and Bell\'{e}s~\cite{baylina2019smt} standardized the SMT construction for ZK applications at the ZKProof Standards Workshop, establishing conventions adopted by Iden3 and subsequently by Polygon.
+
+Chen et~al.~\cite{chen2023batch} address batch update optimization for rollup contexts, demonstrating shared-path computation techniques that reduce amortized hash operations per insert. Reilabs~\cite{reilabs2024largesmt} push the scaling frontier to billion-key trees in Rust, reporting per-insert latencies of 63--193\,$\mu$s across 4--16 cores with multi-threaded parallelism.
+
+\subsection{Production Deployments}
+
+Table~\ref{tab:production-systems} summarizes the state tree implementations in major production ZK systems.
+
+\begin{table}[htbp]
+\centering
+\caption{State tree implementations in production ZK systems.}
+\label{tab:production-systems}
+\begin{tabular}{llll}
+\hline
+\textbf{System} & \textbf{Tree Type} & \textbf{Hash} & \textbf{Depth} \\
+\hline
+Polygon zkEVM~\cite{polygon2024smt} & Sparse Merkle Trie & Poseidon & 256 \\
+Scroll~\cite{scroll2024poseidonsmt} & Poseidon SMT & Poseidon & 256 \\
+Iden3~\cite{iden3smt} & Sparse Merkle Tree & Poseidon & 256 \\
+Semaphore v4~\cite{semaphore2024v4} & Lean IMT & Poseidon & Dynamic \\
+\hline
+\end{tabular}
+\end{table}
+
+Notably, all major production ZK systems have converged on Poseidon as the hash function of choice. Semaphore's migration from MiMC (v2) to Poseidon (v3) halved proving times~\cite{semaphore2024v4}, providing direct empirical evidence of the performance advantage in circuit proving. Polygon zkEVM and Scroll both use depth-256 trees to support the full Ethereum address space; our depth-32 design targets a smaller enterprise address space ($2^{32} \approx 4.3$ billion entries) in exchange for proportionally lower constraint costs in circuit verification.
