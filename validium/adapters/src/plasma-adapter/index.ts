@@ -2,16 +2,21 @@ import { ethers } from "ethers";
 import { getSigner, getContractAddress } from "../common/provider";
 import { TransactionQueue } from "../common/queue";
 
-// PLASMAConnector ABI (only the functions we need)
-const PLASMA_CONNECTOR_ABI = [
-  "function recordMaintenanceOrder(bytes32 orderId, bytes32 equipmentId, uint8 priority, bytes details) external",
-  "function completeMaintenanceOrder(bytes32 orderId, bytes completionData) external",
-  "function recordEquipmentInspection(bytes32 equipmentId, bytes inspectionData) external",
-  "function totalOrders() view returns (uint256)",
-  "function completedOrders() view returns (uint256)",
-  "event MaintenanceOrderCreated(bytes32 indexed orderId, bytes32 indexed equipmentId, address indexed enterprise, uint8 priority, uint256 timestamp)",
-  "event MaintenanceOrderCompleted(bytes32 indexed orderId, uint256 timestamp, uint256 duration)",
+// TraceabilityRegistry ABI (generic event recording)
+const TRACEABILITY_REGISTRY_ABI = [
+  "function recordEvent(bytes32 eventType, bytes32 assetId, bytes data) external returns (bytes32)",
+  "function eventCount() view returns (uint256)",
 ];
+
+// PLASMA event types — application-defined, not in the contract
+const PLASMA_EVENT_TYPES = {
+  ORDER_CREATED: ethers.keccak256(ethers.toUtf8Bytes("ORDER_CREATED")),
+  ORDER_COMPLETED: ethers.keccak256(ethers.toUtf8Bytes("ORDER_COMPLETED")),
+  EQUIPMENT_INSPECTION: ethers.keccak256(ethers.toUtf8Bytes("EQUIPMENT_INSPECTION")),
+  TASK_CREATED: ethers.keccak256(ethers.toUtf8Bytes("TASK_CREATED")),
+  TASK_COMPLETED: ethers.keccak256(ethers.toUtf8Bytes("TASK_COMPLETED")),
+  REPORT_CREATED: ethers.keccak256(ethers.toUtf8Bytes("REPORT_CREATED")),
+} as const;
 
 export class PLASMAAdapter {
   private contract: ethers.Contract;
@@ -19,8 +24,8 @@ export class PLASMAAdapter {
 
   constructor() {
     const signer = getSigner();
-    const address = getContractAddress("PLASMA_CONNECTOR");
-    this.contract = new ethers.Contract(address, PLASMA_CONNECTOR_ABI, signer);
+    const address = getContractAddress("TRACEABILITY_REGISTRY");
+    this.contract = new ethers.Contract(address, TRACEABILITY_REGISTRY_ABI, signer);
     this.queue = new TransactionQueue();
   }
 
@@ -31,16 +36,17 @@ export class PLASMAAdapter {
     priority: number,
     details: string
   ): Promise<void> {
-    const orderIdBytes = ethers.encodeBytes32String(orderId);
     const equipmentIdBytes = ethers.encodeBytes32String(equipmentId);
-    const detailsBytes = ethers.toUtf8Bytes(details);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["bytes32", "uint8", "string"],
+      [ethers.encodeBytes32String(orderId), priority, details]
+    );
 
     await this.queue.enqueue(`work-order-${orderId}`, () =>
-      this.contract.recordMaintenanceOrder(
-        orderIdBytes,
+      this.contract.recordEvent(
+        PLASMA_EVENT_TYPES.ORDER_CREATED,
         equipmentIdBytes,
-        priority,
-        detailsBytes
+        data
       )
     );
   }
@@ -48,29 +54,37 @@ export class PLASMAAdapter {
   /// Records the completion of a maintenance work order.
   async completeWorkOrder(orderId: string, completionDetails: string): Promise<void> {
     const orderIdBytes = ethers.encodeBytes32String(orderId);
-    const completionBytes = ethers.toUtf8Bytes(completionDetails);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["string"],
+      [completionDetails]
+    );
 
     await this.queue.enqueue(`complete-${orderId}`, () =>
-      this.contract.completeMaintenanceOrder(orderIdBytes, completionBytes)
+      this.contract.recordEvent(
+        PLASMA_EVENT_TYPES.ORDER_COMPLETED,
+        orderIdBytes,
+        data
+      )
     );
   }
 
   /// Records an equipment inspection event.
   async recordInspection(equipmentId: string, inspectionData: string): Promise<void> {
     const equipmentIdBytes = ethers.encodeBytes32String(equipmentId);
-    const inspectionBytes = ethers.toUtf8Bytes(inspectionData);
+    const data = ethers.toUtf8Bytes(inspectionData);
 
     await this.queue.enqueue(`inspection-${equipmentId}-${Date.now()}`, () =>
-      this.contract.recordEquipmentInspection(equipmentIdBytes, inspectionBytes)
+      this.contract.recordEvent(
+        PLASMA_EVENT_TYPES.EQUIPMENT_INSPECTION,
+        equipmentIdBytes,
+        data
+      )
     );
   }
 
   /// Returns current on-chain statistics.
-  async getStats(): Promise<{ totalOrders: bigint; completedOrders: bigint }> {
-    const [totalOrders, completedOrders] = await Promise.all([
-      this.contract.totalOrders(),
-      this.contract.completedOrders(),
-    ]);
-    return { totalOrders, completedOrders };
+  async getStats(): Promise<{ eventCount: bigint }> {
+    const eventCount = await this.contract.eventCount();
+    return { eventCount };
   }
 }
