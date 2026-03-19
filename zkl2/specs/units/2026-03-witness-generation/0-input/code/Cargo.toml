@@ -1,0 +1,28 @@
+[package]
+name = "witness-gen-experiment"
+version = "0.1.0"
+edition = "2021"
+description = "Witness generation prototype for Basis Network zkEVM L2 (RU-L3 experiment)"
+
+[dependencies]
+# BN254 field arithmetic
+ark-ff = "0.4"
+ark-bn254 = "0.4"
+ark-std = "0.4"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Deterministic collections
+# (BTreeMap is in std, no extra dep needed)
+
+# Benchmarking and timing
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[dev-dependencies]
+rand = "0.8"
+
+[[bench]]
+name = "witness_bench"
+harness = false
