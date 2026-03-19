@@ -1,0 +1,35 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 28 and seed 3377962967655133608 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-production-dac\1-formalization\v0-analysis\experiments\ProductionDAC\_build_liveness\MC_ProductionDAC_liveness.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-production-dac\1-formalization\v0-analysis\experiments\ProductionDAC\_build_liveness\ProductionDAC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module ProductionDAC
+Semantic processing of module MC_ProductionDAC_liveness
+Starting... (2026-03-19 16:07:46)
+Implied-temporal checking--satisfiability problem has 2 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-19 16:07:47.
+Checking 2 branches of temporal properties for the current state space with 43222 total distinct states at (2026-03-19 16:07:50)
+Finished checking temporal properties in 06s at 2026-03-19 16:07:57
+Progress(9) at 2026-03-19 16:07:57: 87,995 states generated (87,995 s/min), 21,611 distinct states found (21,611 ds/min), 11,507 states left on queue.
+Progress(21) at 2026-03-19 16:08:32: 2,365,825 states generated, 395,520 distinct states found, 0 states left on queue.
+Checking 2 branches of temporal properties for the complete state space with 791040 total distinct states at (2026-03-19 16:08:32)
+Finished checking temporal properties in 09min 52s at 2026-03-19 16:18:24
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 4.2E-8
+  based on the actual fingerprints:  val = 1.5E-9
+2365825 states generated, 395520 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 21.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 31 and the 95th percentile is 4).
+Finished in 10min 38s at (2026-03-19 16:18:24)

@@ -696,7 +696,7 @@ lab/2-logicist/research-history/YYYY-MM-production-dac/0-input/
 
 ### [30] Logicist | RU-L8: Production DAC
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 395K states, 7-node DAC with erasure coding, safety + liveness)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [29] complete, materials in `0-input/`.

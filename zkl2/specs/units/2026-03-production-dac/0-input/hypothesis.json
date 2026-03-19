@@ -1,0 +1,27 @@
+{
+  "name": "production-dac",
+  "target": "zkl2",
+  "title": "Production DAC with Reed-Solomon Erasure Coding for Enterprise zkEVM L2",
+  "hypothesis": "A production DAC extending the Validium RU-V6 design with Reed-Solomon erasure coding can achieve 99.9% data availability with 5-of-7 honest minority assumption, attestation latency under 1 second, and verifiable data recovery from any 5 of 7 nodes.",
+  "null_hypothesis": "Either attestation latency exceeds 1 second for enterprise batch sizes (100KB-1MB), or Reed-Solomon encoding overhead makes the protocol impractical (>5x storage expansion), or data recovery from 5-of-7 nodes fails to reconstruct correctly, or the 99.9% availability target requires more than 7 nodes.",
+  "domain": "data-availability",
+  "independent_variables": [
+    "batch_size_bytes",
+    "committee_size",
+    "threshold_k",
+    "coding_rate",
+    "node_failure_count",
+    "encoding_scheme"
+  ],
+  "dependent_variables": [
+    "encoding_time_ms",
+    "attestation_latency_ms",
+    "recovery_time_ms",
+    "storage_overhead_ratio",
+    "availability_probability",
+    "verification_time_ms"
+  ],
+  "stage": 1,
+  "created": "2026-03-19",
+  "prior_work": "validium/research/experiments/2026-03-18_data-availability-committee/"
+}
