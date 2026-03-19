@@ -1,0 +1,194 @@
+% results.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Results}
+
+\subsection{State Machine Validation}
+
+All 46 test cases pass, validating the state machine implementation across
+six categories: happy path cycle (6 transitions from Idle through Submitting
+back to Idle), pipelined receiving (transaction acceptance during Proving
+and Submitting states), error recovery (all operational states transition to
+Error; Error recovers to Idle), invalid transition rejection (descriptive
+errors for undefined transitions), history tracking (full audit trail with
+metadata), and event emitter correctness (per-transition and per-state events).
+
+\subsection{Orchestration Overhead}
+
+Table~\ref{tab:overhead} presents per-phase latencies across all five
+benchmark scenarios.
+
+\begin{table*}[t]
+\centering
+\caption{Orchestration Benchmark Results (30--50 iterations per scenario, depth 32)}
+\label{tab:overhead}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Scenario} & \textbf{Batch} & \textbf{Total E2E} & \textbf{Overhead} & \textbf{Proving} & \textbf{Overhead/E2E} & \textbf{Memory} \\
+                   & \textbf{Size}  & \textbf{(ms)}      & \textbf{(ms)}     & \textbf{(ms)}    & \textbf{(\%)}         & \textbf{(MB)} \\
+\midrule
+overhead\_only     & 8  & 2,785  & 593  & 12$^\dagger$   & 21.3$^\ddagger$ & 84.8 \\
+snarkjs d32 b8     & 8  & 15,537 & 594  & 12,765 & 3.8  & 85.6 \\
+rapidsnark d32 b8  & 8  & 5,281  & 594  & 2,507  & 11.2 & 86.2 \\
+snarkjs d32 b16    & 16 & 31,371 & 1,187 & 28,008 & 3.8  & 85.9 \\
+rapidsnark d32 b64 & 64 & 18,889 & 4,704 & 12,006 & 24.9 & 87.1 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\small $^\dagger$Timer overhead only (0~ms simulated proving). $^\ddagger$Excluding
+proving time; overhead as fraction of non-proving E2E.
+\end{flushleft}
+\end{table*}
+
+\subsubsection{Phase Breakdown}
+
+Table~\ref{tab:phases} details the per-phase timings for the two primary
+scenarios: batch-8 overhead isolation and the target batch-64 configuration.
+
+\begin{table}[h]
+\centering
+\caption{Per-Phase Latency Breakdown}
+\label{tab:phases}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Phase} & \multicolumn{2}{c}{\textbf{Batch 8}} & \multicolumn{2}{c}{\textbf{Batch 64}} \\
+               & \textbf{Mean} & \textbf{P95} & \textbf{Mean} & \textbf{P95} \\
+               & \textbf{(ms)} & \textbf{(ms)} & \textbf{(ms)} & \textbf{(ms)} \\
+\midrule
+Batch formation     & 11.39  & 12.67  & 90.31   & 92.43 \\
+Witness generation  & 581.86 & 584.20 & 4,613.21 & 4,622.13 \\
+Proving             & 12.31  & 15.98  & 12,006.26 & 12,016.35 \\
+DAC attestation     & 171.83 & 174.23 & 171.89  & 174.97 \\
+L1 submission       & 2,007.26 & 2,015.60 & 2,007.35 & 2,015.34 \\
+Checkpoint          & $<$0.01 & $<$0.01 & $<$0.01 & $<$0.01 \\
+\midrule
+\textbf{Total}      & \textbf{2,784.8} & -- & \textbf{18,889.2} & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Overhead Scaling}
+
+Orchestration overhead scales linearly with batch size at a rate of
+approximately 73.5~ms per transaction, dominated by witness generation
+(72~ms/tx). Batch formation contributes 1.4~ms/tx. The linear scaling
+relationship is:
+
+\begin{equation}
+T_\text{overhead}(n) = 11.4 + 72.7 \cdot n \quad \text{(ms, } n = \text{batch size)}
+\end{equation}
+
+\noindent verified at $n \in \{8, 16, 64\}$: predicted values of 593, 1,175,
+and 4,664~ms match measured values of 593, 1,187, and 4,704~ms within 1\%.
+
+\subsubsection{Statistical Quality}
+
+For the batch-8 overhead scenario (50 iterations): mean 2,784.8~ms, standard
+deviation 7.8~ms, 95\% CI half-width 2.2~ms (0.08\% of mean). All scenarios
+achieve CI half-width $<$1\% of mean, well below the 10\% acceptance
+threshold.
+
+\subsection{Pipeline Speedup}
+
+Table~\ref{tab:pipeline} compares sequential and pipelined execution across
+six configurations with 10 batches each.
+
+\begin{table}[h]
+\centering
+\caption{Sequential vs. Pipelined Architecture (10 batches)}
+\label{tab:pipeline}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Configuration} & \textbf{Seq.} & \textbf{Pipe.} & \textbf{Speed-} & \textbf{Tput} \\
+                        & \textbf{(s)}  & \textbf{(s)}   & \textbf{up}     & \textbf{(tx/s)} \\
+\midrule
+snarkjs b8             & 155.1 & 149.8 & 1.04$\times$ & 0.53 \\
+rapidsnark b8          & 52.5  & 47.2  & 1.11$\times$ & 1.69 \\
+snarkjs b16            & 313.5 & 302.8 & 1.04$\times$ & 0.53 \\
+rapidsnark b16         & 83.5  & 72.8  & 1.15$\times$ & 2.20 \\
+snarkjs b64            & 1,569 & 1,526 & 1.03$\times$ & 0.42 \\
+\textbf{rapidsnark b64} & \textbf{189.0} & \textbf{146.4} & \textbf{1.29}$\times$ & \textbf{4.37} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Speedup Analysis}
+
+The pipeline speedup is a function of the ratio $\rho = T_\text{prep} /
+T_\text{prove+submit}$. When preparation time is negligible relative to
+proving ($\rho \to 0$), the pipeline offers no benefit (speedup $\to 1.0$).
+As $\rho$ increases, more preparation work overlaps with the proving phase:
+
+\begin{itemize}
+\item snarkjs b8: $\rho = 591 / 14{,}920 = 0.04$, speedup 1.04$\times$
+\item rapidsnark b8: $\rho = 591 / 4{,}670 = 0.13$, speedup 1.11$\times$
+\item rapidsnark b64: $\rho = 4{,}733 / 14{,}170 = 0.33$, speedup 1.29$\times$
+\end{itemize}
+
+The maximum theoretical speedup (unlimited batch size, equal preparation
+and proving time) approaches 2.0$\times$ but is constrained by the proving
+phase floor.
+
+\subsection{End-to-End Latency vs. Target}
+
+Table~\ref{tab:e2e_target} evaluates each configuration against the
+90-second target.
+
+\begin{table}[h]
+\centering
+\caption{End-to-End Latency vs. 90-Second Target}
+\label{tab:e2e_target}
+\begin{tabular}{lrrll}
+\toprule
+\textbf{Backend} & \textbf{Batch} & \textbf{E2E} & \textbf{Under} & \textbf{Margin} \\
+                  &                & \textbf{(s)} & \textbf{90s?}  & \\
+\midrule
+snarkjs   & 8  & 15.5  & Yes & 5.8$\times$ \\
+rapidsnark & 8  & 5.3   & Yes & 17.0$\times$ \\
+snarkjs   & 16 & 31.4  & Yes & 2.9$\times$ \\
+rapidsnark & 16 & 9.2   & Yes & 9.8$\times$ \\
+\textbf{snarkjs}   & \textbf{64} & \textbf{156.9} & \textbf{No} & \textbf{1.7$\times$ over} \\
+rapidsnark & 64 & 18.9  & Yes & 4.8$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The snarkjs WASM backend at batch size 64 exceeds the target by
+1.7$\times$ (156.9~s vs. 90~s). All other configurations meet the target
+with margins ranging from 2.9$\times$ to 17.0$\times$.
+
+\subsection{Memory Footprint}
+
+Heap memory usage is stable across all scenarios at 84.8--87.1~MB. The
+2.3~MB variance corresponds to the additional transaction objects held in
+memory for larger batch sizes. Production deployment with a real SMT
+containing 100K entries is estimated at $\sim$320~MB (234~MB SMT from
+RU-V1 + 85~MB orchestrator), within the 500~MB target.
+
+\subsection{Benchmark Reconciliation}
+
+Table~\ref{tab:reconcile} validates our measurements against published data.
+
+\begin{table}[h]
+\centering
+\caption{Benchmark Reconciliation with Published Data}
+\label{tab:reconcile}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Metric} & \textbf{Ours} & \textbf{Published} & \textbf{Assessment} \\
+\midrule
+Orch. overhead       & 593~ms  & push0: 5.2~ms & Expected$^*$ \\
+Batch formation only & 11.4~ms & push0: 5.2~ms & 2.2$\times$ (consistent) \\
+Memory per component & 85~MB   & push0: 8--14~MB & Expected$^\dagger$ \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\small $^*$push0 measures message routing only, not witness generation.
+$^\dagger$push0 dispatchers are stateless; our node holds full SMT state.
+\end{flushleft}
+\end{table}
+
+Batch formation latency (11.4~ms) is 2.2$\times$ the push0 P50 (5.2~ms),
+consistent with our node performing 8 SHA-256 hash computations for mock
+SMT inserts while push0 dispatchers perform message routing only. No metric
+diverges by more than 10$\times$ from published benchmarks after accounting
+for architectural differences.

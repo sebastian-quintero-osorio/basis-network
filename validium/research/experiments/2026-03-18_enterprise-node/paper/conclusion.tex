@@ -1,0 +1,46 @@
+% conclusion.tex -- Enterprise Node Orchestrator Paper (RU-V5)
+
+\section{Conclusion}
+
+We presented the design and empirical evaluation of a pipelined, event-driven
+state machine orchestrator for enterprise ZK validium nodes. The orchestrator
+implements six states with 17 transitions, enabling concurrent transaction
+ingestion during proof generation through three decoupled processing loops.
+
+The key findings are:
+
+\begin{enumerate}
+\item \textbf{Orchestration overhead is negligible}: At 593~ms per
+  8-transaction batch (0.66\% of the 90-second budget), the orchestration
+  layer---including batch formation, SMT state updates, and witness
+  generation---adds minimal overhead to the proof cycle. The overhead
+  scales linearly at 73.5~ms/tx, entirely dominated by witness generation.
+
+\item \textbf{Proving dominates latency}: ZK proof generation consumes
+  64--85\% of end-to-end cycle time across all tested configurations.
+  Performance optimization efforts should target prover backend selection
+  and circuit constraint reduction, not orchestration engineering.
+
+\item \textbf{Pipelining improves throughput modestly}: The 1.29$\times$
+  speedup at batch 64 with rapidsnark reduces 10-batch processing by
+  43~s. The speedup scales with the preparation-to-proving time ratio
+  and would increase with faster provers or larger batches.
+
+\item \textbf{Prover backend determines feasibility}: The snarkjs WASM
+  backend fails the 90-second target at batch 64 (156.9~s), while
+  rapidsnark meets it with 4.8$\times$ margin (18.9~s). Production
+  deployment requires a native or GPU-accelerated prover for batch
+  sizes above 16.
+\end{enumerate}
+
+The six formal invariants (liveness, safety, privacy, crash recovery,
+state root continuity, single writer) provide a complete specification
+for downstream TLA+ formalization. The component integration map---spanning
+five prior research units covering SMT, circuits, L1 contracts, batch
+aggregation, and data availability---establishes the implementation
+blueprint for the Basis Network enterprise validium node.
+
+Future work will replace mock components with production implementations
+(Stage~2), validate crash recovery under fault injection (Stage~3), and
+ablate individual components to quantify their marginal contribution to
+system latency (Stage~4).
