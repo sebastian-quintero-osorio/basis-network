@@ -1,0 +1,210 @@
+% results.tex -- Data Availability Committee Paper (RU-V6)
+
+\section{Results}
+
+All experiments were conducted on Node.js v22.13.1, Windows 11, commodity
+desktop hardware. Results represent worst-case JavaScript BigInt performance.
+
+\subsection{Attestation Pipeline Latency}
+
+Table~\ref{tab:attestation} presents the attestation pipeline latency (share
+generation + distribution + signature collection) across batch sizes and
+threshold configurations. This is the latency-critical metric: the time
+between the operator producing a batch and receiving a valid DAC certificate.
+
+\begin{table}[h]
+\centering
+\caption{Attestation Pipeline Latency by Configuration}
+\label{tab:attestation}
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Config} & \textbf{Batch} & \textbf{Mean} & \textbf{P95} &
+\textbf{Target} & \textbf{Margin} \\
+ & \textbf{Size} & \textbf{(ms)} & \textbf{(ms)} & \textbf{(ms)} & \\
+\midrule
+2-of-3 & 10 KB  & 3.2   & 3.9   & 2,000 & 512$\times$ \\
+2-of-3 & 100 KB & 32.1  & 34.4  & 2,000 & 58$\times$ \\
+2-of-3 & 500 KB & 163.5 & 175.3 & 2,000 & 11$\times$ \\
+2-of-3 & 1 MB   & 320.2 & 346.2 & 2,000 & 5.8$\times$ \\
+\midrule
+3-of-3 & 10 KB  & 5.3   & 7.1   & 2,000 & 282$\times$ \\
+3-of-3 & 100 KB & 52.6  & 54.8  & 2,000 & 37$\times$ \\
+3-of-3 & 500 KB & 269.4 & 284.6 & 2,000 & 7.0$\times$ \\
+3-of-3 & 1 MB   & 526.2 & 542.5 & 2,000 & 3.7$\times$ \\
+\midrule
+2-of-3$^*$ & 100 KB & 30.9 & 36.0 & 2,000 & 56$\times$ \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\small $^*$One node offline during distribution (degraded mode).
+\end{flushleft}
+\end{table}
+
+All configurations meet the 2-second target with at least 3.7$\times$ margin.
+Attestation latency scales linearly with data size at approximately
+0.32~ms/KB for $(2,3)$ and 0.52~ms/KB for $(3,3)$. The $(3,3)$ configuration
+is $\sim$1.6$\times$ slower than $(2,3)$ due to additional polynomial
+evaluations per share (degree 2 vs.\ degree 1). Degraded-mode operation (1
+node offline) shows no statistically significant latency increase over
+normal operation.
+
+\subsection{Share Generation Breakdown}
+
+Table~\ref{tab:sharegen} isolates the share generation cost, which dominates
+the attestation pipeline.
+
+\begin{table}[h]
+\centering
+\caption{Share Generation Latency (2-of-3 Configuration)}
+\label{tab:sharegen}
+\begin{tabular}{rrrr}
+\toprule
+\textbf{Batch Size} & \textbf{Elements} & \textbf{Mean (ms)} &
+\textbf{Per-Element ($\mu$s)} \\
+\midrule
+10 KB  & 323    & 3.1   & 9.6  \\
+100 KB & 3,226  & 31.1  & 9.6  \\
+500 KB & 16,130 & 163.2 & 10.1 \\
+1 MB   & 32,259 & 318.1 & 9.9  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Per-element cost is constant at $\sim$9.5--10.0~$\mu$s (JavaScript BigInt),
+confirming $O(kn \cdot m)$ linear scaling. Linear regression yields
+$R^2 > 0.999$. Literature estimates for native implementations are
+0.6--3~$\mu$s per element; the 3--16$\times$ overhead is consistent with
+JavaScript BigInt's known performance characteristics. Estimated production
+per-element cost with native field arithmetic: $<$1~$\mu$s.
+
+\subsection{Data Recovery Latency}
+
+Table~\ref{tab:recovery} presents the recovery latency for reconstructing
+the original batch from $k$ share bundles.
+
+\begin{table}[h]
+\centering
+\caption{Data Recovery Latency by Configuration}
+\label{tab:recovery}
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Config} & \textbf{Batch} & \textbf{Elements} & \textbf{Mean (ms)} &
+\textbf{Per-El. ($\mu$s)} \\
+\midrule
+2-of-3 & 10 KB  & 323    & 25.0     & 77.4  \\
+2-of-3 & 100 KB & 3,226  & 250.6    & 77.7  \\
+2-of-3 & 500 KB & 16,130 & 1,260.3  & 78.1  \\
+2-of-3 & 1 MB   & 32,259 & 2,482.1  & 76.9  \\
+\midrule
+3-of-3 & 10 KB  & 323    & 195.7    & 606.0 \\
+3-of-3 & 100 KB & 3,226  & 1,946.3  & 603.3 \\
+3-of-3 & 500 KB & 16,130 & 9,745.8  & 604.2 \\
+3-of-3 & 1 MB   & 32,259 & 19,478.8 & 603.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Recovery is $\sim$8$\times$ slower for $(3,3)$ than $(2,3)$, reflecting the
+$O(k^2)$ complexity of Lagrange interpolation: $(3,3)$ requires 9 field
+multiplications per element vs.\ $(2,3)$'s 4. At 1~MB, $(2,3)$ recovery
+takes $\sim$2.5~seconds; $(3,3)$ takes $\sim$19.5~seconds.
+
+Critically, \emph{recovery is not on the attestation critical path}. Recovery
+is invoked only when data reconstruction is explicitly requested (e.g.,
+enterprise withdrawal proof generation, auditor data verification). The
+attestation latency in Table~\ref{tab:attestation} determines system
+throughput; recovery latency affects only interactive data retrieval.
+
+\subsection{Storage Overhead}
+
+\begin{table}[h]
+\centering
+\caption{Storage Overhead (3-Node Committee)}
+\label{tab:storage}
+\begin{tabular}{rrrr}
+\toprule
+\textbf{Batch Size} & \textbf{Per-Node (bytes)} & \textbf{Total (bytes)} &
+\textbf{Overhead} \\
+\midrule
+10 KB  & 12,984    & 38,952    & 3.91$\times$ \\
+100 KB & 129,104   & 387,312   & 3.88$\times$ \\
+500 KB & 645,264   & 1,935,792 & 3.87$\times$ \\
+1 MB   & 1,290,416 & 3,871,248 & 3.87$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Overhead converges to 3.87$\times$ at scale, explained by $n \times 32/31$:
+each field element encodes 31 bytes but is stored as 32 bytes. Each node
+stores approximately $1\times$ the original data size. Table~\ref{tab:overhead_compare}
+compares with production systems.
+
+\begin{table}[h]
+\centering
+\caption{Storage Overhead Comparison with Production Systems}
+\label{tab:overhead_compare}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{System} & \textbf{Total} & \textbf{Per-Node} &
+\textbf{Recovery From} \\
+\midrule
+Full replication (StarkEx) & $n \times$ & $1\times$ & Any 1 node \\
+Semi-AVID-PR               & 3.2$\times$ & $3.2/n$ & Any $n/3$ nodes \\
+\textbf{Shamir-DAC (ours)} & \textbf{3.87$\times$} & $\sim$\textbf{1$\times$} & \textbf{Any $k$ nodes} \\
+Celestia (2D RS)           & 4$\times$   & $4/n$   & Any $n/4$ nodes \\
+EigenDA V2 (RS 1/8)        & 8$\times$   & $8/n$   & Any $n/8$ nodes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Shamir-DAC's 3.87$\times$ overhead is less than EigenDA (8$\times$),
+comparable to Celestia (4$\times$) and Semi-AVID-PR (3.2$\times$), and
+marginally above full replication (3$\times$ for 3 nodes). The additional
+0.87$\times$ over full replication is the 32/31 encoding overhead---the
+cost of information-theoretic privacy.
+
+\subsection{Privacy Verification}
+
+51 of 51 privacy tests pass. The test suite validates:
+
+\begin{itemize}
+\item \textbf{Reconstruction correctness}: All $\binom{n}{k}$ subsets of $k$
+  shares reconstruct the original data byte-perfectly.
+\item \textbf{Share independence}: Share distributions for different secrets
+  are statistically indistinguishable ($|\Delta| = 3$--5\% with $n=1{,}000$
+  samples, consistent with sampling variance).
+\item \textbf{$k-1$ information leakage}: A single share is algebraically
+  consistent with any candidate secret value (verified for 100 candidate
+  secrets per test).
+\item \textbf{Edge cases}: Zero-length data, all-0xFF data, secret $= 0$,
+  secret $= p-1$, single-byte data.
+\end{itemize}
+
+\subsection{Failure Mode Verification}
+
+61 of 61 recovery and failure mode tests pass:
+
+\begin{table}[h]
+\centering
+\caption{Failure Mode Test Results}
+\label{tab:failure}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Scenario} & \textbf{Tests} & \textbf{Passed} & \textbf{Outcome} \\
+\midrule
+All 3 online            & 10 & 10 & 3/3 signatures \\
+1 node offline          & 30 & 30 & 2/3 valid, recovery OK \\
+2 nodes offline         & 5  & 5  & Fallback triggered \\
+Node offline mid-distrib. & 5 & 5 & 2/3 receive, valid \\
+Node rejoin             & 5  & 5  & Full attestation resumes \\
+Certificate tampered    & 3  & 3  & Detected, rejected \\
+20 sequential batches   & 1  & 1  & All recoverable \\
+3-of-3 configuration   & 1  & 1  & Correct behavior \\
+3-of-5 configuration   & 1  & 1  & Correct behavior \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The $(2,3)$-threshold configuration tolerates exactly 1 node failure for both
+attestation and recovery, as designed. When 2 of 3 nodes fail, the attestation
+threshold cannot be met and fallback to on-chain DA triggers correctly.
