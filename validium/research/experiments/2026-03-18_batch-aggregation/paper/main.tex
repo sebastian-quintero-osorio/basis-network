@@ -1,5 +1,5 @@
 % main.tex -- Master document
-% Crash-Safe Batch Aggregation for Enterprise ZK Validium:
+% BNR-2026-004: Crash-Safe Batch Aggregation for Enterprise ZK Validium:
 % A WAL-Based Approach with Formal Verification
 %
 % Compile:
@@ -9,6 +9,7 @@
 %   pdflatex main.tex
 
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -22,21 +23,58 @@
 \usepackage{array}
 \usepackage{multirow}
 \usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-004}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Peer-Reviewed Publication Track. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% Listings style for TLA+
+\lstdefinelanguage{TLAPlus}{
+  keywords={EXTENDS, CONSTANTS, VARIABLES, Init, Next, Spec, INSTANCE,
+            IF, THEN, ELSE, LET, IN, UNCHANGED, TRUE, FALSE,
+            INVARIANT, PROPERTY, SYMMETRY, MODULE},
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  morecomment=[l]{\\*},
+  sensitive=true
+}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2
+}
 
 % Metadata
 \title{Crash-Safe Batch Aggregation for Enterprise ZK Validium:\\A WAL-Based Approach with Formal Verification}
 
 \author{
-  \IEEEauthorblockN{Base Computing S.A.S. Research Team}
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
   \IEEEauthorblockA{
-    Medellin, Colombia\\
-    social@basecomputing.com.co
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
   }
 }
 
 \begin{document}
 
 \maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
 
 % Abstract
 \input{abstract}
@@ -53,7 +91,14 @@ batch aggregation, write-ahead log, crash recovery, formal verification, TLA+, z
 \input{methodology}
 \input{results}
 \input{discussion}
+\input{reproducibility}
 \input{conclusion}
+
+% Acknowledgment
+\section*{Acknowledgment}
+
+This work was produced by the Basis Network Automated R\&D Laboratory,
+a 4-agent research pipeline operated by Base Computing S.A.S.
 
 % References
 \bibliographystyle{IEEEtran}

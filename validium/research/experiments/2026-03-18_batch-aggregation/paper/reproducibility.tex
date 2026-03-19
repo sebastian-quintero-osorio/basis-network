@@ -1,0 +1,94 @@
+% reproducibility.tex -- Batch Aggregation Paper (BNR-2026-004)
+
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+This section provides instructions for replicating the TLA+ model checking
+results, including both the NoLoss counterexample discovery (v0) and the
+corrected protocol verification (v1-fix).
+
+\subsection{Prerequisites}
+
+\begin{itemize}
+\item \textbf{TLA+ Toolbox} or standalone TLC: Version 2.16 or later.
+  Available from \url{https://github.com/tlaplus/tlaplus/releases}.
+\item \textbf{Java}: JDK 8 or later (required by TLC).
+\item Specifications are located in the repository under:\\
+  \texttt{validium/specs/units/2026-03-batch-aggregation/}
+\end{itemize}
+
+\subsection{Replicating the NoLoss Counterexample (v0)}
+
+The original specification with the premature checkpoint bug is in
+\texttt{1-formalization/v0-analysis/}. To reproduce the counterexample:
+
+\begin{enumerate}
+\item Navigate to the experiment directory:\\
+  \texttt{v0-analysis/experiments/BatchAggregation/}
+\item The model configuration (\texttt{MC\_BatchAggregation.cfg}) uses
+  10 transaction identifiers (\texttt{tx1}--\texttt{tx10}),
+  \texttt{BatchSizeThreshold~=~4}, and breadth-first search.
+\item Run TLC:
+\end{enumerate}
+
+\begin{quote}
+\small
+\texttt{java -jar tla2tools.jar -config MC\_BatchAggregation.cfg}\\
+\texttt{~~~~MC\_BatchAggregation.tla}
+\end{quote}
+
+\textbf{Expected output}: TLC reports \texttt{Invariant NoLoss is violated}
+with a 6-state counterexample trace: Init $\rightarrow$ Enqueue(tx1)
+$\rightarrow$ Enqueue(tx2) $\rightarrow$ TimerTick $\rightarrow$ FormBatch
+$\rightarrow$ Crash. The model checker generates 3,262 states (2,899
+distinct) and terminates in under one second. The counterexample
+demonstrates that \texttt{checkpointSeq} advances to 2 at batch formation,
+so after crash recovery, tx1 and tx2 are irrecoverably lost.
+
+\subsection{Verifying the Corrected Protocol (v1-fix)}
+
+The corrected specification with deferred checkpoint is in
+\texttt{1-formalization/v1-fix/}. To verify all properties:
+
+\begin{enumerate}
+\item Navigate to the experiment directory:\\
+  \texttt{v1-fix/experiments/BatchAggregation/}
+\item The model configuration uses 4 transaction identifiers
+  (\texttt{tx1}--\texttt{tx4}), \texttt{BatchSizeThreshold~=~2},
+  and breadth-first search with temporal property checking.
+\item Run TLC:
+\end{enumerate}
+
+\begin{quote}
+\small
+\texttt{java -jar tla2tools.jar -config MC\_BatchAggregation.cfg}\\
+\texttt{~~~~MC\_BatchAggregation.tla}
+\end{quote}
+
+\textbf{Expected output}: \texttt{Model checking completed. No error has
+been found.} TLC generates 6,763 states (2,630 distinct), explores the
+complete state graph to depth 18, and verifies all 6 safety invariants
+(\texttt{TypeOK}, \texttt{NoLoss}, \texttt{NoDuplication},
+\texttt{QueueWalConsistency}, \texttt{FIFOOrdering},
+\texttt{BatchSizeBound}) and 1 liveness property
+(\texttt{EventualProcessing}) with zero errors. Temporal property checking
+completes in under one second.
+
+\subsection{Replicating Empirical Benchmarks}
+
+The benchmark code is located in
+\texttt{validium/research/experiments/2026-03-18\_batch-aggregation/code/}.
+Requirements: Node.js v22+ and TypeScript. Run:
+
+\begin{quote}
+\small
+\texttt{npx ts-node src/benchmark.ts}\\
+\texttt{npx ts-node src/test-determinism.ts}\\
+\texttt{npx ts-node src/test-crash-recovery.ts}
+\end{quote}
+
+Results are written to the \texttt{results/} directory as JSON files.
+Benchmark conditions: 30 replications per configuration, 2 warmup batches
+discarded, Poisson-like arrival jitter. Platform-dependent metrics (WAL
+write latency, fsync latency) may vary across operating systems and
+storage hardware.

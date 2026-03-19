@@ -6,10 +6,11 @@
 Table~\ref{tab:benchmarks} presents the complete benchmark results across
 all seven configurations.
 
-\begin{table*}[t]
+\begin{table}[htbp]
 \centering
 \caption{State transition circuit benchmarks (Groth16, SnarkJS 0.7.6, commodity desktop)}
 \label{tab:benchmarks}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}rr|rrr|rrrr|r@{}}
 \toprule
 \multicolumn{2}{c|}{\textbf{Configuration}} &
@@ -28,11 +29,12 @@ $d$ & $n$ & Total & Per-Tx & PoT & Compile & Witness & Prove & Verify & (bytes) 
 32 &  4 &  137,015 & 34,254 & $2^{18}$ & 3,494 &  204 &  6,860 & 1,968 & 805 \\
 32 &  8 &  274,027 & 34,253 & $2^{19}$ & 5,640 &  578 & 12,757 & 2,200 & 803 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \vspace{1mm}
 \footnotesize{$d$ = tree depth, $n$ = batch size, PoT = Powers of Tau power.
 Platform: Windows 11, Node.js v22.13.1, Circom 2.2.3, SnarkJS 0.7.6.}
-\end{table*}
+\end{table}
 
 \subsection{Constraint Scaling Law}
 
@@ -85,7 +87,7 @@ the Circom compiler flattens into the $(d+1)$ factor.
 Constraint count scales perfectly linearly with batch size at each
 depth. Table~\ref{tab:batch-scaling} demonstrates this for depth~10.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Linear batch scaling at depth 10}
 \label{tab:batch-scaling}
@@ -111,7 +113,7 @@ doubling the tree depth from 16 to 32 increases per-transaction
 constraints by a factor of $33/17 = 1.94$, not~$2.0$.
 Table~\ref{tab:depth-scaling} shows the depth scaling at batch size~4.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Depth scaling at batch size 4}
 \label{tab:depth-scaling}
@@ -132,7 +134,7 @@ Proving time with SnarkJS exhibits approximately linear scaling with
 constraint count, though with notable variance attributable to
 differing Powers of Tau ceremony sizes and OS scheduling effects.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Proving time scaling (SnarkJS, commodity desktop)}
 \label{tab:proving-time}
@@ -170,7 +172,7 @@ Using the derived formula and conservative proving time estimates,
 Table~\ref{tab:extrapolation} projects performance for production-scale
 configurations.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Extrapolated performance for production targets (depth 32)}
 \label{tab:extrapolation}
