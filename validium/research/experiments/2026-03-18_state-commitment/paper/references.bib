@@ -1,0 +1,225 @@
+% references.bib -- L1 State Commitment for Enterprise ZK Validium
+% BibTeX entries for the RU-V3 experiment paper
+
+% -- EVM Gas Schedule --
+
+@misc{eip2929,
+  author       = {Buterin, Vitalik and Swende, Martin Holst},
+  title        = {{EIP-2929}: Gas Cost Increases for State Access Opcodes},
+  year         = {2021},
+  howpublished = {Ethereum Improvement Proposals},
+  note         = {\url{https://eips.ethereum.org/EIPS/eip-2929}}
+}
+
+@misc{eip2200,
+  author       = {Tang, Wei},
+  title        = {{EIP-2200}: Structured Definitions for Net Gas Metering},
+  year         = {2019},
+  howpublished = {Ethereum Improvement Proposals},
+  note         = {\url{https://eips.ethereum.org/EIPS/eip-2200}}
+}
+
+@misc{eip1108,
+  author       = {Zoltu, Micah and Reitwiessner, Christian},
+  title        = {{EIP-1108}: Reduce alt\_bn128 Precompile Gas Costs},
+  year         = {2019},
+  howpublished = {Ethereum Improvement Proposals},
+  note         = {Istanbul hard fork}
+}
+
+@misc{yellowpaper,
+  author       = {Wood, Gavin},
+  title        = {Ethereum: A Secure Decentralised Generalised Transaction Ledger},
+  year         = {2024},
+  howpublished = {Ethereum Yellow Paper (Appendix G: Fee Schedule)},
+  note         = {Berlin revision}
+}
+
+@misc{eip4844,
+  author       = {Buterin, Vitalik and Ramsay, Dankrad and Breidenbach, Phil and Loerakker, Diederik and Tuzun, Ansgar Dietrichs},
+  title        = {{EIP-4844}: Shard Blob Transactions (Proto-Danksharding)},
+  year         = {2024},
+  howpublished = {Ethereum Improvement Proposals},
+  note         = {Dencun hard fork}
+}
+
+% -- ZK Proof Systems --
+
+@inproceedings{groth2016size,
+  author    = {Groth, Jens},
+  title     = {On the Size of Pairing-Based Non-interactive Arguments},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 2016},
+  year      = {2016},
+  pages     = {305--326},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {9666}
+}
+
+@inproceedings{gabizon2019plonk,
+  author    = {Gabizon, Ariel and Williamson, Zachary J. and Ciobotaru, Oana},
+  title     = {{PLONK}: Permutations over Lagrange-Bases for Oecumenical Noninteractive Arguments of Knowledge},
+  booktitle = {IACR ePrint 2019/953},
+  year      = {2019}
+}
+
+@inproceedings{chiesa2020marlin,
+  author    = {Chiesa, Alessandro and Hu, Yuncong and Maller, Mary and Mishra, Pratyush and Vesely, Noah and Ward, Nicholas},
+  title     = {Marlin: Preprocessing {zkSNARKs} with Universal and Updatable {SRS}},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 2020},
+  year      = {2020},
+  pages     = {738--768},
+  publisher = {Springer}
+}
+
+@misc{snarkjs,
+  author       = {Bellman, Jordi and Baylina, Jordi},
+  title        = {{snarkjs}: {JavaScript} Implementation of {zkSNARK} Schemes},
+  year         = {2023},
+  howpublished = {GitHub: iden3/snarkjs}
+}
+
+% -- Production L2 Systems --
+
+@misc{zksync2024docs,
+  author       = {{Matter Labs}},
+  title        = {{zkSync Era} Documentation: Transaction Lifecycle and Fee Model},
+  year         = {2024},
+  howpublished = {\url{https://docs.zksync.io/}}
+}
+
+@article{quarkslab2023zksync,
+  author  = {{Quarkslab}},
+  title   = {Workflow of a {zkSync Era} Transaction},
+  journal = {Quarkslab Blog},
+  year    = {2023},
+  note    = {Technical analysis of zkSync Era architecture}
+}
+
+@misc{polygon2024zkevm,
+  author       = {{Polygon Labs}},
+  title        = {{Polygon zkEVM} Documentation},
+  year         = {2024},
+  howpublished = {\url{https://docs.polygon.technology/}}
+}
+
+@misc{polygonzkevm2024contract,
+  author       = {{Polygon Labs}},
+  title        = {{PolygonZkEVM.sol}: Core L1 Rollup Contract},
+  year         = {2024},
+  howpublished = {GitHub: 0xPolygonHermez/zkevm-contracts}
+}
+
+@misc{scroll2024docs,
+  author       = {{Scroll}},
+  title        = {Scroll Documentation: Rollup Process and Batch Commitment},
+  year         = {2024},
+  howpublished = {\url{https://docs.scroll.io/}}
+}
+
+@misc{scrollchain2024contract,
+  author       = {{Scroll}},
+  title        = {{ScrollChain.sol}: Core L1 Rollup Contract},
+  year         = {2024},
+  howpublished = {GitHub: scroll-tech/scroll-contracts}
+}
+
+@misc{l2beat2024,
+  author       = {{L2BEAT}},
+  title        = {Layer 2 Comparison Data: {zkSync Era}, {Polygon zkEVM}, {Scroll}},
+  year         = {2024},
+  howpublished = {\url{https://l2beat.com/}}
+}
+
+% -- Avalanche --
+
+@misc{avalanche2024subnetdocs,
+  author       = {{Ava Labs}},
+  title        = {Avalanche Documentation: Subnet-{EVM} Configuration and Gas Schedule},
+  year         = {2024},
+  howpublished = {\url{https://docs.avax.network/}}
+}
+
+@inproceedings{rocket2020snowflake,
+  author    = {Rocket, Team and Yin, Maofan and Sekniqi, Kevin and van Renesse, Robbert and Sirer, Emin G{\"u}n},
+  title     = {Scalable and Probabilistic Leaderless {BFT} Consensus through Metastability},
+  booktitle = {arXiv preprint arXiv:1906.08936},
+  year      = {2020}
+}
+
+% -- Enterprise Blockchain --
+
+@article{hyperledger2024fabric,
+  author  = {{Hyperledger Foundation}},
+  title   = {Hyperledger Fabric v2.5: Architecture Reference},
+  journal = {Linux Foundation},
+  year    = {2024}
+}
+
+@inproceedings{eberhardt2018private,
+  author    = {Eberhardt, Jacob and Tai, Stefan},
+  title     = {{ZoKrates} -- Scalable Privacy-Preserving Off-Chain Computations},
+  booktitle = {IEEE International Conference on Internet of Things (iThings)},
+  year      = {2018},
+  pages     = {1084--1091},
+  publisher = {IEEE}
+}
+
+% -- Validium and DA --
+
+@misc{starkware2024validium,
+  author       = {{StarkWare}},
+  title        = {Validium: Full Validity Proofs with Off-Chain Data Availability},
+  year         = {2024},
+  howpublished = {\url{https://docs.starkware.co/}}
+}
+
+@misc{ethereum2024rollups,
+  author       = {{Ethereum Foundation}},
+  title        = {Scaling -- Layer 2 Rollups and Validiums},
+  year         = {2024},
+  howpublished = {\url{https://ethereum.org/en/developers/docs/scaling/}}
+}
+
+% -- EVM Internals --
+
+@misc{wolflo2023opcodes,
+  author       = {Wolf, Lo},
+  title        = {{EVM} Opcode Gas Costs Reference},
+  year         = {2023},
+  howpublished = {GitHub: wolflo/evm-opcodes}
+}
+
+@misc{fvictorio2021berlin,
+  author       = {Franco Victorio},
+  title        = {Understanding Gas Costs After {Berlin}},
+  year         = {2021},
+  howpublished = {HackMD}
+}
+
+% -- Poseidon Hash --
+
+@inproceedings{grassi2021poseidon,
+  author    = {Grassi, Lorenzo and Khovratovich, Dmitry and Rechberger, Christian and Roy, Arnab and Schofnegger, Markus},
+  title     = {{Poseidon}: A New Hash Function for Zero-Knowledge Proof Systems},
+  booktitle = {30th USENIX Security Symposium (USENIX Security 21)},
+  year      = {2021},
+  pages     = {519--535},
+  publisher = {USENIX Association}
+}
+
+% -- Data Availability Committee --
+
+@misc{celestia2024docs,
+  author       = {{Celestia Labs}},
+  title        = {Celestia Documentation: Data Availability Sampling},
+  year         = {2024},
+  howpublished = {\url{https://docs.celestia.org/}}
+}
+
+@misc{eigenda2024docs,
+  author       = {{EigenLayer}},
+  title        = {{EigenDA}: Data Availability for Ethereum Rollups},
+  year         = {2024},
+  howpublished = {\url{https://docs.eigenlayer.xyz/}}
+}

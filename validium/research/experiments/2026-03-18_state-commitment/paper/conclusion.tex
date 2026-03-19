@@ -1,0 +1,44 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented a gas cost analysis of L1 state commitment contract designs for
+enterprise ZK validium on Avalanche Subnet-EVM. We compared three storage layouts---minimal,
+rich, and events-only---and decomposed the gas budget to quantify the contribution of
+Groth16 ZK proof verification relative to storage and logic operations.
+
+Our primary contributions are:
+
+\begin{enumerate}
+\item \textbf{Gas decomposition:} ZK pairing verification dominates the gas budget at
+71.9\% (205,600 of 285,756 gas for Layout A), establishing that storage layout optimization
+operates within a narrow 28.1\% margin.
+
+\item \textbf{Integrated verification requirement:} Delegated verification (cross-contract
+call to a separate ZKVerifier) adds $\sim$56K gas from redundant storage and call overhead,
+making it incompatible with a 300K gas target. Integrated verification is an architectural
+requirement, not a preference.
+
+\item \textbf{Optimal layout identification:} Layout A (minimal, 32 bytes/batch) achieves
+285,756 gas per submission while maintaining on-chain root history queryability and full
+invariant enforcement. It uses 33--50\% less per-batch storage than production ZK rollup
+systems.
+
+\item \textbf{Single-phase atomic commitment:} The enterprise validium trust model enables
+atomic proof-and-commit in a single L1 transaction, eliminating the 2--3 phase separation
+used by public rollups and reducing per-batch L1 transaction overhead.
+
+\item \textbf{Invariant completeness:} A single root chain continuity check
+($\mathit{prevRoot} = \mathit{currentRoot}$) is sufficient to enforce gap detection,
+reversal prevention, and sequential ordering, confirmed by 7/7 invariant tests across
+all layouts.
+\end{enumerate}
+
+The recommended production architecture uses Layout A with integrated Groth16 verification,
+per-enterprise state isolation via address-keyed mappings, and batch metadata emitted
+exclusively through events. This design leaves a 14,244 gas margin (4.7\%) below the
+300K target, sufficient for access control modifiers and minor safety checks.
+
+Future work should investigate recursive proof aggregation to amortize the 205,600 gas
+verification cost across multiple batches, cross-enterprise state verification protocols
+that leverage the on-chain root history, and migration to proof systems (PLONK, Halo2) with
+lower per-verification gas costs.

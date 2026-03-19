@@ -1,0 +1,40 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Enterprise blockchain adoption faces a fundamental tension between transparency and
+privacy. Public blockchains provide verifiable state transitions but expose sensitive
+business data---pricing, supply chain relationships, production volumes---to all network
+participants. Private blockchains preserve confidentiality but sacrifice the trust
+guarantees that motivate blockchain adoption in the first place. Zero-knowledge validium
+architectures resolve this tension by maintaining off-chain data with on-chain validity
+proofs, ensuring that enterprise state transitions are cryptographically verified without
+revealing the underlying data~\cite{starkware2024validium, ethereum2024rollups}.
+
+For enterprise deployments on application-specific chains, the L1 state commitment
+contract is the critical trust anchor. This contract receives ZK proofs from enterprise
+nodes, verifies them, and maintains an auditable history of state root transitions. Unlike
+public rollups where the state commitment contract is a shared resource, enterprise
+validium requires \emph{per-enterprise state isolation}: each enterprise maintains an
+independent chain of state roots, and no enterprise can interfere with another's state
+history. The design of this contract directly determines the gas cost per batch submission,
+the on-chain storage footprint, and the safety guarantees available to auditors and
+cross-enterprise verifiers.
+
+This paper investigates the gas-optimal storage layout for an L1 state commitment contract
+on Avalanche Subnet-EVM, targeting the Basis Network enterprise ZK validium. We compare
+three storage layouts---minimal (roots in mappings, metadata in events), rich (roots plus
+packed metadata structs), and events-only (no per-batch persistent storage)---across gas
+cost, storage footprint, and safety invariant enforcement. Critically, we decompose the gas
+budget to isolate the contribution of Groth16 ZK proof verification (BN256 pairing
+precompiles) from storage and logic costs.
+
+Our key finding is that ZK pairing verification dominates the gas budget at 72\% of total
+cost (205,600 of 285,756 gas), leaving only 80,156 gas for all storage operations, state
+management, event emission, and access control logic. This result establishes that
+\emph{integrated verification}---embedding Groth16 verification directly in the state
+commitment contract rather than delegating to a separate verifier---is not merely a
+design preference but an architectural requirement to remain within a 300K gas budget.
+The recommended minimal layout achieves 285,756 gas per submission (first batch) with
+32 bytes of persistent storage per batch, while enforcing chain continuity, gap detection,
+reversal prevention, and enterprise isolation invariants with 100\% correctness across
+all test scenarios.

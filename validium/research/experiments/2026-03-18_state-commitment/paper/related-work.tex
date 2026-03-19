@@ -1,0 +1,91 @@
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{Production L2 State Commitment Patterns}
+
+The three major production ZK rollups---zkSync Era, Polygon zkEVM, and Scroll---each
+implement distinct L1 state commitment patterns that inform our design space.
+
+\textbf{zkSync Era} uses a three-phase commit-prove-execute lifecycle~\cite{zksync2024docs,
+quarkslab2023zksync}. The \texttt{commitBatches} transaction posts batch metadata and
+pubdata hashes; \texttt{proveBatches} submits the ZK-SNARK proof to a specialized
+\texttt{Verifier} contract; and \texttt{executeBatches} finalizes state by processing
+L2$\to$L1 messages and updating the global state root. This separation enables batch
+aggregation---multiple committed batches can be proved together---at the cost of 2--3
+storage slots (64--96 bytes) per batch and three separate L1 transactions per batch
+lifecycle. The state root is a state-diff commitment: zkSync publishes only changed
+storage slots, not full transaction data.
+
+\textbf{Polygon zkEVM} uses a two-phase sequence-verify model~\cite{polygon2024zkevm,
+polygonzkevm2024contract}. The trusted sequencer calls \texttt{sequenceBatches} to post
+transaction data and an accumulated input hash (\texttt{accInputHash}) that chains batches
+cryptographically: $h_i = H(h_{i-1}, \text{txHash}, \text{exitRoot}, \text{timestamp},
+\text{seqAddr})$. The aggregator then calls \texttt{verifyBatches} with a SNARK proof
+covering one or more sequenced batches. Per-batch storage requires approximately 2 slots
+(64 bytes): the \texttt{SequencedBatchData} struct and batch counter.
+
+\textbf{Scroll} uses a two-phase commit-finalize pattern~\cite{scroll2024docs,
+scrollchain2024contract}. The \texttt{commitBatchWithBlobProof} transaction posts a batch
+header hash plus EIP-4844 blob data~\cite{eip4844}. The \texttt{finalizeBatchWithProof}
+transaction submits a PLONK proof along with pre- and post-state roots. Per-batch storage
+requires 3 slots (96 bytes): batch hash, finalized state root, and withdraw root. Scroll's
+V7 batch format achieves approximately 90\% reduction in commitment costs by moving most
+metadata to blobs.
+
+\subsection{Comparison of Production Storage Patterns}
+
+Table~\ref{tab:production-comparison} summarizes the storage patterns across production
+systems and positions our target design.
+
+\begin{table}[htbp]
+\centering
+\caption{Production L2 State Commitment Comparison}
+\label{tab:production-comparison}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{System} & \textbf{Phases} & \textbf{Slots/Batch} & \textbf{Bytes/Batch} & \textbf{Chaining} \\
+\midrule
+zkSync Era       & 3 & 2--3 & 64--96 & Batch hash \\
+Polygon zkEVM    & 2 & 2    & 64     & accInputHash \\
+Scroll           & 2 & 3    & 96     & parentBatchHash \\
+\midrule
+\textbf{Basis (ours)} & \textbf{1} & \textbf{1} & \textbf{32} & \textbf{prevRoot chain} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A key distinction is that all production systems separate commitment and verification into
+multiple L1 transactions, while our design executes both atomically in a single transaction.
+This is feasible in the enterprise validium model because: (1) the operator is a known,
+authorized enterprise rather than an untrusted sequencer; (2) there is no need for
+challenge periods or fraud proofs; and (3) proof generation and submission are tightly
+coupled within the enterprise node.
+
+\subsection{EVM Gas Mechanics}
+
+The EVM gas schedule, as modified by EIP-2929~\cite{eip2929} and EIP-2200~\cite{eip2200},
+defines the cost structure for on-chain state management. Cold \texttt{SSTORE} operations
+(first access to a slot within a transaction) cost 22,100 gas for zero-to-nonzero writes
+and 5,000 gas for nonzero-to-nonzero updates. Warm accesses reduce these to 20,000 and
+2,900 gas respectively. These costs are identical on Avalanche Subnet-EVM, which inherits
+the full go-ethereum gas schedule~\cite{avalanche2024subnetdocs}.
+
+For Groth16 verification, the BN256 precompile gas costs were reduced by EIP-1108~\cite{eip1108}
+to 150 gas for point addition, 6,000 gas for scalar multiplication, and $45{,}000 + 34{,}000
+\cdot k$ gas for pairing with $k$ pairs. A Groth16 proof with $N$ public inputs requires
+$N$ scalar multiplications, $N$ additions, and one pairing check with 4 pairs, yielding a
+verification cost of $N \cdot 6{,}150 + 181{,}000$ gas~\cite{groth2016size}.
+
+\subsection{Enterprise ZK Systems}
+
+ZoKrates~\cite{eberhardt2018private} pioneered practical ZK proof generation for Ethereum
+smart contracts but targets single-proof use cases rather than continuous batch submission
+pipelines. Hyperledger Fabric~\cite{hyperledger2024fabric} provides enterprise privacy
+through channel isolation but without validity proofs---participants must trust the ordering
+service. StarkWare's validium concept~\cite{starkware2024validium} introduced the pattern
+of on-chain validity proofs with off-chain data availability, which we adapt for
+per-enterprise state isolation on an Avalanche L1.
+
+No prior work has analyzed the gas cost decomposition of combined ZK verification and state
+commitment in a single atomic transaction for enterprise validium, nor has the specific
+constraint that pairing verification imposes on storage layout budget been quantified.
