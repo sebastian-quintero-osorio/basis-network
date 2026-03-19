@@ -1,0 +1,129 @@
+% discussion.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Discussion}
+
+\subsection{Hypothesis Evaluation}
+
+The hypothesis---that a hub-and-spoke model can verify cross-enterprise
+interactions with $< 2\times$ gas overhead while preserving data
+privacy---is \textbf{confirmed} for the primary scenario (2--50 enterprises
+with linear interaction density). All three verification approaches achieve
+$< 2\times$ overhead in this regime: Sequential at 1.41$\times$, Batched
+Pairing at 0.64$\times$, and Hub Aggregation at 1.16$\times$.
+
+The null hypothesis---that cross-enterprise verification requires $\geq
+2\times$ gas overhead, or that privacy breaks down, or that proof generation
+exceeds 120 seconds---is \textbf{rejected} on all three criteria. The
+overhead is well below 2$\times$; privacy is preserved with exactly 1 bit
+leakage (interaction existence, which is the theoretical minimum); and
+proof generation is estimated at 448~ms (rapidsnark), two orders of
+magnitude below the 120-second threshold.
+
+\subsection{Approach Trade-offs}
+
+The three verification approaches offer distinct trade-offs suited to
+different deployment scenarios:
+
+\textbf{Sequential verification} requires no coordination between
+enterprises. Each enterprise submits its proof independently, and
+cross-reference proofs are submitted as separate transactions. The
+overhead (1.41--1.81$\times$) is acceptable for enterprise counts up to 50.
+However, sequential verification fails the $< 2\times$ target when
+interaction density is high ($M \gg N$), limiting its applicability to
+sparse interaction graphs.
+
+\textbf{Batched pairing verification} achieves the lowest gas cost
+(0.64$\times$ for 2 enterprises) by sharing pairing computations across all
+proofs in a single transaction. This requires a hub coordinator to collect
+proofs before submission, introducing a synchronization point. The approach
+remains below 1$\times$ overhead in all tested configurations, including
+the dense interaction case.
+
+\textbf{Hub aggregation} (SnarkPack/Nebra UPA-style) offers a middle ground:
+lower gas than sequential at the cost of an aggregation step. The per-proof
+gas decreases as $O(1/N)$ due to amortization of the fixed aggregation
+cost. Hub aggregation is the recommended approach for large-scale
+deployments ($N > 30$) where batched pairing transaction size may exceed
+block gas limits.
+
+\subsection{Comparison with Production Systems}
+
+\textbf{Rayls (Parfin/Drex)}: Rayls uses a hub chain for cross-enterprise
+coordination with the Enygma protocol combining ZK proofs and homomorphic
+encryption. While Rayls achieves strong privacy within subnets, its hub
+chain sees transaction metadata (source, destination, amount commitments).
+Our protocol's hub coordinator sees \emph{only} Groth16 proofs and
+Poseidon commitments---strictly less information than Rayls' hub chain.
+The trade-off is that Rayls supports richer cross-enterprise operations
+(e.g., atomic transfers with HE) while our protocol is limited to
+\emph{verification} of interactions that have already been recorded in both
+enterprises' state trees.
+
+\textbf{Polygon AggLayer}: AggLayer aggregates ZK proofs from multiple
+chains with public state, achieving \$0.002--0.003 per transaction at scale.
+Our system operates in a fundamentally different trust model (private
+enterprise state), but at comparable per-proof gas costs when using batched
+verification ($\sim$122K gas/proof at $N=2$, decreasing with scale).
+
+\textbf{zkSync Gateway}: Similar to AggLayer, Gateway aggregates proofs
+for cost reduction. At \$0.0047/tx with $\sim$3,895 tx/batch, Gateway
+operates at a much larger scale than our enterprise-focused system (2--50
+enterprises, 1--49 interactions per batch).
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Stage 1 results only}: This paper reports Stage 1
+  (Implementation) results. Stochastic baseline (Stage 2), adversarial
+  testing (Stage 3), and ablation (Stage 4) are future work.
+
+\item \textbf{Analytical gas model}: Gas costs are computed analytically
+  rather than measured on-chain. While our model is validated against
+  on-chain measurements (RU-V3: 205,600 gas predicted vs. 205,600 gas
+  measured for Groth16 verification), edge cases in EVM gas accounting
+  (memory expansion, call depth) may introduce deviations.
+
+\item \textbf{Proof generation is estimated}: The 448~ms rapidsnark
+  estimate is derived from the constraint count and a per-constraint
+  timing ratio from RU-V2. Actual circuit compilation and proving with
+  Circom/snarkjs may reveal additional overhead from witness generation
+  or file I/O.
+
+\item \textbf{Single interaction type}: We evaluate a simple
+  ``matching value'' interaction predicate. More complex predicates
+  (range proofs, conditional logic, multi-party interactions) would
+  increase the constraint count and proving time.
+
+\item \textbf{Groth16 trusted setup}: The cross-reference circuit
+  requires its own Groth16 trusted setup (separate from enterprise
+  state transition circuits). For $N$ different enterprise circuit
+  configurations plus 1 cross-reference circuit, $N + 1$ trusted setups
+  are needed.
+
+\item \textbf{Privacy is per-interaction, not per-relationship}: The
+  protocol does not hide the \emph{pattern} of interactions over time.
+  Repeated cross-reference submissions between the same two enterprises
+  reveal the interaction frequency, which may be sensitive in competitive
+  markets.
+\end{enumerate}
+
+\subsection{Reconciliation with Literature}
+
+All experimental metrics are consistent with published benchmarks:
+
+\begin{itemize}
+\item Groth16 verification gas matches Nebra's formula
+  $(181 + 6L)$K within 0.3\%.
+\item Merkle proof generation and verification times match RU-V1
+  within 10\%.
+\item Constraint counts follow the established
+  $1{,}038 \times (d+1)$ formula from RU-V2 exactly.
+\item The 1-bit-per-interaction leakage is consistent with the
+  theoretical minimum for ledger-visible cross-reference protocols
+  (any on-chain record of a cross-enterprise event inherently reveals
+  the event's existence).
+\end{itemize}
+
+No published system achieves lower leakage for cross-enterprise
+verification on a public ledger, confirming that our protocol is at
+the information-theoretic boundary.

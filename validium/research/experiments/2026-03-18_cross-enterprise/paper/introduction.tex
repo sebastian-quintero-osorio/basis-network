@@ -1,0 +1,55 @@
+% introduction.tex -- Cross-Enterprise Verification Paper (RU-V7)
+
+\section{Introduction}
+
+Enterprise blockchain networks increasingly serve multi-party ecosystems where
+independent organizations---manufacturers, suppliers, logistics providers,
+financial institutions---must verify each other's state transitions without
+exposing proprietary operational data. In a supply chain setting, a
+manufacturer must prove that goods recorded in its internal ledger correspond
+to a purchase order in the supplier's ledger, while neither party reveals
+inventory levels, pricing, or transaction volumes to the other or to the
+settlement layer. Zero-knowledge validium architectures, where each enterprise
+maintains private off-chain state and submits succinct validity proofs to a
+shared L1~\cite{ethereum2024validium}, provide the foundation for such
+privacy-preserving verification. However, existing validium systems treat each
+enterprise as an isolated rollup: there is no standard mechanism for verifying
+\emph{cross-enterprise} interactions---transactions that span two or more
+private state trees---without breaking the privacy boundary.
+
+The problem is not merely theoretical. Production multi-chain environments
+such as Polygon AggLayer~\cite{polygon2025agglayer} and zkSync
+Gateway~\cite{zksync2025gateway} aggregate proofs from multiple chains to
+reduce L1 verification cost, but they assume public or semi-public state and
+do not address the case where each chain's data must remain confidential.
+Rayls~\cite{rayls2025privacy}, developed by Parfin for the Drex
+(Brazilian CBDC) ecosystem, introduces private subnets with ZK proofs and
+homomorphic encryption, but relies on a trusted hub chain that sees
+transaction metadata. zkCross~\cite{zkcross2024} proposes cross-chain
+privacy-preserving auditing but targets compliance rather than real-time
+operational verification.
+
+This paper presents a \emph{cross-enterprise verification protocol} for ZK
+validium systems that enables two or more enterprises to prove the consistency
+of shared interactions---a sale recorded in both parties' state trees, a
+cross-reference between supply chain events---without revealing any data
+beyond the mere existence of the interaction. The protocol introduces a
+\emph{cross-reference circuit} that verifies Merkle inclusion proofs from two
+independent sparse Merkle trees (SMTs) and binds them through a Poseidon
+commitment, using only already-public state roots as public inputs. The
+information leakage is exactly 1 bit per interaction: the fact that an
+interaction exists. No keys, values, amounts, or transaction details are
+exposed.
+
+We evaluate three verification approaches---Sequential, Batched Pairing, and
+Hub Aggregation---across enterprise counts ranging from 2 to 50, with
+interaction densities from sparse (linear chain) to dense (interactions
+exceeding enterprise count). Our key finding is that cross-enterprise
+verification achieves $1.41\times$ overhead in the sequential case and
+$0.64\times$ overhead with batched pairing verification, both well below the
+$2\times$ target. The cross-reference circuit requires 68,868 constraints
+(two depth-32 Merkle path verifications plus a Poseidon-4 commitment) and
+generates proofs in 448~ms with rapidsnark. These results demonstrate that
+privacy-preserving cross-enterprise verification is practical for
+enterprise validium deployments with sub-second proof generation and
+manageable L1 gas overhead.
