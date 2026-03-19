@@ -331,7 +331,7 @@ lab/2-logicist/research-history/YYYY-MM-witness-generation/0-input/
 
 ### [14] Logicist | RU-L3: Witness Generation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 8 invariants + Termination liveness, Completeness/Soundness/Determinism)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [13] complete, materials in `0-input/`.

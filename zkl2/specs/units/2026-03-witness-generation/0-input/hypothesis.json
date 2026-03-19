@@ -1,0 +1,27 @@
+{
+  "name": "witness-generation",
+  "target": "zkl2",
+  "title": "Witness Generation from EVM Execution Traces for ZK Prover in Rust",
+  "hypothesis": "A Rust witness generator can extract from an EVM execution trace the private inputs needed for a ZK validity circuit, processing traces of 1000 transactions in < 30 seconds with deterministic output (same trace -> same witness).",
+  "null_hypothesis": "Witness generation from EVM traces cannot meet the 30-second threshold for 1000 transactions due to the combinatorial explosion of field element conversions and Merkle proof reconstruction, or determinism cannot be guaranteed due to hash map ordering or floating-point divergence.",
+  "domain": "zk-proofs",
+  "independent_variables": [
+    "trace_size_tx_count",
+    "trace_complexity_opcodes_per_tx",
+    "witness_table_count",
+    "field_element_representation"
+  ],
+  "dependent_variables": [
+    "witness_generation_time_ms",
+    "witness_size_bytes",
+    "witness_field_element_count",
+    "peak_memory_usage_mb",
+    "determinism_verified"
+  ],
+  "prerequisites": [
+    "RU-L1 EVM Executor (complete: Go executor producing ExecutionTrace with TraceEntry)",
+    "RU-L4 State Database (complete: Go Poseidon2 SMT with account+storage tries)"
+  ],
+  "created": "2026-03-19",
+  "stage": 1
+}
