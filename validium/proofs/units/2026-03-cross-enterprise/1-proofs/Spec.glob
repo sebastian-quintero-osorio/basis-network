@@ -1,0 +1,485 @@
+DIGEST f2640052beac7341f950dc4b5e17e917
+FCE.Spec
+R875:880 CE.Common <> <> lib
+R910:920 Stdlib.Arith.Arith <> <> lib
+R950:958 Stdlib.Bool.Bool <> <> lib
+rec 1148:1152 <> State
+proj 1169:1179 <> currentRoot
+proj 1213:1223 <> batchStatus
+proj 1271:1282 <> batchNewRoot
+proj 1326:1339 <> crossRefStatus
+R1196:1199 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1186:1195 CE.Common <> Enterprise def
+R1200:1208 CE.Common <> StateRoot def
+R1240:1243 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1230:1239 CE.Common <> Enterprise def
+R1251:1254 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1244:1250 CE.Common <> BatchId def
+R1255:1266 CE.Common <> batch_status ind
+R1298:1301 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1288:1297 CE.Common <> Enterprise def
+R1309:1312 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1302:1308 CE.Common <> BatchId def
+R1313:1321 CE.Common <> StateRoot def
+R1353:1356 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1343:1352 CE.Common <> CrossRefId rec
+R1357:1371 CE.Common <> crossref_status ind
+def 1685:1688 <> Init
+R1692:1696 CE.Spec <> State rec
+R1701:1707 CE.Spec <> mkState constr
+R1721:1731 CE.Common <> GenesisRoot defax
+R1748:1751 CE.Common <> Idle constr
+R1768:1778 CE.Common <> GenesisRoot defax
+R1793:1798 CE.Common <> CRNone constr
+def 2064:2073 <> can_submit
+R2080:2084 CE.Spec <> State rec
+binder 2076:2076 <> s:6
+R2092:2101 CE.Common <> Enterprise def
+binder 2088:2088 <> e:7
+R2109:2115 CE.Common <> BatchId def
+binder 2105:2105 <> b:8
+R2133:2141 CE.Common <> StateRoot def
+binder 2123:2129 <> newRoot:9
+R2180:2185 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R2173:2175 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2156:2166 CE.Spec <> batchStatus proj
+R2168:2168 CE.Spec <> s:6 var
+R2170:2170 CE.Spec <> e:7 var
+R2172:2172 CE.Spec <> b:8 var
+R2176:2179 CE.Common <> Idle constr
+R2193:2196 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R2186:2192 CE.Spec <> newRoot:9 var
+R2197:2207 CE.Spec <> currentRoot proj
+R2209:2209 CE.Spec <> s:6 var
+R2211:2211 CE.Spec <> e:7 var
+def 2304:2319 <> can_verify_batch
+R2326:2330 CE.Spec <> State rec
+binder 2322:2322 <> s:10
+R2338:2347 CE.Common <> Enterprise def
+binder 2334:2334 <> e:11
+R2359:2365 CE.Common <> BatchId def
+binder 2355:2355 <> b:12
+R2397:2399 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2380:2390 CE.Spec <> batchStatus proj
+R2392:2392 CE.Spec <> s:10 var
+R2394:2394 CE.Spec <> e:11 var
+R2396:2396 CE.Spec <> b:12 var
+R2400:2408 CE.Common <> Submitted constr
+def 2499:2512 <> can_fail_batch
+R2519:2523 CE.Spec <> State rec
+binder 2515:2515 <> s:13
+R2531:2540 CE.Common <> Enterprise def
+binder 2527:2527 <> e:14
+R2552:2558 CE.Common <> BatchId def
+binder 2548:2548 <> b:15
+R2590:2592 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2573:2583 CE.Spec <> batchStatus proj
+R2585:2585 CE.Spec <> s:13 var
+R2587:2587 CE.Spec <> e:14 var
+R2589:2589 CE.Spec <> b:15 var
+R2593:2601 CE.Common <> Submitted constr
+def 2729:2748 <> can_request_crossref
+R2755:2759 CE.Spec <> State rec
+binder 2751:2751 <> s:16
+R2769:2778 CE.Common <> CrossRefId rec
+binder 2763:2765 <> ref:17
+R2806:2811 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R2793:2801 CE.Common <> valid_ref def
+R2803:2805 CE.Spec <> ref:17 var
+R2841:2846 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R2832:2834 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2812:2825 CE.Spec <> crossRefStatus proj
+R2827:2827 CE.Spec <> s:16 var
+R2829:2831 CE.Spec <> ref:17 var
+R2835:2840 CE.Common <> CRNone constr
+R2847:2847 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R2966:2973 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3092:3092 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R2904:2910 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R2892:2894 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2848:2858 CE.Spec <> batchStatus proj
+R2860:2860 CE.Spec <> s:16 var
+R2863:2868 CE.Common <> cr_src proj
+R2870:2872 CE.Spec <> ref:17 var
+R2876:2886 CE.Common <> cr_srcBatch proj
+R2888:2890 CE.Spec <> ref:17 var
+R2895:2903 CE.Common <> Submitted constr
+R2955:2957 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2911:2921 CE.Spec <> batchStatus proj
+R2923:2923 CE.Spec <> s:16 var
+R2926:2931 CE.Common <> cr_src proj
+R2933:2935 CE.Spec <> ref:17 var
+R2939:2949 CE.Common <> cr_srcBatch proj
+R2951:2953 CE.Spec <> ref:17 var
+R2958:2965 CE.Common <> Verified constr
+R3030:3036 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3018:3020 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2974:2984 CE.Spec <> batchStatus proj
+R2986:2986 CE.Spec <> s:16 var
+R2989:2994 CE.Common <> cr_dst proj
+R2996:2998 CE.Spec <> ref:17 var
+R3002:3012 CE.Common <> cr_dstBatch proj
+R3014:3016 CE.Spec <> ref:17 var
+R3021:3029 CE.Common <> Submitted constr
+R3081:3083 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3037:3047 CE.Spec <> batchStatus proj
+R3049:3049 CE.Spec <> s:16 var
+R3052:3057 CE.Common <> cr_dst proj
+R3059:3061 CE.Spec <> ref:17 var
+R3065:3075 CE.Common <> cr_dstBatch proj
+R3077:3079 CE.Spec <> ref:17 var
+R3084:3091 CE.Common <> Verified constr
+def 3245:3263 <> can_verify_crossref
+R3270:3274 CE.Spec <> State rec
+binder 3266:3266 <> s:18
+R3284:3293 CE.Common <> CrossRefId rec
+binder 3278:3280 <> ref:19
+R3321:3326 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3308:3316 CE.Common <> valid_ref def
+R3318:3320 CE.Spec <> ref:19 var
+R3359:3364 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3347:3349 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3327:3340 CE.Spec <> crossRefStatus proj
+R3342:3342 CE.Spec <> s:18 var
+R3344:3346 CE.Spec <> ref:19 var
+R3350:3358 CE.Common <> CRPending constr
+R3420:3425 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3409:3411 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3365:3375 CE.Spec <> batchStatus proj
+R3377:3377 CE.Spec <> s:18 var
+R3380:3385 CE.Common <> cr_src proj
+R3387:3389 CE.Spec <> ref:19 var
+R3393:3403 CE.Common <> cr_srcBatch proj
+R3405:3407 CE.Spec <> ref:19 var
+R3412:3419 CE.Common <> Verified constr
+R3470:3472 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3426:3436 CE.Spec <> batchStatus proj
+R3438:3438 CE.Spec <> s:18 var
+R3441:3446 CE.Common <> cr_dst proj
+R3448:3450 CE.Spec <> ref:19 var
+R3454:3464 CE.Common <> cr_dstBatch proj
+R3466:3468 CE.Spec <> ref:19 var
+R3473:3480 CE.Common <> Verified constr
+def 3610:3628 <> can_reject_crossref
+R3635:3639 CE.Spec <> State rec
+binder 3631:3631 <> s:20
+R3649:3658 CE.Common <> CrossRefId rec
+binder 3643:3645 <> ref:21
+R3686:3691 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3673:3681 CE.Common <> valid_ref def
+R3683:3685 CE.Spec <> ref:21 var
+R3724:3730 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3850:3850 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3712:3714 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3692:3705 CE.Spec <> crossRefStatus proj
+R3707:3707 CE.Spec <> s:20 var
+R3709:3711 CE.Spec <> ref:21 var
+R3715:3723 CE.Common <> CRPending constr
+R3787:3793 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3775:3778 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3731:3741 CE.Spec <> batchStatus proj
+R3743:3743 CE.Spec <> s:20 var
+R3746:3751 CE.Common <> cr_src proj
+R3753:3755 CE.Spec <> ref:21 var
+R3759:3769 CE.Common <> cr_srcBatch proj
+R3771:3773 CE.Spec <> ref:21 var
+R3779:3786 CE.Common <> Verified constr
+R3838:3841 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3794:3804 CE.Spec <> batchStatus proj
+R3806:3806 CE.Spec <> s:20 var
+R3809:3814 CE.Common <> cr_dst proj
+R3816:3818 CE.Spec <> ref:21 var
+R3822:3832 CE.Common <> cr_dstBatch proj
+R3834:3836 CE.Spec <> ref:21 var
+R3842:3849 CE.Common <> Verified constr
+def 4140:4150 <> SubmitBatch
+R4157:4161 CE.Spec <> State rec
+binder 4153:4153 <> s:22
+R4169:4178 CE.Common <> Enterprise def
+binder 4165:4165 <> e:23
+R4186:4192 CE.Common <> BatchId def
+binder 4182:4182 <> b:24
+R4210:4218 CE.Common <> StateRoot def
+binder 4200:4206 <> newRoot:25
+R4223:4227 CE.Spec <> State rec
+R4234:4240 CE.Spec <> mkState constr
+R4247:4257 CE.Spec <> currentRoot proj
+R4259:4259 CE.Spec <> s:22 var
+R4267:4274 CE.Common <> fupdate2 def
+R4296:4304 CE.Common <> Submitted constr
+R4294:4294 CE.Spec <> b:24 var
+R4292:4292 CE.Spec <> e:23 var
+R4277:4287 CE.Spec <> batchStatus proj
+R4289:4289 CE.Spec <> s:22 var
+R4312:4319 CE.Common <> fupdate2 def
+R4342:4348 CE.Spec <> newRoot:25 var
+R4340:4340 CE.Spec <> b:24 var
+R4338:4338 CE.Spec <> e:23 var
+R4322:4333 CE.Spec <> batchNewRoot proj
+R4335:4335 CE.Spec <> s:22 var
+R4356:4369 CE.Spec <> crossRefStatus proj
+R4371:4371 CE.Spec <> s:22 var
+def 4531:4541 <> VerifyBatch
+R4548:4552 CE.Spec <> State rec
+binder 4544:4544 <> s:26
+R4560:4569 CE.Common <> Enterprise def
+binder 4556:4556 <> e:27
+R4577:4583 CE.Common <> BatchId def
+binder 4573:4573 <> b:28
+R4588:4592 CE.Spec <> State rec
+R4599:4605 CE.Spec <> mkState constr
+R4612:4619 CE.Common <> fupdate1 def
+R4640:4651 CE.Spec <> batchNewRoot proj
+R4653:4653 CE.Spec <> s:26 var
+R4655:4655 CE.Spec <> e:27 var
+R4657:4657 CE.Spec <> b:28 var
+R4637:4637 CE.Spec <> e:27 var
+R4622:4632 CE.Spec <> currentRoot proj
+R4634:4634 CE.Spec <> s:26 var
+R4666:4673 CE.Common <> fupdate2 def
+R4695:4702 CE.Common <> Verified constr
+R4693:4693 CE.Spec <> b:28 var
+R4691:4691 CE.Spec <> e:27 var
+R4676:4686 CE.Spec <> batchStatus proj
+R4688:4688 CE.Spec <> s:26 var
+R4710:4721 CE.Spec <> batchNewRoot proj
+R4723:4723 CE.Spec <> s:26 var
+R4731:4744 CE.Spec <> crossRefStatus proj
+R4746:4746 CE.Spec <> s:26 var
+def 4883:4891 <> FailBatch
+R4898:4902 CE.Spec <> State rec
+binder 4894:4894 <> s:29
+R4910:4919 CE.Common <> Enterprise def
+binder 4906:4906 <> e:30
+R4927:4933 CE.Common <> BatchId def
+binder 4923:4923 <> b:31
+R4938:4942 CE.Spec <> State rec
+R4949:4955 CE.Spec <> mkState constr
+R4962:4972 CE.Spec <> currentRoot proj
+R4974:4974 CE.Spec <> s:29 var
+R4982:4989 CE.Common <> fupdate2 def
+R5011:5014 CE.Common <> Idle constr
+R5009:5009 CE.Spec <> b:31 var
+R5007:5007 CE.Spec <> e:30 var
+R4992:5002 CE.Spec <> batchStatus proj
+R5004:5004 CE.Spec <> s:29 var
+R5022:5033 CE.Spec <> batchNewRoot proj
+R5035:5035 CE.Spec <> s:29 var
+R5043:5056 CE.Spec <> crossRefStatus proj
+R5058:5058 CE.Spec <> s:29 var
+def 5197:5211 <> RequestCrossRef
+R5218:5222 CE.Spec <> State rec
+binder 5214:5214 <> s:32
+R5232:5241 CE.Common <> CrossRefId rec
+binder 5226:5228 <> ref:33
+R5246:5250 CE.Spec <> State rec
+R5257:5263 CE.Spec <> mkState constr
+R5270:5280 CE.Spec <> currentRoot proj
+R5282:5282 CE.Spec <> s:32 var
+R5290:5300 CE.Spec <> batchStatus proj
+R5302:5302 CE.Spec <> s:32 var
+R5310:5321 CE.Spec <> batchNewRoot proj
+R5323:5323 CE.Spec <> s:32 var
+R5331:5340 CE.Common <> fupdate_cr def
+R5365:5373 CE.Common <> CRPending constr
+R5361:5363 CE.Spec <> ref:33 var
+R5343:5356 CE.Spec <> crossRefStatus proj
+R5358:5358 CE.Spec <> s:32 var
+def 5526:5539 <> VerifyCrossRef
+R5546:5550 CE.Spec <> State rec
+binder 5542:5542 <> s:34
+R5560:5569 CE.Common <> CrossRefId rec
+binder 5554:5556 <> ref:35
+R5574:5578 CE.Spec <> State rec
+R5585:5591 CE.Spec <> mkState constr
+R5598:5608 CE.Spec <> currentRoot proj
+R5610:5610 CE.Spec <> s:34 var
+R5618:5628 CE.Spec <> batchStatus proj
+R5630:5630 CE.Spec <> s:34 var
+R5638:5649 CE.Spec <> batchNewRoot proj
+R5651:5651 CE.Spec <> s:34 var
+R5659:5668 CE.Common <> fupdate_cr def
+R5693:5702 CE.Common <> CRVerified constr
+R5689:5691 CE.Spec <> ref:35 var
+R5671:5684 CE.Spec <> crossRefStatus proj
+R5686:5686 CE.Spec <> s:34 var
+def 5844:5857 <> RejectCrossRef
+R5864:5868 CE.Spec <> State rec
+binder 5860:5860 <> s:36
+R5878:5887 CE.Common <> CrossRefId rec
+binder 5872:5874 <> ref:37
+R5892:5896 CE.Spec <> State rec
+R5903:5909 CE.Spec <> mkState constr
+R5916:5926 CE.Spec <> currentRoot proj
+R5928:5928 CE.Spec <> s:36 var
+R5936:5946 CE.Spec <> batchStatus proj
+R5948:5948 CE.Spec <> s:36 var
+R5956:5967 CE.Spec <> batchNewRoot proj
+R5969:5969 CE.Spec <> s:36 var
+R5977:5986 CE.Common <> fupdate_cr def
+R6011:6020 CE.Common <> CRRejected constr
+R6007:6009 CE.Spec <> ref:37 var
+R5989:6002 CE.Spec <> crossRefStatus proj
+R6004:6004 CE.Spec <> s:36 var
+ind 6211:6214 <> Step
+constr 6248:6258 <> step_submit
+constr 6345:6361 <> step_verify_batch
+constr 6448:6462 <> step_fail_batch
+constr 6545:6565 <> step_request_crossref
+constr 6660:6679 <> step_verify_crossref
+constr 6772:6791 <> step_reject_crossref
+R6223:6226 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6218:6222 CE.Spec <> State rec
+R6232:6235 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6227:6231 CE.Spec <> State rec
+binder 6269:6269 <> s:40
+binder 6271:6271 <> e:41
+binder 6273:6273 <> b:42
+binder 6275:6275 <> r:43
+R6302:6311 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6284:6293 CE.Spec <> can_submit def
+R6295:6295 CE.Spec <> s:40 var
+R6297:6297 CE.Spec <> e:41 var
+R6299:6299 CE.Spec <> b:42 var
+R6301:6301 CE.Spec <> r:43 var
+R6312:6315 CE.Spec <> Step:38 ind
+R6320:6330 CE.Spec <> SubmitBatch def
+R6332:6332 CE.Spec <> s:40 var
+R6334:6334 CE.Spec <> e:41 var
+R6336:6336 CE.Spec <> b:42 var
+R6338:6338 CE.Spec <> r:43 var
+R6317:6317 CE.Spec <> s:40 var
+binder 6372:6372 <> s:44
+binder 6374:6374 <> e:45
+binder 6376:6376 <> b:46
+R6407:6416 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6385:6400 CE.Spec <> can_verify_batch def
+R6402:6402 CE.Spec <> s:44 var
+R6404:6404 CE.Spec <> e:45 var
+R6406:6406 CE.Spec <> b:46 var
+R6417:6420 CE.Spec <> Step:38 ind
+R6425:6435 CE.Spec <> VerifyBatch def
+R6437:6437 CE.Spec <> s:44 var
+R6439:6439 CE.Spec <> e:45 var
+R6441:6441 CE.Spec <> b:46 var
+R6422:6422 CE.Spec <> s:44 var
+binder 6473:6473 <> s:47
+binder 6475:6475 <> e:48
+binder 6477:6477 <> b:49
+R6506:6515 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6486:6499 CE.Spec <> can_fail_batch def
+R6501:6501 CE.Spec <> s:47 var
+R6503:6503 CE.Spec <> e:48 var
+R6505:6505 CE.Spec <> b:49 var
+R6516:6519 CE.Spec <> Step:38 ind
+R6524:6532 CE.Spec <> FailBatch def
+R6534:6534 CE.Spec <> s:47 var
+R6536:6536 CE.Spec <> e:48 var
+R6538:6538 CE.Spec <> b:49 var
+R6521:6521 CE.Spec <> s:47 var
+binder 6576:6576 <> s:50
+binder 6578:6580 <> ref:51
+R6615:6624 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6589:6608 CE.Spec <> can_request_crossref def
+R6610:6610 CE.Spec <> s:50 var
+R6612:6614 CE.Spec <> ref:51 var
+R6625:6628 CE.Spec <> Step:38 ind
+R6633:6647 CE.Spec <> RequestCrossRef def
+R6649:6649 CE.Spec <> s:50 var
+R6651:6653 CE.Spec <> ref:51 var
+R6630:6630 CE.Spec <> s:50 var
+binder 6690:6690 <> s:52
+binder 6692:6694 <> ref:53
+R6728:6737 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6703:6721 CE.Spec <> can_verify_crossref def
+R6723:6723 CE.Spec <> s:52 var
+R6725:6727 CE.Spec <> ref:53 var
+R6738:6741 CE.Spec <> Step:38 ind
+R6746:6759 CE.Spec <> VerifyCrossRef def
+R6761:6761 CE.Spec <> s:52 var
+R6763:6765 CE.Spec <> ref:53 var
+R6743:6743 CE.Spec <> s:52 var
+binder 6802:6802 <> s:54
+binder 6804:6806 <> ref:55
+R6840:6849 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6815:6833 CE.Spec <> can_reject_crossref def
+R6835:6835 CE.Spec <> s:54 var
+R6837:6839 CE.Spec <> ref:55 var
+R6850:6853 CE.Spec <> Step:38 ind
+R6858:6871 CE.Spec <> RejectCrossRef def
+R6873:6873 CE.Spec <> s:54 var
+R6875:6877 CE.Spec <> ref:55 var
+R6855:6855 CE.Spec <> s:54 var
+scheme 6211:6214 <> Step_ind
+scheme 6211:6214 <> Step_sind
+def 7391:7399 <> Isolation
+R7406:7410 CE.Spec <> State rec
+binder 7402:7402 <> s:56
+R7436:7445 CE.Common <> Enterprise def
+binder 7432:7432 <> e:57
+R7481:7488 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R7467:7469 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7452:7462 CE.Spec <> currentRoot proj
+R7464:7464 CE.Spec <> s:56 var
+R7466:7466 CE.Spec <> e:57 var
+R7470:7480 CE.Common <> GenesisRoot defax
+R7489:7495 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R7507:7514 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R7500:7506 CE.Common <> BatchId def
+binder 7496:7496 <> b:58
+R7543:7552 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R7532:7534 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7515:7525 CE.Spec <> batchStatus proj
+R7527:7527 CE.Spec <> s:56 var
+R7529:7529 CE.Spec <> e:57 var
+R7531:7531 CE.Spec <> b:58 var
+R7535:7542 CE.Common <> Verified constr
+R7571:7573 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7553:7564 CE.Spec <> batchNewRoot proj
+R7566:7566 CE.Spec <> s:56 var
+R7568:7568 CE.Spec <> e:57 var
+R7570:7570 CE.Spec <> b:58 var
+R7574:7584 CE.Spec <> currentRoot proj
+R7586:7586 CE.Spec <> s:56 var
+R7588:7588 CE.Spec <> e:57 var
+def 7924:7934 <> Consistency
+R7941:7945 CE.Spec <> State rec
+binder 7937:7937 <> s:59
+R7973:7982 CE.Common <> CrossRefId rec
+binder 7967:7969 <> ref:60
+R8022:8029 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8009:8011 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7989:8002 CE.Spec <> crossRefStatus proj
+R8004:8004 CE.Spec <> s:59 var
+R8006:8008 CE.Spec <> ref:60 var
+R8012:8021 CE.Common <> CRVerified constr
+R8085:8092 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R8074:8076 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8030:8040 CE.Spec <> batchStatus proj
+R8042:8042 CE.Spec <> s:59 var
+R8045:8050 CE.Common <> cr_src proj
+R8052:8054 CE.Spec <> ref:60 var
+R8058:8068 CE.Common <> cr_srcBatch proj
+R8070:8072 CE.Spec <> ref:60 var
+R8077:8084 CE.Common <> Verified constr
+R8137:8139 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8093:8103 CE.Spec <> batchStatus proj
+R8105:8105 CE.Spec <> s:59 var
+R8108:8113 CE.Common <> cr_dst proj
+R8115:8117 CE.Spec <> ref:60 var
+R8121:8131 CE.Common <> cr_dstBatch proj
+R8133:8135 CE.Spec <> ref:60 var
+R8140:8147 CE.Common <> Verified constr
+def 8404:8421 <> NoCrossRefSelfLoop
+R8428:8432 CE.Spec <> State rec
+binder 8424:8424 <> s:61
+R8460:8469 CE.Common <> CrossRefId rec
+binder 8454:8456 <> ref:62
+R8506:8513 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8496:8499 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8476:8489 CE.Spec <> crossRefStatus proj
+R8491:8491 CE.Spec <> s:61 var
+R8493:8495 CE.Spec <> ref:62 var
+R8500:8505 CE.Common <> CRNone constr
+R8514:8522 CE.Common <> valid_ref def
+R8524:8526 CE.Spec <> ref:62 var
