@@ -193,7 +193,7 @@ lab/4-prover/verification-history/YYYY-MM-sequencer/
 
 ### [08] Prover | RU-L2: Sequencer
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 1,383 lines Coq, 5 safety theorems, ForcedInclusionDeadline proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [07] complete, snapshots prepared.
