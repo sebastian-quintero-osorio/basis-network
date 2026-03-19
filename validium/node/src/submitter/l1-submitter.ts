@@ -110,8 +110,11 @@ export class L1Submitter {
     newStateRoot: string,
     batchNum: number
   ): Promise<SubmissionResult> {
-    const prevRootBytes32 = ethers.zeroPadValue("0x" + prevStateRoot, 32);
-    const newRootBytes32 = ethers.zeroPadValue("0x" + newStateRoot, 32);
+    // Pad hex strings to 64 characters (32 bytes) before converting to bytes32.
+    // SMT roots may have fewer hex chars if leading zeros are absent.
+    const padHex = (hex: string): string => hex.padStart(64, "0");
+    const prevRootBytes32 = "0x" + padHex(prevStateRoot);
+    const newRootBytes32 = "0x" + padHex(newStateRoot);
 
     log.info("Submitting batch to L1", {
       batchNum,

@@ -174,17 +174,25 @@ export class ZKProver {
   ): Record<string, unknown> {
     const { batchSize, smtDepth, enterpriseId } = this.config;
 
+    // Convert hex string to decimal string for snarkjs circuit input.
+    // The batch builder outputs hex strings (no 0x prefix) but snarkjs
+    // expects decimal strings that can be parsed as BigInt.
+    const hexToDec = (hex: string): string => {
+      if (hex === "0") return "0";
+      return BigInt("0x" + hex).toString(10);
+    };
+
     const txKeys: string[] = [];
     const txOldValues: string[] = [];
     const txNewValues: string[] = [];
     const txSiblings: string[][] = [];
 
-    // Fill with actual transitions
+    // Fill with actual transitions (convert hex -> decimal)
     for (const t of witness.transitions) {
-      txKeys.push(t.key);
-      txOldValues.push(t.oldValue);
-      txNewValues.push(t.newValue);
-      txSiblings.push([...t.siblings]);
+      txKeys.push(hexToDec(t.key));
+      txOldValues.push(hexToDec(t.oldValue));
+      txNewValues.push(hexToDec(t.newValue));
+      txSiblings.push(t.siblings.map(hexToDec));
     }
 
     // Pad remaining slots with identity transitions
@@ -196,11 +204,24 @@ export class ZKProver {
       txSiblings.push([...zeroSiblings]);
     }
 
+    // enterpriseId may be a string label (e.g., "e2e-test-basis") or a numeric ID.
+    // The circuit expects a field element. Convert string labels to a deterministic
+    // numeric hash (truncated to fit BN128 field).
+    let numericEnterpriseId: string;
+    if (/^\d+$/.test(enterpriseId)) {
+      numericEnterpriseId = enterpriseId;
+    } else {
+      // Hash the string ID to a numeric value
+      const { createHash } = require("crypto") as typeof import("crypto");
+      const hash = createHash("sha256").update(enterpriseId).digest("hex");
+      numericEnterpriseId = BigInt("0x" + hash.slice(0, 16)).toString(10);
+    }
+
     return {
-      prevStateRoot: witness.prevStateRoot,
-      newStateRoot: witness.newStateRoot,
+      prevStateRoot: hexToDec(witness.prevStateRoot),
+      newStateRoot: hexToDec(witness.newStateRoot),
       batchNum: String(witness.batchNum),
-      enterpriseId,
+      enterpriseId: numericEnterpriseId,
       txKeys,
       txOldValues,
       txNewValues,
