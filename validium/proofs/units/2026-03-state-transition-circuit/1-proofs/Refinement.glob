@@ -1,0 +1,1517 @@
+DIGEST 60493f31ba55d9745cf70d28656320d4
+FSTC.Refinement
+R1942:1947 STC.Common <> <> lib
+R1974:1977 STC.Spec <> <> lib
+R2004:2007 STC.Impl <> <> lib
+R2037:2049 Stdlib.ZArith.ZArith <> <> lib
+R2079:2088 Stdlib.Lists.List <> <> lib
+R2118:2120 Stdlib.micromega.Lia <> <> lib
+R2151:2163 Stdlib.Lists.List ListNotations <> mod
+prf 2524:2536 <> ancestor_step
+binder 2547:2549 <> key:1
+binder 2551:2555 <> level:2
+R2582:2584 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2565:2567 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2562:2564 STC.Refinement <> key:1 var
+R2568:2571 STC.Common <> pow2 def
+R2574:2574 Corelib.Init.Datatypes <> S constr
+R2576:2580 STC.Refinement <> level:2 var
+R2585:2585 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2602:2605 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2589:2591 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2586:2588 STC.Refinement <> key:1 var
+R2592:2595 STC.Common <> pow2 def
+R2597:2601 STC.Refinement <> level:2 var
+R2643:2646 STC.Common <> pow2 def
+R2659:2672 Stdlib.ZArith.Znat Nat2Z inj_succ thm
+R2659:2672 Stdlib.ZArith.Znat Nat2Z inj_succ thm
+R2659:2672 Stdlib.ZArith.Znat Nat2Z inj_succ thm
+R2683:2694 Stdlib.ZArith.BinInt Z pow_succ_r thm
+R2683:2694 Stdlib.ZArith.BinInt Z pow_succ_r thm
+R2683:2694 Stdlib.ZArith.BinInt Z pow_succ_r thm
+R2714:2723 Stdlib.ZArith.BinInt Z mul_comm thm
+R2714:2723 Stdlib.ZArith.BinInt Z mul_comm thm
+R2714:2723 Stdlib.ZArith.BinInt Z mul_comm thm
+R2734:2742 Stdlib.ZArith.BinInt Z div_div thm
+R2734:2742 Stdlib.ZArith.BinInt Z div_div thm
+R2734:2742 Stdlib.ZArith.BinInt Z div_div thm
+prf 2777:2794 <> pathbit_0_ancestor
+binder 2805:2807 <> key:3
+binder 2809:2813 <> level:4
+R2841:2848 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2837:2839 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2820:2826 STC.Common <> PathBit def
+R2828:2830 STC.Refinement <> key:3 var
+R2832:2836 STC.Refinement <> level:4 var
+R2865:2867 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2852:2854 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2849:2851 STC.Refinement <> key:3 var
+R2855:2858 STC.Common <> pow2 def
+R2860:2864 STC.Refinement <> level:4 var
+R2869:2872 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2893:2893 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R2876:2878 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R2873:2875 STC.Refinement <> key:3 var
+R2879:2882 STC.Common <> pow2 def
+R2885:2885 Corelib.Init.Datatypes <> S constr
+R2887:2891 STC.Refinement <> level:4 var
+R2935:2941 STC.Common <> PathBit def
+R2960:2972 STC.Refinement <> ancestor_step thm
+R2960:2972 STC.Refinement <> ancestor_step thm
+R2960:2972 STC.Refinement <> ancestor_step thm
+R3002:3004 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R2992:2995 STC.Common <> pow2 def
+R3017:3024 STC.Common <> pow2_pos thm
+R3002:3004 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R2992:2995 STC.Common <> pow2 def
+R3017:3024 STC.Common <> pow2_pos thm
+R3041:3049 Stdlib.ZArith.BinInt Z div_mod thm
+R3055:3057 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3058:3061 STC.Common <> pow2 def
+R3041:3049 Stdlib.ZArith.BinInt Z div_mod thm
+R3055:3057 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3058:3061 STC.Common <> pow2 def
+prf 3098:3115 <> pathbit_1_ancestor
+binder 3126:3128 <> key:5
+binder 3130:3134 <> level:6
+R3162:3169 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3158:3160 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3141:3147 STC.Common <> PathBit def
+R3149:3151 STC.Refinement <> key:5 var
+R3153:3157 STC.Refinement <> level:6 var
+R3186:3188 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3173:3175 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3170:3172 STC.Refinement <> key:5 var
+R3176:3179 STC.Common <> pow2 def
+R3181:3185 STC.Refinement <> level:6 var
+R3215:3217 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3190:3193 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3214:3214 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R3197:3199 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3194:3196 STC.Refinement <> key:5 var
+R3200:3203 STC.Common <> pow2 def
+R3206:3206 Corelib.Init.Datatypes <> S constr
+R3208:3212 STC.Refinement <> level:6 var
+R3260:3266 STC.Common <> PathBit def
+R3285:3297 STC.Refinement <> ancestor_step thm
+R3285:3297 STC.Refinement <> ancestor_step thm
+R3285:3297 STC.Refinement <> ancestor_step thm
+R3327:3329 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R3317:3320 STC.Common <> pow2 def
+R3342:3349 STC.Common <> pow2_pos thm
+R3327:3329 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R3317:3320 STC.Common <> pow2 def
+R3342:3349 STC.Common <> pow2_pos thm
+R3366:3374 Stdlib.ZArith.BinInt Z div_mod thm
+R3380:3382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3383:3386 STC.Common <> pow2 def
+R3366:3374 Stdlib.ZArith.BinInt Z div_mod thm
+R3380:3382 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3383:3386 STC.Common <> pow2 def
+prf 3423:3445 <> sibling_index_pathbit_0
+binder 3456:3458 <> key:7
+binder 3460:3464 <> level:8
+R3492:3499 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3488:3490 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3471:3477 STC.Common <> PathBit def
+R3479:3481 STC.Refinement <> key:7 var
+R3483:3487 STC.Refinement <> level:8 var
+R3522:3524 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3500:3511 STC.Common <> SiblingIndex def
+R3513:3515 STC.Refinement <> key:7 var
+R3517:3521 STC.Refinement <> level:8 var
+R3541:3543 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R3528:3530 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3525:3527 STC.Refinement <> key:7 var
+R3531:3534 STC.Common <> pow2 def
+R3536:3540 STC.Refinement <> level:8 var
+R3586:3597 STC.Common <> SiblingIndex def
+R3600:3606 STC.Common <> PathBit def
+R3626:3633 Stdlib.ZArith.BinInt Z eq_dec def
+R3636:3636 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3653:3658 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3640:3642 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3643:3646 STC.Common <> pow2 def
+R3626:3633 Stdlib.ZArith.BinInt Z eq_dec def
+R3636:3636 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3653:3658 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3640:3642 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3643:3646 STC.Common <> pow2 def
+prf 3699:3721 <> sibling_index_pathbit_1
+binder 3732:3734 <> key:9
+binder 3736:3740 <> level:10
+R3768:3775 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3764:3766 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3747:3753 STC.Common <> PathBit def
+R3755:3757 STC.Refinement <> key:9 var
+R3759:3763 STC.Refinement <> level:10 var
+R3798:3800 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3776:3787 STC.Common <> SiblingIndex def
+R3789:3791 STC.Refinement <> key:9 var
+R3793:3797 STC.Refinement <> level:10 var
+R3817:3819 Stdlib.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3804:3806 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3801:3803 STC.Refinement <> key:9 var
+R3807:3810 STC.Common <> pow2 def
+R3812:3816 STC.Refinement <> level:10 var
+R3862:3873 STC.Common <> SiblingIndex def
+R3876:3882 STC.Common <> PathBit def
+R3902:3909 Stdlib.ZArith.BinInt Z eq_dec def
+R3912:3912 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3929:3934 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3916:3918 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3919:3922 STC.Common <> pow2 def
+R3902:3909 Stdlib.ZArith.BinInt Z eq_dec def
+R3912:3912 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3929:3934 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R3916:3918 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R3919:3922 STC.Common <> pow2 def
+prf 3975:3987 <> pathbit_range
+binder 3998:4000 <> key:11
+binder 4002:4006 <> level:12
+R4021:4028 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4016:4019 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R4013:4015 STC.Refinement <> key:11 var
+R4050:4053 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R4046:4048 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4029:4035 STC.Common <> PathBit def
+R4037:4039 STC.Refinement <> key:11 var
+R4041:4045 STC.Refinement <> level:12 var
+R4071:4073 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4054:4060 STC.Common <> PathBit def
+R4062:4064 STC.Refinement <> key:11 var
+R4066:4070 STC.Refinement <> level:12 var
+R4116:4122 STC.Common <> PathBit def
+R4152:4154 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R4142:4145 STC.Common <> pow2 def
+R4167:4174 STC.Common <> pow2_pos thm
+R4152:4154 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R4142:4145 STC.Common <> pow2 def
+R4167:4174 STC.Common <> pow2_pos thm
+R4217:4220 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R4204:4206 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R4207:4210 STC.Common <> pow2 def
+R4234:4242 Stdlib.ZArith.Zdiv <> Z_div_ge0 thm
+R4217:4220 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R4204:4206 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R4207:4210 STC.Common <> pow2 def
+R4234:4242 Stdlib.ZArith.Zdiv <> Z_div_ge0 thm
+R4269:4283 Stdlib.ZArith.BinInt Z mod_bound_pos def
+R4289:4291 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R4292:4295 STC.Common <> pow2 def
+R4269:4283 Stdlib.ZArith.BinInt Z mod_bound_pos def
+R4289:4291 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R4292:4295 STC.Common <> pow2 def
+prf 4601:4616 <> compute_node_ext
+R4636:4642 STC.Common <> Entries def
+binder 4628:4629 <> e1:13
+binder 4631:4632 <> e2:14
+R4654:4656 Corelib.Init.Datatypes <> nat ind
+binder 4646:4650 <> level:15
+R4668:4668 Corelib.Numbers.BinNums <> Z ind
+binder 4660:4664 <> index:16
+R4676:4676 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4777:4785 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+binder 4684:4686 <> idx:17
+R4741:4761 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4707:4710 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4714:4716 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R4694:4696 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R4689:4693 STC.Refinement <> index:16 var
+R4697:4700 STC.Common <> pow2 def
+R4702:4706 STC.Refinement <> level:15 var
+R4711:4713 STC.Refinement <> idx:17 var
+R4711:4713 STC.Refinement <> idx:17 var
+R4717:4717 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R4727:4730 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R4723:4725 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R4718:4722 STC.Refinement <> index:16 var
+R4731:4734 STC.Common <> pow2 def
+R4736:4740 STC.Refinement <> level:15 var
+R4768:4770 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4762:4763 STC.Refinement <> e1:13 var
+R4765:4767 STC.Refinement <> idx:17 var
+R4771:4772 STC.Refinement <> e2:14 var
+R4774:4776 STC.Refinement <> idx:17 var
+R4817:4819 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4786:4801 STC.Spec Spec ComputeNode def
+R4803:4804 STC.Refinement <> e1:13 var
+R4806:4810 STC.Refinement <> level:15 var
+R4812:4816 STC.Refinement <> index:16 var
+R4820:4835 STC.Spec Spec ComputeNode def
+R4837:4838 STC.Refinement <> e2:14 var
+R4840:4844 STC.Refinement <> level:15 var
+R4846:4850 STC.Refinement <> index:16 var
+R4952:4966 STC.Spec Spec EntryValue def
+R4981:4986 STC.Common <> pow2_0 thm
+R4981:4986 STC.Common <> pow2_0 thm
+R4981:4986 STC.Common <> pow2_0 thm
+R5073:5088 STC.Spec Spec ComputeNode def
+R5117:5119 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R5111:5114 STC.Common <> pow2 def
+R5132:5139 STC.Common <> pow2_pos thm
+R5117:5119 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R5111:5114 STC.Common <> pow2 def
+R5132:5139 STC.Common <> pow2_pos thm
+R5208:5218 STC.Common <> pow2_double thm
+R5208:5218 STC.Common <> pow2_double thm
+R5208:5218 STC.Common <> pow2_double thm
+R5283:5293 STC.Common <> pow2_double thm
+R5283:5293 STC.Common <> pow2_double thm
+R5283:5293 STC.Common <> pow2_double thm
+prf 5379:5405 <> compute_node_update_outside
+R5421:5427 STC.Common <> Entries def
+binder 5417:5417 <> e:18
+R5437:5448 STC.Common <> FieldElement def
+binder 5431:5431 <> k:19
+binder 5433:5433 <> v:20
+R5464:5466 Corelib.Init.Datatypes <> nat ind
+binder 5456:5460 <> level:21
+R5478:5478 Corelib.Numbers.BinNums <> Z ind
+binder 5470:5474 <> index:22
+R5486:5486 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5542:5550 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5509:5512 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R5488:5490 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R5487:5487 STC.Refinement <> k:19 var
+R5496:5498 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R5491:5495 STC.Refinement <> index:22 var
+R5499:5502 STC.Common <> pow2 def
+R5504:5508 STC.Refinement <> level:21 var
+R5514:5517 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R5513:5513 STC.Refinement <> k:19 var
+R5518:5518 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R5528:5531 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R5524:5526 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R5519:5523 STC.Refinement <> index:22 var
+R5532:5535 STC.Common <> pow2 def
+R5537:5541 STC.Refinement <> level:21 var
+R5600:5606 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5551:5566 STC.Spec Spec ComputeNode def
+R5569:5580 STC.Common <> update_entry def
+R5582:5582 STC.Refinement <> e:18 var
+R5584:5584 STC.Refinement <> k:19 var
+R5586:5586 STC.Refinement <> v:20 var
+R5589:5593 STC.Refinement <> level:21 var
+R5595:5599 STC.Refinement <> index:22 var
+R5607:5622 STC.Spec Spec ComputeNode def
+R5624:5624 STC.Refinement <> e:18 var
+R5626:5630 STC.Refinement <> level:21 var
+R5632:5636 STC.Refinement <> index:22 var
+R5689:5704 STC.Refinement <> compute_node_ext thm
+R5689:5704 STC.Refinement <> compute_node_ext thm
+R5735:5746 STC.Common <> update_entry def
+R5761:5768 Stdlib.ZArith.BinInt Z eq_dec def
+R5761:5768 Stdlib.ZArith.BinInt Z eq_dec def
+prf 5874:5891 <> compute_node_empty
+R5911:5913 Corelib.Init.Datatypes <> nat ind
+binder 5903:5907 <> level:23
+R5925:5925 Corelib.Numbers.BinNums <> Z ind
+binder 5917:5921 <> index:24
+R5975:5977 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5933:5948 STC.Spec Spec ComputeNode def
+R5950:5962 STC.Common <> empty_entries def
+R5964:5968 STC.Refinement <> level:23 var
+R5970:5974 STC.Refinement <> index:24 var
+R5978:5993 STC.Spec Spec DefaultHash def
+R5995:5999 STC.Refinement <> level:23 var
+R6066:6080 STC.Spec Spec EntryValue def
+R6083:6095 STC.Common <> empty_entries def
+R6110:6124 STC.Common <> leaf_hash_empty thm
+R6110:6124 STC.Common <> leaf_hash_empty thm
+R6110:6124 STC.Common <> leaf_hash_empty thm
+prf 6485:6507 <> spec_walkup_as_verifier
+R6523:6529 STC.Common <> Entries def
+binder 6519:6519 <> e:25
+R6539:6539 Corelib.Numbers.BinNums <> Z ind
+binder 6533:6535 <> key:26
+R6552:6563 STC.Common <> FieldElement def
+binder 6547:6548 <> ch:27
+R6575:6577 Corelib.Init.Datatypes <> nat ind
+binder 6567:6571 <> level:28
+R6593:6595 Corelib.Init.Datatypes <> nat ind
+binder 6581:6589 <> remaining:29
+R6639:6645 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6603:6613 STC.Spec Spec WalkUp def
+R6615:6615 STC.Refinement <> e:25 var
+R6617:6618 STC.Refinement <> ch:27 var
+R6620:6622 STC.Refinement <> key:26 var
+R6624:6628 STC.Refinement <> level:28 var
+R6630:6638 STC.Refinement <> remaining:29 var
+R6646:6668 STC.Impl Impl MerklePathVerifier def
+R6670:6671 STC.Refinement <> ch:27 var
+binder 6684:6684 <> l:30
+R6689:6704 STC.Spec Spec SiblingHash def
+R6706:6706 STC.Refinement <> e:25 var
+R6708:6710 STC.Refinement <> key:26 var
+R6712:6712 STC.Refinement <> l:30 var
+binder 6720:6720 <> l:31
+R6725:6731 STC.Common <> PathBit def
+R6733:6735 STC.Refinement <> key:26 var
+R6737:6737 STC.Refinement <> l:31 var
+R6746:6750 STC.Refinement <> level:28 var
+R6752:6760 STC.Refinement <> remaining:29 var
+prf 6995:7018 <> merkle_path_verifier_ext
+R7041:7044 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7038:7040 Corelib.Init.Datatypes <> nat ind
+R7045:7056 STC.Common <> FieldElement def
+binder 7030:7031 <> s1:32
+binder 7033:7034 <> s2:33
+R7078:7081 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7075:7077 Corelib.Init.Datatypes <> nat ind
+R7082:7082 Corelib.Numbers.BinNums <> Z ind
+binder 7064:7071 <> pathBits:34
+R7091:7102 STC.Common <> FieldElement def
+binder 7086:7087 <> ch:35
+R7124:7126 Corelib.Init.Datatypes <> nat ind
+binder 7106:7110 <> level:36
+binder 7112:7120 <> remaining:37
+R7134:7134 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7212:7220 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+binder 7142:7142 <> l:38
+R7161:7164 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7147:7150 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R7146:7146 STC.Refinement <> l:38 var
+R7151:7155 STC.Refinement <> level:36 var
+R7192:7200 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7167:7169 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R7166:7166 STC.Refinement <> l:38 var
+R7175:7177 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R7170:7174 STC.Refinement <> level:36 var
+R7178:7186 STC.Refinement <> remaining:37 var
+R7205:7207 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7201:7202 STC.Refinement <> s1:32 var
+R7204:7204 STC.Refinement <> l:38 var
+R7208:7209 STC.Refinement <> s2:33 var
+R7211:7211 STC.Refinement <> l:38 var
+R7275:7281 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7221:7243 STC.Impl Impl MerklePathVerifier def
+R7245:7246 STC.Refinement <> ch:35 var
+R7248:7249 STC.Refinement <> s1:32 var
+R7251:7258 STC.Refinement <> pathBits:34 var
+R7260:7264 STC.Refinement <> level:36 var
+R7266:7274 STC.Refinement <> remaining:37 var
+R7282:7304 STC.Impl Impl MerklePathVerifier def
+R7306:7307 STC.Refinement <> ch:35 var
+R7309:7310 STC.Refinement <> s2:33 var
+R7312:7319 STC.Refinement <> pathBits:34 var
+R7321:7325 STC.Refinement <> level:36 var
+R7327:7335 STC.Refinement <> remaining:37 var
+prf 7654:7669 <> parent_from_left
+R7685:7691 STC.Common <> Entries def
+binder 7681:7681 <> e:39
+R7701:7701 Corelib.Numbers.BinNums <> Z ind
+binder 7695:7697 <> key:40
+R7713:7715 Corelib.Init.Datatypes <> nat ind
+binder 7705:7709 <> level:41
+R7744:7751 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7740:7742 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7723:7729 STC.Common <> PathBit def
+R7731:7733 STC.Refinement <> key:40 var
+R7735:7739 STC.Refinement <> level:41 var
+R7842:7848 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7752:7755 STC.Common <> Hash defax
+R7758:7773 STC.Spec Spec ComputeNode def
+R7775:7775 STC.Refinement <> e:39 var
+R7777:7781 STC.Refinement <> level:41 var
+R7787:7789 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R7784:7786 STC.Refinement <> key:40 var
+R7790:7793 STC.Common <> pow2 def
+R7795:7799 STC.Refinement <> level:41 var
+R7813:7828 STC.Spec Spec SiblingHash def
+R7830:7830 STC.Refinement <> e:39 var
+R7832:7834 STC.Refinement <> key:40 var
+R7836:7840 STC.Refinement <> level:41 var
+R7849:7864 STC.Spec Spec ComputeNode def
+R7866:7866 STC.Refinement <> e:39 var
+R7869:7869 Corelib.Init.Datatypes <> S constr
+R7871:7875 STC.Refinement <> level:41 var
+R7882:7884 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R7879:7881 STC.Refinement <> key:40 var
+R7885:7888 STC.Common <> pow2 def
+R7891:7891 Corelib.Init.Datatypes <> S constr
+R7893:7897 STC.Refinement <> level:41 var
+R7941:7956 STC.Spec Spec ComputeNode def
+R7967:7982 STC.Spec Spec SiblingHash def
+R7996:8018 STC.Refinement <> sibling_index_pathbit_0 thm
+R7996:8018 STC.Refinement <> sibling_index_pathbit_0 thm
+R7996:8018 STC.Refinement <> sibling_index_pathbit_0 thm
+R8048:8065 STC.Refinement <> pathbit_0_ancestor thm
+R8048:8065 STC.Refinement <> pathbit_0_ancestor thm
+R8048:8065 STC.Refinement <> pathbit_0_ancestor thm
+prf 8188:8204 <> parent_from_right
+R8220:8226 STC.Common <> Entries def
+binder 8216:8216 <> e:42
+R8236:8236 Corelib.Numbers.BinNums <> Z ind
+binder 8230:8232 <> key:43
+R8248:8250 Corelib.Init.Datatypes <> nat ind
+binder 8240:8244 <> level:44
+R8266:8273 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8261:8264 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R8258:8260 STC.Refinement <> key:43 var
+R8295:8302 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8291:8293 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8274:8280 STC.Common <> PathBit def
+R8282:8284 STC.Refinement <> key:43 var
+R8286:8290 STC.Refinement <> level:44 var
+R8393:8399 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8303:8306 STC.Common <> Hash defax
+R8309:8324 STC.Spec Spec SiblingHash def
+R8326:8326 STC.Refinement <> e:42 var
+R8328:8330 STC.Refinement <> key:43 var
+R8332:8336 STC.Refinement <> level:44 var
+R8349:8364 STC.Spec Spec ComputeNode def
+R8366:8366 STC.Refinement <> e:42 var
+R8368:8372 STC.Refinement <> level:44 var
+R8378:8380 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R8375:8377 STC.Refinement <> key:43 var
+R8381:8384 STC.Common <> pow2 def
+R8386:8390 STC.Refinement <> level:44 var
+R8400:8415 STC.Spec Spec ComputeNode def
+R8417:8417 STC.Refinement <> e:42 var
+R8420:8420 Corelib.Init.Datatypes <> S constr
+R8422:8426 STC.Refinement <> level:44 var
+R8433:8435 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R8430:8432 STC.Refinement <> key:43 var
+R8436:8439 STC.Common <> pow2 def
+R8442:8442 Corelib.Init.Datatypes <> S constr
+R8444:8448 STC.Refinement <> level:44 var
+R8495:8510 STC.Spec Spec ComputeNode def
+R8521:8536 STC.Spec Spec SiblingHash def
+R8550:8572 STC.Refinement <> sibling_index_pathbit_1 thm
+R8550:8572 STC.Refinement <> sibling_index_pathbit_1 thm
+R8550:8572 STC.Refinement <> sibling_index_pathbit_1 thm
+R8602:8619 STC.Refinement <> pathbit_1_ancestor thm
+R8602:8619 STC.Refinement <> pathbit_1_ancestor thm
+R8602:8619 STC.Refinement <> pathbit_1_ancestor thm
+prf 8784:8807 <> verify_reconstructs_node
+R8823:8829 STC.Common <> Entries def
+binder 8819:8819 <> e:45
+R8839:8839 Corelib.Numbers.BinNums <> Z ind
+binder 8833:8835 <> key:46
+R8855:8862 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8850:8853 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R8847:8849 STC.Refinement <> key:46 var
+R8879:8881 Corelib.Init.Datatypes <> nat ind
+binder 8871:8875 <> level:47
+R8897:8899 Corelib.Init.Datatypes <> nat ind
+binder 8885:8893 <> remaining:48
+R9077:9083 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8907:8929 STC.Impl Impl MerklePathVerifier def
+R8938:8953 STC.Spec Spec ComputeNode def
+R8955:8955 STC.Refinement <> e:45 var
+R8957:8961 STC.Refinement <> level:47 var
+R8967:8969 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R8964:8966 STC.Refinement <> key:46 var
+R8970:8973 STC.Common <> pow2 def
+R8975:8979 STC.Refinement <> level:47 var
+binder 8994:8994 <> l:49
+R8999:9014 STC.Spec Spec SiblingHash def
+R9016:9016 STC.Refinement <> e:45 var
+R9018:9020 STC.Refinement <> key:46 var
+R9022:9022 STC.Refinement <> l:49 var
+binder 9036:9036 <> l:50
+R9041:9047 STC.Common <> PathBit def
+R9049:9051 STC.Refinement <> key:46 var
+R9053:9053 STC.Refinement <> l:50 var
+R9062:9066 STC.Refinement <> level:47 var
+R9068:9076 STC.Refinement <> remaining:48 var
+R9084:9099 STC.Spec Spec ComputeNode def
+R9101:9101 STC.Refinement <> e:45 var
+R9109:9111 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9104:9108 STC.Refinement <> level:47 var
+R9112:9120 STC.Refinement <> remaining:48 var
+R9127:9129 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R9124:9126 STC.Refinement <> key:46 var
+R9130:9133 STC.Common <> pow2 def
+R9141:9143 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9136:9140 STC.Refinement <> level:47 var
+R9144:9152 STC.Refinement <> remaining:48 var
+R9289:9291 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9289:9291 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9370:9382 STC.Refinement <> pathbit_range thm
+R9370:9382 STC.Refinement <> pathbit_range thm
+R9451:9458 Stdlib.ZArith.BinInt Z eq_dec def
+R9451:9458 Stdlib.ZArith.BinInt Z eq_dec def
+R9514:9529 STC.Refinement <> parent_from_left thm
+R9514:9529 STC.Refinement <> parent_from_left thm
+R9514:9529 STC.Refinement <> parent_from_left thm
+R9585:9587 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9578:9578 Corelib.Init.Datatypes <> S constr
+R9606:9608 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9609:9609 Corelib.Init.Datatypes <> S constr
+R9585:9587 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9578:9578 Corelib.Init.Datatypes <> S constr
+R9606:9608 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9609:9609 Corelib.Init.Datatypes <> S constr
+R9670:9677 Stdlib.ZArith.BinInt Z eq_dec def
+R9670:9677 Stdlib.ZArith.BinInt Z eq_dec def
+R9723:9739 STC.Refinement <> parent_from_right thm
+R9723:9739 STC.Refinement <> parent_from_right thm
+R9723:9739 STC.Refinement <> parent_from_right thm
+R9800:9802 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9793:9793 Corelib.Init.Datatypes <> S constr
+R9821:9823 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9824:9824 Corelib.Init.Datatypes <> S constr
+R9800:9802 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9793:9793 Corelib.Init.Datatypes <> S constr
+R9821:9823 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R9824:9824 Corelib.Init.Datatypes <> S constr
+prf 9944:9970 <> honest_verify_produces_root
+R9986:9992 STC.Common <> Entries def
+binder 9982:9982 <> e:51
+R10002:10002 Corelib.Numbers.BinNums <> Z ind
+binder 9996:9998 <> key:52
+R10010:10012 Corelib.Init.Datatypes <> nat ind
+binder 10006:10006 <> d:53
+R10028:10031 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10023:10026 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R10020:10022 STC.Refinement <> key:52 var
+R10048:10055 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10044:10046 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10035:10037 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R10032:10034 STC.Refinement <> key:52 var
+R10038:10041 STC.Common <> pow2 def
+R10043:10043 STC.Refinement <> d:53 var
+R10191:10197 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R10056:10078 STC.Impl Impl MerklePathVerifier def
+R10087:10094 STC.Common <> LeafHash def
+R10096:10098 STC.Refinement <> key:52 var
+R10101:10101 STC.Refinement <> e:51 var
+R10103:10105 STC.Refinement <> key:52 var
+binder 10120:10120 <> l:54
+R10125:10140 STC.Spec Spec SiblingHash def
+R10142:10142 STC.Refinement <> e:51 var
+R10144:10146 STC.Refinement <> key:52 var
+R10148:10148 STC.Refinement <> l:54 var
+binder 10162:10162 <> l:55
+R10167:10173 STC.Common <> PathBit def
+R10175:10177 STC.Refinement <> key:52 var
+R10179:10179 STC.Refinement <> l:55 var
+R10190:10190 STC.Refinement <> d:53 var
+R10198:10213 STC.Spec Spec ComputeNode def
+R10215:10215 STC.Refinement <> e:51 var
+R10217:10217 STC.Refinement <> d:53 var
+R10273:10296 STC.Refinement <> verify_reconstructs_node thm
+R10273:10296 STC.Refinement <> verify_reconstructs_node thm
+R10342:10350 Stdlib.ZArith.BinInt Z div_1_r thm
+R10342:10350 Stdlib.ZArith.BinInt Z div_1_r thm
+R10342:10350 Stdlib.ZArith.BinInt Z div_1_r thm
+R10365:10379 STC.Spec Spec EntryValue def
+prf 10723:10741 <> sibling_outside_key
+binder 10752:10752 <> k:56
+binder 10754:10758 <> level:57
+R10771:10778 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10766:10769 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R10765:10765 STC.Refinement <> k:56 var
+R10816:10823 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R10780:10782 Stdlib.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R10779:10779 STC.Refinement <> k:56 var
+R10803:10805 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R10783:10794 STC.Common <> SiblingIndex def
+R10796:10796 STC.Refinement <> k:56 var
+R10798:10802 STC.Refinement <> level:57 var
+R10806:10809 STC.Common <> pow2 def
+R10811:10815 STC.Refinement <> level:57 var
+R10825:10828 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R10824:10824 STC.Refinement <> k:56 var
+R10829:10829 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R10854:10857 Stdlib.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R10850:10852 Stdlib.ZArith.BinInt <> ::Z_scope:x_'+'_x not
+R10830:10841 STC.Common <> SiblingIndex def
+R10843:10843 STC.Refinement <> k:56 var
+R10845:10849 STC.Refinement <> level:57 var
+R10858:10861 STC.Common <> pow2 def
+R10863:10867 STC.Refinement <> level:57 var
+R10925:10927 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R10915:10918 STC.Common <> pow2 def
+R10940:10947 STC.Common <> pow2_pos thm
+R10925:10927 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>'_x not
+R10915:10918 STC.Common <> pow2 def
+R10940:10947 STC.Common <> pow2_pos thm
+R10959:10970 STC.Common <> SiblingIndex def
+R10987:10995 Stdlib.ZArith.BinInt Z div_mod thm
+R11000:11003 STC.Common <> pow2 def
+R10987:10995 Stdlib.ZArith.BinInt Z div_mod thm
+R11000:11003 STC.Common <> pow2 def
+R11046:11060 Stdlib.ZArith.BinInt Z mod_bound_pos def
+R11065:11068 STC.Common <> pow2 def
+R11046:11060 Stdlib.ZArith.BinInt Z mod_bound_pos def
+R11065:11068 STC.Common <> pow2 def
+R11126:11133 Stdlib.ZArith.BinInt Z eq_dec def
+R11136:11136 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R11151:11156 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R11138:11140 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R11141:11144 STC.Common <> pow2 def
+R11126:11133 Stdlib.ZArith.BinInt Z eq_dec def
+R11136:11136 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R11151:11156 Stdlib.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R11138:11140 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R11141:11144 STC.Common <> pow2 def
+prf 11289:11317 <> sibling_hash_update_invariant
+R11333:11339 STC.Common <> Entries def
+binder 11329:11329 <> e:58
+R11349:11360 STC.Common <> FieldElement def
+binder 11343:11343 <> k:59
+binder 11345:11345 <> v:60
+R11376:11378 Corelib.Init.Datatypes <> nat ind
+binder 11368:11372 <> level:61
+R11392:11399 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11387:11390 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R11386:11386 STC.Refinement <> k:59 var
+R11426:11432 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11400:11415 STC.Spec Spec SiblingHash def
+R11417:11417 STC.Refinement <> e:58 var
+R11419:11419 STC.Refinement <> k:59 var
+R11421:11425 STC.Refinement <> level:61 var
+R11433:11448 STC.Spec Spec SiblingHash def
+R11451:11462 STC.Common <> update_entry def
+R11464:11464 STC.Refinement <> e:58 var
+R11466:11466 STC.Refinement <> k:59 var
+R11468:11468 STC.Refinement <> v:60 var
+R11471:11471 STC.Refinement <> k:59 var
+R11473:11477 STC.Refinement <> level:61 var
+R11519:11534 STC.Spec Spec SiblingHash def
+R11555:11581 STC.Refinement <> compute_node_update_outside thm
+R11555:11581 STC.Refinement <> compute_node_update_outside thm
+R11593:11611 STC.Refinement <> sibling_outside_key thm
+R11593:11611 STC.Refinement <> sibling_outside_key thm
+prf 11698:11713 <> parent_step_left
+R11729:11735 STC.Common <> Entries def
+binder 11725:11725 <> e:62
+R11745:11756 STC.Common <> FieldElement def
+binder 11739:11739 <> k:63
+binder 11741:11741 <> v:64
+R11768:11770 Corelib.Init.Datatypes <> nat ind
+binder 11760:11764 <> level:65
+R11784:11791 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11779:11782 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R11778:11778 STC.Refinement <> k:63 var
+R11811:11818 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11807:11809 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11792:11798 STC.Common <> PathBit def
+R11800:11800 STC.Refinement <> k:63 var
+R11802:11806 STC.Refinement <> level:65 var
+R11924:11930 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R11819:11822 STC.Common <> Hash defax
+R11825:11840 STC.Spec Spec ComputeNode def
+R11843:11854 STC.Common <> update_entry def
+R11856:11856 STC.Refinement <> e:62 var
+R11858:11858 STC.Refinement <> k:63 var
+R11860:11860 STC.Refinement <> v:64 var
+R11863:11867 STC.Refinement <> level:65 var
+R11871:11873 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R11870:11870 STC.Refinement <> k:63 var
+R11874:11877 STC.Common <> pow2 def
+R11879:11883 STC.Refinement <> level:65 var
+R11897:11912 STC.Spec Spec SiblingHash def
+R11914:11914 STC.Refinement <> e:62 var
+R11916:11916 STC.Refinement <> k:63 var
+R11918:11922 STC.Refinement <> level:65 var
+R11931:11946 STC.Spec Spec ComputeNode def
+R11949:11960 STC.Common <> update_entry def
+R11962:11962 STC.Refinement <> e:62 var
+R11964:11964 STC.Refinement <> k:63 var
+R11966:11966 STC.Refinement <> v:64 var
+R11970:11970 Corelib.Init.Datatypes <> S constr
+R11972:11976 STC.Refinement <> level:65 var
+R11981:11983 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R11980:11980 STC.Refinement <> k:63 var
+R11984:11987 STC.Common <> pow2 def
+R11990:11990 Corelib.Init.Datatypes <> S constr
+R11992:11996 STC.Refinement <> level:65 var
+R12049:12077 STC.Refinement <> sibling_hash_update_invariant thm
+R12049:12077 STC.Refinement <> sibling_hash_update_invariant thm
+R12049:12077 STC.Refinement <> sibling_hash_update_invariant thm
+R12104:12119 STC.Refinement <> parent_from_left thm
+R12104:12119 STC.Refinement <> parent_from_left thm
+prf 12206:12222 <> parent_step_right
+R12238:12244 STC.Common <> Entries def
+binder 12234:12234 <> e:66
+R12254:12265 STC.Common <> FieldElement def
+binder 12248:12248 <> k:67
+binder 12250:12250 <> v:68
+R12277:12279 Corelib.Init.Datatypes <> nat ind
+binder 12269:12273 <> level:69
+R12293:12300 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12288:12291 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R12287:12287 STC.Refinement <> k:67 var
+R12320:12327 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12316:12318 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12301:12307 STC.Common <> PathBit def
+R12309:12309 STC.Refinement <> k:67 var
+R12311:12315 STC.Refinement <> level:69 var
+R12433:12439 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12328:12331 STC.Common <> Hash defax
+R12334:12349 STC.Spec Spec SiblingHash def
+R12351:12351 STC.Refinement <> e:66 var
+R12353:12353 STC.Refinement <> k:67 var
+R12355:12359 STC.Refinement <> level:69 var
+R12372:12387 STC.Spec Spec ComputeNode def
+R12390:12401 STC.Common <> update_entry def
+R12403:12403 STC.Refinement <> e:66 var
+R12405:12405 STC.Refinement <> k:67 var
+R12407:12407 STC.Refinement <> v:68 var
+R12410:12414 STC.Refinement <> level:69 var
+R12418:12420 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R12417:12417 STC.Refinement <> k:67 var
+R12421:12424 STC.Common <> pow2 def
+R12426:12430 STC.Refinement <> level:69 var
+R12440:12455 STC.Spec Spec ComputeNode def
+R12458:12469 STC.Common <> update_entry def
+R12471:12471 STC.Refinement <> e:66 var
+R12473:12473 STC.Refinement <> k:67 var
+R12475:12475 STC.Refinement <> v:68 var
+R12479:12479 Corelib.Init.Datatypes <> S constr
+R12481:12485 STC.Refinement <> level:69 var
+R12490:12492 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R12489:12489 STC.Refinement <> k:67 var
+R12493:12496 STC.Common <> pow2 def
+R12499:12499 Corelib.Init.Datatypes <> S constr
+R12501:12505 STC.Refinement <> level:69 var
+R12558:12586 STC.Refinement <> sibling_hash_update_invariant thm
+R12558:12586 STC.Refinement <> sibling_hash_update_invariant thm
+R12558:12586 STC.Refinement <> sibling_hash_update_invariant thm
+R12613:12629 STC.Refinement <> parent_from_right thm
+R12613:12629 STC.Refinement <> parent_from_right thm
+prf 12801:12824 <> walkup_computes_new_root
+R12840:12846 STC.Common <> Entries def
+binder 12836:12836 <> e:70
+R12856:12867 STC.Common <> FieldElement def
+binder 12850:12850 <> k:71
+binder 12852:12852 <> v:72
+R12883:12885 Corelib.Init.Datatypes <> nat ind
+binder 12875:12879 <> level:73
+R12901:12903 Corelib.Init.Datatypes <> nat ind
+binder 12889:12897 <> remaining:74
+R12917:12924 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12912:12915 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R12911:12911 STC.Refinement <> k:71 var
+R13108:13114 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R12925:12947 STC.Impl Impl MerklePathVerifier def
+R12956:12971 STC.Spec Spec ComputeNode def
+R12974:12985 STC.Common <> update_entry def
+R12987:12987 STC.Refinement <> e:70 var
+R12989:12989 STC.Refinement <> k:71 var
+R12991:12991 STC.Refinement <> v:72 var
+R12994:12998 STC.Refinement <> level:73 var
+R13002:13004 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R13001:13001 STC.Refinement <> k:71 var
+R13005:13008 STC.Common <> pow2 def
+R13010:13014 STC.Refinement <> level:73 var
+binder 13029:13029 <> l:75
+R13034:13049 STC.Spec Spec SiblingHash def
+R13051:13051 STC.Refinement <> e:70 var
+R13053:13053 STC.Refinement <> k:71 var
+R13055:13055 STC.Refinement <> l:75 var
+binder 13069:13069 <> l:76
+R13074:13080 STC.Common <> PathBit def
+R13082:13082 STC.Refinement <> k:71 var
+R13084:13084 STC.Refinement <> l:76 var
+R13093:13097 STC.Refinement <> level:73 var
+R13099:13107 STC.Refinement <> remaining:74 var
+R13115:13130 STC.Spec Spec ComputeNode def
+R13133:13144 STC.Common <> update_entry def
+R13146:13146 STC.Refinement <> e:70 var
+R13148:13148 STC.Refinement <> k:71 var
+R13150:13150 STC.Refinement <> v:72 var
+R13165:13167 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13160:13164 STC.Refinement <> level:73 var
+R13168:13176 STC.Refinement <> remaining:74 var
+R13181:13183 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R13180:13180 STC.Refinement <> k:71 var
+R13184:13187 STC.Common <> pow2 def
+R13195:13197 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13190:13194 STC.Refinement <> level:73 var
+R13198:13206 STC.Refinement <> remaining:74 var
+R13343:13345 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13343:13345 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13424:13436 STC.Refinement <> pathbit_range thm
+R13424:13436 STC.Refinement <> pathbit_range thm
+R13501:13508 Stdlib.ZArith.BinInt Z eq_dec def
+R13501:13508 Stdlib.ZArith.BinInt Z eq_dec def
+R13564:13579 STC.Refinement <> parent_step_left thm
+R13564:13579 STC.Refinement <> parent_step_left thm
+R13564:13579 STC.Refinement <> parent_step_left thm
+R13638:13640 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13631:13631 Corelib.Init.Datatypes <> S constr
+R13659:13661 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13662:13662 Corelib.Init.Datatypes <> S constr
+R13638:13640 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13631:13631 Corelib.Init.Datatypes <> S constr
+R13659:13661 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13662:13662 Corelib.Init.Datatypes <> S constr
+R13723:13730 Stdlib.ZArith.BinInt Z eq_dec def
+R13723:13730 Stdlib.ZArith.BinInt Z eq_dec def
+R13776:13792 STC.Refinement <> parent_step_right thm
+R13776:13792 STC.Refinement <> parent_step_right thm
+R13776:13792 STC.Refinement <> parent_step_right thm
+R13851:13853 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13844:13844 Corelib.Init.Datatypes <> S constr
+R13872:13874 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13875:13875 Corelib.Init.Datatypes <> S constr
+R13851:13853 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13844:13844 Corelib.Init.Datatypes <> S constr
+R13872:13874 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R13875:13875 Corelib.Init.Datatypes <> S constr
+prf 13981:14006 <> walkup_equals_compute_root
+R14022:14028 STC.Common <> Entries def
+binder 14018:14018 <> e:77
+R14038:14049 STC.Common <> FieldElement def
+binder 14032:14032 <> k:78
+binder 14034:14034 <> v:79
+R14061:14063 Corelib.Init.Datatypes <> nat ind
+binder 14057:14057 <> d:80
+R14077:14080 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14072:14075 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R14071:14071 STC.Refinement <> k:78 var
+R14095:14102 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14091:14093 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14082:14084 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R14081:14081 STC.Refinement <> k:78 var
+R14085:14088 STC.Common <> pow2 def
+R14090:14090 STC.Refinement <> d:80 var
+R14208:14214 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14103:14125 STC.Impl Impl MerklePathVerifier def
+R14128:14135 STC.Common <> LeafHash def
+R14137:14137 STC.Refinement <> k:78 var
+R14139:14139 STC.Refinement <> v:79 var
+binder 14153:14153 <> l:81
+R14158:14173 STC.Spec Spec SiblingHash def
+R14175:14175 STC.Refinement <> e:77 var
+R14177:14177 STC.Refinement <> k:78 var
+R14179:14179 STC.Refinement <> l:81 var
+binder 14187:14187 <> l:82
+R14192:14198 STC.Common <> PathBit def
+R14200:14200 STC.Refinement <> k:78 var
+R14202:14202 STC.Refinement <> l:82 var
+R14207:14207 STC.Refinement <> d:80 var
+R14215:14230 STC.Spec Spec ComputeNode def
+R14233:14244 STC.Common <> update_entry def
+R14246:14246 STC.Refinement <> e:77 var
+R14248:14248 STC.Refinement <> k:78 var
+R14250:14250 STC.Refinement <> v:79 var
+R14253:14253 STC.Refinement <> d:80 var
+R14307:14330 STC.Refinement <> walkup_computes_new_root thm
+R14307:14330 STC.Refinement <> walkup_computes_new_root thm
+R14374:14382 Stdlib.ZArith.BinInt Z div_1_r thm
+R14374:14382 Stdlib.ZArith.BinInt Z div_1_r thm
+R14374:14382 Stdlib.ZArith.BinInt Z div_1_r thm
+R14399:14413 STC.Spec Spec EntryValue def
+R14429:14445 STC.Common <> update_entry_same thm
+R14429:14445 STC.Common <> update_entry_same thm
+R14429:14445 STC.Common <> update_entry_same thm
+prf 14570:14600 <> spec_walkup_equals_compute_root
+R14616:14622 STC.Common <> Entries def
+binder 14612:14612 <> e:83
+R14636:14647 STC.Common <> FieldElement def
+binder 14630:14630 <> k:84
+binder 14632:14632 <> v:85
+R14655:14657 Corelib.Init.Datatypes <> nat ind
+binder 14651:14651 <> d:86
+R14671:14674 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14666:14669 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R14665:14665 STC.Refinement <> k:84 var
+R14689:14696 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14685:14687 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14676:14678 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R14675:14675 STC.Refinement <> k:84 var
+R14679:14682 STC.Common <> pow2 def
+R14684:14684 STC.Refinement <> d:86 var
+R14737:14743 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14697:14715 STC.Spec Spec WalkUpFromLeaf def
+R14717:14717 STC.Refinement <> e:83 var
+R14720:14727 STC.Common <> LeafHash def
+R14729:14729 STC.Refinement <> k:84 var
+R14731:14731 STC.Refinement <> v:85 var
+R14734:14734 STC.Refinement <> k:84 var
+R14736:14736 STC.Refinement <> d:86 var
+R14744:14759 STC.Spec Spec ComputeNode def
+R14762:14773 STC.Common <> update_entry def
+R14775:14775 STC.Refinement <> e:83 var
+R14777:14777 STC.Refinement <> k:84 var
+R14779:14779 STC.Refinement <> v:85 var
+R14782:14782 STC.Refinement <> d:86 var
+R14829:14847 STC.Spec Spec WalkUpFromLeaf def
+R14860:14882 STC.Refinement <> spec_walkup_as_verifier thm
+R14860:14882 STC.Refinement <> spec_walkup_as_verifier thm
+R14860:14882 STC.Refinement <> spec_walkup_as_verifier thm
+R14893:14918 STC.Refinement <> walkup_equals_compute_root thm
+R14893:14918 STC.Refinement <> walkup_equals_compute_root thm
+prf 15334:15356 <> verify_walkup_injective
+binder 15367:15374 <> siblings:87
+binder 15376:15383 <> pathBits:88
+binder 15385:15389 <> level:89
+binder 15391:15399 <> remaining:90
+R15414:15425 STC.Common <> FieldElement def
+binder 15406:15407 <> h1:91
+binder 15409:15410 <> h2:92
+R15441:15448 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15435:15438 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R15433:15434 STC.Refinement <> h1:91 var
+R15439:15440 STC.Refinement <> h2:92 var
+R15509:15516 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R15449:15471 STC.Impl Impl MerklePathVerifier def
+R15473:15474 STC.Refinement <> h1:91 var
+R15476:15483 STC.Refinement <> siblings:87 var
+R15485:15492 STC.Refinement <> pathBits:88 var
+R15494:15498 STC.Refinement <> level:89 var
+R15500:15508 STC.Refinement <> remaining:90 var
+R15517:15539 STC.Impl Impl MerklePathVerifier def
+R15541:15542 STC.Refinement <> h2:92 var
+R15544:15551 STC.Refinement <> siblings:87 var
+R15553:15560 STC.Refinement <> pathBits:88 var
+R15562:15566 STC.Refinement <> level:89 var
+R15568:15576 STC.Refinement <> remaining:90 var
+R15787:15794 Stdlib.ZArith.BinInt Z eq_dec def
+R15787:15794 Stdlib.ZArith.BinInt Z eq_dec def
+R15840:15853 STC.Common <> hash_injective prfax
+R15840:15853 STC.Common <> hash_injective prfax
+R15932:15945 STC.Common <> hash_injective prfax
+R15932:15945 STC.Common <> hash_injective prfax
+prf 16279:16299 <> init_state_root_chain
+R16315:16317 Corelib.Init.Datatypes <> nat ind
+binder 16311:16311 <> d:93
+R16325:16343 STC.Spec Spec StateRootChain def
+R16346:16354 STC.Spec Spec Init def
+R16356:16356 STC.Refinement <> d:93 var
+R16359:16359 STC.Refinement <> d:93 var
+R16388:16406 STC.Spec Spec StateRootChain def
+R16409:16417 STC.Spec Spec Init def
+R16437:16454 STC.Refinement <> compute_node_empty thm
+R16437:16454 STC.Refinement <> compute_node_empty thm
+R16437:16454 STC.Refinement <> compute_node_empty thm
+prf 16543:16578 <> single_tx_preserves_state_root_chain
+R16594:16600 STC.Common <> Entries def
+binder 16590:16590 <> e:94
+R16612:16623 STC.Common <> FieldElement def
+binder 16608:16608 <> r:95
+R16632:16647 STC.Spec Spec Transaction rec
+binder 16627:16628 <> tx:96
+R16655:16657 Corelib.Init.Datatypes <> nat ind
+binder 16651:16651 <> d:97
+R16691:16698 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16666:16668 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16665:16665 STC.Refinement <> r:95 var
+R16669:16684 STC.Spec Spec ComputeNode def
+R16686:16686 STC.Refinement <> e:94 var
+R16688:16688 STC.Refinement <> d:97 var
+R16718:16725 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16713:16716 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R16699:16709 STC.Spec Spec tx_key proj
+R16711:16712 STC.Refinement <> tx:96 var
+R16753:16760 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16749:16751 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16740:16742 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R16726:16736 STC.Spec Spec tx_key proj
+R16738:16739 STC.Refinement <> tx:96 var
+R16743:16746 STC.Common <> pow2 def
+R16748:16748 STC.Refinement <> d:97 var
+R16805:16812 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16798:16800 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16761:16773 STC.Spec Spec tx_valid proj
+R16776:16787 STC.Spec Spec ApplyTx def
+R16789:16789 STC.Refinement <> e:94 var
+R16791:16791 STC.Refinement <> r:95 var
+R16793:16794 STC.Refinement <> tx:96 var
+R16796:16796 STC.Refinement <> d:97 var
+R16801:16804 Corelib.Init.Datatypes <> true constr
+R16849:16855 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R16813:16824 STC.Spec Spec tx_root proj
+R16827:16838 STC.Spec Spec ApplyTx def
+R16840:16840 STC.Refinement <> e:94 var
+R16842:16842 STC.Refinement <> r:95 var
+R16844:16845 STC.Refinement <> tx:96 var
+R16847:16847 STC.Refinement <> d:97 var
+R16856:16871 STC.Spec Spec ComputeNode def
+R16874:16888 STC.Spec Spec tx_entries proj
+R16891:16902 STC.Spec Spec ApplyTx def
+R16904:16904 STC.Refinement <> e:94 var
+R16906:16906 STC.Refinement <> r:95 var
+R16908:16909 STC.Refinement <> tx:96 var
+R16911:16911 STC.Refinement <> d:97 var
+R16915:16915 STC.Refinement <> d:97 var
+R16979:16990 STC.Spec Spec ApplyTx def
+R17010:17017 Stdlib.ZArith.BinInt Z eq_dec def
+R17023:17033 STC.Spec Spec tx_key proj
+R17041:17056 STC.Spec Spec tx_oldValue proj
+R17010:17017 Stdlib.ZArith.BinInt Z eq_dec def
+R17023:17033 STC.Spec Spec tx_key proj
+R17041:17056 STC.Spec Spec tx_oldValue proj
+R17097:17127 STC.Refinement <> spec_walkup_equals_compute_root thm
+R17097:17127 STC.Refinement <> spec_walkup_equals_compute_root thm
+prf 17637:17668 <> batch_preserves_state_root_chain
+R17686:17689 Corelib.Init.Datatypes <> list ind
+R17691:17706 STC.Spec Spec Transaction rec
+binder 17680:17682 <> txs:98
+R17718:17724 STC.Common <> Entries def
+binder 17714:17714 <> e:99
+R17732:17743 STC.Common <> FieldElement def
+binder 17728:17728 <> r:100
+R17751:17753 Corelib.Init.Datatypes <> nat ind
+binder 17747:17747 <> d:101
+R17787:17794 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17762:17764 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17761:17761 STC.Refinement <> r:100 var
+R17765:17780 STC.Spec Spec ComputeNode def
+R17782:17782 STC.Refinement <> e:99 var
+R17784:17784 STC.Refinement <> d:101 var
+R17868:17875 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17795:17800 Corelib.Lists.ListDef <> Forall ind
+R17865:17867 STC.Refinement <> txs:98 var
+binder 17807:17808 <> tx:102
+R17832:17835 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R17827:17830 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R17813:17823 STC.Spec Spec tx_key proj
+R17825:17826 STC.Refinement <> tx:102 var
+R17859:17861 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17850:17852 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R17836:17846 STC.Spec Spec tx_key proj
+R17848:17849 STC.Refinement <> tx:102 var
+R17853:17856 STC.Common <> pow2 def
+R17858:17858 STC.Refinement <> d:101 var
+R17924:17931 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17917:17919 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17876:17888 STC.Spec Spec tx_valid proj
+R17891:17905 STC.Spec Spec ApplyBatch def
+R17907:17907 STC.Refinement <> e:99 var
+R17909:17909 STC.Refinement <> r:100 var
+R17911:17913 STC.Refinement <> txs:98 var
+R17915:17915 STC.Refinement <> d:101 var
+R17920:17923 Corelib.Init.Datatypes <> true constr
+R17972:17978 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R17932:17943 STC.Spec Spec tx_root proj
+R17946:17960 STC.Spec Spec ApplyBatch def
+R17962:17962 STC.Refinement <> e:99 var
+R17964:17964 STC.Refinement <> r:100 var
+R17966:17968 STC.Refinement <> txs:98 var
+R17970:17970 STC.Refinement <> d:101 var
+R17979:17994 STC.Spec Spec ComputeNode def
+R17997:18011 STC.Spec Spec tx_entries proj
+R18014:18028 STC.Spec Spec ApplyBatch def
+R18030:18030 STC.Refinement <> e:99 var
+R18032:18032 STC.Refinement <> r:100 var
+R18034:18036 STC.Refinement <> txs:98 var
+R18038:18038 STC.Refinement <> d:101 var
+R18042:18042 STC.Refinement <> d:101 var
+R18313:18327 STC.Spec Spec ApplyBatch def
+R18360:18372 STC.Spec Spec tx_valid proj
+R18375:18386 STC.Spec Spec ApplyTx def
+R18360:18372 STC.Spec Spec tx_valid proj
+R18375:18386 STC.Spec Spec ApplyTx def
+R18478:18513 STC.Refinement <> single_tx_preserves_state_root_chain thm
+R18478:18513 STC.Refinement <> single_tx_preserves_state_root_chain thm
+prf 19137:19162 <> batch_integrity_from_chain
+R19178:19187 STC.Spec Spec State rec
+binder 19174:19174 <> s:103
+R19195:19197 Corelib.Init.Datatypes <> nat ind
+binder 19191:19191 <> d:104
+R19228:19235 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19205:19223 STC.Spec Spec StateRootChain def
+R19225:19225 STC.Refinement <> s:103 var
+R19227:19227 STC.Refinement <> d:104 var
+R19236:19254 STC.Spec Spec BatchIntegrity def
+R19256:19256 STC.Refinement <> s:103 var
+R19258:19258 STC.Refinement <> d:104 var
+R19298:19316 STC.Spec Spec BatchIntegrity def
+R19350:19361 STC.Spec Spec ApplyTx def
+R19383:19390 Stdlib.ZArith.BinInt Z eq_dec def
+R19393:19404 STC.Spec Spec entries proj
+R19412:19423 STC.Spec Spec entries proj
+R19383:19390 Stdlib.ZArith.BinInt Z eq_dec def
+R19393:19404 STC.Spec Spec entries proj
+R19412:19423 STC.Spec Spec entries proj
+R19477:19507 STC.Refinement <> spec_walkup_equals_compute_root thm
+R19477:19507 STC.Refinement <> spec_walkup_equals_compute_root thm
+prf 19768:19787 <> proof_soundness_spec
+R19803:19812 STC.Spec Spec State rec
+binder 19799:19799 <> s:105
+R19820:19822 Corelib.Init.Datatypes <> nat ind
+binder 19816:19816 <> d:106
+R19830:19848 STC.Spec Spec ProofSoundness def
+R19850:19850 STC.Refinement <> s:105 var
+R19852:19852 STC.Refinement <> d:106 var
+R19883:19901 STC.Spec Spec ProofSoundness def
+R19948:19959 STC.Spec Spec ApplyTx def
+R19981:19988 Stdlib.ZArith.BinInt Z eq_dec def
+R19991:20002 STC.Spec Spec entries proj
+R19981:19988 Stdlib.ZArith.BinInt Z eq_dec def
+R19991:20002 STC.Spec Spec entries proj
+prf 20701:20718 <> circuit_tx_correct
+R20734:20740 STC.Common <> Entries def
+binder 20730:20730 <> e:107
+R20748:20759 STC.Common <> FieldElement def
+binder 20744:20744 <> r:108
+R20771:20784 STC.Impl Impl TxWitness rec
+binder 20767:20767 <> w:109
+R20792:20794 Corelib.Init.Datatypes <> nat ind
+binder 20788:20788 <> d:110
+R20828:20835 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20803:20805 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20802:20802 STC.Refinement <> r:108 var
+R20806:20821 STC.Spec Spec ComputeNode def
+R20823:20823 STC.Refinement <> e:107 var
+R20825:20825 STC.Refinement <> d:110 var
+R20836:20836 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20924:20932 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+binder 20844:20844 <> l:111
+R20858:20866 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20849:20851 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R20848:20848 STC.Refinement <> l:111 var
+R20852:20852 STC.Refinement <> d:110 var
+R20886:20888 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20867:20881 STC.Impl Impl w_siblings proj
+R20883:20883 STC.Refinement <> w:109 var
+R20885:20885 STC.Refinement <> l:111 var
+R20889:20904 STC.Spec Spec SiblingHash def
+R20906:20906 STC.Refinement <> e:107 var
+R20909:20918 STC.Impl Impl w_key proj
+R20920:20920 STC.Refinement <> w:109 var
+R20923:20923 STC.Refinement <> l:111 var
+R20950:20957 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20945:20948 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R20933:20942 STC.Impl Impl w_key proj
+R20944:20944 STC.Refinement <> w:109 var
+R20983:20990 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20979:20981 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20970:20972 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R20958:20967 STC.Impl Impl w_key proj
+R20969:20969 STC.Refinement <> w:109 var
+R20973:20976 STC.Common <> pow2 def
+R20978:20978 STC.Refinement <> d:110 var
+R21027:21034 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21007:21009 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R20991:20991 STC.Refinement <> e:107 var
+R20994:21003 STC.Impl Impl w_key proj
+R21005:21005 STC.Refinement <> w:109 var
+R21010:21024 STC.Impl Impl w_oldValue proj
+R21026:21026 STC.Refinement <> w:109 var
+R21058:21064 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R21035:21051 STC.Impl Impl PerTxCircuit def
+R21053:21053 STC.Refinement <> r:108 var
+R21055:21055 STC.Refinement <> w:109 var
+R21057:21057 STC.Refinement <> d:110 var
+R21065:21068 Corelib.Init.Datatypes <> Some constr
+R21071:21089 STC.Spec Spec WalkUpFromLeaf def
+R21091:21091 STC.Refinement <> e:107 var
+R21106:21113 STC.Common <> LeafHash def
+R21116:21125 STC.Impl Impl w_key proj
+R21127:21127 STC.Refinement <> w:109 var
+R21131:21145 STC.Impl Impl w_newValue proj
+R21147:21147 STC.Refinement <> w:109 var
+R21164:21173 STC.Impl Impl w_key proj
+R21175:21175 STC.Refinement <> w:109 var
+R21178:21178 STC.Refinement <> d:110 var
+R21246:21262 STC.Impl Impl PerTxCircuit def
+R21454:21456 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R21317:21339 STC.Impl Impl MerklePathVerifier def
+R21346:21353 STC.Common <> LeafHash def
+R21356:21365 STC.Impl Impl w_key proj
+R21371:21385 STC.Impl Impl w_oldValue proj
+R21396:21410 STC.Impl Impl w_siblings proj
+binder 21420:21420 <> l:112
+R21425:21431 STC.Common <> PathBit def
+R21434:21443 STC.Impl Impl w_key proj
+R21448:21448 STC.Refinement <> l:112 var
+R21454:21456 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R21317:21339 STC.Impl Impl MerklePathVerifier def
+R21346:21353 STC.Common <> LeafHash def
+R21356:21365 STC.Impl Impl w_key proj
+R21371:21385 STC.Impl Impl w_oldValue proj
+R21396:21410 STC.Impl Impl w_siblings proj
+binder 21420:21420 <> l:113
+R21425:21431 STC.Common <> PathBit def
+R21434:21443 STC.Impl Impl w_key proj
+R21448:21448 STC.Refinement <> l:113 var
+R21499:21522 STC.Refinement <> merkle_path_verifier_ext thm
+R21531:21545 STC.Impl Impl w_siblings proj
+binder 21555:21555 <> l:114
+R21560:21575 STC.Spec Spec SiblingHash def
+R21580:21589 STC.Impl Impl w_key proj
+R21594:21594 STC.Refinement <> l:114 var
+binder 21608:21608 <> l:115
+R21613:21619 STC.Common <> PathBit def
+R21622:21631 STC.Impl Impl w_key proj
+R21636:21636 STC.Refinement <> l:115 var
+R21646:21653 STC.Common <> LeafHash def
+R21656:21665 STC.Impl Impl w_key proj
+R21674:21683 STC.Impl Impl w_key proj
+R21499:21522 STC.Refinement <> merkle_path_verifier_ext thm
+R21531:21545 STC.Impl Impl w_siblings proj
+binder 21555:21555 <> l:116
+R21560:21575 STC.Spec Spec SiblingHash def
+R21580:21589 STC.Impl Impl w_key proj
+R21594:21594 STC.Refinement <> l:116 var
+binder 21608:21608 <> l:117
+R21613:21619 STC.Common <> PathBit def
+R21622:21631 STC.Impl Impl w_key proj
+R21636:21636 STC.Refinement <> l:117 var
+R21646:21653 STC.Common <> LeafHash def
+R21656:21665 STC.Impl Impl w_key proj
+R21674:21683 STC.Impl Impl w_key proj
+R21499:21522 STC.Refinement <> merkle_path_verifier_ext thm
+R21531:21545 STC.Impl Impl w_siblings proj
+binder 21555:21555 <> l:118
+R21560:21575 STC.Spec Spec SiblingHash def
+R21580:21589 STC.Impl Impl w_key proj
+R21594:21594 STC.Refinement <> l:118 var
+binder 21608:21608 <> l:119
+R21613:21619 STC.Common <> PathBit def
+R21622:21631 STC.Impl Impl w_key proj
+R21636:21636 STC.Refinement <> l:119 var
+R21646:21653 STC.Common <> LeafHash def
+R21656:21665 STC.Impl Impl w_key proj
+R21674:21683 STC.Impl Impl w_key proj
+R21499:21522 STC.Refinement <> merkle_path_verifier_ext thm
+R21531:21545 STC.Impl Impl w_siblings proj
+binder 21555:21555 <> l:120
+R21560:21575 STC.Spec Spec SiblingHash def
+R21580:21589 STC.Impl Impl w_key proj
+R21594:21594 STC.Refinement <> l:120 var
+binder 21608:21608 <> l:121
+R21613:21619 STC.Common <> PathBit def
+R21622:21631 STC.Impl Impl w_key proj
+R21636:21636 STC.Refinement <> l:121 var
+R21646:21653 STC.Common <> LeafHash def
+R21656:21665 STC.Impl Impl w_key proj
+R21674:21683 STC.Impl Impl w_key proj
+R21710:21736 STC.Refinement <> honest_verify_produces_root thm
+R21710:21736 STC.Refinement <> honest_verify_produces_root thm
+R21710:21736 STC.Refinement <> honest_verify_produces_root thm
+R21857:21864 Stdlib.ZArith.BinInt Z eq_dec def
+R21857:21864 Stdlib.ZArith.BinInt Z eq_dec def
+R21965:21988 STC.Refinement <> merkle_path_verifier_ext thm
+R21995:22009 STC.Impl Impl w_siblings proj
+binder 22019:22019 <> l:122
+R22024:22039 STC.Spec Spec SiblingHash def
+R22044:22053 STC.Impl Impl w_key proj
+R22058:22058 STC.Refinement <> l:122 var
+binder 22070:22070 <> l:123
+R22075:22081 STC.Common <> PathBit def
+R22084:22093 STC.Impl Impl w_key proj
+R22098:22098 STC.Refinement <> l:123 var
+R22106:22113 STC.Common <> LeafHash def
+R22116:22125 STC.Impl Impl w_key proj
+R22131:22145 STC.Impl Impl w_newValue proj
+R21965:21988 STC.Refinement <> merkle_path_verifier_ext thm
+R21995:22009 STC.Impl Impl w_siblings proj
+binder 22019:22019 <> l:124
+R22024:22039 STC.Spec Spec SiblingHash def
+R22044:22053 STC.Impl Impl w_key proj
+R22058:22058 STC.Refinement <> l:124 var
+binder 22070:22070 <> l:125
+R22075:22081 STC.Common <> PathBit def
+R22084:22093 STC.Impl Impl w_key proj
+R22098:22098 STC.Refinement <> l:125 var
+R22106:22113 STC.Common <> LeafHash def
+R22116:22125 STC.Impl Impl w_key proj
+R22131:22145 STC.Impl Impl w_newValue proj
+R21965:21988 STC.Refinement <> merkle_path_verifier_ext thm
+R21995:22009 STC.Impl Impl w_siblings proj
+binder 22019:22019 <> l:126
+R22024:22039 STC.Spec Spec SiblingHash def
+R22044:22053 STC.Impl Impl w_key proj
+R22058:22058 STC.Refinement <> l:126 var
+binder 22070:22070 <> l:127
+R22075:22081 STC.Common <> PathBit def
+R22084:22093 STC.Impl Impl w_key proj
+R22098:22098 STC.Refinement <> l:127 var
+R22106:22113 STC.Common <> LeafHash def
+R22116:22125 STC.Impl Impl w_key proj
+R22131:22145 STC.Impl Impl w_newValue proj
+R21965:21988 STC.Refinement <> merkle_path_verifier_ext thm
+R21995:22009 STC.Impl Impl w_siblings proj
+binder 22019:22019 <> l:128
+R22024:22039 STC.Spec Spec SiblingHash def
+R22044:22053 STC.Impl Impl w_key proj
+R22058:22058 STC.Refinement <> l:128 var
+binder 22070:22070 <> l:129
+R22075:22081 STC.Common <> PathBit def
+R22084:22093 STC.Impl Impl w_key proj
+R22098:22098 STC.Refinement <> l:129 var
+R22106:22113 STC.Common <> LeafHash def
+R22116:22125 STC.Impl Impl w_key proj
+R22131:22145 STC.Impl Impl w_newValue proj
+R22168:22186 STC.Spec Spec WalkUpFromLeaf def
+R22209:22231 STC.Refinement <> spec_walkup_as_verifier thm
+R22209:22231 STC.Refinement <> spec_walkup_as_verifier thm
+prf 23073:23092 <> circuit_tx_soundness
+R23108:23114 STC.Common <> Entries def
+binder 23104:23104 <> e:130
+R23122:23133 STC.Common <> FieldElement def
+binder 23118:23118 <> r:131
+R23145:23158 STC.Impl Impl TxWitness rec
+binder 23141:23141 <> w:132
+R23166:23168 Corelib.Init.Datatypes <> nat ind
+binder 23162:23162 <> d:133
+R23202:23209 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23177:23179 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23176:23176 STC.Refinement <> r:131 var
+R23180:23195 STC.Spec Spec ComputeNode def
+R23197:23197 STC.Refinement <> e:130 var
+R23199:23199 STC.Refinement <> d:133 var
+R23210:23210 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23298:23306 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+binder 23218:23218 <> l:134
+R23232:23240 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23223:23225 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R23222:23222 STC.Refinement <> l:134 var
+R23226:23226 STC.Refinement <> d:133 var
+R23260:23262 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23241:23255 STC.Impl Impl w_siblings proj
+R23257:23257 STC.Refinement <> w:132 var
+R23259:23259 STC.Refinement <> l:134 var
+R23263:23278 STC.Spec Spec SiblingHash def
+R23280:23280 STC.Refinement <> e:130 var
+R23283:23292 STC.Impl Impl w_key proj
+R23294:23294 STC.Refinement <> w:132 var
+R23297:23297 STC.Refinement <> l:134 var
+R23324:23331 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23319:23322 Stdlib.ZArith.BinInt <> ::Z_scope:x_'>='_x not
+R23307:23316 STC.Impl Impl w_key proj
+R23318:23318 STC.Refinement <> w:132 var
+R23357:23364 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23353:23355 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23344:23346 Stdlib.ZArith.BinInt <> ::Z_scope:x_'/'_x not
+R23332:23341 STC.Impl Impl w_key proj
+R23343:23343 STC.Refinement <> w:132 var
+R23347:23350 STC.Common <> pow2 def
+R23352:23352 STC.Refinement <> d:133 var
+R23402:23409 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23382:23385 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R23365:23379 STC.Impl Impl w_oldValue proj
+R23381:23381 STC.Refinement <> w:132 var
+R23386:23386 STC.Refinement <> e:130 var
+R23389:23398 STC.Impl Impl w_key proj
+R23400:23400 STC.Refinement <> w:132 var
+R23433:23435 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23410:23426 STC.Impl Impl PerTxCircuit def
+R23428:23428 STC.Refinement <> r:131 var
+R23430:23430 STC.Refinement <> w:132 var
+R23432:23432 STC.Refinement <> d:133 var
+R23436:23439 Corelib.Init.Datatypes <> None constr
+R23508:23524 STC.Impl Impl PerTxCircuit def
+R23576:23583 Stdlib.ZArith.BinInt Z eq_dec def
+R23590:23612 STC.Impl Impl MerklePathVerifier def
+R23621:23628 STC.Common <> LeafHash def
+R23631:23640 STC.Impl Impl w_key proj
+R23646:23660 STC.Impl Impl w_oldValue proj
+R23673:23687 STC.Impl Impl w_siblings proj
+binder 23697:23697 <> l:135
+R23702:23708 STC.Common <> PathBit def
+R23711:23720 STC.Impl Impl w_key proj
+R23725:23725 STC.Refinement <> l:135 var
+R23576:23583 Stdlib.ZArith.BinInt Z eq_dec def
+R23590:23612 STC.Impl Impl MerklePathVerifier def
+R23621:23628 STC.Common <> LeafHash def
+R23631:23640 STC.Impl Impl w_key proj
+R23646:23660 STC.Impl Impl w_oldValue proj
+R23673:23687 STC.Impl Impl w_siblings proj
+binder 23697:23697 <> l:136
+R23702:23708 STC.Common <> PathBit def
+R23711:23720 STC.Impl Impl w_key proj
+R23725:23725 STC.Refinement <> l:136 var
+R23940:23968 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R23897:23904 STC.Common <> LeafHash def
+R23907:23916 STC.Impl Impl w_key proj
+R23922:23936 STC.Impl Impl w_oldValue proj
+R23969:23976 STC.Common <> LeafHash def
+R23979:23988 STC.Impl Impl w_key proj
+R23997:24006 STC.Impl Impl w_key proj
+R23940:23968 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R23897:23904 STC.Common <> LeafHash def
+R23907:23916 STC.Impl Impl w_key proj
+R23922:23936 STC.Impl Impl w_oldValue proj
+R23969:23976 STC.Common <> LeafHash def
+R23979:23988 STC.Impl Impl w_key proj
+R23997:24006 STC.Impl Impl w_key proj
+R24062:24069 STC.Common <> LeafHash def
+R24099:24106 Stdlib.ZArith.BinInt Z eq_dec def
+R24109:24123 STC.Impl Impl w_oldValue proj
+R24128:24132 STC.Common <> EMPTY def
+R24169:24176 Stdlib.ZArith.BinInt Z eq_dec def
+R24182:24191 STC.Impl Impl w_key proj
+R24197:24201 STC.Common <> EMPTY def
+R24099:24106 Stdlib.ZArith.BinInt Z eq_dec def
+R24109:24123 STC.Impl Impl w_oldValue proj
+R24128:24132 STC.Common <> EMPTY def
+R24169:24176 Stdlib.ZArith.BinInt Z eq_dec def
+R24182:24191 STC.Impl Impl w_key proj
+R24197:24201 STC.Common <> EMPTY def
+R24169:24176 Stdlib.ZArith.BinInt Z eq_dec def
+R24182:24191 STC.Impl Impl w_key proj
+R24197:24201 STC.Common <> EMPTY def
+R24271:24283 STC.Common <> hash_positive prfax
+R24286:24295 STC.Impl Impl w_key proj
+R24304:24313 STC.Impl Impl w_key proj
+R24271:24283 STC.Common <> hash_positive prfax
+R24286:24295 STC.Impl Impl w_key proj
+R24304:24313 STC.Impl Impl w_key proj
+R24336:24340 STC.Common <> EMPTY def
+R24388:24400 STC.Common <> hash_positive prfax
+R24403:24412 STC.Impl Impl w_key proj
+R24418:24432 STC.Impl Impl w_oldValue proj
+R24388:24400 STC.Common <> hash_positive prfax
+R24403:24412 STC.Impl Impl w_key proj
+R24418:24432 STC.Impl Impl w_oldValue proj
+R24454:24458 STC.Common <> EMPTY def
+R24491:24504 STC.Common <> hash_injective prfax
+R24491:24504 STC.Common <> hash_injective prfax
+R24841:24849 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R24667:24689 STC.Impl Impl MerklePathVerifier def
+R24698:24705 STC.Common <> LeafHash def
+R24708:24717 STC.Impl Impl w_key proj
+R24723:24737 STC.Impl Impl w_oldValue proj
+binder 24754:24754 <> l:137
+R24759:24774 STC.Spec Spec SiblingHash def
+R24779:24788 STC.Impl Impl w_key proj
+R24793:24793 STC.Refinement <> l:137 var
+binder 24807:24807 <> l:138
+R24812:24818 STC.Common <> PathBit def
+R24821:24830 STC.Impl Impl w_key proj
+R24835:24835 STC.Refinement <> l:138 var
+R24850:24872 STC.Impl Impl MerklePathVerifier def
+R24883:24890 STC.Common <> LeafHash def
+R24893:24902 STC.Impl Impl w_key proj
+R24911:24920 STC.Impl Impl w_key proj
+binder 24940:24940 <> l:139
+R24945:24960 STC.Spec Spec SiblingHash def
+R24965:24974 STC.Impl Impl w_key proj
+R24979:24979 STC.Refinement <> l:139 var
+binder 24995:24995 <> l:140
+R25000:25006 STC.Common <> PathBit def
+R25009:25018 STC.Impl Impl w_key proj
+R25023:25023 STC.Refinement <> l:140 var
+R24841:24849 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R24667:24689 STC.Impl Impl MerklePathVerifier def
+R24698:24705 STC.Common <> LeafHash def
+R24708:24717 STC.Impl Impl w_key proj
+R24723:24737 STC.Impl Impl w_oldValue proj
+binder 24754:24754 <> l:141
+R24759:24774 STC.Spec Spec SiblingHash def
+R24779:24788 STC.Impl Impl w_key proj
+R24793:24793 STC.Refinement <> l:141 var
+binder 24807:24807 <> l:142
+R24812:24818 STC.Common <> PathBit def
+R24821:24830 STC.Impl Impl w_key proj
+R24835:24835 STC.Refinement <> l:142 var
+R24850:24872 STC.Impl Impl MerklePathVerifier def
+R24883:24890 STC.Common <> LeafHash def
+R24893:24902 STC.Impl Impl w_key proj
+R24911:24920 STC.Impl Impl w_key proj
+binder 24940:24940 <> l:143
+R24945:24960 STC.Spec Spec SiblingHash def
+R24965:24974 STC.Impl Impl w_key proj
+R24979:24979 STC.Refinement <> l:143 var
+binder 24995:24995 <> l:144
+R25000:25006 STC.Common <> PathBit def
+R25009:25018 STC.Impl Impl w_key proj
+R25023:25023 STC.Refinement <> l:144 var
+R25058:25073 STC.Spec Spec ComputeNode def
+R25058:25073 STC.Spec Spec ComputeNode def
+R25150:25173 STC.Refinement <> merkle_path_verifier_ext thm
+R25150:25173 STC.Refinement <> merkle_path_verifier_ext thm
+R25243:25269 STC.Refinement <> honest_verify_produces_root thm
+R25243:25269 STC.Refinement <> honest_verify_produces_root thm
+R25301:25323 STC.Refinement <> verify_walkup_injective thm
+R25301:25323 STC.Refinement <> verify_walkup_injective thm

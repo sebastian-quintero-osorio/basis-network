@@ -1,0 +1,49 @@
+{
+  "stage": 2,
+  "stage_name": "Baseline",
+  "status": "complete",
+  "iteration": 1,
+  "last_action": "Implementation + baseline benchmarks with 30 replications per config",
+  "next_action": "adversarial testing (Stage 3) -- concurrent writers, WAL corruption, large batch stress",
+  "verdict": "CONFIRMED",
+  "metrics": {
+    "throughput_tx_per_min": {
+      "best": 274438,
+      "target": 100,
+      "pass": true
+    },
+    "batch_formation_latency_ms": {
+      "best": 0.010,
+      "target": 5000,
+      "pass": true
+    },
+    "crash_recovery_tx_loss": {
+      "count": 0,
+      "tests": 150,
+      "pass": true
+    },
+    "determinism": {
+      "tests": 450,
+      "passed": 450,
+      "pass": true
+    },
+    "wal_write_latency_us": {
+      "mean": 149,
+      "p95": 223
+    }
+  },
+  "history": [
+    {
+      "iteration": 1,
+      "timestamp": "2026-03-18T00:00:00Z",
+      "action": "init",
+      "description": "Created experiment structure, beginning literature review and implementation"
+    },
+    {
+      "iteration": 1,
+      "timestamp": "2026-03-18T01:00:00Z",
+      "action": "draft + benchmark",
+      "description": "Literature review (20 papers/sources), implemented PersistentQueue with WAL + BatchAggregator, ran 5-phase benchmark suite (30 reps each), determinism tests (450/450), crash recovery tests (150/150). All hypothesis targets confirmed with large margins."
+    }
+  ]
+}

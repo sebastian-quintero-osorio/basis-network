@@ -64,3 +64,33 @@ CLAUDE.md
 
 # Agent pipeline proprietary configuration (skills and operating manuals)
 .claude/
+
+# Coq/Rocq build artifacts (source .v files are committed, compiled outputs are not)
+*.vo
+*.vok
+*.vos
+*.glob
+*.aux
+.lia.cache
+.nia.cache
+
+# TLA+ tooling (downloaded at runtime)
+tla2tools.jar
+
+# TLC model checking state files (the .log certificate of truth IS committed)
+_build/states/
+
+# Experiment runtime artifacts
+**/experiments/**/results/wal/
+**/experiments/**/code/node_modules/
+**/experiments/**/code/package-lock.json
+**/experiments/**/code/dist/
+**/experiments/**/results/build_*/
+
+# ZK circuit build artifacts in experiment directories
+**/experiments/**/*.r1cs
+**/experiments/**/*.wasm
+**/experiments/**/*.zkey
+**/experiments/**/*.wtns
+**/experiments/**/*.sym
+**/experiments/**/*.ptau

@@ -1,0 +1,50 @@
+{
+  "experiment": "sparse-merkle-tree",
+  "target": "validium",
+  "stage": 1,
+  "stage_name": "Implementation",
+  "status": "complete",
+  "iteration": 1,
+  "created": "2026-03-18",
+  "last_updated": "2026-03-18",
+  "current_action": "complete",
+  "next_action": "stage_2_baseline",
+  "metrics": {
+    "insert_latency_ms": {
+      "mean": 1.825,
+      "p95": 2.014,
+      "target": 10,
+      "status": "PASS"
+    },
+    "proof_generation_ms": {
+      "mean": 0.018,
+      "p95": 0.021,
+      "target": 5,
+      "status": "PASS"
+    },
+    "proof_verification_ms": {
+      "mean": 1.744,
+      "p95": 1.869,
+      "target": 2,
+      "status": "PASS"
+    },
+    "memory_usage_mb": {
+      "at_100k_entries": 233.9,
+      "target_max": 2048,
+      "status": "PASS"
+    },
+    "poseidon_hash_us": 56.09,
+    "mimc_hash_us": 278.55,
+    "poseidon_vs_mimc_speedup": 4.97,
+    "nodes_at_100k": 1712112
+  },
+  "hypothesis_verdict": "CONFIRMED",
+  "history": [
+    {
+      "iteration": 1,
+      "action": "draft",
+      "description": "Literature review (18 papers), SMT implementation, hash comparison benchmark, SMT benchmark at 100/1K/10K/100K entries. All hypothesis targets PASS.",
+      "timestamp": "2026-03-18"
+    }
+  ]
+}

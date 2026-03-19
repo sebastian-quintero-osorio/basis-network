@@ -24,7 +24,7 @@
 
 ### [01] Scientist | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- Hypothesis CONFIRMED, all targets PASS)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** None (first research unit).
@@ -53,7 +53,7 @@ Use `python lab/2-logicist/tools/new_unit.py sparse-merkle-tree` to scaffold the
 
 ### [02] Logicist | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 1.57M states, 65K distinct, all 3 invariants hold)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [01] complete, materials copied to `0-input/`.
@@ -81,7 +81,7 @@ lab/3-architect/implementation-history/state-machine-sparse-merkle-tree/
 
 ### [03] Architect | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 52/52 tests pass, 11 adversarial scenarios, production code in validium/node/src/state/)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [02] complete, verified specs in `implementation-history/`.
@@ -108,7 +108,7 @@ Use `python lab/4-prover/tools/new_verification_unit.py sparse-merkle-tree` to s
 
 ### [04] Prover | RU-V1: Sparse Merkle Tree
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 10 theorems Qed, 0 Admitted, 3 standard axioms)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [03] complete, snapshots prepared.
@@ -128,7 +128,7 @@ Use `python lab/4-prover/tools/new_verification_unit.py sparse-merkle-tree` to s
 
 ### [05] Scientist | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 7 benchmarks across depth 10/20/32 x batch 4/8/16, d32_b8=274K constraints/12.8s proving)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
@@ -153,7 +153,7 @@ Use `python lab/2-logicist/tools/new_unit.py state-transition-circuit`.
 
 ### [06] Logicist | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3.3M states, 4,096 distinct, 4/4 invariants hold)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [05] complete, materials in `0-input/`.
@@ -176,7 +176,7 @@ lab/3-architect/implementation-history/circuit-state-transition/
 
 ### [07] Architect | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- state_transition.circom + merkle_proof_verifier.circom, 45,715 constraints, 6/6 adversarial PASS)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [06] complete, verified specs in `implementation-history/`.
@@ -200,7 +200,7 @@ lab/4-prover/verification-history/YYYY-MM-state-transition-circuit/
 
 ### [08] Prover | RU-V2: State Transition Circuit
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 7 theorems Qed, 0 Admitted, batch_preserves_state_root_chain proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [07] complete, snapshots prepared.
@@ -219,7 +219,7 @@ lab/4-prover/verification-history/YYYY-MM-state-transition-circuit/
 
 ### [09] Scientist | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 274K tx/min, 0.01ms latency, 0 loss, 450/450 determinism)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
@@ -243,7 +243,7 @@ lab/2-logicist/research-history/YYYY-MM-batch-aggregation/0-input/
 
 ### [10] Logicist | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CRITICAL flaw found (NoLoss), fixed in v1-fix, TLC PASS: 6,763 states, APPROVED)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [09] complete, materials in `0-input/`.
@@ -266,7 +266,7 @@ lab/3-architect/implementation-history/queue-batch-aggregation/
 
 ### [11] Architect | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 163/163 tests, 85.71% coverage, v1-fix checkpoint enforced, WAL compaction bug found)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [10] complete, verified specs in `implementation-history/`.
@@ -289,7 +289,7 @@ lab/4-prover/verification-history/YYYY-MM-batch-aggregation/
 
 ### [12] Prover | RU-V4: Batch Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 55 theorems Qed, 0 Admitted, NoLoss + v1-fix checkpoint certified)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [11] complete, snapshots prepared.
@@ -308,7 +308,7 @@ lab/4-prover/verification-history/YYYY-MM-batch-aggregation/
 
 ### [13] Scientist | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 175ms attestation, 0 bits leaked, Shamir SSS, 112 tests, 24 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [01] complete (needs SMT knowledge).
@@ -332,7 +332,7 @@ lab/2-logicist/research-history/YYYY-MM-data-availability/0-input/
 
 ### [14] Logicist | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 6 safety + 2 liveness, node down/malicious/fallback scenarios verified)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [13] complete, materials in `0-input/`.
@@ -355,7 +355,7 @@ lab/3-architect/implementation-history/da-committee/
 
 ### [15] Architect | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 167 tests, DACAttestation.sol, Shamir SSS + DACNode + DACProtocol, 13 adversarial vectors)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [14] complete, verified specs in `implementation-history/`.
@@ -379,7 +379,7 @@ lab/4-prover/verification-history/YYYY-MM-data-availability/
 
 ### [16] Prover | RU-V6: Data Availability
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 16 theorems Qed, 0 Admitted, DataAvailability + Privacy + Soundness proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [15] complete, snapshots prepared.
@@ -398,7 +398,7 @@ lab/4-prover/verification-history/YYYY-MM-data-availability/
 
 ### [17] Scientist | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 285,756 gas Layout A, 32 bytes/batch, integrated verification mandatory)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [07] complete (needs circuit proof format from RU-V2 Architect).
@@ -422,7 +422,7 @@ lab/2-logicist/research-history/YYYY-MM-state-commitment/0-input/
 
 ### [18] Logicist | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3.78M states, 1.87M distinct, 6 invariants, gap/replay structurally blocked)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [17] complete, materials in `0-input/`.
@@ -445,7 +445,7 @@ lab/3-architect/implementation-history/l1-state-commitment/
 
 ### [19] Architect | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- StateCommitment.sol 290 lines, 138 tests, 10 adversarial, 6 TLA+ invariants enforced)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [18] complete, verified specs in `implementation-history/`.
@@ -469,7 +469,7 @@ lab/4-prover/verification-history/YYYY-MM-state-commitment/
 
 ### [20] Prover | RU-V3: L1 State Commitment
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 11 theorems, 0 Admitted, ZERO custom axioms, cross-enterprise isolation proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [19] complete, snapshots prepared.
@@ -488,7 +488,7 @@ lab/4-prover/verification-history/YYYY-MM-state-commitment/
 
 ### [21] Scientist | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 6-state machine, 593ms overhead, API contract, 20 references, proving is sole bottleneck)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [01], [05], [09], [17] complete (all Scientist work for dependencies).
@@ -512,7 +512,7 @@ lab/2-logicist/research-history/YYYY-MM-enterprise-node/0-input/
 
 ### [22] Logicist | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 3,958 states, 8 safety + 1 liveness, pipelined state machine, CheckQueue transition added)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [21] complete, materials in `0-input/`.
@@ -535,7 +535,7 @@ lab/3-architect/implementation-history/service-enterprise-node/
 
 ### [23] Architect | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- MVP NODE BUILT: 249/249 tests, orchestrator 550 lines, Fastify API, all 6 RUs integrated)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [22] complete, verified specs in `implementation-history/`.
@@ -561,7 +561,7 @@ lab/4-prover/verification-history/YYYY-MM-enterprise-node/
 
 ### [24] Prover | RU-V5: Enterprise Node
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 13 theorems Qed, 0 Admitted, Safety + Liveness + NoDataLeakage proved)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [23] complete, snapshots prepared.
@@ -580,7 +580,7 @@ lab/4-prover/verification-history/YYYY-MM-enterprise-node/
 
 ### [25] Scientist | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- CONFIRMED: 1.41x sequential, 0.64x batched, 68K constraints, 15 references)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [21], [13] complete.
@@ -604,7 +604,7 @@ lab/2-logicist/research-history/YYYY-MM-cross-enterprise/0-input/
 
 ### [26] Logicist | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- TLC PASS: 461K states, 54K distinct, Isolation + Consistency verified)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [25] complete, materials in `0-input/`.
@@ -627,7 +627,7 @@ lab/3-architect/implementation-history/verification-cross-enterprise/
 
 ### [27] Architect | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- 44 tests, CrossEnterpriseVerifier.sol, 25 adversarial vectors, Isolation + Consistency enforced)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [26] complete, verified specs in `implementation-history/`.
@@ -651,7 +651,7 @@ lab/4-prover/verification-history/YYYY-MM-cross-enterprise/
 
 ### [28] Prover | RU-V7: Cross-Enterprise
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-18 -- VERIFIED: 13 theorems Qed, Isolation + Consistency proved, minimal axiom base)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [27] complete, snapshots prepared.

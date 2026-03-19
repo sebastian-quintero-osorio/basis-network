@@ -1,0 +1,278 @@
+DIGEST 324f43f7af028439e8f9fc181c83e1d1
+FBA.Impl
+R1374:1379 BA.Common <> <> lib
+R1405:1408 BA.Spec <> <> lib
+R1438:1447 Stdlib.Lists.List <> <> lib
+R1477:1487 Stdlib.Arith.Arith <> <> lib
+R1517:1525 Stdlib.Bool.Bool <> <> lib
+R1555:1557 Stdlib.micromega.Lia <> <> lib
+R1568:1580 Stdlib.Lists.List ListNotations <> mod
+rec 2166:2174 <> ImplState
+proj 2195:2204 <> impl_queue
+proj 2261:2268 <> impl_wal
+proj 2326:2340 <> impl_checkpoint
+proj 2389:2407 <> impl_pendingBatches
+proj 2467:2480 <> impl_processed
+proj 2539:2550 <> impl_pending
+proj 2607:2613 <> impl_up
+proj 2665:2674 <> impl_timer
+R2208:2211 Corelib.Init.Datatypes <> list ind
+R2213:2214 BA.Common <> Tx def
+R2272:2275 Corelib.Init.Datatypes <> list ind
+R2277:2278 BA.Common <> Tx def
+R2344:2346 Corelib.Init.Datatypes <> nat ind
+R2411:2414 Corelib.Init.Datatypes <> list ind
+R2417:2420 Corelib.Init.Datatypes <> list ind
+R2422:2423 BA.Common <> Tx def
+R2484:2487 Corelib.Init.Datatypes <> list ind
+R2490:2493 Corelib.Init.Datatypes <> list ind
+R2495:2496 BA.Common <> Tx def
+R2554:2557 Corelib.Init.Datatypes <> list ind
+R2559:2560 BA.Common <> Tx def
+R2617:2620 Corelib.Init.Datatypes <> bool ind
+R2678:2681 Corelib.Init.Datatypes <> bool ind
+def 3086:3097 <> impl_enqueue
+R3104:3112 BA.Impl <> ImplState rec
+binder 3100:3100 <> s:10
+R3121:3122 BA.Common <> Tx def
+binder 3116:3117 <> tx:11
+R3127:3135 BA.Impl <> ImplState rec
+R3142:3152 BA.Impl <> mkImplState constr
+R3171:3174 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3159:3168 BA.Impl <> impl_queue proj
+R3170:3170 BA.Impl <> s:10 var
+R3175:3175 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3178:3178 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3176:3177 BA.Impl <> tx:11 var
+R3196:3199 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R3186:3193 BA.Impl <> impl_wal proj
+R3195:3195 BA.Impl <> s:10 var
+R3200:3200 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3203:3203 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3201:3202 BA.Impl <> tx:11 var
+R3211:3225 BA.Impl <> impl_checkpoint proj
+R3227:3227 BA.Impl <> s:10 var
+R3235:3253 BA.Impl <> impl_pendingBatches proj
+R3255:3255 BA.Impl <> s:10 var
+R3263:3276 BA.Impl <> impl_processed proj
+R3278:3278 BA.Impl <> s:10 var
+R3286:3291 Stdlib.Lists.List <> remove def
+R3308:3319 BA.Impl <> impl_pending proj
+R3321:3321 BA.Impl <> s:10 var
+R3304:3305 BA.Impl <> tx:11 var
+R3293:3302 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3330:3336 BA.Impl <> impl_up proj
+R3338:3338 BA.Impl <> s:10 var
+R3346:3355 BA.Impl <> impl_timer proj
+R3357:3357 BA.Impl <> s:10 var
+def 3686:3699 <> impl_formBatch
+R3706:3714 BA.Impl <> ImplState rec
+binder 3702:3702 <> s:12
+R3719:3727 BA.Impl <> ImplState rec
+R3757:3761 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R3754:3756 BA.Common <> BST defax
+R3762:3767 Corelib.Init.Datatypes <> length def
+R3770:3779 BA.Impl <> impl_queue proj
+R3781:3781 BA.Impl <> s:12 var
+R3838:3843 Corelib.Init.Datatypes <> length def
+R3846:3855 BA.Impl <> impl_queue proj
+R3857:3857 BA.Impl <> s:12 var
+R3809:3811 BA.Common <> BST defax
+binder 3738:3746 <> batchSize:13
+R3878:3883 Corelib.Lists.ListDef <> firstn def
+R3896:3905 BA.Impl <> impl_queue proj
+R3907:3907 BA.Impl <> s:12 var
+R3885:3893 BA.Impl <> batchSize:13 var
+binder 3869:3873 <> batch:14
+R3915:3925 BA.Impl <> mkImplState constr
+R3932:3936 Corelib.Lists.ListDef <> skipn def
+R3949:3958 BA.Impl <> impl_queue proj
+R3960:3960 BA.Impl <> s:12 var
+R3938:3946 BA.Impl <> batchSize:13 var
+R3969:3976 BA.Impl <> impl_wal proj
+R3978:3978 BA.Impl <> s:12 var
+R3986:4000 BA.Impl <> impl_checkpoint proj
+R4002:4002 BA.Impl <> s:12 var
+R4031:4034 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R4010:4028 BA.Impl <> impl_pendingBatches proj
+R4030:4030 BA.Impl <> s:12 var
+R4035:4035 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R4041:4041 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R4036:4040 BA.Impl <> batch:14 var
+R4049:4062 BA.Impl <> impl_processed proj
+R4064:4064 BA.Impl <> s:12 var
+R4072:4083 BA.Impl <> impl_pending proj
+R4085:4085 BA.Impl <> s:12 var
+R4093:4099 BA.Impl <> impl_up proj
+R4101:4101 BA.Impl <> s:12 var
+R4108:4112 Corelib.Init.Datatypes <> false constr
+def 4400:4416 <> impl_processBatch
+R4423:4431 BA.Impl <> ImplState rec
+binder 4419:4419 <> s:15
+R4436:4444 BA.Impl <> ImplState rec
+R4457:4475 BA.Impl <> impl_pendingBatches proj
+R4477:4477 BA.Impl <> s:15 var
+R4488:4489 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R4494:4494 BA.Impl <> s:15 var
+R4501:4504 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4517:4527 BA.Impl <> mkImplState constr
+R4536:4545 BA.Impl <> impl_queue proj
+R4547:4547 BA.Impl <> s:15 var
+R4557:4564 BA.Impl <> impl_wal proj
+R4566:4566 BA.Impl <> s:15 var
+R4593:4595 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R4576:4590 BA.Impl <> impl_checkpoint proj
+R4592:4592 BA.Impl <> s:15 var
+R4596:4601 Corelib.Init.Datatypes <> length def
+R4640:4643 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R4624:4637 BA.Impl <> impl_processed proj
+R4639:4639 BA.Impl <> s:15 var
+R4644:4644 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R4646:4646 Stdlib.Lists.List ListNotations ::list_scope:'['_x_']' not
+R4656:4667 BA.Impl <> impl_pending proj
+R4669:4669 BA.Impl <> s:15 var
+R4679:4685 BA.Impl <> impl_up proj
+R4687:4687 BA.Impl <> s:15 var
+R4697:4706 BA.Impl <> impl_timer proj
+R4708:4708 BA.Impl <> s:15 var
+def 4913:4922 <> impl_crash
+R4929:4937 BA.Impl <> ImplState rec
+binder 4925:4925 <> s:16
+R4942:4950 BA.Impl <> ImplState rec
+R4957:4967 BA.Impl <> mkImplState constr
+R4973:4974 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R4981:4988 BA.Impl <> impl_wal proj
+R4990:4990 BA.Impl <> s:16 var
+R4998:5012 BA.Impl <> impl_checkpoint proj
+R5014:5014 BA.Impl <> s:16 var
+R5021:5022 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R5029:5042 BA.Impl <> impl_processed proj
+R5044:5044 BA.Impl <> s:16 var
+R5052:5063 BA.Impl <> impl_pending proj
+R5065:5065 BA.Impl <> s:16 var
+R5072:5076 Corelib.Init.Datatypes <> false constr
+R5082:5086 Corelib.Init.Datatypes <> false constr
+def 5316:5327 <> impl_recover
+R5334:5342 BA.Impl <> ImplState rec
+binder 5330:5330 <> s:17
+R5347:5355 BA.Impl <> ImplState rec
+R5362:5372 BA.Impl <> mkImplState constr
+R5379:5383 Corelib.Lists.ListDef <> skipn def
+R5406:5413 BA.Impl <> impl_wal proj
+R5415:5415 BA.Impl <> s:17 var
+R5386:5400 BA.Impl <> impl_checkpoint proj
+R5402:5402 BA.Impl <> s:17 var
+R5424:5431 BA.Impl <> impl_wal proj
+R5433:5433 BA.Impl <> s:17 var
+R5441:5455 BA.Impl <> impl_checkpoint proj
+R5457:5457 BA.Impl <> s:17 var
+R5465:5483 BA.Impl <> impl_pendingBatches proj
+R5485:5485 BA.Impl <> s:17 var
+R5493:5506 BA.Impl <> impl_processed proj
+R5508:5508 BA.Impl <> s:17 var
+R5516:5527 BA.Impl <> impl_pending proj
+R5529:5529 BA.Impl <> s:17 var
+R5536:5539 Corelib.Init.Datatypes <> true constr
+R5546:5555 BA.Impl <> impl_timer proj
+R5557:5557 BA.Impl <> s:17 var
+def 5653:5666 <> impl_timerTick
+R5673:5681 BA.Impl <> ImplState rec
+binder 5669:5669 <> s:18
+R5686:5694 BA.Impl <> ImplState rec
+R5701:5711 BA.Impl <> mkImplState constr
+R5718:5727 BA.Impl <> impl_queue proj
+R5729:5729 BA.Impl <> s:18 var
+R5737:5744 BA.Impl <> impl_wal proj
+R5746:5746 BA.Impl <> s:18 var
+R5754:5768 BA.Impl <> impl_checkpoint proj
+R5770:5770 BA.Impl <> s:18 var
+R5778:5796 BA.Impl <> impl_pendingBatches proj
+R5798:5798 BA.Impl <> s:18 var
+R5806:5819 BA.Impl <> impl_processed proj
+R5821:5821 BA.Impl <> s:18 var
+R5829:5840 BA.Impl <> impl_pending proj
+R5842:5842 BA.Impl <> s:18 var
+R5850:5856 BA.Impl <> impl_up proj
+R5858:5858 BA.Impl <> s:18 var
+R5865:5868 Corelib.Init.Datatypes <> true constr
+def 6251:6259 <> map_state
+R6267:6275 BA.Impl <> ImplState rec
+binder 6262:6263 <> is:19
+R6280:6289 BA.Spec <> State rec
+R6296:6307 BA.Spec <> mkState constr
+R6314:6323 BA.Impl <> impl_queue proj
+R6325:6326 BA.Impl <> is:19 var
+R6334:6341 BA.Impl <> impl_wal proj
+R6343:6344 BA.Impl <> is:19 var
+R6352:6366 BA.Impl <> impl_checkpoint proj
+R6368:6369 BA.Impl <> is:19 var
+R6377:6395 BA.Impl <> impl_pendingBatches proj
+R6397:6398 BA.Impl <> is:19 var
+R6406:6419 BA.Impl <> impl_processed proj
+R6421:6422 BA.Impl <> is:19 var
+R6430:6441 BA.Impl <> impl_pending proj
+R6443:6444 BA.Impl <> is:19 var
+R6452:6458 BA.Impl <> impl_up proj
+R6460:6461 BA.Impl <> is:19 var
+R6469:6478 BA.Impl <> impl_timer proj
+R6480:6481 BA.Impl <> is:19 var
+prf 6717:6727 <> map_enqueue
+binder 6738:6738 <> s:20
+binder 6740:6741 <> tx:21
+R6775:6777 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6746:6754 BA.Impl <> map_state def
+R6757:6768 BA.Impl <> impl_enqueue def
+R6770:6770 BA.Impl <> s:20 var
+R6772:6773 BA.Impl <> tx:21 var
+R6778:6789 BA.Spec <> Enqueue def
+R6792:6800 BA.Impl <> map_state def
+R6802:6802 BA.Impl <> s:20 var
+R6805:6806 BA.Impl <> tx:21 var
+prf 6851:6863 <> map_formBatch
+binder 6874:6874 <> s:22
+R6907:6909 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6879:6887 BA.Impl <> map_state def
+R6890:6903 BA.Impl <> impl_formBatch def
+R6905:6905 BA.Impl <> s:22 var
+R6910:6923 BA.Spec <> FormBatch def
+R6926:6934 BA.Impl <> map_state def
+R6936:6936 BA.Impl <> s:22 var
+prf 6982:6997 <> map_processBatch
+binder 7008:7008 <> s:23
+R7044:7046 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7013:7021 BA.Impl <> map_state def
+R7024:7040 BA.Impl <> impl_processBatch def
+R7042:7042 BA.Impl <> s:23 var
+R7047:7063 BA.Spec <> ProcessBatch def
+R7066:7074 BA.Impl <> map_state def
+R7076:7076 BA.Impl <> s:23 var
+R7129:7145 BA.Impl <> impl_processBatch def
+R7148:7156 BA.Impl <> map_state def
+R7159:7175 BA.Spec <> ProcessBatch def
+prf 7227:7235 <> map_crash
+binder 7246:7246 <> s:24
+R7275:7277 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7251:7259 BA.Impl <> map_state def
+R7262:7271 BA.Impl <> impl_crash def
+R7273:7273 BA.Impl <> s:24 var
+R7278:7287 BA.Spec <> Crash def
+R7290:7298 BA.Impl <> map_state def
+R7300:7300 BA.Impl <> s:24 var
+prf 7346:7356 <> map_recover
+binder 7367:7367 <> s:25
+R7398:7400 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7372:7380 BA.Impl <> map_state def
+R7383:7394 BA.Impl <> impl_recover def
+R7396:7396 BA.Impl <> s:25 var
+R7401:7412 BA.Spec <> Recover def
+R7415:7423 BA.Impl <> map_state def
+R7425:7425 BA.Impl <> s:25 var
+prf 7471:7483 <> map_timerTick
+binder 7494:7494 <> s:26
+R7527:7529 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7499:7507 BA.Impl <> map_state def
+R7510:7523 BA.Impl <> impl_timerTick def
+R7525:7525 BA.Impl <> s:26 var
+R7530:7543 BA.Spec <> TimerTick def
+R7546:7554 BA.Impl <> map_state def
+R7556:7556 BA.Impl <> s:26 var

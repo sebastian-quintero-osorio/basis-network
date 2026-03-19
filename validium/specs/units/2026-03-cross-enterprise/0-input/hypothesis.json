@@ -1,0 +1,26 @@
+{
+  "name": "cross-enterprise",
+  "target": "validium",
+  "title": "Cross-Enterprise Verification: Hub-and-Spoke Proof Aggregation for Multi-Enterprise Validium",
+  "hypothesis": "A hub-and-spoke model where the L1 aggregates proofs from multiple enterprises can verify cross-enterprise interactions (e.g., enterprise A sells to enterprise B) without revealing data from either, using proof aggregation with < 2x overhead over individual verification.",
+  "null_hypothesis": "Cross-enterprise verification requires >= 2x gas overhead compared to individual enterprise verification, OR the privacy guarantee breaks down (data from enterprise A is leaked to enterprise B during cross-reference), OR proof generation time for cross-reference exceeds 120 seconds making the system impractical.",
+  "domain": "enterprise-privacy",
+  "independent_variables": [
+    "num_enterprises",
+    "verification_approach",
+    "tree_depth",
+    "batch_size",
+    "interaction_type"
+  ],
+  "dependent_variables": [
+    "cross_verification_gas_cost",
+    "overhead_ratio_vs_individual",
+    "cross_reference_proof_time_ms",
+    "cross_reference_constraint_count",
+    "privacy_leakage_bits",
+    "aggregated_proof_size_bytes"
+  ],
+  "created": "2026-03-18",
+  "research_unit": "RU-V7",
+  "depends_on": ["RU-V1", "RU-V2", "RU-V3", "RU-V5", "RU-V6"]
+}

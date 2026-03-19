@@ -1,0 +1,461 @@
+DIGEST b9db237dd15712e3e7a389fac547e0d9
+FDA.Common
+R807:816 Stdlib.Lists.List <> <> lib
+R846:856 Stdlib.Arith.Arith <> <> lib
+R886:888 Stdlib.micromega.Lia <> <> lib
+R918:926 Stdlib.Bool.Bool <> <> lib
+R937:949 Stdlib.Lists.List ListNotations <> mod
+def 1219:1222 <> Node
+R1227:1229 Corelib.Init.Datatypes <> nat ind
+def 1350:1354 <> Batch
+R1359:1361 Corelib.Init.Datatypes <> nat ind
+def 1463:1469 <> NodeSet
+R1474:1477 Corelib.Init.Datatypes <> list ind
+R1479:1482 DA.Common <> Node def
+ind 1762:1771 <> cert_state
+constr 1787:1794 <> CertNone
+constr 1798:1806 <> CertValid
+constr 1810:1821 <> CertFallback
+scheme 1762:1771 <> cert_state_rect
+scheme 1762:1771 <> cert_state_ind
+scheme 1762:1771 <> cert_state_rec
+scheme 1762:1771 <> cert_state_sind
+ind 1972:1984 <> recover_state
+constr 2000:2006 <> RecNone
+constr 2010:2019 <> RecSuccess
+constr 2023:2034 <> RecCorrupted
+constr 2038:2046 <> RecFailed
+scheme 1972:1984 <> recover_state_rect
+scheme 1972:1984 <> recover_state_ind
+scheme 1972:1984 <> recover_state_rec
+scheme 1972:1984 <> recover_state_sind
+ax 2336:2344 <> Threshold
+R2348:2350 Corelib.Init.Datatypes <> nat ind
+ax 2359:2372 <> threshold_ge_1
+R2385:2388 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R2376:2384 DA.Common <> Threshold defax
+def 2649:2651 <> mem
+R2658:2661 DA.Common <> Node def
+binder 2654:2654 <> n:9
+R2669:2675 DA.Common <> NodeSet def
+binder 2665:2665 <> s:10
+R2680:2683 Corelib.Init.Datatypes <> bool ind
+R2696:2696 DA.Common <> s:10 var
+R2707:2708 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2713:2717 Corelib.Init.Datatypes <> false constr
+R2724:2727 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R2737:2743 Stdlib.Arith.PeanoNat Nat eqb def
+R2745:2745 DA.Common <> n:9 var
+R2764:2766 DA.Common <> mem:11 def
+R2768:2768 DA.Common <> n:9 var
+R2754:2757 Corelib.Init.Datatypes <> true constr
+prf 2787:2798 <> mem_true_iff
+binder 2809:2809 <> n:13
+binder 2811:2811 <> s:14
+R2828:2832 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R2821:2823 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2814:2816 DA.Common <> mem def
+R2818:2818 DA.Common <> n:13 var
+R2820:2820 DA.Common <> s:14 var
+R2824:2827 Corelib.Init.Datatypes <> true constr
+R2833:2834 Stdlib.Lists.List <> In def
+R2838:2838 DA.Common <> s:14 var
+R2836:2836 DA.Common <> n:13 var
+R2959:2965 Stdlib.Arith.PeanoNat Nat eqb def
+R2959:2965 Stdlib.Arith.PeanoNat Nat eqb def
+R2991:3000 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R2991:3000 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R3040:3050 Stdlib.Arith.PeanoNat Nat eqb_neq thm
+R3040:3050 Stdlib.Arith.PeanoNat Nat eqb_neq thm
+prf 3173:3185 <> mem_false_iff
+binder 3196:3196 <> n:15
+binder 3198:3198 <> s:16
+R3216:3220 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R3208:3210 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3201:3203 DA.Common <> mem def
+R3205:3205 DA.Common <> n:15 var
+R3207:3207 DA.Common <> s:16 var
+R3211:3215 Corelib.Init.Datatypes <> false constr
+R3221:3222 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R3223:3224 Stdlib.Lists.List <> In def
+R3228:3228 DA.Common <> s:16 var
+R3226:3226 DA.Common <> n:15 var
+R3283:3294 DA.Common <> mem_true_iff thm
+R3283:3294 DA.Common <> mem_true_iff thm
+R3340:3342 DA.Common <> mem def
+R3340:3342 DA.Common <> mem def
+R3390:3401 DA.Common <> mem_true_iff thm
+R3390:3401 DA.Common <> mem_true_iff thm
+def 3700:3712 <> has_member_in
+R3723:3729 DA.Common <> NodeSet def
+binder 3715:3716 <> s1:17
+binder 3718:3719 <> s2:18
+R3734:3737 Corelib.Init.Datatypes <> bool ind
+R3750:3751 DA.Common <> s1:17 var
+R3762:3763 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R3768:3772 Corelib.Init.Datatypes <> false constr
+R3779:3782 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R3792:3794 DA.Common <> mem def
+R3798:3799 DA.Common <> s2:18 var
+R3816:3828 DA.Common <> has_member_in:19 def
+R3833:3834 DA.Common <> s2:18 var
+R3806:3809 Corelib.Init.Datatypes <> true constr
+prf 3850:3871 <> has_member_in_true_iff
+binder 3882:3883 <> s1:21
+binder 3885:3886 <> s2:22
+R3917:3921 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R3910:3912 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3891:3903 DA.Common <> has_member_in def
+R3905:3906 DA.Common <> s1:21 var
+R3908:3909 DA.Common <> s2:22 var
+R3913:3916 Corelib.Init.Datatypes <> true constr
+R3922:3928 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R3930:3931 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+binder 3929:3929 <> n:23
+R3939:3942 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3932:3933 Stdlib.Lists.List <> In def
+R3937:3938 DA.Common <> s1:21 var
+R3935:3935 DA.Common <> n:23 var
+R3943:3944 Stdlib.Lists.List <> In def
+R3948:3949 DA.Common <> s2:22 var
+R3946:3946 DA.Common <> n:23 var
+R4069:4071 DA.Common <> mem def
+R4069:4071 DA.Common <> mem def
+R4098:4109 DA.Common <> mem_true_iff thm
+R4098:4109 DA.Common <> mem_true_iff thm
+R4191:4203 DA.Common <> mem_false_iff thm
+R4191:4203 DA.Common <> mem_false_iff thm
+prf 4390:4412 <> has_member_in_false_iff
+binder 4423:4424 <> s1:24
+binder 4426:4427 <> s2:25
+R4459:4463 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R4451:4453 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4432:4444 DA.Common <> has_member_in def
+R4446:4447 DA.Common <> s1:24 var
+R4449:4450 DA.Common <> s2:25 var
+R4454:4458 Corelib.Init.Datatypes <> false constr
+binder 4471:4471 <> n:26
+R4474:4476 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R4495:4495 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R4484:4487 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R4477:4478 Stdlib.Lists.List <> In def
+R4482:4483 DA.Common <> s1:24 var
+R4480:4480 DA.Common <> n:26 var
+R4488:4489 Stdlib.Lists.List <> In def
+R4493:4494 DA.Common <> s2:25 var
+R4491:4491 DA.Common <> n:26 var
+R4581:4583 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4562:4574 DA.Common <> has_member_in def
+R4584:4587 Corelib.Init.Datatypes <> true constr
+R4606:4627 DA.Common <> has_member_in_true_iff thm
+R4581:4583 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4562:4574 DA.Common <> has_member_in def
+R4584:4587 Corelib.Init.Datatypes <> true constr
+R4606:4627 DA.Common <> has_member_in_true_iff thm
+R4687:4699 DA.Common <> has_member_in def
+R4687:4699 DA.Common <> has_member_in def
+R4731:4752 DA.Common <> has_member_in_true_iff thm
+R4731:4752 DA.Common <> has_member_in_true_iff thm
+def 5043:5050 <> set_diff
+R5061:5067 DA.Common <> NodeSet def
+binder 5053:5054 <> s1:27
+binder 5056:5057 <> s2:28
+R5072:5078 DA.Common <> NodeSet def
+R5085:5090 Stdlib.Lists.List <> filter def
+R5119:5120 DA.Common <> s1:27 var
+binder 5097:5097 <> n:29
+R5102:5105 Corelib.Init.Datatypes <> negb def
+R5108:5110 DA.Common <> mem def
+R5112:5112 DA.Common <> n:29 var
+R5114:5115 DA.Common <> s2:28 var
+def 5207:5216 <> set_filter
+R5227:5230 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5223:5226 DA.Common <> Node def
+R5231:5234 Corelib.Init.Datatypes <> bool ind
+binder 5219:5219 <> f:30
+R5242:5248 DA.Common <> NodeSet def
+binder 5238:5238 <> s:31
+R5253:5259 DA.Common <> NodeSet def
+R5266:5271 Stdlib.Lists.List <> filter def
+R5275:5275 DA.Common <> s:31 var
+R5273:5273 DA.Common <> f:30 var
+prf 5285:5295 <> set_diff_In
+binder 5306:5306 <> n:32
+binder 5308:5309 <> s1:33
+binder 5311:5312 <> s2:34
+R5338:5342 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R5317:5318 Stdlib.Lists.List <> In def
+R5323:5330 DA.Common <> set_diff def
+R5332:5333 DA.Common <> s1:33 var
+R5335:5336 DA.Common <> s2:34 var
+R5320:5320 DA.Common <> n:32 var
+R5350:5353 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5343:5344 Stdlib.Lists.List <> In def
+R5348:5349 DA.Common <> s1:33 var
+R5346:5346 DA.Common <> n:32 var
+R5354:5355 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R5356:5357 Stdlib.Lists.List <> In def
+R5361:5362 DA.Common <> s2:34 var
+R5359:5359 DA.Common <> n:32 var
+R5389:5396 DA.Common <> set_diff def
+R5407:5415 Stdlib.Lists.List <> filter_In thm
+R5407:5415 Stdlib.Lists.List <> filter_In thm
+R5407:5415 Stdlib.Lists.List <> filter_In thm
+R5428:5440 Stdlib.Bool.Bool <> negb_true_iff thm
+R5428:5440 Stdlib.Bool.Bool <> negb_true_iff thm
+R5428:5440 Stdlib.Bool.Bool <> negb_true_iff thm
+R5451:5463 DA.Common <> mem_false_iff thm
+R5451:5463 DA.Common <> mem_false_iff thm
+R5451:5463 DA.Common <> mem_false_iff thm
+prf 5485:5497 <> set_filter_In
+binder 5508:5508 <> n:35
+binder 5510:5510 <> f:36
+binder 5512:5512 <> s:37
+R5538:5542 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R5517:5518 Stdlib.Lists.List <> In def
+R5523:5532 DA.Common <> set_filter def
+R5534:5534 DA.Common <> f:36 var
+R5536:5536 DA.Common <> s:37 var
+R5520:5520 DA.Common <> n:35 var
+R5549:5552 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5543:5544 Stdlib.Lists.List <> In def
+R5548:5548 DA.Common <> s:37 var
+R5546:5546 DA.Common <> n:35 var
+R5556:5558 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5553:5553 DA.Common <> f:36 var
+R5555:5555 DA.Common <> n:35 var
+R5559:5562 Corelib.Init.Datatypes <> true constr
+R5589:5598 DA.Common <> set_filter def
+R5609:5617 Stdlib.Lists.List <> filter_In thm
+R5609:5617 Stdlib.Lists.List <> filter_In thm
+R5609:5617 Stdlib.Lists.List <> filter_In thm
+def 5876:5881 <> subset
+R5892:5898 DA.Common <> NodeSet def
+binder 5884:5885 <> s1:38
+binder 5887:5888 <> s2:39
+binder 5920:5920 <> n:40
+R5930:5933 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5923:5924 Stdlib.Lists.List <> In def
+R5928:5929 DA.Common <> s1:38 var
+R5926:5926 DA.Common <> n:40 var
+R5934:5935 Stdlib.Lists.List <> In def
+R5939:5940 DA.Common <> s2:39 var
+R5937:5937 DA.Common <> n:40 var
+def 6052:6059 <> disjoint
+R6070:6076 DA.Common <> NodeSet def
+binder 6062:6063 <> s1:41
+binder 6065:6066 <> s2:42
+binder 6098:6098 <> n:43
+R6101:6103 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R6122:6122 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R6111:6114 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R6104:6105 Stdlib.Lists.List <> In def
+R6109:6110 DA.Common <> s1:41 var
+R6107:6107 DA.Common <> n:43 var
+R6115:6116 Stdlib.Lists.List <> In def
+R6120:6121 DA.Common <> s2:42 var
+R6118:6118 DA.Common <> n:43 var
+prf 6132:6141 <> subset_nil
+binder 6152:6152 <> s:44
+R6155:6160 DA.Common <> subset def
+R6162:6163 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R6165:6165 DA.Common <> s:44 var
+prf 6343:6362 <> subset_diff_disjoint
+binder 6373:6374 <> s1:45
+binder 6376:6377 <> s2:46
+binder 6379:6380 <> s3:47
+R6411:6414 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6385:6390 DA.Common <> subset def
+R6392:6393 DA.Common <> s1:45 var
+R6396:6403 DA.Common <> set_diff def
+R6405:6406 DA.Common <> s2:46 var
+R6408:6409 DA.Common <> s3:47 var
+R6415:6422 DA.Common <> disjoint def
+R6424:6425 DA.Common <> s1:45 var
+R6427:6428 DA.Common <> s3:47 var
+R6498:6508 DA.Common <> set_diff_In thm
+R6498:6508 DA.Common <> set_diff_In thm
+prf 6597:6618 <> disjoint_has_member_in
+binder 6629:6630 <> s1:48
+binder 6632:6633 <> s2:49
+R6652:6656 Corelib.Init.Logic <> ::type_scope:x_'<->'_x not
+R6638:6645 DA.Common <> disjoint def
+R6647:6648 DA.Common <> s1:48 var
+R6650:6651 DA.Common <> s2:49 var
+R6676:6678 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6657:6669 DA.Common <> has_member_in def
+R6671:6672 DA.Common <> s1:48 var
+R6674:6675 DA.Common <> s2:49 var
+R6679:6683 Corelib.Init.Datatypes <> false constr
+R6717:6739 DA.Common <> has_member_in_false_iff thm
+R6717:6739 DA.Common <> has_member_in_false_iff thm
+R6717:6739 DA.Common <> has_member_in_false_iff thm
+R6751:6758 DA.Common <> disjoint def
+def 7036:7042 <> fupdate
+R7054:7057 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7049:7053 DA.Common <> Batch def
+R7058:7064 DA.Common <> NodeSet def
+binder 7045:7045 <> f:50
+R7072:7076 DA.Common <> Batch def
+binder 7068:7068 <> b:51
+R7084:7090 DA.Common <> NodeSet def
+binder 7080:7080 <> v:52
+R7102:7105 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7097:7101 DA.Common <> Batch def
+R7106:7112 DA.Common <> NodeSet def
+binder 7123:7124 <> b':53
+R7132:7138 Stdlib.Arith.PeanoNat Nat eqb def
+R7140:7141 DA.Common <> b':53 var
+R7143:7143 DA.Common <> b:51 var
+R7157:7157 DA.Common <> f:50 var
+R7159:7160 DA.Common <> b':53 var
+R7150:7150 DA.Common <> v:52 var
+def 7175:7186 <> fupdate_cert
+R7198:7201 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7193:7197 DA.Common <> Batch def
+R7202:7211 DA.Common <> cert_state ind
+binder 7189:7189 <> f:54
+R7219:7223 DA.Common <> Batch def
+binder 7215:7215 <> b:55
+R7231:7240 DA.Common <> cert_state ind
+binder 7227:7227 <> v:56
+R7252:7255 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7247:7251 DA.Common <> Batch def
+R7256:7265 DA.Common <> cert_state ind
+binder 7276:7277 <> b':57
+R7285:7291 Stdlib.Arith.PeanoNat Nat eqb def
+R7293:7294 DA.Common <> b':57 var
+R7296:7296 DA.Common <> b:55 var
+R7310:7310 DA.Common <> f:54 var
+R7312:7313 DA.Common <> b':57 var
+R7303:7303 DA.Common <> v:56 var
+def 7328:7338 <> fupdate_rec
+R7350:7353 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7345:7349 DA.Common <> Batch def
+R7354:7366 DA.Common <> recover_state ind
+binder 7341:7341 <> f:58
+R7374:7378 DA.Common <> Batch def
+binder 7370:7370 <> b:59
+R7386:7398 DA.Common <> recover_state ind
+binder 7382:7382 <> v:60
+R7410:7413 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7405:7409 DA.Common <> Batch def
+R7414:7426 DA.Common <> recover_state ind
+binder 7437:7438 <> b':61
+R7446:7452 Stdlib.Arith.PeanoNat Nat eqb def
+R7454:7455 DA.Common <> b':61 var
+R7457:7457 DA.Common <> b:59 var
+R7471:7471 DA.Common <> f:58 var
+R7473:7474 DA.Common <> b':61 var
+R7464:7464 DA.Common <> v:60 var
+prf 7484:7493 <> fupdate_eq
+binder 7504:7504 <> f:62
+binder 7506:7506 <> b:63
+binder 7508:7508 <> v:64
+R7526:7528 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7511:7517 DA.Common <> fupdate def
+R7519:7519 DA.Common <> f:62 var
+R7521:7521 DA.Common <> b:63 var
+R7523:7523 DA.Common <> v:64 var
+R7525:7525 DA.Common <> b:63 var
+R7529:7529 DA.Common <> v:64 var
+R7554:7560 DA.Common <> fupdate def
+R7571:7582 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R7571:7582 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R7571:7582 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+prf 7610:7620 <> fupdate_neq
+binder 7631:7631 <> f:65
+binder 7633:7633 <> b:66
+binder 7635:7636 <> b':67
+binder 7638:7638 <> v:68
+R7648:7651 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7643:7646 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R7641:7642 DA.Common <> b':67 var
+R7647:7647 DA.Common <> b:66 var
+R7668:7670 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7652:7658 DA.Common <> fupdate def
+R7660:7660 DA.Common <> f:65 var
+R7662:7662 DA.Common <> b:66 var
+R7664:7664 DA.Common <> v:68 var
+R7666:7667 DA.Common <> b':67 var
+R7671:7671 DA.Common <> f:65 var
+R7673:7674 DA.Common <> b':67 var
+R7701:7707 DA.Common <> fupdate def
+R7722:7728 Stdlib.Arith.PeanoNat Nat eqb def
+R7722:7728 Stdlib.Arith.PeanoNat Nat eqb def
+R7757:7766 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R7757:7766 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+prf 7801:7815 <> fupdate_cert_eq
+binder 7826:7826 <> f:69
+binder 7828:7828 <> b:70
+binder 7830:7830 <> v:71
+R7853:7855 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7833:7844 DA.Common <> fupdate_cert def
+R7846:7846 DA.Common <> f:69 var
+R7848:7848 DA.Common <> b:70 var
+R7850:7850 DA.Common <> v:71 var
+R7852:7852 DA.Common <> b:70 var
+R7856:7856 DA.Common <> v:71 var
+R7881:7892 DA.Common <> fupdate_cert def
+R7903:7914 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R7903:7914 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R7903:7914 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+prf 7942:7957 <> fupdate_cert_neq
+binder 7968:7968 <> f:72
+binder 7970:7970 <> b:73
+binder 7972:7973 <> b':74
+binder 7975:7975 <> v:75
+R7987:7990 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7982:7985 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R7980:7981 DA.Common <> b':74 var
+R7986:7986 DA.Common <> b:73 var
+R8012:8014 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7991:8002 DA.Common <> fupdate_cert def
+R8004:8004 DA.Common <> f:72 var
+R8006:8006 DA.Common <> b:73 var
+R8008:8008 DA.Common <> v:75 var
+R8010:8011 DA.Common <> b':74 var
+R8015:8015 DA.Common <> f:72 var
+R8017:8018 DA.Common <> b':74 var
+R8045:8056 DA.Common <> fupdate_cert def
+R8071:8077 Stdlib.Arith.PeanoNat Nat eqb def
+R8071:8077 Stdlib.Arith.PeanoNat Nat eqb def
+R8106:8115 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R8106:8115 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+prf 8150:8163 <> fupdate_rec_eq
+binder 8174:8174 <> f:76
+binder 8176:8176 <> b:77
+binder 8178:8178 <> v:78
+R8200:8202 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8181:8191 DA.Common <> fupdate_rec def
+R8193:8193 DA.Common <> f:76 var
+R8195:8195 DA.Common <> b:77 var
+R8197:8197 DA.Common <> v:78 var
+R8199:8199 DA.Common <> b:77 var
+R8203:8203 DA.Common <> v:78 var
+R8228:8238 DA.Common <> fupdate_rec def
+R8249:8260 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R8249:8260 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+R8249:8260 Stdlib.Arith.PeanoNat Nat eqb_refl thm
+prf 8288:8302 <> fupdate_rec_neq
+binder 8313:8313 <> f:79
+binder 8315:8315 <> b:80
+binder 8317:8318 <> b':81
+binder 8320:8320 <> v:82
+R8332:8335 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8327:8330 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8325:8326 DA.Common <> b':81 var
+R8331:8331 DA.Common <> b:80 var
+R8356:8358 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8336:8346 DA.Common <> fupdate_rec def
+R8348:8348 DA.Common <> f:79 var
+R8350:8350 DA.Common <> b:80 var
+R8352:8352 DA.Common <> v:82 var
+R8354:8355 DA.Common <> b':81 var
+R8359:8359 DA.Common <> f:79 var
+R8361:8362 DA.Common <> b':81 var
+R8389:8399 DA.Common <> fupdate_rec def
+R8414:8420 Stdlib.Arith.PeanoNat Nat eqb def
+R8414:8420 Stdlib.Arith.PeanoNat Nat eqb def
+R8449:8458 Stdlib.Arith.PeanoNat Nat eqb_eq thm
+R8449:8458 Stdlib.Arith.PeanoNat Nat eqb_eq thm

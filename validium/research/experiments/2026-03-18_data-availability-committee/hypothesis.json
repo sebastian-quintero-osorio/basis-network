@@ -1,0 +1,24 @@
+{
+  "name": "data-availability-committee",
+  "target": "validium",
+  "title": "Data Availability Committee with Shamir Secret Sharing for Enterprise ZK Validium",
+  "hypothesis": "A 3-node DAC with 2-of-3 threshold using Shamir secret sharing can attest batch data availability in under 2 seconds, with enterprise-managed storage, without exposing data to any individual node (information-theoretic privacy), and with recovery mechanism if one node fails.",
+  "null_hypothesis": "Either attestation latency exceeds 2 seconds for enterprise batch sizes (100KB-1MB), or Shamir secret sharing overhead makes the protocol impractical (>10x estimated), or single-node failure prevents data recovery, or individual shares leak information about batch data.",
+  "domain": "data-availability",
+  "independent_variables": [
+    "batch_size_bytes",
+    "committee_size",
+    "threshold_k",
+    "sharing_scheme",
+    "attestation_protocol"
+  ],
+  "dependent_variables": [
+    "share_generation_time_ms",
+    "attestation_latency_ms",
+    "recovery_time_ms",
+    "storage_overhead_ratio",
+    "share_information_leakage"
+  ],
+  "stage": 1,
+  "created": "2026-03-18"
+}

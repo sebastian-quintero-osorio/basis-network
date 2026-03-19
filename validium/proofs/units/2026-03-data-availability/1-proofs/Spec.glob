@@ -1,0 +1,570 @@
+DIGEST d3cd7a2aec9018878767a1a6c029cd36
+FDA.Spec
+R804:809 DA.Common <> <> lib
+R839:848 Stdlib.Lists.List <> <> lib
+R878:888 Stdlib.Arith.Arith <> <> lib
+R918:920 Stdlib.micromega.Lia <> <> lib
+R950:958 Stdlib.Bool.Bool <> <> lib
+R969:981 Stdlib.Lists.List ListNotations <> mod
+ax 1251:1255 <> Nodes
+R1259:1265 DA.Common <> NodeSet def
+ax 1278:1286 <> Malicious
+R1290:1296 DA.Common <> NodeSet def
+ax 1362:1377 <> malicious_subset
+R1381:1386 DA.Common <> subset def
+R1388:1396 DA.Spec <> Malicious defax
+R1398:1402 DA.Spec <> Nodes defax
+def 1468:1473 <> Honest
+R1477:1483 DA.Common <> NodeSet def
+R1488:1495 DA.Common <> set_diff def
+R1497:1501 DA.Spec <> Nodes defax
+R1503:1511 DA.Spec <> Malicious defax
+rec 1701:1705 <> State
+proj 1722:1731 <> nodeOnline
+proj 1754:1765 <> shareHolders
+proj 1790:1797 <> attested
+proj 1826:1834 <> certState
+proj 1865:1877 <> recoveryNodes
+proj 1901:1912 <> recoverState
+R1742:1745 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1738:1741 DA.Common <> Node def
+R1746:1749 Corelib.Init.Datatypes <> bool ind
+R1775:1778 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1770:1774 DA.Common <> Batch def
+R1779:1785 DA.Common <> NodeSet def
+R1811:1814 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1806:1810 DA.Common <> Batch def
+R1815:1821 DA.Common <> NodeSet def
+R1847:1850 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1842:1846 DA.Common <> Batch def
+R1851:1860 DA.Common <> cert_state ind
+R1886:1889 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1881:1885 DA.Common <> Batch def
+R1890:1896 DA.Common <> NodeSet def
+R1922:1925 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1917:1921 DA.Common <> Batch def
+R1926:1938 DA.Common <> recover_state ind
+def 2130:2133 <> Init
+R2137:2141 DA.Spec <> State rec
+R2146:2152 DA.Spec <> mkState constr
+R2166:2169 Corelib.Init.Datatypes <> true constr
+R2184:2185 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2200:2201 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2216:2223 DA.Common <> CertNone constr
+R2238:2239 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R2254:2260 DA.Common <> RecNone constr
+def 2622:2636 <> recover_outcome
+R2643:2649 DA.Common <> NodeSet def
+binder 2639:2639 <> S:14
+R2654:2666 DA.Common <> recover_state ind
+R2679:2687 Stdlib.Arith.Compare_dec <> le_lt_dec def
+R2689:2697 DA.Common <> Threshold defax
+R2700:2705 Corelib.Init.Datatypes <> length def
+R2707:2707 DA.Spec <> S:14 var
+R2719:2722 Corelib.Init.Specif <> left constr
+R2736:2748 DA.Common <> has_member_in def
+R2750:2750 DA.Spec <> S:14 var
+R2752:2760 DA.Spec <> Malicious defax
+R2789:2798 DA.Common <> RecSuccess constr
+R2767:2778 DA.Common <> RecCorrupted constr
+R2804:2808 Corelib.Init.Specif <> right constr
+R2815:2823 DA.Common <> RecFailed constr
+def 3033:3046 <> can_distribute
+R3053:3057 DA.Spec <> State rec
+binder 3049:3049 <> s:15
+R3065:3069 DA.Common <> Batch def
+binder 3061:3061 <> b:16
+R3100:3102 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3084:3095 DA.Spec <> shareHolders proj
+R3097:3097 DA.Spec <> s:15 var
+R3099:3099 DA.Spec <> b:16 var
+R3103:3104 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+def 3165:3174 <> can_attest
+R3181:3185 DA.Spec <> State rec
+binder 3177:3177 <> s:17
+R3193:3196 DA.Common <> Node def
+binder 3189:3189 <> n:18
+R3204:3208 DA.Common <> Batch def
+binder 3200:3200 <> b:19
+R3244:3249 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3237:3239 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3223:3232 DA.Spec <> nodeOnline proj
+R3234:3234 DA.Spec <> s:17 var
+R3236:3236 DA.Spec <> n:18 var
+R3240:3243 Corelib.Init.Datatypes <> true constr
+R3273:3278 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3250:3251 Stdlib.Lists.List <> In def
+R3256:3267 DA.Spec <> shareHolders proj
+R3269:3269 DA.Spec <> s:17 var
+R3271:3271 DA.Spec <> b:19 var
+R3253:3253 DA.Spec <> n:18 var
+R3300:3305 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3279:3280 Corelib.Init.Logic <> ::type_scope:'~'_x not
+R3281:3282 Stdlib.Lists.List <> In def
+R3287:3294 DA.Spec <> attested proj
+R3296:3296 DA.Spec <> s:17 var
+R3298:3298 DA.Spec <> b:19 var
+R3284:3284 DA.Spec <> n:18 var
+R3319:3321 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3306:3314 DA.Spec <> certState proj
+R3316:3316 DA.Spec <> s:17 var
+R3318:3318 DA.Spec <> b:19 var
+R3322:3329 DA.Common <> CertNone constr
+def 3395:3410 <> can_produce_cert
+R3417:3421 DA.Spec <> State rec
+binder 3413:3413 <> s:20
+R3429:3433 DA.Common <> Batch def
+binder 3425:3425 <> b:21
+R3472:3477 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3461:3463 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3448:3456 DA.Spec <> certState proj
+R3458:3458 DA.Spec <> s:20 var
+R3460:3460 DA.Spec <> b:21 var
+R3464:3471 DA.Common <> CertNone constr
+R3499:3502 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R3478:3483 Corelib.Init.Datatypes <> length def
+R3486:3493 DA.Spec <> attested proj
+R3495:3495 DA.Spec <> s:20 var
+R3497:3497 DA.Spec <> b:21 var
+R3503:3511 DA.Common <> Threshold defax
+def 3574:3585 <> can_fallback
+R3592:3596 DA.Spec <> State rec
+binder 3588:3588 <> s:22
+R3604:3608 DA.Common <> Batch def
+binder 3600:3600 <> b:23
+R3647:3652 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3636:3638 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3623:3631 DA.Spec <> certState proj
+R3633:3633 DA.Spec <> s:22 var
+R3635:3635 DA.Spec <> b:23 var
+R3639:3646 DA.Common <> CertNone constr
+R3675:3680 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3669:3672 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3653:3664 DA.Spec <> shareHolders proj
+R3666:3666 DA.Spec <> s:22 var
+R3668:3668 DA.Spec <> b:23 var
+R3673:3674 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+R3706:3708 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R3681:3686 Corelib.Init.Datatypes <> length def
+R3689:3700 DA.Spec <> shareHolders proj
+R3702:3702 DA.Spec <> s:22 var
+R3704:3704 DA.Spec <> b:23 var
+R3709:3717 DA.Common <> Threshold defax
+def 3779:3794 <> can_recover_data
+R3801:3805 DA.Spec <> State rec
+binder 3797:3797 <> s:24
+R3813:3817 DA.Common <> Batch def
+binder 3809:3809 <> b:25
+R3825:3831 DA.Common <> NodeSet def
+binder 3821:3821 <> S:26
+R3871:3876 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3859:3861 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3846:3854 DA.Spec <> certState proj
+R3856:3856 DA.Spec <> s:24 var
+R3858:3858 DA.Spec <> b:25 var
+R3862:3870 DA.Common <> CertValid constr
+R3903:3908 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3893:3895 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3877:3888 DA.Spec <> recoverState proj
+R3890:3890 DA.Spec <> s:24 var
+R3892:3892 DA.Spec <> b:25 var
+R3896:3902 DA.Common <> RecNone constr
+R3909:3909 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3978:3984 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+binder 3917:3917 <> n:27
+R3926:3929 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3920:3921 Stdlib.Lists.List <> In def
+R3925:3925 DA.Spec <> S:26 var
+R3923:3923 DA.Spec <> n:27 var
+R3951:3954 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3944:3946 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3930:3939 DA.Spec <> nodeOnline proj
+R3941:3941 DA.Spec <> s:24 var
+R3943:3943 DA.Spec <> n:27 var
+R3947:3950 Corelib.Init.Datatypes <> true constr
+R3955:3956 Stdlib.Lists.List <> In def
+R3961:3972 DA.Spec <> shareHolders proj
+R3974:3974 DA.Spec <> s:24 var
+R3976:3976 DA.Spec <> b:25 var
+R3958:3958 DA.Spec <> n:27 var
+R3986:3989 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3985:3985 DA.Spec <> S:26 var
+R3990:3991 Stdlib.Lists.List ListNotations ::list_scope:'['_']' not
+def 4047:4059 <> can_node_fail
+R4066:4070 DA.Spec <> State rec
+binder 4062:4062 <> s:28
+R4078:4081 DA.Common <> Node def
+binder 4074:4074 <> n:29
+R4110:4112 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4096:4105 DA.Spec <> nodeOnline proj
+R4107:4107 DA.Spec <> s:28 var
+R4109:4109 DA.Spec <> n:29 var
+R4113:4116 Corelib.Init.Datatypes <> true constr
+def 4175:4190 <> can_node_recover
+R4197:4201 DA.Spec <> State rec
+binder 4193:4193 <> s:30
+R4209:4212 DA.Common <> Node def
+binder 4205:4205 <> n:31
+R4241:4243 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4227:4236 DA.Spec <> nodeOnline proj
+R4238:4238 DA.Spec <> s:30 var
+R4240:4240 DA.Spec <> n:31 var
+R4244:4248 Corelib.Init.Datatypes <> false constr
+def 4510:4525 <> DistributeShares
+R4532:4536 DA.Spec <> State rec
+binder 4528:4528 <> s:32
+R4544:4548 DA.Common <> Batch def
+binder 4540:4540 <> b:33
+R4553:4557 DA.Spec <> State rec
+R4564:4570 DA.Spec <> mkState constr
+R4577:4586 DA.Spec <> nodeOnline proj
+R4588:4588 DA.Spec <> s:32 var
+R4596:4602 DA.Common <> fupdate def
+R4605:4616 DA.Spec <> shareHolders proj
+R4618:4618 DA.Spec <> s:32 var
+R4621:4621 DA.Spec <> b:33 var
+R4624:4633 DA.Common <> set_filter def
+R4636:4645 DA.Spec <> nodeOnline proj
+R4647:4647 DA.Spec <> s:32 var
+R4650:4654 DA.Spec <> Nodes defax
+R4663:4670 DA.Spec <> attested proj
+R4672:4672 DA.Spec <> s:32 var
+R4680:4688 DA.Spec <> certState proj
+R4690:4690 DA.Spec <> s:32 var
+R4698:4710 DA.Spec <> recoveryNodes proj
+R4712:4712 DA.Spec <> s:32 var
+R4720:4731 DA.Spec <> recoverState proj
+R4733:4733 DA.Spec <> s:32 var
+def 4835:4844 <> NodeAttest
+R4851:4855 DA.Spec <> State rec
+binder 4847:4847 <> s:34
+R4863:4866 DA.Common <> Node def
+binder 4859:4859 <> n:35
+R4874:4878 DA.Common <> Batch def
+binder 4870:4870 <> b:36
+R4883:4887 DA.Spec <> State rec
+R4894:4900 DA.Spec <> mkState constr
+R4907:4916 DA.Spec <> nodeOnline proj
+R4918:4918 DA.Spec <> s:34 var
+R4926:4937 DA.Spec <> shareHolders proj
+R4939:4939 DA.Spec <> s:34 var
+R4947:4953 DA.Common <> fupdate def
+R4956:4963 DA.Spec <> attested proj
+R4965:4965 DA.Spec <> s:34 var
+R4968:4968 DA.Spec <> b:36 var
+R4972:4975 Corelib.Init.Datatypes <> ::list_scope:x_'::'_x not
+R4971:4971 DA.Spec <> n:35 var
+R4976:4983 DA.Spec <> attested proj
+R4985:4985 DA.Spec <> s:34 var
+R4987:4987 DA.Spec <> b:36 var
+R4996:5004 DA.Spec <> certState proj
+R5006:5006 DA.Spec <> s:34 var
+R5014:5026 DA.Spec <> recoveryNodes proj
+R5028:5028 DA.Spec <> s:34 var
+R5036:5047 DA.Spec <> recoverState proj
+R5049:5049 DA.Spec <> s:34 var
+def 5165:5182 <> ProduceCertificate
+R5189:5193 DA.Spec <> State rec
+binder 5185:5185 <> s:37
+R5201:5205 DA.Common <> Batch def
+binder 5197:5197 <> b:38
+R5210:5214 DA.Spec <> State rec
+R5221:5227 DA.Spec <> mkState constr
+R5234:5243 DA.Spec <> nodeOnline proj
+R5245:5245 DA.Spec <> s:37 var
+R5253:5264 DA.Spec <> shareHolders proj
+R5266:5266 DA.Spec <> s:37 var
+R5274:5281 DA.Spec <> attested proj
+R5283:5283 DA.Spec <> s:37 var
+R5291:5302 DA.Common <> fupdate_cert def
+R5305:5313 DA.Spec <> certState proj
+R5315:5315 DA.Spec <> s:37 var
+R5318:5318 DA.Spec <> b:38 var
+R5320:5328 DA.Common <> CertValid constr
+R5336:5348 DA.Spec <> recoveryNodes proj
+R5350:5350 DA.Spec <> s:37 var
+R5358:5369 DA.Spec <> recoverState proj
+R5371:5371 DA.Spec <> s:37 var
+def 5505:5519 <> TriggerFallback
+R5526:5530 DA.Spec <> State rec
+binder 5522:5522 <> s:39
+R5538:5542 DA.Common <> Batch def
+binder 5534:5534 <> b:40
+R5547:5551 DA.Spec <> State rec
+R5558:5564 DA.Spec <> mkState constr
+R5571:5580 DA.Spec <> nodeOnline proj
+R5582:5582 DA.Spec <> s:39 var
+R5590:5601 DA.Spec <> shareHolders proj
+R5603:5603 DA.Spec <> s:39 var
+R5611:5618 DA.Spec <> attested proj
+R5620:5620 DA.Spec <> s:39 var
+R5628:5639 DA.Common <> fupdate_cert def
+R5642:5650 DA.Spec <> certState proj
+R5652:5652 DA.Spec <> s:39 var
+R5655:5655 DA.Spec <> b:40 var
+R5657:5668 DA.Common <> CertFallback constr
+R5676:5688 DA.Spec <> recoveryNodes proj
+R5690:5690 DA.Spec <> s:39 var
+R5698:5709 DA.Spec <> recoverState proj
+R5711:5711 DA.Spec <> s:39 var
+def 5823:5833 <> RecoverData
+R5840:5844 DA.Spec <> State rec
+binder 5836:5836 <> s:41
+R5852:5856 DA.Common <> Batch def
+binder 5848:5848 <> b:42
+R5864:5870 DA.Common <> NodeSet def
+binder 5860:5860 <> S:43
+R5875:5879 DA.Spec <> State rec
+R5886:5892 DA.Spec <> mkState constr
+R5899:5908 DA.Spec <> nodeOnline proj
+R5910:5910 DA.Spec <> s:41 var
+R5918:5929 DA.Spec <> shareHolders proj
+R5931:5931 DA.Spec <> s:41 var
+R5939:5946 DA.Spec <> attested proj
+R5948:5948 DA.Spec <> s:41 var
+R5956:5964 DA.Spec <> certState proj
+R5966:5966 DA.Spec <> s:41 var
+R5974:5980 DA.Common <> fupdate def
+R5983:5995 DA.Spec <> recoveryNodes proj
+R5997:5997 DA.Spec <> s:41 var
+R6000:6000 DA.Spec <> b:42 var
+R6002:6002 DA.Spec <> S:43 var
+R6010:6020 DA.Common <> fupdate_rec def
+R6023:6034 DA.Spec <> recoverState proj
+R6036:6036 DA.Spec <> s:41 var
+R6039:6039 DA.Spec <> b:42 var
+R6042:6056 DA.Spec <> recover_outcome def
+R6058:6058 DA.Spec <> S:43 var
+def 6138:6145 <> NodeFail
+R6152:6156 DA.Spec <> State rec
+binder 6148:6148 <> s:44
+R6164:6167 DA.Common <> Node def
+binder 6160:6160 <> n:45
+R6172:6176 DA.Spec <> State rec
+R6183:6189 DA.Spec <> mkState constr
+binder 6200:6201 <> n':46
+R6209:6215 Stdlib.Arith.PeanoNat Nat eqb def
+R6217:6218 DA.Spec <> n':46 var
+R6220:6220 DA.Spec <> n:45 var
+R6238:6247 DA.Spec <> nodeOnline proj
+R6249:6249 DA.Spec <> s:44 var
+R6251:6252 DA.Spec <> n':46 var
+R6227:6231 Corelib.Init.Datatypes <> false constr
+R6260:6271 DA.Spec <> shareHolders proj
+R6273:6273 DA.Spec <> s:44 var
+R6281:6288 DA.Spec <> attested proj
+R6290:6290 DA.Spec <> s:44 var
+R6298:6306 DA.Spec <> certState proj
+R6308:6308 DA.Spec <> s:44 var
+R6316:6328 DA.Spec <> recoveryNodes proj
+R6330:6330 DA.Spec <> s:44 var
+R6338:6349 DA.Spec <> recoverState proj
+R6351:6351 DA.Spec <> s:44 var
+def 6438:6448 <> NodeRecover
+R6455:6459 DA.Spec <> State rec
+binder 6451:6451 <> s:47
+R6467:6470 DA.Common <> Node def
+binder 6463:6463 <> n:48
+R6475:6479 DA.Spec <> State rec
+R6486:6492 DA.Spec <> mkState constr
+binder 6503:6504 <> n':49
+R6512:6518 Stdlib.Arith.PeanoNat Nat eqb def
+R6520:6521 DA.Spec <> n':49 var
+R6523:6523 DA.Spec <> n:48 var
+R6540:6549 DA.Spec <> nodeOnline proj
+R6551:6551 DA.Spec <> s:47 var
+R6553:6554 DA.Spec <> n':49 var
+R6530:6533 Corelib.Init.Datatypes <> true constr
+R6562:6573 DA.Spec <> shareHolders proj
+R6575:6575 DA.Spec <> s:47 var
+R6583:6590 DA.Spec <> attested proj
+R6592:6592 DA.Spec <> s:47 var
+R6600:6608 DA.Spec <> certState proj
+R6610:6610 DA.Spec <> s:47 var
+R6618:6630 DA.Spec <> recoveryNodes proj
+R6632:6632 DA.Spec <> s:47 var
+R6640:6651 DA.Spec <> recoverState proj
+R6653:6653 DA.Spec <> s:47 var
+ind 6844:6847 <> Step
+constr 6881:6895 <> step_distribute
+constr 6979:6989 <> step_attest
+constr 7069:7085 <> step_produce_cert
+constr 7173:7185 <> step_fallback
+constr 7266:7277 <> step_recover
+constr 7364:7377 <> step_node_fail
+constr 7452:7468 <> step_node_recover
+R6856:6859 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6851:6855 DA.Spec <> State rec
+R6865:6868 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6860:6864 DA.Spec <> State rec
+binder 6906:6906 <> s:52
+binder 6908:6908 <> b:53
+R6935:6944 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6917:6930 DA.Spec <> can_distribute def
+R6932:6932 DA.Spec <> s:52 var
+R6934:6934 DA.Spec <> b:53 var
+R6945:6948 DA.Spec <> Step:50 ind
+R6953:6968 DA.Spec <> DistributeShares def
+R6970:6970 DA.Spec <> s:52 var
+R6972:6972 DA.Spec <> b:53 var
+R6950:6950 DA.Spec <> s:52 var
+binder 7000:7000 <> s:54
+binder 7002:7002 <> n:55
+binder 7004:7004 <> b:56
+R7029:7038 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7013:7022 DA.Spec <> can_attest def
+R7024:7024 DA.Spec <> s:54 var
+R7026:7026 DA.Spec <> n:55 var
+R7028:7028 DA.Spec <> b:56 var
+R7039:7042 DA.Spec <> Step:50 ind
+R7047:7056 DA.Spec <> NodeAttest def
+R7058:7058 DA.Spec <> s:54 var
+R7060:7060 DA.Spec <> n:55 var
+R7062:7062 DA.Spec <> b:56 var
+R7044:7044 DA.Spec <> s:54 var
+binder 7096:7096 <> s:57
+binder 7098:7098 <> b:58
+R7127:7136 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7107:7122 DA.Spec <> can_produce_cert def
+R7124:7124 DA.Spec <> s:57 var
+R7126:7126 DA.Spec <> b:58 var
+R7137:7140 DA.Spec <> Step:50 ind
+R7145:7162 DA.Spec <> ProduceCertificate def
+R7164:7164 DA.Spec <> s:57 var
+R7166:7166 DA.Spec <> b:58 var
+R7142:7142 DA.Spec <> s:57 var
+binder 7196:7196 <> s:59
+binder 7198:7198 <> b:60
+R7223:7232 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7207:7218 DA.Spec <> can_fallback def
+R7220:7220 DA.Spec <> s:59 var
+R7222:7222 DA.Spec <> b:60 var
+R7233:7236 DA.Spec <> Step:50 ind
+R7241:7255 DA.Spec <> TriggerFallback def
+R7257:7257 DA.Spec <> s:59 var
+R7259:7259 DA.Spec <> b:60 var
+R7238:7238 DA.Spec <> s:59 var
+binder 7288:7288 <> s:61
+binder 7290:7290 <> b:62
+binder 7292:7292 <> S:63
+R7323:7332 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7301:7316 DA.Spec <> can_recover_data def
+R7318:7318 DA.Spec <> s:61 var
+R7320:7320 DA.Spec <> b:62 var
+R7322:7322 DA.Spec <> S:63 var
+R7333:7336 DA.Spec <> Step:50 ind
+R7341:7351 DA.Spec <> RecoverData def
+R7353:7353 DA.Spec <> s:61 var
+R7355:7355 DA.Spec <> b:62 var
+R7357:7357 DA.Spec <> S:63 var
+R7338:7338 DA.Spec <> s:61 var
+binder 7388:7388 <> s:64
+binder 7390:7390 <> n:65
+R7416:7425 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7399:7411 DA.Spec <> can_node_fail def
+R7413:7413 DA.Spec <> s:64 var
+R7415:7415 DA.Spec <> n:65 var
+R7426:7429 DA.Spec <> Step:50 ind
+R7434:7441 DA.Spec <> NodeFail def
+R7443:7443 DA.Spec <> s:64 var
+R7445:7445 DA.Spec <> n:65 var
+R7431:7431 DA.Spec <> s:64 var
+binder 7479:7479 <> s:66
+binder 7481:7481 <> n:67
+R7510:7519 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7490:7505 DA.Spec <> can_node_recover def
+R7507:7507 DA.Spec <> s:66 var
+R7509:7509 DA.Spec <> n:67 var
+R7520:7523 DA.Spec <> Step:50 ind
+R7528:7538 DA.Spec <> NodeRecover def
+R7540:7540 DA.Spec <> s:66 var
+R7542:7542 DA.Spec <> n:67 var
+R7525:7525 DA.Spec <> s:66 var
+scheme 6844:6847 <> Step_ind
+scheme 6844:6847 <> Step_sind
+def 7812:7831 <> CertificateSoundness
+R7838:7842 DA.Spec <> State rec
+binder 7834:7834 <> s:68
+binder 7864:7864 <> b:69
+R7892:7899 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7880:7882 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R7867:7875 DA.Spec <> certState proj
+R7877:7877 DA.Spec <> s:68 var
+R7879:7879 DA.Spec <> b:69 var
+R7883:7891 DA.Common <> CertValid constr
+R7921:7924 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R7900:7905 Corelib.Init.Datatypes <> length def
+R7908:7915 DA.Spec <> attested proj
+R7917:7917 DA.Spec <> s:68 var
+R7919:7919 DA.Spec <> b:69 var
+R7925:7933 DA.Common <> Threshold defax
+def 8056:8071 <> DataAvailability
+R8078:8082 DA.Spec <> State rec
+binder 8074:8074 <> s:70
+binder 8104:8104 <> b:71
+R8138:8145 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8127:8130 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R8111:8122 DA.Spec <> recoverState proj
+R8124:8124 DA.Spec <> s:70 var
+R8126:8126 DA.Spec <> b:71 var
+R8131:8137 DA.Common <> RecNone constr
+R8179:8186 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8146:8151 DA.Common <> subset def
+R8154:8166 DA.Spec <> recoveryNodes proj
+R8168:8168 DA.Spec <> s:70 var
+R8170:8170 DA.Spec <> b:71 var
+R8173:8178 DA.Spec <> Honest def
+R8226:8233 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8213:8216 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R8187:8192 Corelib.Init.Datatypes <> length def
+R8195:8207 DA.Spec <> recoveryNodes proj
+R8209:8209 DA.Spec <> s:70 var
+R8211:8211 DA.Spec <> b:71 var
+R8217:8225 DA.Common <> Threshold defax
+R8250:8252 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8234:8245 DA.Spec <> recoverState proj
+R8247:8247 DA.Spec <> s:70 var
+R8249:8249 DA.Spec <> b:71 var
+R8253:8262 DA.Common <> RecSuccess constr
+def 8372:8378 <> Privacy
+R8385:8389 DA.Spec <> State rec
+binder 8381:8381 <> s:72
+binder 8411:8411 <> b:73
+R8443:8450 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8430:8432 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8414:8425 DA.Spec <> recoverState proj
+R8427:8427 DA.Spec <> s:72 var
+R8429:8429 DA.Spec <> b:73 var
+R8433:8442 DA.Common <> RecSuccess constr
+R8477:8480 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R8451:8456 Corelib.Init.Datatypes <> length def
+R8459:8471 DA.Spec <> recoveryNodes proj
+R8473:8473 DA.Spec <> s:72 var
+R8475:8475 DA.Spec <> b:73 var
+R8481:8489 DA.Common <> Threshold defax
+def 8617:8633 <> RecoveryIntegrity
+R8640:8644 DA.Spec <> State rec
+binder 8636:8636 <> s:74
+binder 8666:8666 <> b:75
+R8698:8705 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8685:8687 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R8669:8680 DA.Spec <> recoverState proj
+R8682:8682 DA.Spec <> s:74 var
+R8684:8684 DA.Spec <> b:75 var
+R8688:8697 DA.Common <> RecSuccess constr
+R8706:8713 DA.Common <> disjoint def
+R8716:8728 DA.Spec <> recoveryNodes proj
+R8730:8730 DA.Spec <> s:74 var
+R8732:8732 DA.Spec <> b:75 var
+R8735:8743 DA.Spec <> Malicious defax
+def 8842:8861 <> AttestationIntegrity
+R8868:8872 DA.Spec <> State rec
+binder 8864:8864 <> s:76
+binder 8894:8894 <> b:77
+R8897:8902 DA.Common <> subset def
+R8905:8912 DA.Spec <> attested proj
+R8914:8914 DA.Spec <> s:76 var
+R8916:8916 DA.Spec <> b:77 var
+R8920:8931 DA.Spec <> shareHolders proj
+R8933:8933 DA.Spec <> s:76 var
+R8935:8935 DA.Spec <> b:77 var

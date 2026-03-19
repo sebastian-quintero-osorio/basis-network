@@ -1,0 +1,248 @@
+DIGEST b3bbfafd229ebb5eced5486f268d122c
+FSC.Spec
+R734:739 SC.Common <> <> lib
+R769:776 Stdlib.Arith.PeanoNat <> <> lib
+R806:808 Stdlib.micromega.Lia <> <> lib
+mod 842:845 <> Spec
+rec 1207:1211 Spec State
+proj 1228:1238 Spec currentRoot
+proj 1298:1307 Spec batchCount
+proj 1368:1378 Spec initialized
+proj 1438:1449 Spec batchHistory
+proj 1508:1521 Spec totalCommitted
+R1255:1258 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1245:1254 SC.Common <> Enterprise def
+R1259:1262 SC.Common <> Root def
+R1325:1328 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1315:1324 SC.Common <> Enterprise def
+R1329:1331 Corelib.Init.Datatypes <> nat ind
+R1395:1398 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1385:1394 SC.Common <> Enterprise def
+R1399:1402 Corelib.Init.Datatypes <> bool ind
+R1465:1468 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1455:1464 SC.Common <> Enterprise def
+R1472:1475 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1469:1471 Corelib.Init.Datatypes <> nat ind
+R1476:1479 SC.Common <> Root def
+R1525:1527 Corelib.Init.Datatypes <> nat ind
+def 1834:1837 Spec Init
+R1841:1845 SC.Spec Spec State rec
+R1850:1856 SC.Spec Spec mkState constr
+R1870:1873 SC.Common <> NONE def
+R2012:2016 Corelib.Init.Datatypes <> false constr
+R2088:2091 SC.Common <> NONE def
+def 2632:2651 Spec InitializeEnterprise
+R2658:2662 SC.Spec Spec State rec
+binder 2654:2654 <> s:7
+R2670:2679 SC.Common <> Enterprise def
+binder 2666:2666 <> e:8
+R2699:2702 SC.Common <> Root def
+binder 2685:2695 <> genesisRoot:9
+R2707:2711 SC.Spec Spec State rec
+R2718:2724 SC.Spec Spec mkState constr
+R2731:2737 SC.Common <> fupdate def
+R2757:2767 SC.Spec <> genesisRoot:9 var
+R2755:2755 SC.Spec <> e:8 var
+R2740:2750 SC.Spec Spec currentRoot proj
+R2752:2752 SC.Spec <> s:7 var
+R2775:2784 SC.Spec Spec batchCount proj
+R2786:2786 SC.Spec <> s:7 var
+R2794:2800 SC.Common <> fupdate def
+R2820:2823 Corelib.Init.Datatypes <> true constr
+R2818:2818 SC.Spec <> e:8 var
+R2803:2813 SC.Spec Spec initialized proj
+R2815:2815 SC.Spec <> s:7 var
+R2831:2842 SC.Spec Spec batchHistory proj
+R2844:2844 SC.Spec <> s:7 var
+R2852:2865 SC.Spec Spec totalCommitted proj
+R2867:2867 SC.Spec <> s:7 var
+def 3278:3288 Spec SubmitBatch
+R3295:3299 SC.Spec Spec State rec
+binder 3291:3291 <> s:10
+R3307:3316 SC.Common <> Enterprise def
+binder 3303:3303 <> e:11
+R3332:3335 SC.Common <> Root def
+binder 3322:3328 <> newRoot:12
+R3340:3344 SC.Spec Spec State rec
+R3362:3371 SC.Spec Spec batchCount proj
+R3373:3373 SC.Spec <> s:10 var
+R3375:3375 SC.Spec <> e:11 var
+binder 3355:3357 <> bid:13
+R3382:3388 SC.Spec Spec mkState constr
+R3395:3401 SC.Common <> fupdate def
+R3421:3427 SC.Spec <> newRoot:12 var
+R3419:3419 SC.Spec <> e:11 var
+R3404:3414 SC.Spec Spec currentRoot proj
+R3416:3416 SC.Spec <> s:10 var
+R3435:3441 SC.Common <> fupdate def
+R3464:3466 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R3461:3463 SC.Spec <> bid:13 var
+R3458:3458 SC.Spec <> e:11 var
+R3444:3453 SC.Spec Spec batchCount proj
+R3455:3455 SC.Spec <> s:10 var
+R3476:3486 SC.Spec Spec initialized proj
+R3488:3488 SC.Spec <> s:10 var
+R3496:3503 SC.Common <> fupdate2 def
+R3528:3534 SC.Spec <> newRoot:12 var
+R3524:3526 SC.Spec <> bid:13 var
+R3522:3522 SC.Spec <> e:11 var
+R3506:3517 SC.Spec Spec batchHistory proj
+R3519:3519 SC.Spec <> s:10 var
+R3558:3560 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R3542:3555 SC.Spec Spec totalCommitted proj
+R3557:3557 SC.Spec <> s:10 var
+ind 4196:4199 Spec step
+constr 4233:4252 Spec step_init_enterprise
+constr 4481:4497 Spec step_submit_batch
+R4208:4211 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4203:4207 SC.Spec Spec State rec
+R4217:4220 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4212:4216 SC.Spec Spec State rec
+binder 4263:4263 <> s:16
+binder 4265:4265 <> e:17
+binder 4267:4277 <> genesisRoot:18
+R4309:4354 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4301:4303 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4286:4296 SC.Spec Spec initialized proj
+R4298:4298 SC.Spec <> s:16 var
+R4300:4300 SC.Spec <> e:17 var
+R4304:4308 Corelib.Init.Datatypes <> false constr
+R4370:4429 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4366:4368 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R4355:4365 SC.Spec <> genesisRoot:18 var
+R4430:4433 SC.Spec <> step:14 ind
+R4438:4457 SC.Spec Spec InitializeEnterprise def
+R4459:4459 SC.Spec <> s:16 var
+R4461:4461 SC.Spec <> e:17 var
+R4463:4473 SC.Spec <> genesisRoot:18 var
+R4435:4435 SC.Spec <> s:16 var
+binder 4508:4508 <> s:19
+binder 4510:4510 <> e:20
+binder 4512:4519 <> prevRoot:21
+binder 4521:4527 <> newRoot:22
+R4558:4612 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4551:4553 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4536:4546 SC.Spec Spec initialized proj
+R4548:4548 SC.Spec <> s:19 var
+R4550:4550 SC.Spec <> e:20 var
+R4554:4557 Corelib.Init.Datatypes <> true constr
+R4639:4690 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4621:4623 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4613:4620 SC.Spec <> prevRoot:21 var
+R4624:4634 SC.Spec Spec currentRoot proj
+R4636:4636 SC.Spec <> s:19 var
+R4638:4638 SC.Spec <> e:20 var
+R4702:4836 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4698:4700 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R4691:4697 SC.Spec <> newRoot:22 var
+R4837:4840 SC.Spec <> step:14 ind
+R4845:4855 SC.Spec Spec SubmitBatch def
+R4857:4857 SC.Spec <> s:19 var
+R4859:4859 SC.Spec <> e:20 var
+R4861:4867 SC.Spec <> newRoot:22 var
+R4842:4842 SC.Spec <> s:19 var
+scheme 4196:4199 Spec step_ind
+scheme 4196:4199 Spec step_sind
+def 5254:5268 Spec ChainContinuity
+R5275:5279 SC.Spec Spec State rec
+binder 5271:5271 <> s:23
+binder 5301:5301 <> e:24
+R5330:5337 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5323:5325 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5308:5318 SC.Spec Spec initialized proj
+R5320:5320 SC.Spec <> s:23 var
+R5322:5322 SC.Spec <> e:24 var
+R5326:5329 Corelib.Init.Datatypes <> true constr
+R5356:5363 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5352:5354 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R5338:5347 SC.Spec Spec batchCount proj
+R5349:5349 SC.Spec <> s:23 var
+R5351:5351 SC.Spec <> e:24 var
+R5379:5381 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5364:5374 SC.Spec Spec currentRoot proj
+R5376:5376 SC.Spec <> s:23 var
+R5378:5378 SC.Spec <> e:24 var
+R5382:5393 SC.Spec Spec batchHistory proj
+R5395:5395 SC.Spec <> s:23 var
+R5397:5397 SC.Spec <> e:24 var
+R5414:5416 Corelib.Init.Peano <> ::nat_scope:x_'-'_x not
+R5400:5409 SC.Spec Spec batchCount proj
+R5411:5411 SC.Spec <> s:23 var
+R5413:5413 SC.Spec <> e:24 var
+def 5625:5629 Spec NoGap
+R5636:5640 SC.Spec Spec State rec
+binder 5632:5632 <> s:25
+binder 5662:5662 <> e:26
+R5669:5669 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5728:5737 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R5796:5796 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+binder 5677:5677 <> i:27
+R5698:5701 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5681:5683 Corelib.Init.Peano <> ::nat_scope:x_'<'_x not
+R5680:5680 SC.Spec <> i:27 var
+R5684:5693 SC.Spec Spec batchCount proj
+R5695:5695 SC.Spec <> s:25 var
+R5697:5697 SC.Spec <> e:26 var
+R5720:5723 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R5702:5713 SC.Spec Spec batchHistory proj
+R5715:5715 SC.Spec <> s:25 var
+R5717:5717 SC.Spec <> e:26 var
+R5719:5719 SC.Spec <> i:27 var
+R5724:5727 SC.Common <> NONE def
+binder 5745:5745 <> i:28
+R5767:5770 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5749:5752 Corelib.Init.Peano <> ::nat_scope:x_'>='_x not
+R5748:5748 SC.Spec <> i:28 var
+R5753:5762 SC.Spec Spec batchCount proj
+R5764:5764 SC.Spec <> s:25 var
+R5766:5766 SC.Spec <> e:26 var
+R5789:5791 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R5771:5782 SC.Spec Spec batchHistory proj
+R5784:5784 SC.Spec <> s:25 var
+R5786:5786 SC.Spec <> e:26 var
+R5788:5788 SC.Spec <> i:28 var
+R5792:5795 SC.Common <> NONE def
+def 6013:6022 Spec NoReversal
+R6029:6033 SC.Spec Spec State rec
+binder 6025:6025 <> s:29
+binder 6055:6055 <> e:30
+R6084:6091 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6077:6079 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6062:6072 SC.Spec Spec initialized proj
+R6074:6074 SC.Spec <> s:29 var
+R6076:6076 SC.Spec <> e:30 var
+R6080:6083 Corelib.Init.Datatypes <> true constr
+R6107:6110 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R6092:6102 SC.Spec Spec currentRoot proj
+R6104:6104 SC.Spec <> s:29 var
+R6106:6106 SC.Spec <> e:30 var
+R6111:6114 SC.Common <> NONE def
+def 6301:6315 Spec InitBeforeBatch
+R6322:6326 SC.Spec Spec State rec
+binder 6318:6318 <> s:31
+binder 6348:6348 <> e:32
+R6373:6380 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R6369:6371 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R6355:6364 SC.Spec Spec batchCount proj
+R6366:6366 SC.Spec <> s:31 var
+R6368:6368 SC.Spec <> e:32 var
+R6396:6398 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R6381:6391 SC.Spec Spec initialized proj
+R6393:6393 SC.Spec <> s:31 var
+R6395:6395 SC.Spec <> e:32 var
+R6399:6402 Corelib.Init.Datatypes <> true constr
+def 6470:6482 Spec AllInvariants
+R6489:6493 SC.Spec Spec State rec
+binder 6485:6485 <> s:33
+R6525:6530 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R6508:6522 SC.Spec Spec ChainContinuity def
+R6524:6524 SC.Spec <> s:33 var
+R6538:6543 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R6531:6535 SC.Spec Spec NoGap def
+R6537:6537 SC.Spec <> s:33 var
+R6556:6561 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R6544:6553 SC.Spec Spec NoReversal def
+R6555:6555 SC.Spec <> s:33 var
+R6562:6576 SC.Spec Spec InitBeforeBatch def
+R6578:6578 SC.Spec <> s:33 var
+R6586:6589 SC.Spec Spec <> mod

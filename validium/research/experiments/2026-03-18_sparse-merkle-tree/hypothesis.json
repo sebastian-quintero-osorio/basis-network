@@ -1,0 +1,36 @@
+{
+  "name": "sparse-merkle-tree",
+  "target": "validium",
+  "title": "Sparse Merkle Tree with Poseidon Hash for Enterprise ZK Validium State Management",
+  "hypothesis": "A Sparse Merkle Tree of depth 32 with Poseidon hash can support 100,000+ entries with insertion latency < 10ms, Merkle proof generation < 5ms, and proof verification < 2ms in TypeScript, while maintaining full compatibility with the BN128 scalar field for Circom circuit integration.",
+  "null_hypothesis": "A depth-32 Sparse Merkle Tree with Poseidon hash cannot meet all three latency targets simultaneously at 100,000+ entries, or introduces unacceptable memory overhead (>2GB) or incompatibility with BN128 field arithmetic.",
+  "domain": "state-management",
+  "independent_variables": [
+    "tree_entry_count",
+    "tree_depth",
+    "hash_function"
+  ],
+  "dependent_variables": [
+    "insert_latency_ms",
+    "proof_generation_time_ms",
+    "proof_verification_time_ms",
+    "memory_usage_mb",
+    "hash_computation_time_us"
+  ],
+  "controls": {
+    "field": "BN128 scalar field (p = 21888242871839275222246405745257275088548364400416034343698204186575808495617)",
+    "tree_depth": 32,
+    "hash_function_primary": "Poseidon (circomlibjs)",
+    "benchmark_repetitions": 50,
+    "warmup_iterations": 10
+  },
+  "predictions": [
+    "Poseidon hash will be 5-10x faster than MiMC in native JavaScript execution",
+    "Insert latency will scale O(log n) with tree depth, not entry count",
+    "Memory usage will be sublinear due to sparse storage (only non-empty nodes stored)",
+    "Proof size will be exactly 32 * hash_output_size bytes for depth-32 tree"
+  ],
+  "created": "2026-03-18",
+  "stage": 1,
+  "status": "active"
+}

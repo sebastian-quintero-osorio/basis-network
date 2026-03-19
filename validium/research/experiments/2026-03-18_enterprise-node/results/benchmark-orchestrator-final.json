@@ -1,0 +1,80 @@
+{
+  "date": "2026-03-18T20:45:46.793Z",
+  "platform": "win32 x64, Node.js v22.13.1",
+  "scenarios": [
+    {
+      "name": "orchestration_overhead_only",
+      "batchSize": 8, "provingTimeMs": 0, "iterations": 50,
+      "totalMeanMs": 2784.8, "totalStddevMs": 7.8,
+      "orchestrationOverheadMs": 593.35, "memoryMb": 84.8,
+      "phases": {
+        "batch_formation": {"meanMs": 11.39, "stddevMs": 0.69, "p95Ms": 12.67},
+        "witness_generation": {"meanMs": 581.86, "stddevMs": 1.68, "p95Ms": 584.20},
+        "proving": {"meanMs": 12.31, "stddevMs": 5.91, "p95Ms": 15.98},
+        "dac_attestation": {"meanMs": 171.83, "stddevMs": 1.28, "p95Ms": 174.23},
+        "l1_submission": {"meanMs": 2007.26, "stddevMs": 6.99, "p95Ms": 2015.60}
+      }
+    },
+    {
+      "name": "snarkjs_d32_b8",
+      "batchSize": 8, "provingTimeMs": 12757, "iterations": 30,
+      "totalMeanMs": 15537.3, "totalStddevMs": 7.6,
+      "orchestrationOverheadMs": 593.57, "memoryMb": 85.6,
+      "phases": {
+        "batch_formation": {"meanMs": 11.10, "stddevMs": 0.59, "p95Ms": 12.15},
+        "witness_generation": {"meanMs": 582.34, "stddevMs": 1.89, "p95Ms": 584.16},
+        "proving": {"meanMs": 12765.49, "stddevMs": 1.96, "p95Ms": 12767.49},
+        "dac_attestation": {"meanMs": 171.60, "stddevMs": 0.92, "p95Ms": 173.38},
+        "l1_submission": {"meanMs": 2006.69, "stddevMs": 6.99, "p95Ms": 2015.46}
+      }
+    },
+    {
+      "name": "rapidsnark_d32_b8",
+      "batchSize": 8, "provingTimeMs": 2500, "iterations": 30,
+      "totalMeanMs": 5281.1, "totalStddevMs": 10.1,
+      "orchestrationOverheadMs": 593.78, "memoryMb": 86.2,
+      "phases": {
+        "batch_formation": {"meanMs": 11.28, "stddevMs": 0.64, "p95Ms": 12.39},
+        "witness_generation": {"meanMs": 582.38, "stddevMs": 2.46, "p95Ms": 589.27},
+        "proving": {"meanMs": 2507.15, "stddevMs": 6.89, "p95Ms": 2515.47},
+        "dac_attestation": {"meanMs": 171.63, "stddevMs": 1.84, "p95Ms": 173.48},
+        "l1_submission": {"meanMs": 2008.55, "stddevMs": 6.83, "p95Ms": 2015.23}
+      }
+    },
+    {
+      "name": "snarkjs_d32_b16",
+      "batchSize": 16, "provingTimeMs": 28000, "iterations": 30,
+      "totalMeanMs": 31371.3, "totalStddevMs": 9.2,
+      "orchestrationOverheadMs": 1186.84, "memoryMb": 85.9,
+      "phases": {
+        "batch_formation": {"meanMs": 22.87, "stddevMs": 0.85, "p95Ms": 24.05},
+        "witness_generation": {"meanMs": 1163.85, "stddevMs": 2.69, "p95Ms": 1166.95},
+        "proving": {"meanMs": 28007.97, "stddevMs": 6.98, "p95Ms": 28016.03},
+        "dac_attestation": {"meanMs": 171.40, "stddevMs": 1.49, "p95Ms": 173.49},
+        "l1_submission": {"meanMs": 2005.06, "stddevMs": 6.26, "p95Ms": 2015.54}
+      }
+    },
+    {
+      "name": "rapidsnark_d32_b64",
+      "batchSize": 64, "provingTimeMs": 12000, "iterations": 30,
+      "totalMeanMs": 18889.2, "totalStddevMs": 9.9,
+      "orchestrationOverheadMs": 4703.66, "memoryMb": 87.1,
+      "phases": {
+        "batch_formation": {"meanMs": 90.31, "stddevMs": 1.88, "p95Ms": 92.43},
+        "witness_generation": {"meanMs": 4613.21, "stddevMs": 3.61, "p95Ms": 4622.13},
+        "proving": {"meanMs": 12006.26, "stddevMs": 6.94, "p95Ms": 12016.35},
+        "dac_attestation": {"meanMs": 171.89, "stddevMs": 1.75, "p95Ms": 174.97},
+        "l1_submission": {"meanMs": 2007.35, "stddevMs": 6.82, "p95Ms": 2015.34}
+      }
+    }
+  ],
+  "hypothesis_evaluation": {
+    "target_scenario": "rapidsnark_d32_b64",
+    "e2e_latency_ms": 18889,
+    "e2e_under_90s": true,
+    "overhead_ms": 4703.7,
+    "overhead_under_30s": true,
+    "pure_orchestration_overhead_b8_ms": 593.35,
+    "overhead_as_percent_of_90s": 0.6593
+  }
+}

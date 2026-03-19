@@ -1,0 +1,205 @@
+DIGEST 53b5890391f49b1bb3196c5ea17378dc
+FSC.Common
+R809:816 Stdlib.Arith.PeanoNat <> <> lib
+R846:848 Stdlib.micromega.Lia <> <> lib
+def 1175:1184 <> Enterprise
+R1189:1191 Corelib.Init.Datatypes <> nat ind
+def 1378:1381 <> Root
+R1386:1388 Corelib.Init.Datatypes <> nat ind
+def 1561:1564 <> NONE
+R1568:1571 SC.Common <> Root def
+prf 1629:1639 <> pos_ne_NONE
+R1654:1657 SC.Common <> Root def
+binder 1650:1650 <> r:1
+R1665:1668 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1661:1663 Corelib.Init.Peano <> ::nat_scope:x_'>'_x not
+R1660:1660 SC.Common <> r:1 var
+R1670:1673 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R1669:1669 SC.Common <> r:1 var
+R1674:1677 SC.Common <> NONE def
+R1694:1697 SC.Common <> NONE def
+def 2019:2025 <> fupdate
+binder 2028:2028 <> A:2
+R2046:2049 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2043:2045 Corelib.Init.Datatypes <> nat ind
+R2050:2050 SC.Common <> A:2 var
+binder 2039:2039 <> f:3
+R2058:2060 Corelib.Init.Datatypes <> nat ind
+binder 2054:2054 <> k:4
+R2068:2068 SC.Common <> A:2 var
+binder 2064:2064 <> v:5
+R2076:2079 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2073:2075 Corelib.Init.Datatypes <> nat ind
+R2080:2080 SC.Common <> A:2 var
+binder 2091:2092 <> k':6
+R2100:2109 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R2111:2111 SC.Common <> k:4 var
+R2113:2114 SC.Common <> k':6 var
+R2128:2128 SC.Common <> f:3 var
+R2130:2131 SC.Common <> k':6 var
+R2121:2121 SC.Common <> v:5 var
+def 2310:2317 <> fupdate2
+binder 2320:2320 <> A:7
+R2338:2341 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2335:2337 Corelib.Init.Datatypes <> nat ind
+R2345:2348 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2342:2344 Corelib.Init.Datatypes <> nat ind
+R2349:2349 SC.Common <> A:7 var
+binder 2331:2331 <> f:8
+R2361:2363 Corelib.Init.Datatypes <> nat ind
+binder 2353:2354 <> k1:9
+binder 2356:2357 <> k2:10
+R2371:2371 SC.Common <> A:7 var
+binder 2367:2367 <> v:11
+R2381:2384 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2378:2380 Corelib.Init.Datatypes <> nat ind
+R2388:2391 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2385:2387 Corelib.Init.Datatypes <> nat ind
+R2392:2392 SC.Common <> A:7 var
+binder 2403:2405 <> k1':12
+binder 2407:2409 <> k2':13
+R2421:2430 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R2432:2433 SC.Common <> k1:9 var
+R2435:2437 SC.Common <> k1':12 var
+R2508:2508 SC.Common <> f:8 var
+R2514:2516 SC.Common <> k2':13 var
+R2510:2512 SC.Common <> k1':12 var
+R2453:2462 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R2464:2465 SC.Common <> k2:10 var
+R2467:2469 SC.Common <> k2':13 var
+R2489:2489 SC.Common <> f:8 var
+R2495:2497 SC.Common <> k2':13 var
+R2491:2493 SC.Common <> k1':12 var
+R2476:2476 SC.Common <> v:11 var
+R2651:2657 SC.Common <> fupdate def
+R2691:2698 SC.Common <> fupdate2 def
+prf 2897:2908 <> fupdate_same
+binder 2920:2920 <> A:14
+R2938:2941 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2935:2937 Corelib.Init.Datatypes <> nat ind
+R2942:2942 SC.Common <> A:14 var
+binder 2931:2931 <> f:15
+binder 2945:2945 <> k:16
+binder 2947:2947 <> v:17
+R2969:2971 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2954:2960 SC.Common <> fupdate def
+R2968:2968 SC.Common <> k:16 var
+R2966:2966 SC.Common <> v:17 var
+R2964:2964 SC.Common <> k:16 var
+R2962:2962 SC.Common <> f:15 var
+R2972:2972 SC.Common <> v:17 var
+R2999:3005 SC.Common <> fupdate def
+R3020:3029 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3020:3029 Stdlib.Arith.PeanoNat Nat eq_dec thm
+prf 3119:3131 <> fupdate_other
+binder 3143:3143 <> A:18
+R3161:3164 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3158:3160 Corelib.Init.Datatypes <> nat ind
+R3165:3165 SC.Common <> A:18 var
+binder 3154:3154 <> f:19
+binder 3168:3168 <> k:20
+binder 3170:3170 <> v:21
+binder 3172:3173 <> k':22
+R3187:3190 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3181:3184 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3180:3180 SC.Common <> k:20 var
+R3185:3186 SC.Common <> k':22 var
+R3207:3209 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3191:3197 SC.Common <> fupdate def
+R3205:3206 SC.Common <> k':22 var
+R3203:3203 SC.Common <> v:21 var
+R3201:3201 SC.Common <> k:20 var
+R3199:3199 SC.Common <> f:19 var
+R3210:3210 SC.Common <> f:19 var
+R3212:3213 SC.Common <> k':22 var
+R3240:3246 SC.Common <> fupdate def
+R3261:3270 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3261:3270 Stdlib.Arith.PeanoNat Nat eq_dec thm
+prf 3363:3375 <> fupdate2_same
+binder 3387:3387 <> A:23
+R3405:3408 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3402:3404 Corelib.Init.Datatypes <> nat ind
+R3412:3415 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3409:3411 Corelib.Init.Datatypes <> nat ind
+R3416:3416 SC.Common <> A:23 var
+binder 3398:3398 <> f:24
+binder 3419:3420 <> k1:25
+binder 3422:3423 <> k2:26
+binder 3425:3425 <> v:27
+R3456:3458 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3432:3439 SC.Common <> fupdate2 def
+R3454:3455 SC.Common <> k2:26 var
+R3451:3452 SC.Common <> k1:25 var
+R3449:3449 SC.Common <> v:27 var
+R3446:3447 SC.Common <> k2:26 var
+R3443:3444 SC.Common <> k1:25 var
+R3441:3441 SC.Common <> f:24 var
+R3459:3459 SC.Common <> v:27 var
+R3486:3493 SC.Common <> fupdate2 def
+R3508:3517 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3508:3517 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3558:3567 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3558:3567 Stdlib.Arith.PeanoNat Nat eq_dec thm
+prf 3665:3681 <> fupdate2_other_k1
+binder 3693:3693 <> A:28
+R3711:3714 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3708:3710 Corelib.Init.Datatypes <> nat ind
+R3718:3721 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3715:3717 Corelib.Init.Datatypes <> nat ind
+R3722:3722 SC.Common <> A:28 var
+binder 3704:3704 <> f:29
+binder 3725:3726 <> k1:30
+binder 3728:3729 <> k2:31
+binder 3731:3731 <> v:32
+binder 3733:3735 <> k1':33
+binder 3737:3739 <> k2':34
+R3755:3758 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3748:3751 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R3746:3747 SC.Common <> k1:30 var
+R3752:3754 SC.Common <> k1':33 var
+R3785:3787 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R3759:3766 SC.Common <> fupdate2 def
+R3782:3784 SC.Common <> k2':34 var
+R3778:3780 SC.Common <> k1':33 var
+R3776:3776 SC.Common <> v:32 var
+R3773:3774 SC.Common <> k2:31 var
+R3770:3771 SC.Common <> k1:30 var
+R3768:3768 SC.Common <> f:29 var
+R3788:3788 SC.Common <> f:29 var
+R3794:3796 SC.Common <> k2':34 var
+R3790:3792 SC.Common <> k1':33 var
+R3823:3830 SC.Common <> fupdate2 def
+R3845:3854 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R3845:3854 Stdlib.Arith.PeanoNat Nat eq_dec thm
+prf 3970:3994 <> fupdate2_same_k1_other_k2
+binder 4006:4006 <> A:35
+R4024:4027 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4021:4023 Corelib.Init.Datatypes <> nat ind
+R4031:4034 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4028:4030 Corelib.Init.Datatypes <> nat ind
+R4035:4035 SC.Common <> A:35 var
+binder 4017:4017 <> f:36
+binder 4038:4039 <> k1:37
+binder 4041:4042 <> k2:38
+binder 4044:4044 <> v:39
+binder 4046:4048 <> k2':40
+R4064:4067 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4057:4060 Corelib.Init.Logic <> ::type_scope:x_'<>'_x not
+R4055:4056 SC.Common <> k2:38 var
+R4061:4063 SC.Common <> k2':40 var
+R4093:4095 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R4068:4075 SC.Common <> fupdate2 def
+R4090:4092 SC.Common <> k2':40 var
+R4087:4088 SC.Common <> k1:37 var
+R4085:4085 SC.Common <> v:39 var
+R4082:4083 SC.Common <> k2:38 var
+R4079:4080 SC.Common <> k1:37 var
+R4077:4077 SC.Common <> f:36 var
+R4096:4096 SC.Common <> f:36 var
+R4101:4103 SC.Common <> k2':40 var
+R4098:4099 SC.Common <> k1:37 var
+R4130:4137 SC.Common <> fupdate2 def
+R4152:4161 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R4152:4161 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R4202:4211 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R4202:4211 Stdlib.Arith.PeanoNat Nat eq_dec thm

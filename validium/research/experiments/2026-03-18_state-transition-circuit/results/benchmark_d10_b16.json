@@ -1,0 +1,18 @@
+{
+  "circuit": "state_transition_d10_b16",
+  "depth": 10,
+  "batchSize": 16,
+  "constraints": 182675,
+  "compilationTimeMs": 4536,
+  "witnessGenTimeMs": 252,
+  "keyGenTimeMs": 43429,
+  "provingTimeMs": 7974,
+  "verificationTimeMs": 2121,
+  "proofSizeBytes": 805,
+  "potPower": 18,
+  "timestamp": "2026-03-18T09:49:16Z",
+  "platform": "MINGW64_NT-10.0-22621 x86_64",
+  "nodeVersion": "v22.13.1",
+  "circomVersion": "circom compiler 2.2.3",
+  "snarkjsVersion": "0.7.6"
+}

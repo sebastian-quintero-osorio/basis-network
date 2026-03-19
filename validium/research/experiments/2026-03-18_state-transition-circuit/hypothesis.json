@@ -1,0 +1,40 @@
+{
+  "name": "state-transition-circuit",
+  "target": "validium",
+  "title": "State Transition Circuit: Groth16 proof of SMT state transitions for enterprise validium batches",
+  "hypothesis": "A Circom circuit that proves state transitions (prevStateRoot -> newStateRoot) for batches of 64 transactions can be generated in under 60 seconds with fewer than 100,000 R1CS constraints using Groth16, while verifying the integrity of each Merkle proof and maintaining state root chain consistency.",
+  "null_hypothesis": "The circuit for batch-64 state transitions will exceed 100,000 constraints or 60 seconds proof generation time, making Groth16 infeasible for enterprise-grade batch processing at this scale.",
+  "domain": "circuit-design",
+  "independent_variables": [
+    "batch_size",
+    "tree_depth",
+    "optimization_level"
+  ],
+  "dependent_variables": [
+    "constraint_count",
+    "proof_generation_time_ms",
+    "verification_time_ms",
+    "proof_size_bytes",
+    "witness_generation_time_ms",
+    "compilation_time_ms"
+  ],
+  "controls": {
+    "hash_function": "Poseidon (BN128)",
+    "proof_system": "Groth16",
+    "field": "BN128 scalar field",
+    "tree_depth": 32,
+    "snarkjs_version": "0.7.6",
+    "circom_version": "2.2.3"
+  },
+  "predictions": {
+    "per_tx_constraints": "~15,600 (2x Merkle path verification at depth 32 + leaf hash)",
+    "batch_4_constraints": "~63,000",
+    "batch_64_constraints": "~1,000,000 (likely EXCEEDS 100K threshold)",
+    "batch_64_proving_time": ">60s at 1M constraints (based on Groth16 scaling literature)",
+    "optimized_per_tx_constraints": "~8,000-10,000 (with sibling reuse and shared path optimization)",
+    "optimized_batch_64_feasibility": "Uncertain -- requires experimental verification"
+  },
+  "created": "2026-03-18",
+  "stage": 1,
+  "depends_on": ["2026-03-18_sparse-merkle-tree"]
+}

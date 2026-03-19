@@ -1,0 +1,1159 @@
+DIGEST c409c662f71c5a66505ced0fd936e741
+FBA.Refinement
+R1802:1807 BA.Common <> <> lib
+R1833:1836 BA.Spec <> <> lib
+R1862:1865 BA.Impl <> <> lib
+R1895:1904 Stdlib.Lists.List <> <> lib
+R1934:1944 Stdlib.Arith.Arith <> <> lib
+R1974:1982 Stdlib.Bool.Bool <> <> lib
+R2012:2014 Stdlib.micromega.Lia <> <> lib
+R2025:2037 Stdlib.Lists.List ListNotations <> mod
+prf 2312:2320 <> fifo_init
+binder 2331:2336 <> allTxs:1
+R2343:2359 BA.Spec <> FIFOOrdering def
+R2362:2370 BA.Spec <> Init def
+R2372:2377 BA.Refinement <> allTxs:1 var
+R2412:2428 BA.Spec <> FIFOOrdering def
+R2431:2447 BA.Spec <> processedTxs def
+R2450:2458 BA.Spec <> Init def
+prf 2507:2533 <> checkpoint_consistency_init
+binder 2544:2549 <> allTxs:2
+R2556:2581 BA.Spec <> CheckpointConsistency def
+R2584:2592 BA.Spec <> Init def
+R2594:2599 BA.Refinement <> allTxs:2 var
+R2627:2652 BA.Spec <> CheckpointConsistency def
+R2655:2671 BA.Spec <> processedTxs def
+R2674:2682 BA.Spec <> Init def
+prf 2721:2744 <> durable_consistency_init
+binder 2755:2760 <> allTxs:3
+R2767:2789 BA.Spec <> DurableConsistency def
+R2792:2800 BA.Spec <> Init def
+R2802:2807 BA.Refinement <> allTxs:3 var
+R2835:2857 BA.Spec <> DurableConsistency def
+R2860:2876 BA.Spec <> processedTxs def
+R2879:2887 BA.Spec <> Init def
+prf 2926:2946 <> checkpoint_bound_init
+binder 2957:2962 <> allTxs:4
+R2969:2988 BA.Spec <> CheckpointBound def
+R2991:2999 BA.Spec <> Init def
+R3001:3006 BA.Refinement <> allTxs:4 var
+R3034:3053 BA.Spec <> CheckpointBound def
+R3056:3064 BA.Spec <> Init def
+prf 3093:3113 <> down_state_clean_init
+binder 3124:3129 <> allTxs:5
+R3136:3154 BA.Spec <> DownStateClean def
+R3157:3165 BA.Spec <> Init def
+R3167:3172 BA.Refinement <> allTxs:5 var
+R3200:3218 BA.Spec <> DownStateClean def
+R3221:3229 BA.Spec <> Init def
+prf 3267:3283 <> wal_complete_init
+binder 3294:3299 <> allTxs:6
+R3306:3321 BA.Spec <> WalComplete def
+R3324:3332 BA.Spec <> Init def
+R3334:3339 BA.Refinement <> allTxs:6 var
+R3342:3347 BA.Refinement <> allTxs:6 var
+R3381:3396 BA.Spec <> WalComplete def
+R3399:3407 BA.Spec <> Init def
+prf 3510:3530 <> batch_size_bound_init
+binder 3541:3546 <> allTxs:7
+R3553:3571 BA.Spec <> BatchSizeBound def
+R3574:3582 BA.Spec <> Init def
+R3584:3589 BA.Refinement <> allTxs:7 var
+R3617:3635 BA.Spec <> BatchSizeBound def
+R3638:3646 BA.Spec <> Init def
+prf 4664:4675 <> fifo_enqueue
+binder 4686:4686 <> s:8
+binder 4688:4689 <> tx:9
+R4715:4722 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4696:4712 BA.Spec <> FIFOOrdering def
+R4714:4714 BA.Refinement <> s:8 var
+R4743:4750 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R4723:4737 BA.Spec <> canEnqueue def
+R4739:4739 BA.Refinement <> s:8 var
+R4741:4742 BA.Refinement <> tx:9 var
+R4751:4767 BA.Spec <> FIFOOrdering def
+R4770:4781 BA.Spec <> Enqueue def
+R4783:4783 BA.Refinement <> s:8 var
+R4785:4786 BA.Refinement <> tx:9 var
+R4835:4851 BA.Spec <> FIFOOrdering def
+R4868:4879 BA.Spec <> Enqueue def
+R4882:4898 BA.Spec <> processedTxs def
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+R5182:5190 Stdlib.Lists.List <> app_assoc thm
+prf 5220:5234 <> fifo_form_batch
+binder 5245:5245 <> s:10
+R5271:5278 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5252:5268 BA.Spec <> FIFOOrdering def
+R5270:5270 BA.Refinement <> s:10 var
+R5298:5305 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5279:5295 BA.Spec <> canFormBatch def
+R5297:5297 BA.Refinement <> s:10 var
+R5306:5322 BA.Spec <> FIFOOrdering def
+R5325:5338 BA.Spec <> FormBatch def
+R5340:5340 BA.Refinement <> s:10 var
+R5386:5402 BA.Spec <> FIFOOrdering def
+R5419:5432 BA.Spec <> FormBatch def
+R5435:5451 BA.Spec <> processedTxs def
+R5716:5727 BA.Common <> flatten_snoc thm
+R5716:5727 BA.Common <> flatten_snoc thm
+R5716:5727 BA.Common <> flatten_snoc thm
+R5750:5758 Stdlib.Lists.List <> app_assoc thm
+R5750:5758 Stdlib.Lists.List <> app_assoc thm
+R5750:5758 Stdlib.Lists.List <> app_assoc thm
+R5750:5758 Stdlib.Lists.List <> app_assoc thm
+R5771:5782 Stdlib.Lists.List <> firstn_skipn thm
+R5771:5782 Stdlib.Lists.List <> firstn_skipn thm
+R5771:5782 Stdlib.Lists.List <> firstn_skipn thm
+prf 5814:5831 <> fifo_process_batch
+binder 5842:5842 <> s:11
+R5868:5875 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5849:5865 BA.Spec <> FIFOOrdering def
+R5867:5867 BA.Refinement <> s:11 var
+R5898:5905 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R5876:5895 BA.Spec <> canProcessBatch def
+R5897:5897 BA.Refinement <> s:11 var
+R5906:5922 BA.Spec <> FIFOOrdering def
+R5925:5941 BA.Spec <> ProcessBatch def
+R5943:5943 BA.Refinement <> s:11 var
+R5991:6007 BA.Spec <> FIFOOrdering def
+R6024:6040 BA.Spec <> ProcessBatch def
+R6055:6066 BA.Spec <> batches proj
+R6055:6066 BA.Spec <> batches proj
+R6150:6166 BA.Spec <> processedTxs def
+R6238:6249 BA.Common <> flatten_cons thm
+R6238:6249 BA.Common <> flatten_cons thm
+R6238:6249 BA.Common <> flatten_cons thm
+R6273:6284 BA.Common <> flatten_snoc thm
+R6273:6284 BA.Common <> flatten_snoc thm
+R6273:6284 BA.Common <> flatten_snoc thm
+R6309:6317 Stdlib.Lists.List <> app_assoc thm
+R6309:6317 Stdlib.Lists.List <> app_assoc thm
+R6309:6317 Stdlib.Lists.List <> app_assoc thm
+R6309:6317 Stdlib.Lists.List <> app_assoc thm
+R6342:6350 Stdlib.Lists.List <> app_assoc thm
+R6342:6350 Stdlib.Lists.List <> app_assoc thm
+R6342:6350 Stdlib.Lists.List <> app_assoc thm
+R6342:6350 Stdlib.Lists.List <> app_assoc thm
+prf 6459:6468 <> fifo_crash
+binder 6479:6479 <> s:12
+R6486:6502 BA.Spec <> FIFOOrdering def
+R6505:6514 BA.Spec <> Crash def
+R6516:6516 BA.Refinement <> s:12 var
+R6546:6562 BA.Spec <> FIFOOrdering def
+R6565:6574 BA.Spec <> Crash def
+prf 7037:7048 <> fifo_recover
+binder 7059:7059 <> s:13
+R7091:7098 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7066:7088 BA.Spec <> DurableConsistency def
+R7090:7090 BA.Refinement <> s:13 var
+R7120:7127 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7099:7117 BA.Spec <> DownStateClean def
+R7119:7119 BA.Refinement <> s:13 var
+R7145:7152 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7128:7142 BA.Spec <> canRecover def
+R7144:7144 BA.Refinement <> s:13 var
+R7153:7169 BA.Spec <> FIFOOrdering def
+R7172:7183 BA.Spec <> Recover def
+R7185:7185 BA.Refinement <> s:13 var
+R7233:7247 BA.Spec <> canRecover def
+R7267:7285 BA.Spec <> DownStateClean def
+R7342:7358 BA.Spec <> FIFOOrdering def
+R7361:7372 BA.Spec <> Recover def
+R7375:7391 BA.Spec <> processedTxs def
+R7448:7470 BA.Spec <> DurableConsistency def
+R7473:7489 BA.Spec <> processedTxs def
+R7524:7535 Stdlib.Lists.List <> firstn_skipn thm
+R7524:7535 Stdlib.Lists.List <> firstn_skipn thm
+prf 7596:7610 <> fifo_timer_tick
+binder 7621:7621 <> s:14
+R7647:7654 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7628:7644 BA.Spec <> FIFOOrdering def
+R7646:7646 BA.Refinement <> s:14 var
+R7674:7681 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R7655:7671 BA.Spec <> canTimerTick def
+R7673:7673 BA.Refinement <> s:14 var
+R7682:7698 BA.Spec <> FIFOOrdering def
+R7701:7714 BA.Spec <> TimerTick def
+R7716:7716 BA.Refinement <> s:14 var
+R7762:7778 BA.Spec <> FIFOOrdering def
+R7795:7808 BA.Spec <> TimerTick def
+R7811:7827 BA.Spec <> processedTxs def
+prf 8198:8215 <> checkpoint_enqueue
+binder 8226:8226 <> s:15
+binder 8228:8229 <> tx:16
+R8264:8271 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8236:8261 BA.Spec <> CheckpointConsistency def
+R8263:8263 BA.Refinement <> s:15 var
+R8272:8297 BA.Spec <> CheckpointConsistency def
+R8300:8311 BA.Spec <> Enqueue def
+R8313:8313 BA.Refinement <> s:15 var
+R8315:8316 BA.Refinement <> tx:16 var
+R8351:8376 BA.Spec <> CheckpointConsistency def
+R8379:8395 BA.Spec <> processedTxs def
+R8412:8423 BA.Spec <> Enqueue def
+prf 8456:8476 <> checkpoint_form_batch
+binder 8487:8487 <> s:17
+R8522:8529 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8494:8519 BA.Spec <> CheckpointConsistency def
+R8521:8521 BA.Refinement <> s:17 var
+R8530:8555 BA.Spec <> CheckpointConsistency def
+R8558:8571 BA.Spec <> FormBatch def
+R8573:8573 BA.Refinement <> s:17 var
+R8605:8630 BA.Spec <> CheckpointConsistency def
+R8633:8649 BA.Spec <> processedTxs def
+R8666:8679 BA.Spec <> FormBatch def
+prf 8712:8735 <> checkpoint_process_batch
+binder 8746:8746 <> s:18
+R8781:8788 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8753:8778 BA.Spec <> CheckpointConsistency def
+R8780:8780 BA.Refinement <> s:18 var
+R8811:8818 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R8789:8808 BA.Spec <> canProcessBatch def
+R8810:8810 BA.Refinement <> s:18 var
+R8819:8844 BA.Spec <> CheckpointConsistency def
+R8847:8863 BA.Spec <> ProcessBatch def
+R8865:8865 BA.Refinement <> s:18 var
+R8909:8934 BA.Spec <> CheckpointConsistency def
+R8937:8953 BA.Spec <> processedTxs def
+R8970:8986 BA.Spec <> ProcessBatch def
+R9001:9012 BA.Spec <> batches proj
+R9001:9012 BA.Spec <> batches proj
+R9097:9108 BA.Common <> flatten_snoc thm
+R9097:9108 BA.Common <> flatten_snoc thm
+R9097:9108 BA.Common <> flatten_snoc thm
+R9119:9128 Stdlib.Lists.List <> length_app thm
+R9119:9128 Stdlib.Lists.List <> length_app thm
+R9119:9128 Stdlib.Lists.List <> length_app thm
+prf 9150:9165 <> checkpoint_crash
+binder 9176:9176 <> s:19
+R9211:9218 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9183:9208 BA.Spec <> CheckpointConsistency def
+R9210:9210 BA.Refinement <> s:19 var
+R9219:9244 BA.Spec <> CheckpointConsistency def
+R9247:9256 BA.Spec <> Crash def
+R9258:9258 BA.Refinement <> s:19 var
+R9290:9315 BA.Spec <> CheckpointConsistency def
+R9318:9334 BA.Spec <> processedTxs def
+R9337:9346 BA.Spec <> Crash def
+prf 9386:9403 <> checkpoint_recover
+binder 9414:9414 <> s:20
+R9449:9456 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9421:9446 BA.Spec <> CheckpointConsistency def
+R9448:9448 BA.Refinement <> s:20 var
+R9457:9482 BA.Spec <> CheckpointConsistency def
+R9485:9496 BA.Spec <> Recover def
+R9498:9498 BA.Refinement <> s:20 var
+R9530:9555 BA.Spec <> CheckpointConsistency def
+R9558:9574 BA.Spec <> processedTxs def
+R9577:9588 BA.Spec <> Recover def
+prf 9628:9648 <> checkpoint_timer_tick
+binder 9659:9659 <> s:21
+R9694:9701 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R9666:9691 BA.Spec <> CheckpointConsistency def
+R9693:9693 BA.Refinement <> s:21 var
+R9702:9727 BA.Spec <> CheckpointConsistency def
+R9730:9743 BA.Spec <> TimerTick def
+R9745:9745 BA.Refinement <> s:21 var
+R9777:9802 BA.Spec <> CheckpointConsistency def
+R9805:9821 BA.Spec <> processedTxs def
+R9824:9837 BA.Spec <> TimerTick def
+prf 10301:10315 <> durable_enqueue
+binder 10326:10326 <> s:22
+binder 10328:10329 <> tx:23
+R10361:10368 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10336:10358 BA.Spec <> DurableConsistency def
+R10360:10360 BA.Refinement <> s:22 var
+R10391:10398 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10369:10388 BA.Spec <> CheckpointBound def
+R10390:10390 BA.Refinement <> s:22 var
+R10399:10421 BA.Spec <> DurableConsistency def
+R10424:10435 BA.Spec <> Enqueue def
+R10437:10437 BA.Refinement <> s:22 var
+R10439:10440 BA.Refinement <> tx:23 var
+R10487:10509 BA.Spec <> DurableConsistency def
+R10512:10528 BA.Spec <> processedTxs def
+R10545:10556 BA.Spec <> Enqueue def
+R10575:10594 BA.Spec <> CheckpointBound def
+R10617:10629 BA.Common <> firstn_app_le thm
+R10617:10629 BA.Common <> firstn_app_le thm
+R10617:10629 BA.Common <> firstn_app_le thm
+prf 10676:10693 <> durable_form_batch
+binder 10704:10704 <> s:24
+R10736:10743 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R10711:10733 BA.Spec <> DurableConsistency def
+R10735:10735 BA.Refinement <> s:24 var
+R10744:10766 BA.Spec <> DurableConsistency def
+R10769:10782 BA.Spec <> FormBatch def
+R10784:10784 BA.Refinement <> s:24 var
+R10816:10838 BA.Spec <> DurableConsistency def
+R10841:10857 BA.Spec <> processedTxs def
+R10874:10887 BA.Spec <> FormBatch def
+prf 11033:11053 <> durable_process_batch
+binder 11064:11064 <> s:25
+R11096:11103 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11071:11093 BA.Spec <> DurableConsistency def
+R11095:11095 BA.Refinement <> s:25 var
+R11123:11130 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11104:11120 BA.Spec <> FIFOOrdering def
+R11122:11122 BA.Refinement <> s:25 var
+R11159:11166 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11131:11156 BA.Spec <> CheckpointConsistency def
+R11158:11158 BA.Refinement <> s:25 var
+R11189:11196 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R11167:11186 BA.Spec <> canProcessBatch def
+R11188:11188 BA.Refinement <> s:25 var
+R11197:11219 BA.Spec <> DurableConsistency def
+R11222:11238 BA.Spec <> ProcessBatch def
+R11240:11240 BA.Refinement <> s:25 var
+R11297:11319 BA.Spec <> DurableConsistency def
+R11322:11338 BA.Spec <> processedTxs def
+R11355:11371 BA.Spec <> ProcessBatch def
+R11386:11397 BA.Spec <> batches proj
+R11386:11397 BA.Spec <> batches proj
+R11486:11497 BA.Common <> flatten_snoc thm
+R11486:11497 BA.Common <> flatten_snoc thm
+R11486:11497 BA.Common <> flatten_snoc thm
+R11511:11527 BA.Spec <> FIFOOrdering def
+R11578:11594 BA.Spec <> processedTxs def
+R11641:11652 BA.Common <> flatten_cons thm
+R11641:11652 BA.Common <> flatten_cons thm
+R11641:11652 BA.Common <> flatten_cons thm
+R11675:11700 BA.Spec <> CheckpointConsistency def
+R11703:11719 BA.Spec <> processedTxs def
+R12028:12037 Stdlib.Lists.List <> length_app thm
+R12028:12037 Stdlib.Lists.List <> length_app thm
+R12028:12037 Stdlib.Lists.List <> length_app thm
+R12079:12082 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12053:12059 BA.Common <> flatten def
+R12062:12075 BA.Spec <> processed proj
+R12083:12083 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12101:12105 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12085:12088 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12089:12095 BA.Common <> flatten def
+R12106:12115 BA.Spec <> queue proj
+R12132:12132 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12164:12169 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12198:12198 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12159:12162 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12133:12139 BA.Common <> flatten def
+R12142:12155 BA.Spec <> processed proj
+R12182:12185 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12170:12176 BA.Common <> flatten def
+R12186:12195 BA.Spec <> queue proj
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12079:12082 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12053:12059 BA.Common <> flatten def
+R12062:12075 BA.Spec <> processed proj
+R12083:12083 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12101:12105 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12085:12088 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12089:12095 BA.Common <> flatten def
+R12106:12115 BA.Spec <> queue proj
+R12132:12132 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12164:12169 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12198:12198 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12159:12162 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12133:12139 BA.Common <> flatten def
+R12142:12155 BA.Spec <> processed proj
+R12182:12185 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R12170:12176 BA.Common <> flatten def
+R12186:12195 BA.Spec <> queue proj
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12229:12237 Stdlib.Lists.List <> app_assoc thm
+R12266:12277 BA.Common <> firstn_exact thm
+R12266:12277 BA.Common <> firstn_exact thm
+R12266:12277 BA.Common <> firstn_exact thm
+prf 12307:12319 <> durable_crash
+binder 12330:12330 <> s:26
+R12362:12369 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12337:12359 BA.Spec <> DurableConsistency def
+R12361:12361 BA.Refinement <> s:26 var
+R12370:12392 BA.Spec <> DurableConsistency def
+R12395:12404 BA.Spec <> Crash def
+R12406:12406 BA.Refinement <> s:26 var
+R12438:12460 BA.Spec <> DurableConsistency def
+R12463:12479 BA.Spec <> processedTxs def
+R12482:12491 BA.Spec <> Crash def
+prf 12531:12545 <> durable_recover
+binder 12556:12556 <> s:27
+R12588:12595 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12563:12585 BA.Spec <> DurableConsistency def
+R12587:12587 BA.Refinement <> s:27 var
+R12596:12618 BA.Spec <> DurableConsistency def
+R12621:12632 BA.Spec <> Recover def
+R12634:12634 BA.Refinement <> s:27 var
+R12666:12688 BA.Spec <> DurableConsistency def
+R12691:12707 BA.Spec <> processedTxs def
+R12710:12721 BA.Spec <> Recover def
+prf 12761:12778 <> durable_timer_tick
+binder 12789:12789 <> s:28
+R12821:12828 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R12796:12818 BA.Spec <> DurableConsistency def
+R12820:12820 BA.Refinement <> s:28 var
+R12829:12851 BA.Spec <> DurableConsistency def
+R12854:12867 BA.Spec <> TimerTick def
+R12869:12869 BA.Refinement <> s:28 var
+R12901:12923 BA.Spec <> DurableConsistency def
+R12926:12942 BA.Spec <> processedTxs def
+R12945:12958 BA.Spec <> TimerTick def
+prf 13243:13255 <> bound_enqueue
+binder 13266:13266 <> s:29
+binder 13268:13269 <> tx:30
+R13298:13305 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13276:13295 BA.Spec <> CheckpointBound def
+R13297:13297 BA.Refinement <> s:29 var
+R13306:13325 BA.Spec <> CheckpointBound def
+R13328:13339 BA.Spec <> Enqueue def
+R13341:13341 BA.Refinement <> s:29 var
+R13343:13344 BA.Refinement <> tx:30 var
+R13379:13398 BA.Spec <> CheckpointBound def
+R13415:13426 BA.Spec <> Enqueue def
+R13444:13453 Stdlib.Lists.List <> length_app thm
+R13444:13453 Stdlib.Lists.List <> length_app thm
+R13444:13453 Stdlib.Lists.List <> length_app thm
+prf 13482:13497 <> bound_form_batch
+binder 13508:13508 <> s:31
+R13537:13544 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13515:13534 BA.Spec <> CheckpointBound def
+R13536:13536 BA.Refinement <> s:31 var
+R13545:13564 BA.Spec <> CheckpointBound def
+R13567:13580 BA.Spec <> FormBatch def
+R13582:13582 BA.Refinement <> s:31 var
+R13614:13633 BA.Spec <> CheckpointBound def
+R13650:13663 BA.Spec <> FormBatch def
+prf 13696:13714 <> bound_process_batch
+binder 13725:13725 <> s:32
+R13754:13761 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13732:13751 BA.Spec <> CheckpointBound def
+R13753:13753 BA.Refinement <> s:32 var
+R13790:13797 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13762:13787 BA.Spec <> CheckpointConsistency def
+R13789:13789 BA.Refinement <> s:32 var
+R13817:13824 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13798:13814 BA.Spec <> FIFOOrdering def
+R13816:13816 BA.Refinement <> s:32 var
+R13847:13854 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R13825:13844 BA.Spec <> canProcessBatch def
+R13846:13846 BA.Refinement <> s:32 var
+R13855:13874 BA.Spec <> CheckpointBound def
+R13877:13893 BA.Spec <> ProcessBatch def
+R13895:13895 BA.Refinement <> s:32 var
+R13954:13973 BA.Spec <> CheckpointBound def
+R13990:14006 BA.Spec <> ProcessBatch def
+R14021:14032 BA.Spec <> batches proj
+R14021:14032 BA.Spec <> batches proj
+R14120:14136 BA.Spec <> FIFOOrdering def
+R14187:14203 BA.Spec <> processedTxs def
+R14250:14261 BA.Common <> flatten_cons thm
+R14250:14261 BA.Common <> flatten_cons thm
+R14250:14261 BA.Common <> flatten_cons thm
+R14284:14309 BA.Spec <> CheckpointConsistency def
+R14312:14328 BA.Spec <> processedTxs def
+R14376:14397 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14357:14362 Corelib.Init.Datatypes <> length def
+R14365:14372 BA.Spec <> wal proj
+R14487:14508 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14463:14465 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14433:14454 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14398:14403 Corelib.Init.Datatypes <> length def
+R14406:14412 BA.Common <> flatten def
+R14415:14428 BA.Spec <> processed proj
+R14455:14460 Corelib.Init.Datatypes <> length def
+R14466:14471 Corelib.Init.Datatypes <> length def
+R14474:14480 BA.Common <> flatten def
+R14509:14514 Corelib.Init.Datatypes <> length def
+R14517:14526 BA.Spec <> queue proj
+R14376:14397 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R14357:14362 Corelib.Init.Datatypes <> length def
+R14365:14372 BA.Spec <> wal proj
+R14487:14508 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14463:14465 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14433:14454 Corelib.Init.Peano <> ::nat_scope:x_'+'_x not
+R14398:14403 Corelib.Init.Datatypes <> length def
+R14406:14412 BA.Common <> flatten def
+R14415:14428 BA.Spec <> processed proj
+R14455:14460 Corelib.Init.Datatypes <> length def
+R14466:14471 Corelib.Init.Datatypes <> length def
+R14474:14480 BA.Common <> flatten def
+R14509:14514 Corelib.Init.Datatypes <> length def
+R14517:14526 BA.Spec <> queue proj
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+R14572:14581 Stdlib.Lists.List <> length_app thm
+prf 14614:14624 <> bound_crash
+binder 14635:14635 <> s:33
+R14664:14671 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14642:14661 BA.Spec <> CheckpointBound def
+R14663:14663 BA.Refinement <> s:33 var
+R14672:14691 BA.Spec <> CheckpointBound def
+R14694:14703 BA.Spec <> Crash def
+R14705:14705 BA.Refinement <> s:33 var
+R14737:14756 BA.Spec <> CheckpointBound def
+R14759:14768 BA.Spec <> Crash def
+prf 14806:14818 <> bound_recover
+binder 14829:14829 <> s:34
+R14858:14865 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R14836:14855 BA.Spec <> CheckpointBound def
+R14857:14857 BA.Refinement <> s:34 var
+R14866:14885 BA.Spec <> CheckpointBound def
+R14888:14899 BA.Spec <> Recover def
+R14901:14901 BA.Refinement <> s:34 var
+R14933:14952 BA.Spec <> CheckpointBound def
+R14955:14966 BA.Spec <> Recover def
+prf 15004:15019 <> bound_timer_tick
+binder 15030:15030 <> s:35
+R15059:15066 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15037:15056 BA.Spec <> CheckpointBound def
+R15058:15058 BA.Refinement <> s:35 var
+R15067:15086 BA.Spec <> CheckpointBound def
+R15089:15102 BA.Spec <> TimerTick def
+R15104:15104 BA.Refinement <> s:35 var
+R15136:15155 BA.Spec <> CheckpointBound def
+R15158:15171 BA.Spec <> TimerTick def
+prf 15239:15256 <> down_clean_enqueue
+binder 15267:15267 <> s:36
+binder 15269:15270 <> tx:37
+R15297:15304 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15277:15291 BA.Spec <> canEnqueue def
+R15293:15293 BA.Refinement <> s:36 var
+R15295:15296 BA.Refinement <> tx:37 var
+R15305:15323 BA.Spec <> DownStateClean def
+R15326:15337 BA.Spec <> Enqueue def
+R15339:15339 BA.Refinement <> s:36 var
+R15341:15342 BA.Refinement <> tx:37 var
+R15385:15403 BA.Spec <> DownStateClean def
+R15406:15417 BA.Spec <> Enqueue def
+prf 15468:15488 <> down_clean_form_batch
+binder 15499:15499 <> s:38
+R15525:15532 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15506:15522 BA.Spec <> canFormBatch def
+R15524:15524 BA.Refinement <> s:38 var
+R15533:15551 BA.Spec <> DownStateClean def
+R15554:15567 BA.Spec <> FormBatch def
+R15569:15569 BA.Refinement <> s:38 var
+R15609:15627 BA.Spec <> DownStateClean def
+R15630:15643 BA.Spec <> FormBatch def
+prf 15694:15717 <> down_clean_process_batch
+binder 15728:15728 <> s:39
+R15757:15764 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R15735:15754 BA.Spec <> canProcessBatch def
+R15756:15756 BA.Refinement <> s:39 var
+R15765:15783 BA.Spec <> DownStateClean def
+R15786:15802 BA.Spec <> ProcessBatch def
+R15804:15804 BA.Refinement <> s:39 var
+R15844:15862 BA.Spec <> DownStateClean def
+R15865:15881 BA.Spec <> ProcessBatch def
+R15896:15907 BA.Spec <> batches proj
+R15896:15907 BA.Spec <> batches proj
+prf 15959:15974 <> down_clean_crash
+binder 15985:15985 <> s:40
+R15992:16010 BA.Spec <> DownStateClean def
+R16013:16022 BA.Spec <> Crash def
+R16024:16024 BA.Refinement <> s:40 var
+R16054:16072 BA.Spec <> DownStateClean def
+R16075:16084 BA.Spec <> Crash def
+prf 16114:16131 <> down_clean_recover
+binder 16142:16142 <> s:41
+R16149:16167 BA.Spec <> DownStateClean def
+R16170:16181 BA.Spec <> Recover def
+R16183:16183 BA.Refinement <> s:41 var
+R16213:16231 BA.Spec <> DownStateClean def
+R16234:16245 BA.Spec <> Recover def
+prf 16283:16303 <> down_clean_timer_tick
+binder 16314:16314 <> s:42
+R16340:16347 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16321:16337 BA.Spec <> canTimerTick def
+R16339:16339 BA.Refinement <> s:42 var
+R16348:16366 BA.Spec <> DownStateClean def
+R16369:16382 BA.Spec <> TimerTick def
+R16384:16384 BA.Refinement <> s:42 var
+R16424:16442 BA.Spec <> DownStateClean def
+R16445:16458 BA.Spec <> TimerTick def
+prf 16536:16555 <> wal_complete_enqueue
+binder 16566:16566 <> s:43
+binder 16568:16569 <> tx:44
+binder 16571:16576 <> allTxs:45
+R16608:16615 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16583:16598 BA.Spec <> WalComplete def
+R16600:16600 BA.Refinement <> s:43 var
+R16602:16607 BA.Refinement <> allTxs:45 var
+R16636:16643 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R16616:16630 BA.Spec <> canEnqueue def
+R16632:16632 BA.Refinement <> s:43 var
+R16634:16635 BA.Refinement <> tx:44 var
+R16644:16659 BA.Spec <> WalComplete def
+R16662:16673 BA.Spec <> Enqueue def
+R16675:16675 BA.Refinement <> s:43 var
+R16677:16678 BA.Refinement <> tx:44 var
+R16681:16686 BA.Refinement <> allTxs:45 var
+R16741:16756 BA.Spec <> WalComplete def
+R16771:16782 BA.Spec <> Enqueue def
+R16997:17006 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R16997:17006 Stdlib.Arith.PeanoNat Nat eq_dec thm
+R17096:17105 Stdlib.Lists.List <> in_app_iff thm
+R17096:17105 Stdlib.Lists.List <> in_app_iff thm
+R17203:17215 BA.Common <> in_remove_neq thm
+R17203:17215 BA.Common <> in_remove_neq thm
+R17302:17311 Stdlib.Lists.List <> in_app_iff thm
+R17302:17311 Stdlib.Lists.List <> in_app_iff thm
+R17531:17544 BA.Common <> remove_in_orig thm
+R17531:17544 BA.Common <> remove_in_orig thm
+R17603:17612 Stdlib.Lists.List <> in_app_iff thm
+R17603:17612 Stdlib.Lists.List <> in_app_iff thm
+prf 17857:17879 <> wal_complete_form_batch
+binder 17890:17890 <> s:46
+binder 17892:17897 <> allTxs:47
+R17929:17936 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R17904:17919 BA.Spec <> WalComplete def
+R17921:17921 BA.Refinement <> s:46 var
+R17923:17928 BA.Refinement <> allTxs:47 var
+R17937:17952 BA.Spec <> WalComplete def
+R17955:17968 BA.Spec <> FormBatch def
+R17970:17970 BA.Refinement <> s:46 var
+R17973:17978 BA.Refinement <> allTxs:47 var
+R18016:18031 BA.Spec <> WalComplete def
+R18048:18061 BA.Spec <> FormBatch def
+prf 18094:18119 <> wal_complete_process_batch
+binder 18130:18130 <> s:48
+binder 18132:18137 <> allTxs:49
+R18169:18176 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18144:18159 BA.Spec <> WalComplete def
+R18161:18161 BA.Refinement <> s:48 var
+R18163:18168 BA.Refinement <> allTxs:49 var
+R18177:18192 BA.Spec <> WalComplete def
+R18195:18211 BA.Spec <> ProcessBatch def
+R18213:18213 BA.Refinement <> s:48 var
+R18216:18221 BA.Refinement <> allTxs:49 var
+R18259:18274 BA.Spec <> WalComplete def
+R18291:18307 BA.Spec <> ProcessBatch def
+R18322:18333 BA.Spec <> batches proj
+R18322:18333 BA.Spec <> batches proj
+prf 18369:18386 <> wal_complete_crash
+binder 18397:18397 <> s:50
+binder 18399:18404 <> allTxs:51
+R18436:18443 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18411:18426 BA.Spec <> WalComplete def
+R18428:18428 BA.Refinement <> s:50 var
+R18430:18435 BA.Refinement <> allTxs:51 var
+R18444:18459 BA.Spec <> WalComplete def
+R18462:18471 BA.Spec <> Crash def
+R18473:18473 BA.Refinement <> s:50 var
+R18476:18481 BA.Refinement <> allTxs:51 var
+R18519:18534 BA.Spec <> WalComplete def
+R18551:18560 BA.Spec <> Crash def
+prf 18593:18612 <> wal_complete_recover
+binder 18623:18623 <> s:52
+binder 18625:18630 <> allTxs:53
+R18662:18669 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18637:18652 BA.Spec <> WalComplete def
+R18654:18654 BA.Refinement <> s:52 var
+R18656:18661 BA.Refinement <> allTxs:53 var
+R18670:18685 BA.Spec <> WalComplete def
+R18688:18699 BA.Spec <> Recover def
+R18701:18701 BA.Refinement <> s:52 var
+R18704:18709 BA.Refinement <> allTxs:53 var
+R18747:18762 BA.Spec <> WalComplete def
+R18779:18790 BA.Spec <> Recover def
+prf 18823:18845 <> wal_complete_timer_tick
+binder 18856:18856 <> s:54
+binder 18858:18863 <> allTxs:55
+R18895:18902 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R18870:18885 BA.Spec <> WalComplete def
+R18887:18887 BA.Refinement <> s:54 var
+R18889:18894 BA.Refinement <> allTxs:55 var
+R18903:18918 BA.Spec <> WalComplete def
+R18921:18934 BA.Spec <> TimerTick def
+R18936:18936 BA.Refinement <> s:54 var
+R18939:18944 BA.Refinement <> allTxs:55 var
+R18982:18997 BA.Spec <> WalComplete def
+R19014:19027 BA.Spec <> TimerTick def
+prf 19090:19100 <> bsb_enqueue
+binder 19111:19111 <> s:56
+binder 19113:19114 <> tx:57
+R19142:19149 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19121:19139 BA.Spec <> BatchSizeBound def
+R19141:19141 BA.Refinement <> s:56 var
+R19150:19168 BA.Spec <> BatchSizeBound def
+R19171:19182 BA.Spec <> Enqueue def
+R19184:19184 BA.Refinement <> s:56 var
+R19186:19187 BA.Refinement <> tx:57 var
+R19228:19246 BA.Spec <> BatchSizeBound def
+R19263:19274 BA.Spec <> Enqueue def
+prf 19304:19317 <> bsb_form_batch
+binder 19328:19328 <> s:58
+R19356:19363 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19335:19353 BA.Spec <> BatchSizeBound def
+R19355:19355 BA.Refinement <> s:58 var
+R19383:19390 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19364:19380 BA.Spec <> canFormBatch def
+R19382:19382 BA.Refinement <> s:58 var
+R19391:19409 BA.Spec <> BatchSizeBound def
+R19412:19425 BA.Spec <> FormBatch def
+R19427:19427 BA.Refinement <> s:58 var
+R19475:19493 BA.Spec <> BatchSizeBound def
+R19510:19523 BA.Spec <> FormBatch def
+R19571:19580 Stdlib.Lists.List <> in_app_iff thm
+R19571:19580 Stdlib.Lists.List <> in_app_iff thm
+R19684:19699 BA.Common <> length_firstn_le thm
+R19790:19799 BA.Spec <> queue proj
+R19716:19720 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R19713:19715 BA.Common <> BST defax
+R19721:19726 Corelib.Init.Datatypes <> length def
+R19729:19738 BA.Spec <> queue proj
+R19766:19771 Corelib.Init.Datatypes <> length def
+R19774:19783 BA.Spec <> queue proj
+R19748:19750 BA.Common <> BST defax
+R19684:19699 BA.Common <> length_firstn_le thm
+R19790:19799 BA.Spec <> queue proj
+R19716:19720 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R19713:19715 BA.Common <> BST defax
+R19721:19726 Corelib.Init.Datatypes <> length def
+R19729:19738 BA.Spec <> queue proj
+R19766:19771 Corelib.Init.Datatypes <> length def
+R19774:19783 BA.Spec <> queue proj
+R19748:19750 BA.Common <> BST defax
+R19832:19836 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R19829:19831 BA.Common <> BST defax
+R19837:19842 Corelib.Init.Datatypes <> length def
+R19845:19854 BA.Spec <> queue proj
+R19832:19836 Stdlib.Arith.PeanoNat <> ::nat_scope:x_'<=?'_x not
+R19829:19831 BA.Common <> BST defax
+R19837:19842 Corelib.Init.Datatypes <> length def
+R19845:19854 BA.Spec <> queue proj
+R19896:19905 Stdlib.Arith.PeanoNat Nat leb_gt thm
+R19896:19905 Stdlib.Arith.PeanoNat Nat leb_gt thm
+prf 19948:19964 <> bsb_process_batch
+binder 19975:19975 <> s:59
+R20003:20010 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R19982:20000 BA.Spec <> BatchSizeBound def
+R20002:20002 BA.Refinement <> s:59 var
+R20033:20040 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20011:20030 BA.Spec <> canProcessBatch def
+R20032:20032 BA.Refinement <> s:59 var
+R20041:20059 BA.Spec <> BatchSizeBound def
+R20062:20078 BA.Spec <> ProcessBatch def
+R20080:20080 BA.Refinement <> s:59 var
+R20128:20146 BA.Spec <> BatchSizeBound def
+R20163:20179 BA.Spec <> ProcessBatch def
+R20194:20205 BA.Spec <> batches proj
+R20194:20205 BA.Spec <> batches proj
+R20365:20374 Stdlib.Lists.List <> in_app_iff thm
+R20365:20374 Stdlib.Lists.List <> in_app_iff thm
+prf 20513:20521 <> bsb_crash
+binder 20532:20532 <> s:60
+R20560:20567 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20539:20557 BA.Spec <> BatchSizeBound def
+R20559:20559 BA.Refinement <> s:60 var
+R20568:20586 BA.Spec <> BatchSizeBound def
+R20589:20598 BA.Spec <> Crash def
+R20600:20600 BA.Refinement <> s:60 var
+R20638:20656 BA.Spec <> BatchSizeBound def
+R20659:20668 BA.Spec <> Crash def
+prf 20732:20742 <> bsb_recover
+binder 20753:20753 <> s:61
+R20781:20788 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20760:20778 BA.Spec <> BatchSizeBound def
+R20780:20780 BA.Refinement <> s:61 var
+R20789:20807 BA.Spec <> BatchSizeBound def
+R20810:20821 BA.Spec <> Recover def
+R20823:20823 BA.Refinement <> s:61 var
+R20855:20873 BA.Spec <> BatchSizeBound def
+R20890:20901 BA.Spec <> Recover def
+prf 20934:20947 <> bsb_timer_tick
+binder 20958:20958 <> s:62
+R20986:20993 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R20965:20983 BA.Spec <> BatchSizeBound def
+R20985:20985 BA.Refinement <> s:62 var
+R20994:21012 BA.Spec <> BatchSizeBound def
+R21015:21028 BA.Spec <> TimerTick def
+R21030:21030 BA.Refinement <> s:62 var
+R21062:21080 BA.Spec <> BatchSizeBound def
+R21097:21110 BA.Spec <> TimerTick def
+prf 21901:21915 <> no_loss_derived
+binder 21926:21926 <> s:63
+binder 21928:21933 <> allTxs:64
+R21965:21972 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21940:21955 BA.Spec <> WalComplete def
+R21957:21957 BA.Refinement <> s:63 var
+R21959:21964 BA.Refinement <> allTxs:64 var
+R21998:22005 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R21973:21995 BA.Spec <> DurableConsistency def
+R21997:21997 BA.Refinement <> s:63 var
+R22028:22035 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R22006:22025 BA.Spec <> CheckpointBound def
+R22027:22027 BA.Refinement <> s:63 var
+R22036:22046 BA.Spec <> NoLoss def
+R22048:22048 BA.Refinement <> s:63 var
+R22050:22055 BA.Refinement <> allTxs:64 var
+R22109:22119 BA.Spec <> NoLoss def
+R22122:22137 BA.Spec <> WalComplete def
+R22154:22169 BA.Spec <> uncommitted def
+R22466:22484 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R22456:22463 BA.Spec <> wal proj
+R22527:22546 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R22485:22490 Corelib.Lists.ListDef <> firstn def
+R22516:22523 BA.Spec <> wal proj
+R22493:22510 BA.Spec <> checkpointSeq proj
+R22547:22551 Corelib.Lists.ListDef <> skipn def
+R22577:22584 BA.Spec <> wal proj
+R22554:22571 BA.Spec <> checkpointSeq proj
+R22618:22629 Stdlib.Lists.List <> firstn_skipn thm
+R22466:22484 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R22456:22463 BA.Spec <> wal proj
+R22527:22546 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R22485:22490 Corelib.Lists.ListDef <> firstn def
+R22516:22523 BA.Spec <> wal proj
+R22493:22510 BA.Spec <> checkpointSeq proj
+R22547:22551 Corelib.Lists.ListDef <> skipn def
+R22577:22584 BA.Spec <> wal proj
+R22554:22571 BA.Spec <> checkpointSeq proj
+R22618:22629 Stdlib.Lists.List <> firstn_skipn thm
+R22675:22684 Stdlib.Lists.List <> in_app_iff thm
+R22675:22684 Stdlib.Lists.List <> in_app_iff thm
+R22787:22809 BA.Spec <> DurableConsistency def
+R22812:22828 BA.Spec <> processedTxs def
+R23186:23204 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23176:23183 BA.Spec <> wal proj
+R23247:23266 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R23205:23210 Corelib.Lists.ListDef <> firstn def
+R23236:23243 BA.Spec <> wal proj
+R23213:23230 BA.Spec <> checkpointSeq proj
+R23267:23271 Corelib.Lists.ListDef <> skipn def
+R23297:23304 BA.Spec <> wal proj
+R23274:23291 BA.Spec <> checkpointSeq proj
+R23338:23349 Stdlib.Lists.List <> firstn_skipn thm
+R23186:23204 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23176:23183 BA.Spec <> wal proj
+R23247:23266 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R23205:23210 Corelib.Lists.ListDef <> firstn def
+R23236:23243 BA.Spec <> wal proj
+R23213:23230 BA.Spec <> checkpointSeq proj
+R23267:23271 Corelib.Lists.ListDef <> skipn def
+R23297:23304 BA.Spec <> wal proj
+R23274:23291 BA.Spec <> checkpointSeq proj
+R23338:23349 Stdlib.Lists.List <> firstn_skipn thm
+R23381:23390 Stdlib.Lists.List <> in_app_iff thm
+R23381:23390 Stdlib.Lists.List <> in_app_iff thm
+R23451:23473 BA.Spec <> DurableConsistency def
+R23476:23492 BA.Spec <> processedTxs def
+R23536:23554 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23526:23533 BA.Spec <> wal proj
+R23597:23616 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R23555:23560 Corelib.Lists.ListDef <> firstn def
+R23586:23593 BA.Spec <> wal proj
+R23563:23580 BA.Spec <> checkpointSeq proj
+R23617:23621 Corelib.Lists.ListDef <> skipn def
+R23647:23654 BA.Spec <> wal proj
+R23624:23641 BA.Spec <> checkpointSeq proj
+R23688:23699 Stdlib.Lists.List <> firstn_skipn thm
+R23536:23554 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R23526:23533 BA.Spec <> wal proj
+R23597:23616 Corelib.Init.Datatypes <> ::list_scope:x_'++'_x not
+R23555:23560 Corelib.Lists.ListDef <> firstn def
+R23586:23593 BA.Spec <> wal proj
+R23563:23580 BA.Spec <> checkpointSeq proj
+R23617:23621 Corelib.Lists.ListDef <> skipn def
+R23647:23654 BA.Spec <> wal proj
+R23624:23641 BA.Spec <> checkpointSeq proj
+R23688:23699 Stdlib.Lists.List <> firstn_skipn thm
+R23731:23740 Stdlib.Lists.List <> in_app_iff thm
+R23731:23740 Stdlib.Lists.List <> in_app_iff thm
+prf 23878:23888 <> qwc_derived
+binder 23899:23899 <> s:65
+R23925:23932 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23906:23922 BA.Spec <> FIFOOrdering def
+R23924:23924 BA.Refinement <> s:65 var
+R23958:23965 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R23933:23955 BA.Spec <> DurableConsistency def
+R23957:23957 BA.Refinement <> s:65 var
+R23966:23989 BA.Spec <> QueueWalConsistency def
+R23991:23991 BA.Refinement <> s:65 var
+R24033:24056 BA.Spec <> QueueWalConsistency def
+R24059:24074 BA.Spec <> uncommitted def
+R24100:24116 BA.Spec <> FIFOOrdering def
+R24161:24183 BA.Spec <> DurableConsistency def
+R24186:24202 BA.Spec <> processedTxs def
+R24222:24238 BA.Spec <> processedTxs def
+R24363:24374 Stdlib.Lists.List <> firstn_skipn thm
+R24400:24407 BA.Spec <> wal proj
+R24377:24394 BA.Spec <> checkpointSeq proj
+R24363:24374 Stdlib.Lists.List <> firstn_skipn thm
+R24400:24407 BA.Spec <> wal proj
+R24377:24394 BA.Spec <> checkpointSeq proj
+R24497:24508 Stdlib.Lists.List <> app_inv_head thm
+R24511:24516 Corelib.Lists.ListDef <> firstn def
+R24542:24549 BA.Spec <> wal proj
+R24519:24536 BA.Spec <> checkpointSeq proj
+R24497:24508 Stdlib.Lists.List <> app_inv_head thm
+R24511:24516 Corelib.Lists.ListDef <> firstn def
+R24542:24549 BA.Spec <> wal proj
+R24519:24536 BA.Spec <> checkpointSeq proj
+R24573:24580 BA.Spec <> wal proj
+R24573:24580 BA.Spec <> wal proj
+def 24918:24927 <> Invariants
+R24934:24943 BA.Spec <> State rec
+binder 24930:24930 <> s:66
+R24956:24959 Corelib.Init.Datatypes <> list ind
+R24961:24962 BA.Common <> Tx def
+binder 24947:24952 <> allTxs:67
+R24996:25001 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R24977:24993 BA.Spec <> FIFOOrdering def
+R24995:24995 BA.Refinement <> s:66 var
+R25030:25035 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R25002:25027 BA.Spec <> CheckpointConsistency def
+R25029:25029 BA.Refinement <> s:66 var
+R25061:25066 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R25036:25058 BA.Spec <> DurableConsistency def
+R25060:25060 BA.Refinement <> s:66 var
+R25089:25094 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R25067:25086 BA.Spec <> CheckpointBound def
+R25088:25088 BA.Refinement <> s:66 var
+R25116:25121 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R25095:25113 BA.Spec <> DownStateClean def
+R25115:25115 BA.Refinement <> s:66 var
+R25147:25152 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R25122:25137 BA.Spec <> WalComplete def
+R25139:25139 BA.Refinement <> s:66 var
+R25141:25146 BA.Refinement <> allTxs:67 var
+R25153:25171 BA.Spec <> BatchSizeBound def
+R25173:25173 BA.Refinement <> s:66 var
+prf 25230:25248 <> all_invariants_init
+binder 25259:25264 <> allTxs:68
+R25271:25280 BA.Refinement <> Invariants def
+R25283:25291 BA.Spec <> Init def
+R25293:25298 BA.Refinement <> allTxs:68 var
+R25301:25306 BA.Refinement <> allTxs:68 var
+R25333:25342 BA.Refinement <> Invariants def
+R25354:25357 Corelib.Init.Logic <> conj constr
+R25383:25386 Corelib.Init.Logic <> conj constr
+R25430:25433 Corelib.Init.Logic <> conj constr
+R25474:25477 Corelib.Init.Logic <> conj constr
+R25515:25518 Corelib.Init.Logic <> conj constr
+R25556:25559 Corelib.Init.Logic <> conj constr
+R25599:25619 BA.Refinement <> batch_size_bound_init thm
+R25562:25578 BA.Refinement <> wal_complete_init thm
+R25521:25541 BA.Refinement <> down_state_clean_init thm
+R25480:25500 BA.Refinement <> checkpoint_bound_init thm
+R25436:25459 BA.Refinement <> durable_consistency_init thm
+R25389:25415 BA.Refinement <> checkpoint_consistency_init thm
+R25360:25368 BA.Refinement <> fifo_init thm
+R25354:25357 Corelib.Init.Logic <> conj constr
+R25383:25386 Corelib.Init.Logic <> conj constr
+R25430:25433 Corelib.Init.Logic <> conj constr
+R25474:25477 Corelib.Init.Logic <> conj constr
+R25515:25518 Corelib.Init.Logic <> conj constr
+R25556:25559 Corelib.Init.Logic <> conj constr
+R25599:25619 BA.Refinement <> batch_size_bound_init thm
+R25562:25578 BA.Refinement <> wal_complete_init thm
+R25521:25541 BA.Refinement <> down_state_clean_init thm
+R25480:25500 BA.Refinement <> checkpoint_bound_init thm
+R25436:25459 BA.Refinement <> durable_consistency_init thm
+R25389:25415 BA.Refinement <> checkpoint_consistency_init thm
+R25360:25368 BA.Refinement <> fifo_init thm
+prf 25702:25725 <> all_invariants_preserved
+binder 25736:25736 <> s:69
+binder 25738:25739 <> s':70
+binder 25741:25746 <> allTxs:71
+R25772:25779 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25753:25762 BA.Refinement <> Invariants def
+R25764:25764 BA.Refinement <> s:69 var
+R25766:25771 BA.Refinement <> allTxs:71 var
+R25794:25801 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R25780:25788 BA.Spec <> Step ind
+R25790:25790 BA.Refinement <> s:69 var
+R25792:25793 BA.Refinement <> s':70 var
+R25802:25811 BA.Refinement <> Invariants def
+R25813:25814 BA.Refinement <> s':70 var
+R25816:25821 BA.Refinement <> allTxs:71 var
+R25938:25947 BA.Refinement <> Invariants def
+R25997:26000 Corelib.Init.Logic <> conj constr
+R26037:26040 Corelib.Init.Logic <> conj constr
+R26079:26082 Corelib.Init.Logic <> conj constr
+R26126:26129 Corelib.Init.Logic <> conj constr
+R26166:26169 Corelib.Init.Logic <> conj constr
+R26206:26209 Corelib.Init.Logic <> conj constr
+R26265:26275 BA.Refinement <> bsb_enqueue thm
+R26212:26231 BA.Refinement <> wal_complete_enqueue thm
+R26172:26189 BA.Refinement <> down_clean_enqueue thm
+R26132:26144 BA.Refinement <> bound_enqueue thm
+R26085:26099 BA.Refinement <> durable_enqueue thm
+R26043:26060 BA.Refinement <> checkpoint_enqueue thm
+R26003:26014 BA.Refinement <> fifo_enqueue thm
+R25997:26000 Corelib.Init.Logic <> conj constr
+R26037:26040 Corelib.Init.Logic <> conj constr
+R26079:26082 Corelib.Init.Logic <> conj constr
+R26126:26129 Corelib.Init.Logic <> conj constr
+R26166:26169 Corelib.Init.Logic <> conj constr
+R26206:26209 Corelib.Init.Logic <> conj constr
+R26265:26275 BA.Refinement <> bsb_enqueue thm
+R26212:26231 BA.Refinement <> wal_complete_enqueue thm
+R26172:26189 BA.Refinement <> down_clean_enqueue thm
+R26132:26144 BA.Refinement <> bound_enqueue thm
+R26085:26099 BA.Refinement <> durable_enqueue thm
+R26043:26060 BA.Refinement <> checkpoint_enqueue thm
+R26003:26014 BA.Refinement <> fifo_enqueue thm
+R26326:26329 Corelib.Init.Logic <> conj constr
+R26366:26369 Corelib.Init.Logic <> conj constr
+R26408:26411 Corelib.Init.Logic <> conj constr
+R26448:26451 Corelib.Init.Logic <> conj constr
+R26488:26491 Corelib.Init.Logic <> conj constr
+R26528:26531 Corelib.Init.Logic <> conj constr
+R26585:26598 BA.Refinement <> bsb_form_batch thm
+R26534:26556 BA.Refinement <> wal_complete_form_batch thm
+R26494:26514 BA.Refinement <> down_clean_form_batch thm
+R26454:26469 BA.Refinement <> bound_form_batch thm
+R26414:26431 BA.Refinement <> durable_form_batch thm
+R26372:26392 BA.Refinement <> checkpoint_form_batch thm
+R26332:26346 BA.Refinement <> fifo_form_batch thm
+R26326:26329 Corelib.Init.Logic <> conj constr
+R26366:26369 Corelib.Init.Logic <> conj constr
+R26408:26411 Corelib.Init.Logic <> conj constr
+R26448:26451 Corelib.Init.Logic <> conj constr
+R26488:26491 Corelib.Init.Logic <> conj constr
+R26528:26531 Corelib.Init.Logic <> conj constr
+R26585:26598 BA.Refinement <> bsb_form_batch thm
+R26534:26556 BA.Refinement <> wal_complete_form_batch thm
+R26494:26514 BA.Refinement <> down_clean_form_batch thm
+R26454:26469 BA.Refinement <> bound_form_batch thm
+R26414:26431 BA.Refinement <> durable_form_batch thm
+R26372:26392 BA.Refinement <> checkpoint_form_batch thm
+R26332:26346 BA.Refinement <> fifo_form_batch thm
+R26651:26654 Corelib.Init.Logic <> conj constr
+R26694:26697 Corelib.Init.Logic <> conj constr
+R26741:26744 Corelib.Init.Logic <> conj constr
+R26796:26799 Corelib.Init.Logic <> conj constr
+R26851:26854 Corelib.Init.Logic <> conj constr
+R26894:26897 Corelib.Init.Logic <> conj constr
+R26954:26970 BA.Refinement <> bsb_process_batch thm
+R26900:26925 BA.Refinement <> wal_complete_process_batch thm
+R26857:26880 BA.Refinement <> down_clean_process_batch thm
+R26802:26820 BA.Refinement <> bound_process_batch thm
+R26747:26767 BA.Refinement <> durable_process_batch thm
+R26700:26723 BA.Refinement <> checkpoint_process_batch thm
+R26657:26674 BA.Refinement <> fifo_process_batch thm
+R26651:26654 Corelib.Init.Logic <> conj constr
+R26694:26697 Corelib.Init.Logic <> conj constr
+R26741:26744 Corelib.Init.Logic <> conj constr
+R26796:26799 Corelib.Init.Logic <> conj constr
+R26851:26854 Corelib.Init.Logic <> conj constr
+R26894:26897 Corelib.Init.Logic <> conj constr
+R26954:26970 BA.Refinement <> bsb_process_batch thm
+R26900:26925 BA.Refinement <> wal_complete_process_batch thm
+R26857:26880 BA.Refinement <> down_clean_process_batch thm
+R26802:26820 BA.Refinement <> bound_process_batch thm
+R26747:26767 BA.Refinement <> durable_process_batch thm
+R26700:26723 BA.Refinement <> checkpoint_process_batch thm
+R26657:26674 BA.Refinement <> fifo_process_batch thm
+R27016:27019 Corelib.Init.Logic <> conj constr
+R27043:27046 Corelib.Init.Logic <> conj constr
+R27080:27083 Corelib.Init.Logic <> conj constr
+R27115:27118 Corelib.Init.Logic <> conj constr
+R27150:27153 Corelib.Init.Logic <> conj constr
+R27183:27186 Corelib.Init.Logic <> conj constr
+R27235:27243 BA.Refinement <> bsb_crash thm
+R27189:27206 BA.Refinement <> wal_complete_crash thm
+R27156:27171 BA.Refinement <> down_clean_crash thm
+R27121:27131 BA.Refinement <> bound_crash thm
+R27086:27098 BA.Refinement <> durable_crash thm
+R27049:27064 BA.Refinement <> checkpoint_crash thm
+R27022:27031 BA.Refinement <> fifo_crash thm
+R27016:27019 Corelib.Init.Logic <> conj constr
+R27043:27046 Corelib.Init.Logic <> conj constr
+R27080:27083 Corelib.Init.Logic <> conj constr
+R27115:27118 Corelib.Init.Logic <> conj constr
+R27150:27153 Corelib.Init.Logic <> conj constr
+R27183:27186 Corelib.Init.Logic <> conj constr
+R27235:27243 BA.Refinement <> bsb_crash thm
+R27189:27206 BA.Refinement <> wal_complete_crash thm
+R27156:27171 BA.Refinement <> down_clean_crash thm
+R27121:27131 BA.Refinement <> bound_crash thm
+R27086:27098 BA.Refinement <> durable_crash thm
+R27049:27064 BA.Refinement <> checkpoint_crash thm
+R27022:27031 BA.Refinement <> fifo_crash thm
+R27289:27292 Corelib.Init.Logic <> conj constr
+R27331:27334 Corelib.Init.Logic <> conj constr
+R27370:27373 Corelib.Init.Logic <> conj constr
+R27407:27410 Corelib.Init.Logic <> conj constr
+R27444:27447 Corelib.Init.Logic <> conj constr
+R27479:27482 Corelib.Init.Logic <> conj constr
+R27533:27543 BA.Refinement <> bsb_recover thm
+R27485:27504 BA.Refinement <> wal_complete_recover thm
+R27450:27467 BA.Refinement <> down_clean_recover thm
+R27413:27425 BA.Refinement <> bound_recover thm
+R27376:27390 BA.Refinement <> durable_recover thm
+R27337:27354 BA.Refinement <> checkpoint_recover thm
+R27295:27306 BA.Refinement <> fifo_recover thm
+R27289:27292 Corelib.Init.Logic <> conj constr
+R27331:27334 Corelib.Init.Logic <> conj constr
+R27370:27373 Corelib.Init.Logic <> conj constr
+R27407:27410 Corelib.Init.Logic <> conj constr
+R27444:27447 Corelib.Init.Logic <> conj constr
+R27479:27482 Corelib.Init.Logic <> conj constr
+R27533:27543 BA.Refinement <> bsb_recover thm
+R27485:27504 BA.Refinement <> wal_complete_recover thm
+R27450:27467 BA.Refinement <> down_clean_recover thm
+R27413:27425 BA.Refinement <> bound_recover thm
+R27376:27390 BA.Refinement <> durable_recover thm
+R27337:27354 BA.Refinement <> checkpoint_recover thm
+R27295:27306 BA.Refinement <> fifo_recover thm
+R27591:27594 Corelib.Init.Logic <> conj constr
+R27631:27634 Corelib.Init.Logic <> conj constr
+R27673:27676 Corelib.Init.Logic <> conj constr
+R27713:27716 Corelib.Init.Logic <> conj constr
+R27753:27756 Corelib.Init.Logic <> conj constr
+R27793:27796 Corelib.Init.Logic <> conj constr
+R27850:27863 BA.Refinement <> bsb_timer_tick thm
+R27799:27821 BA.Refinement <> wal_complete_timer_tick thm
+R27759:27779 BA.Refinement <> down_clean_timer_tick thm
+R27719:27734 BA.Refinement <> bound_timer_tick thm
+R27679:27696 BA.Refinement <> durable_timer_tick thm
+R27637:27657 BA.Refinement <> checkpoint_timer_tick thm
+R27597:27611 BA.Refinement <> fifo_timer_tick thm
+R27591:27594 Corelib.Init.Logic <> conj constr
+R27631:27634 Corelib.Init.Logic <> conj constr
+R27673:27676 Corelib.Init.Logic <> conj constr
+R27713:27716 Corelib.Init.Logic <> conj constr
+R27753:27756 Corelib.Init.Logic <> conj constr
+R27793:27796 Corelib.Init.Logic <> conj constr
+R27850:27863 BA.Refinement <> bsb_timer_tick thm
+R27799:27821 BA.Refinement <> wal_complete_timer_tick thm
+R27759:27779 BA.Refinement <> down_clean_timer_tick thm
+R27719:27734 BA.Refinement <> bound_timer_tick thm
+R27679:27696 BA.Refinement <> durable_timer_tick thm
+R27637:27657 BA.Refinement <> checkpoint_timer_tick thm
+R27597:27611 BA.Refinement <> fifo_timer_tick thm
+prf 27941:27957 <> no_loss_reachable
+binder 27968:27968 <> s:72
+binder 27970:27975 <> allTxs:73
+R28001:28008 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R27982:27991 BA.Refinement <> Invariants def
+R27993:27993 BA.Refinement <> s:72 var
+R27995:28000 BA.Refinement <> allTxs:73 var
+R28009:28019 BA.Spec <> NoLoss def
+R28021:28021 BA.Refinement <> s:72 var
+R28023:28028 BA.Refinement <> allTxs:73 var
+R28102:28116 BA.Refinement <> no_loss_derived thm
+R28102:28116 BA.Refinement <> no_loss_derived thm
+prf 28219:28231 <> qwc_reachable
+binder 28242:28242 <> s:74
+binder 28244:28249 <> allTxs:75
+R28275:28282 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R28256:28265 BA.Refinement <> Invariants def
+R28267:28267 BA.Refinement <> s:74 var
+R28269:28274 BA.Refinement <> allTxs:75 var
+R28283:28306 BA.Spec <> QueueWalConsistency def
+R28308:28308 BA.Refinement <> s:74 var
+R28367:28377 BA.Refinement <> qwc_derived thm
+R28367:28377 BA.Refinement <> qwc_derived thm
