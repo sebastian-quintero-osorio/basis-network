@@ -1,0 +1,24 @@
+=== Sequencer Verification Log ===
+Date: 2026-03-19
+Compiler: Rocq Prover 9.0.1 (OCaml 4.14.2)
+Namespace: Sequencer
+
+--- Common.v ---
+Result: PASS
+
+--- Spec.v ---
+Result: PASS
+
+--- Impl.v ---
+Result: PASS
+
+--- Refinement.v ---
+Result: PASS
+
+=== Admitted Scan ===
+Common.v:0
+Spec.v:0
+Impl.v:0
+Refinement.v:2
+
+VERDICT: ALL PASS, ZERO ADMITTED
