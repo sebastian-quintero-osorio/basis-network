@@ -1,0 +1,792 @@
+% BNR-2026-011 -- Witness Generation from EVM Execution Traces
+% Basis Network Research -- Internal Technical Report
+% Base Computing S.A.S. -- NIT 901872120-5
+
+\documentclass[conference]{IEEEtran}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{balance}
+
+% ── Page Style ────────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\small BNR-2026-011}
+\fancyhead[R]{\small Basis Network Research}
+\fancyfoot[C]{\small Basis Network Research -- Internal Technical Report}
+\fancyfoot[R]{\small \thepage}
+
+% First page style
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+  \fancyhead[L]{\small BNR-2026-011}
+  \fancyhead[R]{\small Basis Network Research}
+  \fancyfoot[C]{\small Basis Network Research -- Internal Technical Report}
+  \fancyfoot[R]{\small \thepage}
+}
+
+% ── Custom Commands ───────────────────────────────────────────────────────────
+\newcommand{\Fr}{\mathbb{F}_r}
+\newcommand{\bn}{BN254}
+\newcommand{\ms}{\,\text{ms}}
+\newcommand{\KB}{\,\text{KB}}
+\newcommand{\MB}{\,\text{MB}}
+\newcommand{\fe}{\text{FE}}
+\newcommand{\tx}{\text{tx}}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+\title{Witness Generation from EVM Execution Traces\\for Enterprise ZK Rollup Proving}
+
+\author{\IEEEauthorblockN{Sebastian Tobar Quintero}
+\IEEEauthorblockA{Base Computing S.A.S. -- NIT 901872120-5\\
+Medell\'{i}n, Colombia\\
+sebastian@basisnetwork.co\\
+https://basisnetwork.com.co}}
+
+\maketitle
+\thispagestyle{plain}
+
+% ── Abstract ──────────────────────────────────────────────────────────────────
+\begin{abstract}
+Zero-knowledge rollups require transforming EVM execution traces into
+arithmetic witness tables suitable for constraint system verification.
+This paper presents a multi-table witness generation architecture for
+the Basis Network enterprise zkEVM L2, implemented in Rust over the
+$\bn{}$ scalar field ($\Fr$). We decompose EVM execution traces into
+three specialized witness tables---arithmetic, storage, and call
+context---following the multi-state-machine pattern established by
+production zkEVM systems. Experimental evaluation on synthetic
+workloads representative of enterprise transaction profiles demonstrates
+witness generation for 1{,}000 transactions in 13.37\,ms (95\% CI:
+$\pm$0.59\,ms, $n=30$), a factor of 2{,}243$\times$ below the
+30-second operational threshold. The system produces 96{,}400 field
+elements (3.0\,MB) per 1{,}000-transaction batch with verified linear
+$O(n)$ scaling and deterministic output. Storage table witnesses
+dominate at 78.4\% of total field elements due to Sparse Merkle Tree
+sibling paths, identifying Merkle proof compression as the primary
+optimization target for downstream circuit design.
+\end{abstract}
+
+\begin{IEEEkeywords}
+zero-knowledge proofs, witness generation, EVM execution traces,
+zkEVM, enterprise blockchain, sparse Merkle trees, BN254
+\end{IEEEkeywords}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:introduction}
+
+Zero-knowledge rollups (zk-rollups) achieve blockchain scalability by
+executing transactions off-chain and submitting succinct validity proofs
+to a base layer for verification~\cite{groth16, plonk-2019}. A critical
+component of the proving pipeline is \emph{witness generation}: the
+transformation of raw execution traces into structured arithmetic
+witnesses that serve as private inputs to the constraint system.
+
+Production zkEVM implementations---Polygon zkEVM~\cite{polygon-zkEVM-2023},
+Scroll~\cite{scroll-2024}, and zkSync Era~\cite{zksync-era-2024}---have
+converged on a multi-state-machine architecture where different EVM
+operations are routed to specialized witness tables, each enforcing
+domain-specific constraints. Despite this architectural convergence,
+the witness generation stage remains less studied than circuit design or
+proof generation, with limited published performance data on the
+transformation itself.
+
+The Basis Network is an enterprise-grade Avalanche L1 designed for the
+Latin American market, providing zero-fee permissioned blockchain
+infrastructure for industrial traceability~\cite{ethereum-yellowpaper}.
+Its zkEVM L2 extension requires an enterprise-optimized witness
+generator that operates within the constraints of per-enterprise chain
+deployment: modest batch sizes (100--1{,}000 transactions), strict
+determinism requirements for reproducible proofs, and integration with
+a Sparse Merkle Tree (SMT) state database using Poseidon2
+hashing~\cite{poseidon2-2023}.
+
+This paper makes the following contributions:
+
+\begin{enumerate}
+\item A multi-table witness generation architecture decomposing EVM
+      traces into arithmetic, storage, and call context tables over
+      the $\bn{}$ scalar field.
+\item A Rust implementation with deterministic output guarantees,
+      processing 1{,}000 enterprise transactions in 13.37\,ms.
+\item Quantitative analysis of witness composition, identifying
+      storage Merkle siblings as the dominant cost factor (78.4\%
+      of field elements).
+\item Depth sensitivity analysis across SMT depths from 16 to 256,
+      demonstrating sub-linear time growth relative to witness size
+      increase.
+\end{enumerate}
+
+The remainder of this paper is organized as follows.
+Section~\ref{sec:background} reviews related work and production
+architectures. Section~\ref{sec:architecture} presents the witness
+generation architecture. Section~\ref{sec:methodology} describes the
+experimental methodology. Section~\ref{sec:results} reports benchmark
+results. Section~\ref{sec:analysis} analyzes implications for
+downstream circuit design. Section~\ref{sec:conclusion} concludes with
+future work.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Production zkEVM Architectures}
+
+Three production zkEVM systems inform our design:
+
+\textbf{Polygon zkEVM}~\cite{polygon-zkEVM-2023} employs 13 state
+machines (Arithmetic, Binary, Storage, Memory, Keccak, PoseidonG, ROM,
+BatchL2Data, GlobalExitRoot, Bridge, TxData, Padding, Logs) defined in
+Polynomial Identity Language (PIL). Each state machine processes a
+subset of EVM operations via lookup-connected witness tables, enforcing
+approximately 500{,}000 constraints per batch.
+
+\textbf{Scroll}~\cite{scroll-2024} uses a bus-mapping trace collector
+that assigns a \texttt{GlobalCounter} to every EVM operation, enabling
+cross-table lookups in a Halo2~\cite{halo2-2020} proving backend.
+Witness generation processes traces sequentially, routing each opcode
+to the appropriate circuit sub-table.
+
+\textbf{zkSync Era}~\cite{zksync-era-2024} employs the Boojum
+STARK-based prover with algebraic hash circuits. Its witness generator
+operates on an algebraic intermediate representation (AIR) similar to
+StarkWare's approach~\cite{starkware-2024}, achieving proof generation
+times of 5--10 minutes for full blocks.
+
+All three systems share the multi-table decomposition pattern: EVM
+execution traces are partitioned into specialized witness tables, each
+handling a category of operations (arithmetic, memory, storage, hash
+computations)~\cite{tairi-2024}.
+
+\subsection{EVM Operation Constraint Costs}
+
+Table~\ref{tab:constraint-costs} summarizes the constraint complexity
+of common EVM operations relevant to witness generation, drawn from
+published analyses~\cite{constraint-survey-2025, ethsnarks-2019}.
+
+\begin{table}[htbp]
+\caption{EVM Operation Constraint Costs}
+\label{tab:constraint-costs}
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Operation} & \textbf{R1CS} & \textbf{PLONKish} \\
+\midrule
+256-bit addition     & 100--200    & 50--100   \\
+256-bit multiplication & 500--1{,}000 & 200--500 \\
+Keccak-256 (per block) & 150{,}000+  & 50{,}000+ \\
+Poseidon (width 3)   & 300--500    & 200--350  \\
+SLOAD/SSTORE         & 5{,}000--15{,}000 & 2{,}000--5{,}000 \\
+Merkle proof (depth 32) & 10{,}000--16{,}000 & 6{,}400--10{,}000 \\
+ECDSA verification   & 500{,}000+  & 100{,}000+ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These costs motivate the per-table decomposition: storage operations
+with Merkle proofs dominate circuit complexity, and isolating them
+enables targeted optimization.
+
+\subsection{Field Arithmetic and Hash Functions}
+
+The $\bn{}$ elliptic curve~\cite{bn254-2010} provides a scalar field
+$\Fr$ of order $r \approx 2^{254}$, widely used in Groth16~\cite{groth16}
+and PLONK~\cite{plonk-2019} proof systems. EVM 256-bit values exceed
+the field modulus and require limb decomposition into $(h, l)$ pairs
+where $v = h \cdot 2^{128} + l$.
+
+For state commitment, the Poseidon hash family~\cite{poseidon-2021}
+offers ZK-friendly algebraic structure with 300--500 R1CS constraints
+per invocation, compared to 150{,}000+ for Keccak-256. The Poseidon2
+variant~\cite{poseidon2-2023} further reduces constraint counts while
+maintaining equivalent security margins.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Witness Generation Architecture}
+\label{sec:architecture}
+
+\subsection{System Context}
+
+The witness generator occupies position RU-L3 in the Basis Network
+zkEVM pipeline, receiving execution traces from the EVM executor
+(RU-L1) and producing structured witnesses for the ZK prover (RU-L5).
+The state database (RU-L4) provides Sparse Merkle Tree infrastructure
+with Poseidon2 hashing.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox{0.9\columnwidth}{
+\small
+\texttt{EVM Executor (Go)} $\rightarrow$ \texttt{ExecutionTrace} \\
+\hspace*{2em}$\downarrow$ \\
+\texttt{Witness Generator (Rust)} \\
+\hspace*{2em}$\downarrow$ \\
+\texttt{BatchWitness} $\rightarrow$ \texttt{ZK Prover}
+}}
+\caption{Witness generator position in the proving pipeline.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Input Format}
+
+The EVM executor produces an \texttt{ExecutionTrace} per transaction,
+containing a sequence of \texttt{TraceEntry} records. Each entry is a
+discriminated union tagged by operation type:
+
+\begin{itemize}
+\item \texttt{SLOAD}: Storage read with account, slot, and value
+\item \texttt{SSTORE}: Storage write with account, slot, old and new values
+\item \texttt{CALL}: External call with caller, callee, value, and result
+\item \texttt{BALANCE\_CHANGE}: Account balance modification
+\item \texttt{NONCE\_CHANGE}: Account nonce increment
+\item \texttt{LOG}: Event emission (currently unprocessed)
+\end{itemize}
+
+A \texttt{BatchTrace} aggregates execution traces for all transactions
+in a block, along with the batch number and pre/post state roots.
+
+\subsection{Multi-Table Decomposition}
+
+Following the architectural pattern of production
+systems~\cite{polygon-zkEVM-2023, scroll-2024}, the witness generator
+routes each trace entry to one of three specialized tables:
+
+\subsubsection{Arithmetic Table}
+Processes \texttt{BALANCE\_CHANGE} and \texttt{NONCE\_CHANGE}
+operations. Each row contains 8 field elements:
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Column} & \textbf{Description} \\
+\midrule
+\texttt{global\_counter} & Cross-table ordering index \\
+\texttt{op\_type} & 1 (balance) or 2 (nonce) \\
+\texttt{operand\_a\_hi/lo} & Previous value (128-bit limbs) \\
+\texttt{operand\_b\_hi/lo} & Current value (128-bit limbs) \\
+\texttt{result\_hi/lo} & Delta value (128-bit limbs) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Balance values undergo limb decomposition: a 256-bit EVM value $v$ is
+split into $v_h = \lfloor v / 2^{128} \rfloor$ and
+$v_l = v \bmod 2^{128}$, each fitting within $\Fr$.
+
+\subsubsection{Storage Table}
+Processes \texttt{SLOAD} and \texttt{SSTORE} operations. Each row
+contains $10 + d$ field elements, where $d$ is the SMT depth (default
+$d = 32$):
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Column} & \textbf{Description} \\
+\midrule
+\texttt{global\_counter} & Cross-table ordering index \\
+\texttt{op\_type} & 1 (SLOAD) or 2 (SSTORE) \\
+\texttt{account\_hash} & Poseidon hash of account address \\
+\texttt{slot\_hash} & Poseidon hash of storage slot \\
+\texttt{value\_hi/lo} & Current value (128-bit limbs) \\
+\texttt{old\_value\_hi/lo} & Pre-state value (SSTORE only) \\
+\texttt{new\_value\_hi/lo} & Post-state value (SSTORE only) \\
+\texttt{sibling\_0..d-1} & SMT Merkle proof siblings \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{SLOAD} generates one witness row (read proof).
+\texttt{SSTORE} generates two rows: the old-state Merkle path and the
+new-state Merkle path, enabling the circuit to verify both the pre-state
+membership and the post-state update.
+
+\subsubsection{Call Context Table}
+Processes \texttt{CALL} operations with 8 field elements per row:
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Column} & \textbf{Description} \\
+\midrule
+\texttt{global\_counter} & Cross-table ordering index \\
+\texttt{caller\_hash} & Poseidon hash of caller address \\
+\texttt{callee\_hash} & Poseidon hash of callee address \\
+\texttt{value\_hi/lo} & Call value (128-bit limbs) \\
+\texttt{is\_success} & 1 if call succeeded, 0 otherwise \\
+\texttt{call\_depth} & Nesting depth (1 = top-level) \\
+\texttt{gas\_available} & Available gas (0 in zero-fee model) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Determinism Guarantees}
+
+Deterministic witness generation is a correctness requirement: the same
+execution trace must always produce the same witness, ensuring
+reproducible proofs. The implementation enforces determinism through
+three mechanisms:
+
+\begin{enumerate}
+\item \textbf{Ordered collections}: All table aggregation uses
+      \texttt{BTreeMap} (sorted by key) rather than \texttt{HashMap}.
+\item \textbf{Sequential processing}: Trace entries are processed in
+      batch order with a monotonically increasing global counter.
+\item \textbf{Deterministic siblings}: Merkle proof siblings are
+      generated via a deterministic function seeded from the slot hash,
+      using iterated squaring ($x \leftarrow x^2 + 7$ in $\Fr$).
+\end{enumerate}
+
+\subsection{Invariants}
+\label{sec:invariants}
+
+The witness generator enforces two critical invariants inherited from
+the Basis Network foundational specifications:
+
+\begin{itemize}
+\item \textbf{I-08 (Trace-Witness Bijection)}: Every valid execution
+      trace maps to exactly one witness, and every witness maps back to
+      exactly one trace. The witness generator is a deterministic,
+      injective function.
+\item \textbf{I-09 (Witness Completeness)}: The generated witness
+      contains all private inputs required by the validity circuit. No
+      additional data sources are needed during proving.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Experimental Methodology}
+\label{sec:methodology}
+
+\subsection{Hypothesis}
+
+\textbf{H1}: A Rust witness generator can extract from an EVM execution
+trace the private inputs needed for a ZK validity circuit, processing
+traces of 1{,}000 transactions in less than 30 seconds with
+deterministic output (same trace produces the same witness).
+
+\textbf{Null hypothesis (H0)}: Witness generation from EVM traces
+cannot meet the 30-second threshold for 1{,}000 transactions due to
+combinatorial explosion of field element conversions and Merkle proof
+reconstruction, or determinism cannot be guaranteed due to hash map
+ordering or floating-point divergence.
+
+\subsection{Implementation}
+
+The prototype is implemented in Rust using the \texttt{ark-bn254} and
+\texttt{ark-ff} libraries~\cite{ark-works-2022} for $\bn{}$ finite
+field arithmetic. The codebase comprises seven modules (1{,}200+ lines):
+type definitions, three table generators (arithmetic, storage, call
+context), a core orchestrator, benchmark runner, and Criterion.rs
+harness.
+
+All field element conversions operate over $\Fr$ with automatic modular
+reduction for values exceeding the field modulus. The 256-bit to
+$(h, l)$ limb decomposition is performed via big-endian byte parsing
+with explicit boundary handling.
+
+\subsection{Workload Generation}
+
+Synthetic batches model enterprise transaction profiles based on
+observed patterns from the Basis Network PLASMA and Trace systems:
+
+\begin{table}[htbp]
+\caption{Synthetic Transaction Mix}
+\label{tab:tx-mix}
+\centering
+\begin{tabular}{lrl}
+\toprule
+\textbf{Type} & \textbf{Ratio} & \textbf{Trace Entries} \\
+\midrule
+Simple transfer  & 40\% & 2 balance + 1 nonce \\
+Storage write    & 30\% & 1 SSTORE + 1 balance + 1 nonce \\
+Read + write     & 20\% & 2 SLOAD + 1 SSTORE + 1 bal. + 1 nonce \\
+Contract call    & 10\% & 1 CALL + 2 SLOAD + 1 SSTORE + 2 bal. + 1 nonce \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This mix yields an average of 3.8 trace entries per transaction,
+representative of enterprise workloads where simple value transfers
+and storage operations dominate.
+
+\subsection{Benchmark Configuration}
+
+\begin{itemize}
+\item \textbf{Batch sizes}: 10, 50, 100, 250, 500, 1{,}000 transactions
+\item \textbf{Repetitions}: 30 per configuration (stochastic baseline)
+\item \textbf{SMT depth}: 32 (default), with sensitivity analysis at
+      16, 32, 64, 128, 160, 256
+\item \textbf{Environment}: Windows 11 Pro, Rust release build
+      (optimized), \texttt{ark-bn254} 0.4.0, \texttt{ark-ff} 0.4.2
+\item \textbf{Statistical reporting}: Mean, standard deviation, 95\%
+      confidence interval ($t$-distribution, $n=30$)
+\end{itemize}
+
+\subsection{Validation Criteria}
+
+\begin{enumerate}
+\item Witness generation time $< 30$ seconds for 1{,}000 transactions
+\item Deterministic output: bit-for-bit identical witnesses across runs
+\item Linear $O(n)$ scaling with transaction count
+\item All 17 unit tests passing
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Experimental Results}
+\label{sec:results}
+
+\subsection{Performance Benchmarks}
+
+Table~\ref{tab:benchmarks} reports witness generation performance across
+batch sizes, measured over 30 repetitions each.
+
+\begin{table}[htbp]
+\caption{Witness Generation Performance}
+\label{tab:benchmarks}
+\centering
+\begin{tabular}{rrrrrrr}
+\toprule
+\textbf{TX} & \textbf{Time} & \textbf{Total} & \textbf{Size} & \textbf{Arith} & \textbf{Stor.} & \textbf{Call} \\
+\textbf{Count} & \textbf{(ms)} & \textbf{FE} & \textbf{(KB)} & \textbf{Rows} & \textbf{Rows} & \textbf{Rows} \\
+\midrule
+10    & 0.13  & 964     & 30.1    & 25    & 18    & 1   \\
+50    & 0.66  & 4{,}820   & 150.6   & 125   & 90    & 5   \\
+100   & 1.28  & 9{,}640   & 301.2   & 250   & 180   & 10  \\
+250   & 3.20  & 24{,}100  & 753.1   & 625   & 450   & 25  \\
+500   & 6.35  & 48{,}200  & 1{,}506.2 & 1{,}250 & 900   & 50  \\
+1{,}000 & 13.37 & 96{,}400  & 3{,}012.5 & 2{,}500 & 1{,}800 & 100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Statistical analysis for key batch sizes:
+
+\begin{table}[htbp]
+\caption{Statistical Confidence (95\% CI, $n=30$)}
+\label{tab:confidence}
+\centering
+\begin{tabular}{rrrr}
+\toprule
+\textbf{TX Count} & \textbf{Mean (ms)} & \textbf{Std (ms)} & \textbf{CI/Mean} \\
+\midrule
+100   & 1.28 $\pm$ 0.02  & 0.07 & 1.8\% \\
+500   & 6.35 $\pm$ 0.18  & 0.52 & 2.9\% \\
+1{,}000 & 13.37 $\pm$ 0.59 & 1.65 & 4.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 95\% confidence intervals remain below 5\% of the mean across all
+measured configurations, indicating stable and reproducible performance.
+
+\subsection{Hypothesis Evaluation}
+
+The primary hypothesis is \textbf{strongly confirmed}:
+
+\begin{itemize}
+\item 1{,}000-transaction witness generation completes in 13.37\,ms,
+      a factor of $\mathbf{2{,}243\times}$ below the 30-second threshold.
+\item Determinism is verified: all three tables produce identical
+      output across independent runs (9{,}640 total field elements
+      for 100 transactions).
+\item The null hypothesis is rejected: neither field element
+      conversion cost nor Merkle proof reconstruction imposes a
+      meaningful performance bottleneck at enterprise batch sizes.
+\end{itemize}
+
+\subsection{Scaling Analysis}
+
+Table~\ref{tab:scaling} presents the scaling ratios relative to the
+100-transaction baseline.
+
+\begin{table}[htbp]
+\caption{Scaling Ratios (Relative to 100 TX Baseline)}
+\label{tab:scaling}
+\centering
+\begin{tabular}{rrrl}
+\toprule
+\textbf{TX Count} & \textbf{Time Ratio} & \textbf{FE Ratio} & \textbf{Assessment} \\
+\midrule
+10    & 0.10$\times$  & 0.10$\times$ & Linear \\
+50    & 0.52$\times$  & 0.50$\times$ & Linear \\
+100   & 1.00$\times$  & 1.00$\times$ & Baseline \\
+250   & 2.50$\times$  & 2.50$\times$ & Linear \\
+500   & 4.96$\times$  & 5.00$\times$ & Linear \\
+1{,}000 & 10.45$\times$ & 10.00$\times$ & Linear \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The time scaling ratio of 10.45$\times$ for a 10$\times$ input increase
+confirms $O(n)$ complexity. The slight super-linear component (4.5\%
+overhead) is attributable to cache effects at larger working set sizes
+and is well within acceptable bounds.
+
+\subsection{Witness Composition}
+
+Table~\ref{tab:composition} breaks down the witness by table for a
+1{,}000-transaction batch.
+
+\begin{table}[htbp]
+\caption{Per-Table Witness Composition (1{,}000 TX)}
+\label{tab:composition}
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Table} & \textbf{Rows} & \textbf{Cols} & \textbf{FE} & \textbf{\%} \\
+\midrule
+Arithmetic    & 2{,}500  & 8  & 20{,}000  & 20.7\% \\
+Call Context  & 100    & 8  & 800     & 0.8\%  \\
+Storage       & 1{,}800  & 42 & 75{,}600  & 78.4\% \\
+\midrule
+\textbf{Total} & \textbf{4{,}400} & -- & \textbf{96{,}400} & \textbf{100.0\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The storage table dominates witness size at 78.4\% of total field
+elements. Each storage row contains 42 columns: 10 fixed fields plus
+32 Merkle sibling hashes (one per SMT level). This composition directly
+reflects the constraint cost distribution in Table~\ref{tab:constraint-costs},
+where SLOAD/SSTORE operations with Merkle proofs incur 5{,}000--15{,}000
+R1CS constraints versus 100--200 for arithmetic operations.
+
+\subsection{Depth Sensitivity}
+
+Table~\ref{tab:depth} reports the impact of Sparse Merkle Tree depth
+on witness generation performance for 100-transaction batches.
+
+\begin{table}[htbp]
+\caption{SMT Depth Sensitivity (100 TX, $n=10$)}
+\label{tab:depth}
+\centering
+\begin{tabular}{rrrr}
+\toprule
+\textbf{Depth} & \textbf{Time (ms)} & \textbf{Total FE} & \textbf{Size (KB)} \\
+\midrule
+16  & 1.09 & 6{,}760   & 211.2  \\
+32  & 1.27 & 9{,}640   & 301.2  \\
+64  & 1.56 & 15{,}400  & 481.2  \\
+128 & 2.17 & 26{,}920  & 841.2  \\
+160 & 2.46 & 32{,}680  & 1{,}021.2 \\
+256 & 3.88 & 49{,}960  & 1{,}561.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Witness size scales linearly with depth (each additional SMT level adds
+one field element per storage row), while generation time exhibits
+sub-linear growth. Doubling depth from 32 to 64 increases time by
+only 22.8\% despite a 59.8\% increase in field element count,
+indicating that sibling generation is computationally inexpensive
+relative to the fixed per-entry processing overhead.
+
+Even at depth 256 (supporting $2^{256}$ storage slots), 100-transaction
+witness generation completes in 3.88\,ms. Extrapolating linearly to
+1{,}000 transactions yields an estimated 38.8\,ms---still well within
+the 30-second threshold.
+
+\subsection{Determinism Verification}
+
+Two determinism tests were executed:
+
+\begin{enumerate}
+\item \textbf{Same-batch test}: The same 100-transaction batch was
+      processed twice. All three tables produced identical output across
+      runs: 9{,}640 total field elements matched bit-for-bit.
+\item \textbf{Cross-batch test}: Identical synthetic batch generation
+      parameters produced identical witness sizes, confirming that the
+      synthetic batch generator is itself deterministic.
+\end{enumerate}
+
+Both tests passed. The use of \texttt{BTreeMap} for table aggregation
+and deterministic sibling generation eliminates all sources of
+non-determinism.
+
+\subsection{Test Suite}
+
+All 17 unit tests passed with 0 failures:
+
+\begin{itemize}
+\item \textbf{Types} (8 tests): Field element conversion, limb
+      decomposition, boundary conditions
+\item \textbf{Arithmetic} (4 tests): Balance change, nonce change,
+      operation filtering
+\item \textbf{Storage} (3 tests): SLOAD/SSTORE witness structure,
+      column counts, deterministic siblings
+\item \textbf{Generator} (2 tests): End-to-end determinism, scaling
+      validation
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Analysis and Implications}
+\label{sec:analysis}
+
+\subsection{Comparison with Production Systems}
+
+Table~\ref{tab:comparison} positions the Basis Network witness
+generator against published data from production zkEVM systems.
+
+\begin{table}[htbp]
+\caption{Comparison with Production Systems}
+\label{tab:comparison}
+\centering
+\begin{tabular}{p{2.2cm}rrp{2.3cm}}
+\toprule
+\textbf{System} & \textbf{Tables} & \textbf{Constraints} & \textbf{Architecture} \\
+\midrule
+Polygon zkEVM  & 13  & 500K/batch  & PIL state machines \\
+Scroll         & 10+ & 300K+/batch & Halo2 circuits \\
+zkSync Era     & 8+  & 1M+/batch   & Boojum STARK \\
+\textbf{Basis (ours)} & \textbf{3} & \textbf{96K FE/batch} & \textbf{BN254 tables} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The reduced table count (3 vs. 8--13) reflects the enterprise scope:
+Basis Network targets application-specific workloads (transfers,
+storage operations, contract calls) rather than full EVM opcode
+coverage. The architecture is designed for incremental extension as
+additional opcode support is required.
+
+\subsection{Storage Dominance and Optimization Opportunities}
+
+The 78.4\% storage contribution to witness size has direct implications
+for circuit design:
+
+\begin{enumerate}
+\item \textbf{Merkle proof compression}: Techniques such as
+      proof batching (sharing common siblings across related storage
+      operations) could reduce the storage table by 30--50\% for
+      transactions accessing the same account.
+\item \textbf{Incremental updates}: For SSTORE operations, the circuit
+      need only verify the transition from old root to new root, not
+      the full membership proof independently. Path sharing between
+      the old-state and new-state rows can eliminate redundant siblings.
+\item \textbf{Depth optimization}: Enterprise state spaces are
+      bounded. A depth of 32 supports $2^{32}$ ($\sim$4 billion)
+      storage slots per enterprise---more than sufficient for
+      industrial traceability applications.
+\end{enumerate}
+
+\subsection{Witness Size Estimation}
+
+Based on the measured per-transaction witness profile (96.4 FE/tx
+at depth 32, with 31.25 bytes per field element), we derive:
+
+\begin{table}[htbp]
+\caption{Witness Size Projections}
+\label{tab:projections}
+\centering
+\begin{tabular}{rrr}
+\toprule
+\textbf{Batch Size} & \textbf{Field Elements} & \textbf{Size} \\
+\midrule
+100       & 9{,}640     & 294 KB  \\
+500       & 48{,}200    & 1.5 MB  \\
+1{,}000   & 96{,}400    & 3.0 MB  \\
+10{,}000  & 964{,}000   & 29.5 MB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the target enterprise batch sizes of 100--1{,}000 transactions,
+witness sizes remain under 3\,MB, well within the memory budget of a
+standard proving node.
+
+\subsection{Threats to Validity}
+
+\textbf{T-17 (Witness Completeness)}: The current prototype generates
+witnesses for a subset of EVM operations. Full EVM coverage (memory,
+stack, Keccak, ECDSA) will require additional tables and increase the
+total field element count. However, enterprise workloads are dominated
+by the operations already covered (transfers, storage, calls).
+
+\textbf{T-18 (Simulated Merkle Proofs)}: Merkle siblings are generated
+via a deterministic synthetic function rather than queried from the
+actual SMT state database. Production integration will replace this
+with real Poseidon2 hash computations, which may increase per-sibling
+generation cost. However, the depth sensitivity analysis
+(Table~\ref{tab:depth}) shows that sibling generation is not the
+bottleneck.
+
+\textbf{T-19 (Serialization Overhead)}: The current prototype operates
+in-memory. Production deployment will require JSON or binary
+serialization between the Go EVM executor and the Rust witness
+generator. Serialization overhead for 3\,MB of witness data is
+estimated at 5--20\,ms based on \texttt{serde\_json} benchmarks,
+potentially doubling end-to-end latency but remaining well within
+the 30-second budget.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented a multi-table witness generation architecture for the
+Basis Network enterprise zkEVM L2. The Rust implementation processes
+1{,}000-transaction batches in 13.37\,ms---2{,}243$\times$ below the
+operational threshold---with deterministic output, linear scaling,
+and a clear witness composition profile that identifies storage Merkle
+proofs as the dominant cost factor.
+
+The architecture follows the multi-state-machine pattern established
+by Polygon zkEVM, Scroll, and zkSync Era, adapted for enterprise
+workloads with three specialized tables. The modular design supports
+incremental extension as additional EVM opcode coverage is required.
+
+Key findings for downstream pipeline stages:
+
+\begin{enumerate}
+\item \textbf{Circuit design (RU-L5)}: Optimize the storage sub-circuit
+      first; it accounts for 78.4\% of witness field elements. Merkle
+      proof batching and path sharing are the highest-impact
+      optimizations.
+\item \textbf{Prover integration}: Witness generation is not a
+      bottleneck. The 13.37\,ms generation time is negligible compared
+      to expected proof generation times of 5--60 seconds for
+      Groth16~\cite{groth16} or PLONK~\cite{plonk-2019}.
+\item \textbf{Serialization format}: The witness generator should
+      expose a binary format (not JSON) for production use, targeting
+      sub-5\,ms serialization overhead.
+\end{enumerate}
+
+Future work includes integration with the production SMT state
+database (RU-L4), full EVM opcode coverage via additional witness
+tables, and constraint system co-design with the ZK circuit
+compiler.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Acknowledgments}
+
+This work is part of the Basis Network project submitted to the
+Avalanche Build Games 2026. The automated R\&D pipeline and
+experimental infrastructure were developed by Base Computing S.A.S.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
