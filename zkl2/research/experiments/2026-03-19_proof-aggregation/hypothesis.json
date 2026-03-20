@@ -1,0 +1,56 @@
+{
+  "name": "proof-aggregation",
+  "target": "zkl2",
+  "title": "Recursive Proof Aggregation for Multi-Enterprise zkEVM L2",
+  "hypothesis": "Recursive proof composition can aggregate proofs from N enterprise batches into a single proof verifiable on L1, reducing per-enterprise verification gas by N-fold while maintaining soundness guarantees, with aggregation overhead sub-linear in N.",
+  "null_hypothesis": "Recursive aggregation overhead (prover time, circuit complexity, proof size) scales linearly or worse with N, making per-proof L1 verification more cost-effective than aggregation for N <= 16 enterprises.",
+  "domain": "zk-proofs",
+  "independent_variables": [
+    "num_proofs_aggregated",
+    "aggregation_strategy",
+    "inner_circuit_complexity",
+    "tree_arity"
+  ],
+  "dependent_variables": [
+    "aggregated_proof_size_bytes",
+    "aggregation_time_ms",
+    "l1_verification_gas_total",
+    "l1_verification_gas_per_enterprise",
+    "gas_savings_factor",
+    "prover_memory_mb",
+    "recursion_depth"
+  ],
+  "aggregation_strategies": {
+    "naive_sequential": {
+      "description": "Verify proof_i inside proof_{i+1} circuit sequentially",
+      "complexity": "O(N) proving time, O(1) final proof size"
+    },
+    "binary_tree": {
+      "description": "Aggregate pairs recursively in a binary tree",
+      "complexity": "O(log N) depth, O(N) total work, parallelizable"
+    },
+    "snarkpack_batch": {
+      "description": "Batch verify N Groth16/KZG proofs via inner-product argument",
+      "complexity": "O(N) verifier, O(log N) proof size overhead"
+    },
+    "nova_folding": {
+      "description": "Fold N instances incrementally via Nova/ProtoGalaxy",
+      "complexity": "O(N) folding steps, O(1) final SNARK"
+    }
+  },
+  "success_criteria": {
+    "gas_reduction": ">= 4x reduction for N=8 enterprises vs individual verification",
+    "aggregation_overhead": "< 30s total aggregation time for N=8",
+    "proof_size": "Aggregated proof < 2KB regardless of N",
+    "soundness": "Aggregated proof valid iff all component proofs valid"
+  },
+  "baseline": {
+    "individual_halo2_kzg_gas": "290-420K per proof (from RU-L9)",
+    "individual_proof_size_bytes": 672,
+    "individual_prove_time_ms": 52.8
+  },
+  "created": "2026-03-19",
+  "roadmap_item": "RU-L10",
+  "checklist_item": 37,
+  "depends_on": ["RU-L9 (PLONK Migration -- halo2-KZG selected)"]
+}
