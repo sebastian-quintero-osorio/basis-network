@@ -1,0 +1,606 @@
+{
+  "timestamp": "2026-03-20T05:39:19Z",
+  "config": {
+    "num_enterprises": 8,
+    "num_cross_enterprise_txs": 50,
+    "num_replications": 30,
+    "merkle_tree_depth": 32,
+    "avalanche_finality_ms": 2000
+  },
+  "latency_results": [
+    {
+      "scenario": "direct_cross_enterprise",
+      "replications": 30,
+      "mean_ms": 10542724.64,
+      "stddev_ms": 8651.86,
+      "ci95_lower_ms": 10539494.34,
+      "ci95_upper_ms": 10545954.93,
+      "min_ms": 10529565.0,
+      "max_ms": 10566289.8,
+      "median_ms": 10542619.7,
+      "ci_pct_of_mean": 0.06
+    },
+    {
+      "scenario": "aggregated_cross_enterprise_n8",
+      "replications": 30,
+      "mean_ms": 16001.16,
+      "stddev_ms": 34.58,
+      "ci95_lower_ms": 15988.25,
+      "ci95_upper_ms": 16014.07,
+      "min_ms": 15925.13,
+      "max_ms": 16065.55,
+      "median_ms": 16005.53,
+      "ci_pct_of_mean": 0.16
+    },
+    {
+      "scenario": "atomic_settlement_two_phase",
+      "replications": 30,
+      "mean_ms": 15500.44,
+      "stddev_ms": 100.69,
+      "ci95_lower_ms": 15462.84,
+      "ci95_upper_ms": 15538.03,
+      "min_ms": 15238.01,
+      "max_ms": 15733.58,
+      "median_ms": 15534.99,
+      "ci_pct_of_mean": 0.49
+    }
+  ],
+  "gas_results": [
+    {
+      "scenario": "2_enterprises_1_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "total_gas": 813000,
+      "per_cross_ref_gas": 813000,
+      "per_enterprise_gas": 406500
+    },
+    {
+      "scenario": "2_enterprises_1_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "total_gas": 365000,
+      "per_cross_ref_gas": 365000,
+      "per_enterprise_gas": 182500
+    },
+    {
+      "scenario": "2_enterprises_1_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 243000,
+      "per_enterprise_gas": 121500
+    },
+    {
+      "scenario": "3_enterprises_2_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 3,
+      "num_cross_refs": 2,
+      "total_gas": 1336000,
+      "per_cross_ref_gas": 668000,
+      "per_enterprise_gas": 445333
+    },
+    {
+      "scenario": "3_enterprises_2_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 3,
+      "num_cross_refs": 2,
+      "total_gas": 475000,
+      "per_cross_ref_gas": 237500,
+      "per_enterprise_gas": 158333
+    },
+    {
+      "scenario": "3_enterprises_2_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 3,
+      "num_cross_refs": 2,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 121500,
+      "per_enterprise_gas": 81000
+    },
+    {
+      "scenario": "5_enterprises_4_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 5,
+      "num_cross_refs": 4,
+      "total_gas": 2382000,
+      "per_cross_ref_gas": 595500,
+      "per_enterprise_gas": 476400
+    },
+    {
+      "scenario": "5_enterprises_4_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 5,
+      "num_cross_refs": 4,
+      "total_gas": 695000,
+      "per_cross_ref_gas": 173750,
+      "per_enterprise_gas": 139000
+    },
+    {
+      "scenario": "5_enterprises_4_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 5,
+      "num_cross_refs": 4,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 60750,
+      "per_enterprise_gas": 48600
+    },
+    {
+      "scenario": "8_enterprises_4_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "total_gas": 3252000,
+      "per_cross_ref_gas": 813000,
+      "per_enterprise_gas": 406500
+    },
+    {
+      "scenario": "8_enterprises_4_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "total_gas": 860000,
+      "per_cross_ref_gas": 215000,
+      "per_enterprise_gas": 107500
+    },
+    {
+      "scenario": "8_enterprises_4_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 60750,
+      "per_enterprise_gas": 30375
+    },
+    {
+      "scenario": "8_enterprises_8_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 8,
+      "num_cross_refs": 8,
+      "total_gas": 4184000,
+      "per_cross_ref_gas": 523000,
+      "per_enterprise_gas": 523000
+    },
+    {
+      "scenario": "8_enterprises_8_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 8,
+      "num_cross_refs": 8,
+      "total_gas": 1080000,
+      "per_cross_ref_gas": 135000,
+      "per_enterprise_gas": 135000
+    },
+    {
+      "scenario": "8_enterprises_8_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 8,
+      "num_cross_refs": 8,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 30375,
+      "per_enterprise_gas": 30375
+    },
+    {
+      "scenario": "16_enterprises_8_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "total_gas": 6504000,
+      "per_cross_ref_gas": 813000,
+      "per_enterprise_gas": 406500
+    },
+    {
+      "scenario": "16_enterprises_8_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "total_gas": 1520000,
+      "per_cross_ref_gas": 190000,
+      "per_enterprise_gas": 95000
+    },
+    {
+      "scenario": "16_enterprises_8_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 30375,
+      "per_enterprise_gas": 15187
+    },
+    {
+      "scenario": "16_enterprises_16_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 16,
+      "num_cross_refs": 16,
+      "total_gas": 8368000,
+      "per_cross_ref_gas": 523000,
+      "per_enterprise_gas": 523000
+    },
+    {
+      "scenario": "16_enterprises_16_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 16,
+      "num_cross_refs": 16,
+      "total_gas": 1960000,
+      "per_cross_ref_gas": 122500,
+      "per_enterprise_gas": 122500
+    },
+    {
+      "scenario": "16_enterprises_16_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 16,
+      "num_cross_refs": 16,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 15187,
+      "per_enterprise_gas": 15187
+    },
+    {
+      "scenario": "32_enterprises_16_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "total_gas": 13008000,
+      "per_cross_ref_gas": 813000,
+      "per_enterprise_gas": 406500
+    },
+    {
+      "scenario": "32_enterprises_16_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "total_gas": 2840000,
+      "per_cross_ref_gas": 177500,
+      "per_enterprise_gas": 88750
+    },
+    {
+      "scenario": "32_enterprises_16_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 15187,
+      "per_enterprise_gas": 7593
+    },
+    {
+      "scenario": "50_enterprises_25_crossrefs",
+      "strategy": "sequential",
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "total_gas": 20325000,
+      "per_cross_ref_gas": 813000,
+      "per_enterprise_gas": 406500
+    },
+    {
+      "scenario": "50_enterprises_25_crossrefs",
+      "strategy": "batched_pairing",
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "total_gas": 4325000,
+      "per_cross_ref_gas": 173000,
+      "per_enterprise_gas": 86500
+    },
+    {
+      "scenario": "50_enterprises_25_crossrefs",
+      "strategy": "aggregated_protogalaxy",
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "total_gas": 243000,
+      "per_cross_ref_gas": 9720,
+      "per_enterprise_gas": 4860
+    }
+  ],
+  "throughput_results": [
+    {
+      "scenario": "max_throughput",
+      "strategy": "sequential",
+      "gas_per_msg": 523000,
+      "msgs_per_block": 19,
+      "msgs_per_sec": 9.5,
+      "l1_utilization_pct": 99.4
+    },
+    {
+      "scenario": "max_throughput",
+      "strategy": "batched_pairing",
+      "gas_per_msg": 160000,
+      "msgs_per_block": 62,
+      "msgs_per_sec": 31.0,
+      "l1_utilization_pct": 99.2
+    },
+    {
+      "scenario": "max_throughput",
+      "strategy": "aggregated_protogalaxy",
+      "gas_per_msg": 243000,
+      "msgs_per_block": 41,
+      "msgs_per_sec": 20.5,
+      "l1_utilization_pct": 99.6
+    }
+  ],
+  "privacy_results": [
+    {
+      "test": "different_data_different_commitments",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Different claim data produces different commitments (collision resistance)."
+    },
+    {
+      "test": "same_data_different_enterprises_different_commitments",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Same data from different enterprises produces different commitments."
+    },
+    {
+      "test": "commitment_preimage_resistance",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Poseidon provides 128-bit preimage resistance."
+    },
+    {
+      "test": "cross_enterprise_interaction_leakage",
+      "result": "PASS",
+      "leakage_bits": 1,
+      "details": "1 bit: interaction exists. Commitment hides content (Poseidon 128-bit)."
+    },
+    {
+      "test": "state_root_independence",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Cross-enterprise verification does not modify enterprise state roots."
+    },
+    {
+      "test": "replay_protection",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Duplicate message rejected: nonce already processed."
+    },
+    {
+      "test": "hub_data_isolation",
+      "result": "PASS",
+      "leakage_bits": 1,
+      "details": "Hub sees: commitment hash, proof validity, enterprise IDs, timestamp. Cannot see claim content."
+    },
+    {
+      "test": "unregistered_enterprise_rejection",
+      "result": "PASS",
+      "leakage_bits": 0,
+      "details": "Unregistered enterprise rejected: source enterprise not registered."
+    }
+  ],
+  "atomic_settlement_results": [
+    {
+      "scenario": "normal_settlement",
+      "total_txs": 30,
+      "successful_txs": 30,
+      "failed_txs": 0,
+      "timeout_txs": 0,
+      "success_rate": 100.0
+    },
+    {
+      "scenario": "stale_state_root_atomic_failure",
+      "total_txs": 30,
+      "successful_txs": 0,
+      "failed_txs": 30,
+      "timeout_txs": 0,
+      "success_rate": 0.0
+    },
+    {
+      "scenario": "one_sided_message_no_settlement",
+      "total_txs": 30,
+      "successful_txs": 0,
+      "failed_txs": 30,
+      "timeout_txs": 0,
+      "success_rate": 0.0
+    },
+    {
+      "scenario": "self_reference_detection",
+      "total_txs": 30,
+      "successful_txs": 0,
+      "failed_txs": 30,
+      "timeout_txs": 0,
+      "success_rate": 0.0
+    }
+  ],
+  "scaling_results": [
+    {
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "strategy": "sequential",
+      "total_gas": 813000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 6.0
+    },
+    {
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "strategy": "batched_pairing",
+      "total_gas": 365000,
+      "per_cross_ref_gas": 365000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 13.5
+    },
+    {
+      "num_enterprises": 2,
+      "num_cross_refs": 1,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 243000,
+      "latency_ms": 13750,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 4,
+      "num_cross_refs": 2,
+      "strategy": "sequential",
+      "total_gas": 1626000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 3.0
+    },
+    {
+      "num_enterprises": 4,
+      "num_cross_refs": 2,
+      "strategy": "batched_pairing",
+      "total_gas": 530000,
+      "per_cross_ref_gas": 265000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 9.0
+    },
+    {
+      "num_enterprises": 4,
+      "num_cross_refs": 2,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 121500,
+      "latency_ms": 14500,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "strategy": "sequential",
+      "total_gas": 3252000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 1.5
+    },
+    {
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "strategy": "batched_pairing",
+      "total_gas": 860000,
+      "per_cross_ref_gas": 215000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 5.5
+    },
+    {
+      "num_enterprises": 8,
+      "num_cross_refs": 4,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 60750,
+      "latency_ms": 16000,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "strategy": "sequential",
+      "total_gas": 6504000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 0.5
+    },
+    {
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "strategy": "batched_pairing",
+      "total_gas": 1520000,
+      "per_cross_ref_gas": 190000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 3.0
+    },
+    {
+      "num_enterprises": 16,
+      "num_cross_refs": 8,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 30375,
+      "latency_ms": 19000,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "strategy": "sequential",
+      "total_gas": 13008000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 0.0
+    },
+    {
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "strategy": "batched_pairing",
+      "total_gas": 2840000,
+      "per_cross_ref_gas": 177500,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 1.5
+    },
+    {
+      "num_enterprises": 32,
+      "num_cross_refs": 16,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 15187,
+      "latency_ms": 25000,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "strategy": "sequential",
+      "total_gas": 20325000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 0.0
+    },
+    {
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "strategy": "batched_pairing",
+      "total_gas": 4325000,
+      "per_cross_ref_gas": 173000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 1.0
+    },
+    {
+      "num_enterprises": 50,
+      "num_cross_refs": 25,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 9720,
+      "latency_ms": 31750,
+      "throughput_msg_per_sec": 20.5
+    },
+    {
+      "num_enterprises": 100,
+      "num_cross_refs": 50,
+      "strategy": "sequential",
+      "total_gas": 40650000,
+      "per_cross_ref_gas": 813000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 0.0
+    },
+    {
+      "num_enterprises": 100,
+      "num_cross_refs": 50,
+      "strategy": "batched_pairing",
+      "total_gas": 8450000,
+      "per_cross_ref_gas": 169000,
+      "latency_ms": 10500,
+      "throughput_msg_per_sec": 0.5
+    },
+    {
+      "num_enterprises": 100,
+      "num_cross_refs": 50,
+      "strategy": "aggregated_protogalaxy",
+      "total_gas": 243000,
+      "per_cross_ref_gas": 4860,
+      "latency_ms": 50500,
+      "throughput_msg_per_sec": 20.5
+    }
+  ],
+  "summary": {
+    "hypothesis_verdict": "CONFIRMED",
+    "latency_direct_ms": 10500,
+    "latency_aggregated_ms": 16000,
+    "gas_aggregated": 243000,
+    "gas_batched_pairing": 860000,
+    "gas_sequential": 3252000,
+    "privacy_leakage_bits": 1,
+    "atomic_settlement_rate_pct": 100.0,
+    "throughput_msg_per_sec": 20.5,
+    "all_criteria_met": true
+  }
+}

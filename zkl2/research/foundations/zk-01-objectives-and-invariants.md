@@ -514,3 +514,108 @@ systems from consideration for direct on-chain verification.
 | 2026-03-19 | RU-L7: Bridge | I-25 through I-31 | Bridge security invariants, gas and latency targets |
 | 2026-03-19 | RU-L8: Production DAC | I-32 through I-36 | DAC verifiable encoding, recoverability, privacy, liveness, availability |
 | 2026-03-19 | RU-L9: PLONK Migration | I-37 through I-39 | Proof system agnosticism, universal SRS, proof size bound |
+| 2026-03-20 | RU-L11: Hub-and-Spoke | I-40 through I-45 | Cross-enterprise isolation, atomic settlement, hub neutrality |
+
+---
+
+## Cross-Enterprise Hub-and-Spoke Invariants (RU-L11)
+
+### I-40: Cross-Enterprise Isolation
+
+Enterprise A's ZK proof reveals nothing about A's internal state to any other party.
+The hub contract, destination enterprise, and external observers see only:
+- The commitment (Poseidon hash, 128-bit preimage resistant)
+- Proof validity (boolean)
+- Enterprise IDs (already public on L1)
+- Timestamp (L1 block time)
+
+No keys, values, balances, or transaction details are exposed.
+Information leakage per cross-enterprise interaction: exactly 1 bit (existence only).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Enterprise data privacy is the fundamental requirement. Without isolation,
+enterprises will not join the network. The 1-bit leakage (interaction existence) is
+the information-theoretic minimum for any verifiable cross-enterprise system.
+
+### I-41: Atomic Settlement
+
+A cross-enterprise transaction either settles completely (both enterprises' state
+transitions committed, cross-reference recorded on L1) or reverts completely (no state
+changes). Partial settlement is impossible by construction of the hub smart contract.
+
+The hub contract enforces:
+- Both enterprises' individual batch proofs are valid
+- Cross-reference proof binds both commitments
+- Both state roots are current on L1
+- If any check fails, the entire transaction reverts
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Partial settlement would leave one enterprise committed and the other not,
+creating inconsistent cross-enterprise state. Atomicity is a hard requirement.
+
+### I-42: Cross-Reference Consistency
+
+A cross-enterprise reference is valid if and only if:
+1. Both enterprises' individual batch proofs are valid
+2. The cross-reference proof binds to both enterprises' CURRENT state roots
+3. The commitment matches the claimed relationship between enterprise states
+
+A cross-reference with a stale state root is always rejected (measured: 100% rejection
+rate for stale roots in 30/30 tests).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Stale state roots could allow referencing data that no longer exists or has
+been modified, creating false cross-enterprise claims.
+
+### I-43: Replay Protection
+
+Each cross-enterprise message includes a per-enterprise-pair nonce. The hub contract
+rejects any message with a nonce that has already been processed for that enterprise pair.
+
+This prevents:
+- Double-submission of the same cross-enterprise message
+- Replay of previously valid cross-enterprise transactions
+- Cross-enterprise front-running via message duplication
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Without replay protection, a valid cross-enterprise message could be
+re-submitted after settlement, potentially triggering duplicate state transitions.
+
+### I-44: Timeout Safety
+
+If a cross-enterprise transaction does not settle within T blocks (configurable,
+default 100), either party can unilaterally claim a timeout and revert to
+pre-transaction state without requiring the other party's cooperation.
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Without timeouts, a malicious enterprise could block atomic settlement
+indefinitely by submitting one side and never completing, locking the counterparty's
+resources.
+
+### I-45: Hub Neutrality
+
+The hub (L1 smart contract) does not have preferential access to any enterprise's
+private data. It verifies proofs and enforces protocol rules. A compromised or
+malicious hub cannot:
+- Fabricate valid ZK proofs (soundness guarantee, 128-bit security)
+- Access enterprise internal state (ZK zero-knowledge property)
+- Selectively exclude verified messages (on-chain, permissionless verification)
+
+Enterprises can fall back to sequential verification if the hub coordinator is unavailable
+(hub aggregation is an optimization, not a requirement).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** The hub must be trustless. If the hub could access enterprise data or
+fabricate proofs, the privacy model collapses.
+
+## Cross-Enterprise Performance Targets (RU-L11)
+
+| Metric | Target | Measured | Source |
+|--------|--------|----------|--------|
+| Cross-enterprise latency (direct) | < 30s | 10.5s | RU-L11 experiment |
+| Cross-enterprise latency (aggregated, N=8) | < 30s | 16.0s | RU-L11 experiment |
+| L1 verification gas (aggregated) | < 500K | 243K | RU-L11 experiment |
+| Privacy leakage per interaction | 0 state bits | 1 bit (existence) | RU-L11 experiment |
+| Atomic settlement success rate | 100% | 100% | RU-L11 experiment |
+| Cross-enterprise throughput (aggregated) | > 10 msg/s | 20.5 msg/s | RU-L11 experiment |
+| Scaling limit (< 30s latency) | N <= 50 | N = 50 at 31.75s | RU-L11 experiment |
