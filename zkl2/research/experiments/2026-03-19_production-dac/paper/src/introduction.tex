@@ -1,0 +1,84 @@
+% introduction.tex -- BNR-2026-012
+
+\section{Introduction}
+\label{sec:introduction}
+
+Data availability is a foundational requirement for any Layer~2 (L2)
+architecture that posts validity proofs rather than full transaction data
+to the settlement layer. In a validium or zkEVM design, the prover
+demonstrates correct state transitions via zero-knowledge proofs, but the
+underlying transaction data must remain retrievable so that any party can
+independently reconstruct the L2 state. A Data Availability Committee
+(DAC) provides this guarantee by distributing batch data among a set of
+trusted nodes that attest to its availability before the proof is
+submitted on-chain~\cite{starkware2023da, albassam2018fraud}.
+
+Enterprise deployments introduce constraints absent from public L2
+systems. First, batch data contains commercially sensitive information
+(supply-chain records, financial transactions, industrial telemetry) that
+must not be exposed to individual committee members. Second, the
+committee is operated by a small consortium of enterprise-grade nodes
+($n \leq 10$), not a large validator set. Third, recovery latency and
+storage overhead must be minimized to support real-time traceability
+workflows with sub-second finality requirements.
+
+Our prior work (RU-V6~\cite{ruv6}) addressed enterprise privacy by
+applying Shamir $(2,3)$-secret sharing directly to batch data. While
+this achieves information-theoretic privacy, it incurs $3.87\times$
+storage overhead and $O(k^2)$ recovery cost per field element---scaling
+poorly as committee size increases to the 5--7 nodes required for
+production fault tolerance.
+
+This paper presents a hybrid DAC architecture that restructures the
+privacy and redundancy layers:
+
+\begin{enumerate}
+  \item \textbf{AES-256-GCM encryption} provides computational data
+    privacy (254-bit key entropy).
+  \item \textbf{Reed-Solomon $(5,7)$ erasure coding} distributes the
+    ciphertext into $n = 7$ chunks, any $k = 5$ of which suffice for
+    reconstruction, achieving $1.40\times$ storage overhead.
+  \item \textbf{Shamir $(5,7)$-secret sharing} protects only the 32-byte
+    AES key, preserving information-theoretic key secrecy at negligible
+    cost.
+\end{enumerate}
+
+The combination achieves computational data privacy (no single node or
+coalition of fewer than $k$ nodes can decrypt the batch) with
+information-theoretic key secrecy (fewer than $k$ Shamir shares reveal
+zero information about the AES key). This layered approach yields
+$36\times$ faster attestation, $2{,}613\times$ faster recovery, and
+$2.77\times$ lower storage overhead compared to RU-V6.
+
+\subsection{Contributions}
+
+The contributions of this work are:
+
+\begin{itemize}
+  \item A hybrid AES+RS+Shamir DAC architecture that decouples data
+    privacy from data redundancy, achieving both with minimal overhead.
+  \item A Go implementation using the SIMD-optimized
+    \texttt{klauspost/reedsolomon} library~\cite{klauspost}, validated
+    against production systems (MinIO, Storj, CockroachDB).
+  \item Comprehensive benchmarks across five batch sizes (10\,KB--5\,MB)
+    with 50+ replications per configuration, including attestation
+    latency, storage overhead, recovery time, failure tolerance,
+    availability probability, and privacy validation.
+  \item Benchmark reconciliation with published results from EigenDA
+    V2~\cite{eigenda2024v2}, Arbitrum AnyTrust~\cite{anytrust},
+    Celestia~\cite{celestia}, and Avail~\cite{avail}.
+  \item Six formal invariants (INV-DA-P1 through INV-DA-P6) for
+    downstream TLA+ specification and Coq verification.
+\end{itemize}
+
+\subsection{Paper Organization}
+
+Section~\ref{sec:related} surveys production DAC architectures and
+erasure coding techniques. Section~\ref{sec:system-model} defines the
+system model, threat model, and invariants.
+Section~\ref{sec:methodology} describes the hybrid protocol and
+experimental setup. Section~\ref{sec:results} presents benchmark
+results across all metrics. Section~\ref{sec:discussion} analyzes
+trade-offs, limitations, and production readiness.
+Section~\ref{sec:conclusion} concludes with recommendations for the
+Basis Network zkEVM L2 pipeline.

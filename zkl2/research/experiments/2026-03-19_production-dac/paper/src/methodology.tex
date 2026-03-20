@@ -1,0 +1,140 @@
+% methodology.tex -- BNR-2026-012
+
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Hybrid Protocol}
+
+The production DAC protocol proceeds in five phases for each batch:
+
+\textbf{Phase 1: Encryption.}
+Generate a random 32-byte AES key $K$. Reduce $K$ modulo the BN254
+scalar field prime $p = 21888242871839275222246405745257275088548364400416034343698204186575808495617$
+to ensure compatibility with Shamir sharing (retaining 254 bits of
+entropy). Encrypt the batch data $D$ using AES-256-GCM:
+$C = \text{AES-GCM}(K, D)$.
+
+\textbf{Phase 2: Erasure Coding.}
+Encode the ciphertext $C$ using Reed-Solomon $(5,7)$: split $C$ into 5
+equal data shards, compute 2 parity shards, yielding 7 shards total.
+Any 5 shards suffice to reconstruct $C$.
+
+\textbf{Phase 3: Key Sharing.}
+Apply Shamir $(5,7)$-secret sharing to $K$ over the BN254 scalar field.
+Since $K$ is a single 32-byte field element, this requires only 35
+field operations ($k \times n = 5 \times 7$) and completes in
+approximately 17\,$\mu$s.
+
+\textbf{Phase 4: Distribution.}
+Each committee node $i \in \{1, \ldots, 7\}$ receives:
+\begin{itemize}
+  \item One RS shard $s_i$ (size: $|C| / 5$)
+  \item One Shamir key share $\sigma_i$ (32 bytes)
+  \item A data commitment $h = \text{SHA-256}(D)$
+\end{itemize}
+
+\textbf{Phase 5: Attestation.}
+Each node verifies receipt of its shard and key share, then signs the
+data commitment. When $k = 5$ signatures are collected, an attestation
+certificate is formed and submitted on-chain.
+
+\subsection{Data Recovery}
+
+Recovery requires $k = 5$ cooperating nodes:
+
+\begin{enumerate}
+  \item Collect any 5 RS shards from available nodes.
+  \item RS-decode to reconstruct ciphertext $C$.
+  \item Collect any 5 Shamir key shares.
+  \item Lagrange interpolation to recover AES key $K$.
+  \item Decrypt: $D = \text{AES-GCM}^{-1}(K, C)$.
+\end{enumerate}
+
+Step 4 operates on a single 32-byte field element (25 field operations
+for $k = 5$), completing in approximately 12\,$\mu$s---negligible
+compared to RS decoding.
+
+\subsection{Implementation}
+
+The prototype is implemented in Go 1.22.10 with the following
+dependencies:
+
+\begin{itemize}
+  \item \textbf{Reed-Solomon}: \texttt{klauspost/reedsolomon}
+    v1.12.4~\cite{klauspost}---SIMD-optimized (AVX2, AVX512, NEON),
+    production-proven in MinIO, Storj, and CockroachDB.
+  \item \textbf{AES-256-GCM}: Go standard library \texttt{crypto/aes}
+    and \texttt{crypto/cipher} with hardware AES-NI acceleration.
+  \item \textbf{Shamir SSS}: Custom implementation over the BN254 scalar
+    field using \texttt{math/big} for modular arithmetic.
+  \item \textbf{Signatures}: ECDSA P-256 via \texttt{crypto/ecdsa}
+    (production target: BLS aggregation on BN254).
+\end{itemize}
+
+Listing~\ref{lst:dispersal} shows the core dispersal logic.
+
+\begin{lstlisting}[language=Go, caption={Core dispersal function
+  (simplified)}, label=lst:dispersal]
+func (c *Committee) Disperse(data []byte) (
+    *Certificate, error) {
+  // Phase 1: Encrypt
+  key := generateAESKey()
+  ciphertext := aesGCMEncrypt(key, data)
+  // Phase 2: RS encode
+  shards := rsEncode(ciphertext, c.dataShards,
+      c.parityShards)
+  // Phase 3: Shamir key share
+  shares := shamirSplit(key, c.threshold, c.total)
+  // Phase 4-5: Distribute and collect sigs
+  for i, node := range c.nodes {
+    node.Store(shards[i], shares[i])
+    sigs[i] = node.Sign(sha256(data))
+  }
+  return newCertificate(sigs, sha256(data)), nil
+}
+\end{lstlisting}
+
+\subsection{Experimental Setup}
+
+\textbf{Hypothesis.}
+A production DAC with Reed-Solomon erasure coding achieves: (H1) 99.9\%
+data availability with 5-of-7 honest minority assumption; (H2)
+attestation latency under 1 second for enterprise batch sizes
+(100\,KB--1\,MB); (H3) verifiable data recovery from any 5 of 7 nodes;
+(H4) storage overhead below $2\times$.
+
+\textbf{Null hypothesis.}
+Either attestation latency exceeds 1 second for enterprise batch sizes,
+or RS encoding overhead makes the protocol impractical ($>5\times$
+storage expansion), or data recovery from 5-of-7 nodes fails to
+reconstruct correctly, or the 99.9\% availability target requires more
+than 7 nodes.
+
+\textbf{Benchmark suite.}
+Seven independent benchmark suites were executed:
+\begin{enumerate}
+  \item Attestation pipeline latency (50 replications, 3 warm-up)
+  \item Storage overhead analysis (5 batch sizes)
+  \item Recovery time with full and degraded committees (30 replications)
+  \item Failure tolerance under 0--3 node failures (30 replications each)
+  \item Availability probability computation (4 reliability levels)
+  \item Privacy validation (30 replications per test)
+  \item Configuration comparison: $(5,7)$ vs $(2,3)$ (50 replications)
+\end{enumerate}
+
+\textbf{Platform.}
+Windows 11 (AMD64), Go 1.22.10 with SIMD-optimized RS encoding.
+
+\textbf{Metrics.}
+All metrics follow standard definitions from the ZK and data availability
+literature:
+\begin{itemize}
+  \item \textit{Attestation latency}: wall-clock time from data input to
+    certificate formation (ms).
+  \item \textit{Storage overhead}: total stored bytes across all nodes
+    divided by original data size (ratio).
+  \item \textit{Recovery time}: wall-clock time to reconstruct original
+    data from $k$ shards and key shares (ms).
+  \item \textit{Availability probability}: $P(\text{available})$ per
+    Equation~\ref{eq:availability}.
+\end{itemize}

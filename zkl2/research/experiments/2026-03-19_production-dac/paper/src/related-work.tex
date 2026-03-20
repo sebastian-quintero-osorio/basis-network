@@ -1,0 +1,119 @@
+% related-work.tex -- BNR-2026-012
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Production DAC Architectures}
+
+\textbf{EigenDA V2}~\cite{eigenda2024v2} implements Reed-Solomon erasure
+coding with KZG polynomial commitments across 200+ operators. Data is
+encoded with $8\times$ redundancy (8{,}192 chunks, any 1{,}024 sufficient
+for reconstruction). Write throughput reaches 100\,MB/s with read
+throughput of 2{,}000\,MB/s. End-to-end latency averages 5\,s with a
+P99 of 10\,s. Blob sizes reach 16\,MB per blob. While EigenDA targets
+public rollups with large validator sets, its use of RS+KZG validates
+the erasure coding approach at scale.
+
+\textbf{Arbitrum AnyTrust (Nova)}~\cite{anytrust} operates a 6-member
+committee with a 5-of-6 threshold for Data Availability Certificates
+(DACerts). The protocol uses BLS signature aggregation and provides an
+automatic fallback to full rollup mode when the DACert threshold is not
+met. The honest minority assumption requires at least 2 of 6 members to
+be honest to prevent false attestation. AnyTrust does not employ erasure
+coding; each member stores the complete batch data.
+
+\textbf{Polygon CDK DAC}~\cite{polygoncdk} implements a configurable
+$M$-of-$N$ ECDSA signature scheme via the \texttt{CDKDataCommittee.sol}
+contract. Committee members store full data without erasure coding or
+privacy protections. On-chain verification costs 7 $\times$
+\texttt{ecrecover} $\approx$ 21{,}000 gas for a 7-member committee.
+
+\textbf{Celestia}~\cite{celestia} employs two-dimensional Reed-Solomon
+encoding with a maximum square of $512 \times 512 = 262{,}144$ shares at
+512 bytes each ($\approx$128\,MB). Block time is approximately 12
+seconds. The LeoRSCodec library provides $O(n \log^2 n)$ encoding via
+Leopard Reed-Solomon. While Celestia targets general-purpose data
+availability sampling (DAS), its 2D RS approach demonstrates the
+scalability of erasure coding at the protocol level.
+
+\textbf{Avail}~\cite{avail} extends the Celestia model on a modified
+Substrate chain with KZG commitments per block row. Block time is 20
+seconds with a mainnet maximum block size of 2\,MB (scaling to 128\,MB).
+KZG commitment generation requires approximately 100\,ms per 512 bytes.
+
+Table~\ref{tab:dac-comparison} summarizes the key architectural
+differences.
+
+\begin{table}[t]
+\centering
+\caption{Production DAC Architecture Comparison}
+\label{tab:dac-comparison}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{System} & \textbf{Erasure} & \textbf{Privacy} & \textbf{Nodes} & \textbf{Sigs} \\
+\midrule
+EigenDA V2  & RS+KZG  & None   & 200+  & BLS    \\
+AnyTrust    & None    & None   & 6     & BLS    \\
+Polygon CDK & None    & None   & $N$   & ECDSA  \\
+Celestia    & 2D RS   & None   & 100+  & EdDSA  \\
+Avail       & 2D RS   & None   & 100+  & BABE   \\
+RU-V6       & None    & SSS    & 3     & ECDSA  \\
+\textbf{This work} & \textbf{RS} & \textbf{AES+SSS} & \textbf{7} & \textbf{ECDSA*} \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize *Production target: BLS aggregation.} \\
+\end{tabular}
+\end{table}
+
+\subsection{Erasure Coding for Data Availability}
+
+Reed-Solomon codes~\cite{reedsolomon1960} provide optimal erasure
+correction: a $(k,n)$ code over a finite field encodes $k$ data symbols
+into $n$ coded symbols such that any $k$ suffice for reconstruction. The
+coding rate $R = k/n$ determines storage efficiency: total storage is
+$(n/k)\times$ the original data size.
+
+Al-Bassam et al.~\cite{albassam2018fraud} introduced fraud and data
+availability proofs for blockchain light clients, establishing the
+theoretical foundation for erasure-coded data availability. Nazirkhanova
+et al.~\cite{nazirkhanova2021} proposed Semi-AVID-PR (Asynchronous
+Verifiable Information Dispersal with Provable Retrievability), achieving
+dispersal of 22\,MB across 256 nodes in under 3 seconds.
+
+Hall-Andersen et al.~\cite{hallandersen2023} formalized the foundations
+of data availability sampling, proving security bounds for 2D RS
+schemes. Alhaddad et al.~\cite{alhaddad2022} extended verifiable
+information dispersal to asynchronous networks, providing the
+theoretical basis for DAC protocols that tolerate network partitions.
+
+\subsection{KZG Polynomial Commitments}
+
+Kate, Zaverucha, and Goldberg~\cite{kate2010} introduced constant-size
+polynomial commitments enabling verifiable encoding: each RS chunk can be
+verified against a single 48-byte commitment without accessing other
+chunks. Verification requires two pairing operations on BN254, costing
+approximately 124{,}000 gas on EVM via the \texttt{ecPairing}
+precompile~\cite{eip196, eip197}. On the zero-fee Basis Network L1,
+verification is computationally bounded rather than cost bounded.
+
+\subsection{BLS Signature Aggregation}
+
+Boneh, Drijvers, and Neven~\cite{boneh2018} formalized compact
+multi-signatures enabling constant-size attestation regardless of
+committee size. For a 7-member committee, BLS aggregation reduces
+on-chain signature storage from 455 bytes (7 ECDSA signatures) to 48
+bytes (one aggregated G1 point). Verification requires two pairing
+operations ($\approx$124{,}000 gas), compared to 21{,}000 gas for 7
+\texttt{ecrecover} calls. The trade-off favors BLS at larger committee
+sizes where constant-size signatures dominate.
+
+\subsection{Shamir Secret Sharing}
+
+Shamir's $(k,n)$-threshold secret sharing scheme~\cite{shamir1979}
+provides information-theoretic security: any coalition of fewer than $k$
+shareholders learns zero information about the secret. Our prior work
+(RU-V6) applied Shamir sharing directly to batch data, achieving strong
+privacy at the cost of $n\times$ storage overhead ($n$ full-size shares)
+and $O(k^2)$ Lagrange interpolation per field element during recovery.
+This paper restricts Shamir to the 32-byte AES key, reducing the cost to
+a single field element operation while preserving information-theoretic
+key secrecy.

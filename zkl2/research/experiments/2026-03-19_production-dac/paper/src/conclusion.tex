@@ -1,0 +1,72 @@
+% conclusion.tex -- BNR-2026-012
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented a production Data Availability Committee
+architecture for the Basis Network enterprise zkEVM L2. The hybrid
+AES-256-GCM + Reed-Solomon $(5,7)$ + Shamir $(5,7)$-SS protocol
+achieves computational data privacy with information-theoretic key
+secrecy, matching the security requirements of enterprise deployments
+while delivering substantial performance improvements over the pure
+Shamir baseline (RU-V6): $36\times$ faster attestation, $2{,}613\times$
+faster recovery, and $2.77\times$ lower storage overhead.
+
+The key architectural insight is the separation of concerns between
+privacy (AES encryption) and redundancy (RS erasure coding), with Shamir
+secret sharing applied only to the 32-byte AES key. This decomposition
+eliminates the $O(k^2)$ per-element cost of full Shamir sharing while
+retaining information-theoretic secrecy for the most critical secret
+(the decryption key).
+
+All four hypothesis components were confirmed with significant margins:
+availability exceeds 99.997\% at $p = 0.99$ (target: 99.9\%);
+attestation completes in 8.9\,ms at 1\,MB (target: $<$1\,s); recovery
+achieves 100\% success with byte-perfect reconstruction; storage
+overhead matches the theoretical minimum of $1.40\times$.
+
+Six invariants (INV-DA-P1 through INV-DA-P6) formalize the protocol's
+guarantees for downstream TLA+ specification and Coq verification.
+The invariants cover verifiable encoding, data recoverability,
+enterprise privacy, attestation liveness, fallback safety, and
+availability guarantees.
+
+\subsection{Recommendations}
+
+Based on these results, we recommend the following for the Basis Network
+production deployment:
+
+\begin{enumerate}
+  \item Adopt the hybrid AES+RS+Shamir architecture as the canonical
+    DAC protocol for all enterprise L2 chains.
+  \item Deploy 7-node committees with $k = 5$ threshold, providing
+    2-node fault tolerance and 3-node honest minority for attestation
+    blocking.
+  \item Implement BLS signature aggregation on BN254 for constant-size
+    on-chain attestation (48 bytes).
+  \item Add KZG polynomial commitments for verifiable encoding,
+    leveraging the BN128 pairing precompiles available on Subnet-EVM.
+  \item Implement AnyTrust-style fallback to on-chain DA when fewer than
+    $k$ nodes are available.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Immediate next steps in the R\&D pipeline:
+
+\begin{itemize}
+  \item \textbf{Stage 2}: Network latency simulation (50--100\,ms RTT)
+    and KZG commitment generation benchmarks.
+  \item \textbf{Stage 3}: Adversarial scenarios---malicious node sending
+    corrupt chunks, Byzantine behavior, Sybil attacks on committee
+    membership.
+  \item \textbf{Stage 4}: Ablation study---remove AES, remove RS,
+    remove Shamir individually to quantify each component's
+    contribution.
+  \item \textbf{TLA+ specification}: formalize the 6 invariants and
+    model-check the protocol under all failure modes.
+  \item \textbf{Production implementation}: Go node with BLS, KZG, and
+    network transport.
+  \item \textbf{Coq verification}: prove isomorphism between TLA+
+    specification and production code.
+\end{itemize}

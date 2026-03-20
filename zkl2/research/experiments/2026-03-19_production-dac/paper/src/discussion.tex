@@ -1,0 +1,204 @@
+% discussion.tex -- BNR-2026-012
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Hypothesis Verdict}
+
+All four hypothesis components are confirmed with significant margins:
+
+\begin{itemize}
+  \item \textbf{H1 (Availability $\geq$ 99.9\%)}: Confirmed. At
+    $p = 0.99$, availability is 99.997\% (4.5 nines), exceeding the
+    target by 1.5 nines. At $p = 0.999$, availability reaches 7.5 nines.
+  \item \textbf{H2 (Attestation $<$ 1\,s)}: Confirmed. P95 at 5\,MB is
+    52.7\,ms ($19\times$ margin). P95 at 1\,MB is 10.4\,ms ($96\times$
+    margin).
+  \item \textbf{H3 (Recovery from 5-of-7)}: Confirmed. 100\% success
+    rate at all tested sizes with byte-perfect data reconstruction.
+    Recovery with 2 nodes down: 100\% success, $<$1\,ms.
+  \item \textbf{H4 (Storage $<$ 2$\times$)}: Confirmed. Total overhead
+    is $1.40\times$, matching the theoretical RS minimum of $n/k = 7/5$.
+\end{itemize}
+
+\subsection{Privacy Trade-offs}
+
+The hybrid architecture trades information-theoretic data privacy (Shamir
+on full data, as in RU-V6) for computational data privacy (AES-256-GCM)
+while retaining information-theoretic key secrecy (Shamir on the 32-byte
+key). This is a deliberate design choice:
+
+\begin{itemize}
+  \item \textbf{Against AES}: if AES-256-GCM is broken (requiring a
+    cryptanalytic breakthrough against a NIST-standard cipher), an
+    attacker with access to $\geq 5$ RS shards could reconstruct the
+    ciphertext and decrypt without the key. However, Shamir key secrecy
+    remains intact---the attacker would still need $\geq 5$ key shares.
+  \item \textbf{For AES}: AES-256-GCM with 254-bit keys provides
+    128-bit security level, considered sufficient for classified
+    government communications. The $2.77\times$ storage improvement and
+    $36\times$ latency improvement are substantial practical gains.
+  \item \textbf{Enterprise context}: for commercial traceability data
+    (supply-chain records, production metrics), computational privacy is
+    standard practice. Information-theoretic privacy for the data itself
+    would be overengineering.
+\end{itemize}
+
+\subsection{Key Reduction Modulo BN254}
+
+A critical implementation detail: random 32-byte AES keys can exceed the
+254-bit BN254 scalar field prime approximately 75\% of the time. The key
+must be reduced modulo $p$ before Shamir sharing. This preserves 254
+bits of entropy (the BN254 prime is $\approx 2^{254}$), which exceeds
+the 128-bit security level of AES-256-GCM by a factor of $2^{126}$.
+
+Without this reduction, Shamir splitting fails silently or produces
+shares that do not reconstruct to the original key. This was identified
+and fixed during implementation (see Section~\ref{sec:methodology}).
+
+\subsection{Comparison with Production Systems}
+
+\textbf{vs. EigenDA V2}: EigenDA targets public rollups with 200+
+operators and achieves 5\,s average latency. Our 7-node enterprise
+committee achieves 4.5\,ms at 500\,KB ($1{,}111\times$ faster), but
+this comparison is unfair: EigenDA includes network latency across
+hundreds of geographically distributed nodes. The relevant comparison is
+architectural: both use RS erasure coding, validating the approach. Our
+contribution is the privacy layer (AES+Shamir) absent from EigenDA.
+
+\textbf{vs. Arbitrum AnyTrust}: AnyTrust uses a 6-member committee
+with 5-of-6 threshold and BLS aggregation but no erasure coding (each
+node stores the full batch). Our $(5,7)$ configuration achieves strictly
+higher availability at all reliability levels (Table~\ref{tab:availability-configs})
+while storing $1/5$ of the data per node.
+
+\textbf{vs. Polygon CDK DAC}: CDK uses ECDSA multi-sig without erasure
+coding or privacy. Our system adds both with negligible latency overhead.
+
+\textbf{vs. RU-V6 (our baseline)}: The hybrid architecture achieves
+$36\times$ faster attestation, $2{,}613\times$ faster recovery, and
+$2.77\times$ lower storage overhead. The improvement comes from three
+sources: (1) Go versus TypeScript execution, (2) SIMD RS versus BigInt
+Shamir, and (3) AES-NI hardware encryption.
+
+\subsection{Production Readiness}
+
+The current prototype validates the core protocol but requires four
+additions for production deployment:
+
+\begin{enumerate}
+  \item \textbf{KZG commitments}: verifiable encoding (INV-DA-P1)
+    requires each node to verify its RS chunk against a polynomial
+    commitment. KZG verification costs 2 pairing operations
+    ($\sim$124{,}000 gas on EVM via BN128 precompiles). Not implemented
+    in the prototype.
+  \item \textbf{BLS aggregation}: the prototype uses ECDSA P-256
+    signatures. Production should use BLS on BN254 for constant-size
+    on-chain attestation (48 bytes versus 455 bytes for 7 ECDSA
+    signatures).
+  \item \textbf{Network latency}: benchmarks are local (no network RTT).
+    A 7-node committee with 50--100\,ms RTT per node would add
+    100--200\,ms to the attestation pipeline (still within the 1\,s
+    target with $\geq 4\times$ margin).
+  \item \textbf{On-chain verification contract}: \texttt{BasisDAC.sol}
+    must verify attestation certificates (BLS aggregate signature +
+    data commitment) before accepting state transitions.
+\end{enumerate}
+
+\subsection{Performance Budget with Network Latency}
+
+Table~\ref{tab:budget} estimates the full production latency budget
+including network effects.
+
+\begin{table}[t]
+\centering
+\caption{Estimated Production Latency Budget (500\,KB Batch)}
+\label{tab:budget}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Operation} & \textbf{Estimated Latency} \\
+\midrule
+AES-256-GCM encryption              & $\sim$0.05\,ms \\
+Shamir key sharing $(5,7)$           & $\sim$0.02\,ms \\
+RS encoding $(5{+}2)$               & $\sim$0.06\,ms \\
+KZG commitment generation           & $\sim$20\,ms \\
+Chunk + key share distribution       & 50--100\,ms \\
+KZG chunk verification (per node)    & $\sim$10\,ms \\
+ECDSA/BLS signing (per node)         & $\sim$2\,ms \\
+Signature collection (parallel)      & 50--100\,ms \\
+On-chain verification                & 5--10\,ms \\
+\midrule
+\textbf{Total estimated}             & \textbf{140--250\,ms} \\
+\bottomrule
+\multicolumn{2}{l}{\footnotesize Well within 1-second target ($4$--$7\times$ margin).} \\
+\end{tabular}
+\end{table}
+
+\subsection{Signature Scheme Trade-offs}
+
+Table~\ref{tab:signatures} compares ECDSA and BLS for on-chain
+attestation verification.
+
+\begin{table}[t]
+\centering
+\caption{ECDSA vs BLS for 7-Member Committee}
+\label{tab:signatures}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Property} & \textbf{ECDSA (7 sigs)} & \textbf{BLS Aggregated} \\
+\midrule
+On-chain size        & 455 bytes     & 48 bytes     \\
+Verification gas     & 21{,}000     & 124{,}000    \\
+Signing latency      & $\sim$1\,ms  & $\sim$2\,ms  \\
+Aggregation          & N/A          & $\sim$0.07\,ms \\
+Accountability       & Individual   & Bitmap + agg. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the zero-fee Basis Network L1, gas cost is not a constraint. BLS is
+preferred for its constant-size signature (48 bytes regardless of
+committee size), enabling future committee expansion without increased
+on-chain storage.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+  \item \textbf{No network latency simulation}: results represent
+    computational performance only. Network RTT will dominate the
+    attestation pipeline in production.
+  \item \textbf{KZG not implemented}: verifiable encoding (INV-DA-P1) is
+    specified but not benchmarked. KZG commitment generation may add
+    10--50\,ms depending on batch size.
+  \item \textbf{ECDSA only}: BLS aggregation is the production target
+    but was not benchmarked.
+  \item \textbf{Single platform}: benchmarks on Windows 11 AMD64 only.
+    Linux deployment may show different AES-NI and SIMD characteristics.
+  \item \textbf{Stage 1 only}: stochastic baselines, adversarial
+    scenarios (Byzantine nodes, corrupt chunks), and ablation studies
+    are planned for subsequent stages.
+\end{enumerate}
+
+\subsection{RS vs Shamir: Architectural Comparison}
+
+Table~\ref{tab:rs-vs-shamir} summarizes the fundamental architectural
+differences that drive the performance gains.
+
+\begin{table}[t]
+\centering
+\caption{Reed-Solomon vs Shamir SSS for $(5,7)$ DAC}
+\label{tab:rs-vs-shamir}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Property} & \textbf{Shamir $(5,7)$} & \textbf{Hybrid (AES+RS)} \\
+\midrule
+Privacy model     & Info-theoretic   & Computational + IT key \\
+Per-node storage  & $1\times$ original & $1/5$ original \\
+Total storage     & $7\times$        & $1.4\times$ \\
+Encoding time     & $O(kn)$ per elem & $O(n \log n)$ total \\
+Decoding time     & $O(k^2)$ per elem & $O(k \log^2 k)$ total \\
+Verifiable        & No               & With KZG: yes \\
+Key management    & None             & AES key distribution \\
+\bottomrule
+\end{tabular}
+\end{table}
