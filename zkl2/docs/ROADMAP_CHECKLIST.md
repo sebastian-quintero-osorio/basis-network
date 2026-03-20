@@ -838,7 +838,7 @@ lab/4-prover/verification-history/YYYY-MM-plonk-migration/
 
 ### [36] Prover | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 invariants proved, 0 Admitted, MigrationSafety + Soundness + BackwardCompatibility)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [35] complete, snapshots prepared.
