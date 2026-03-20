@@ -1,0 +1,26 @@
+% abstract.tex -- Sequencer Paper (BNR-2026-009)
+
+\begin{abstract}
+Layer~2 sequencer design presents a fundamental tension between operator efficiency and
+censorship resistance: a single-operator sequencer achieves high throughput and low latency
+but introduces a trust assumption that the operator will include all valid transactions
+fairly. We investigate the design and performance of a single-operator sequencer for Basis
+Network, an enterprise zkEVM L2 deployed on Avalanche where each enterprise operates its
+own chain. Through systematic analysis of eight production L2 systems---zkSync Era,
+Polygon CDK, Scroll, Arbitrum One, Optimism (OP Stack), Taiko, MegaETH, and
+Starknet---we identify universal patterns: all production rollups use centralized sequencers,
+and forced inclusion mechanisms via L1 provide the censorship resistance guarantee.
+We implement a Go prototype (${\sim}$500~LOC) featuring a FIFO mempool, Arbitrum-style
+forced inclusion queue with configurable deadlines, and a tick-based block production
+loop. Benchmarks across 30+ repetitions per configuration demonstrate block production
+latency of $0.019$~ms at 100~transactions per block scaling to $0.885$~ms at
+5{,}000~transactions, mempool insertion throughput of ${\sim}$2.8~million~tx/s
+(365~ns/op), and 100\% FIFO ordering accuracy across all test scenarios including
+concurrent access with 4~producer goroutines at 33{,}000~tx/s aggregate insertion rate.
+Forced inclusion achieves 100\% transaction inclusion within one block tick
+(${\sim}$1~second) under both cooperative and adversarial conditions. These results
+confirm that a single-operator sequencer can sustain 1-second block times under enterprise
+workloads while an L1-based forced inclusion mechanism guarantees censorship resistance
+with bounded latency. Five architectural invariants (INV-SEQ-1 through INV-SEQ-5) are
+established as constraints for downstream formalization, implementation, and verification.
+\end{abstract}

@@ -1,0 +1,98 @@
+% system-model.tex -- Sequencer Paper (BNR-2026-009)
+
+\section{System Model}
+
+\subsection{Target Architecture}
+
+The Basis Network enterprise zkEVM L2 operates a per-enterprise chain architecture
+(design decision TD-005 from the foundational specifications). Each enterprise deploys
+an independent L2 instance consisting of:
+
+\begin{itemize}
+  \item A \textbf{Go-based sequencer node} that receives transactions from enterprise
+    applications (PLASMA, Trace), orders them via FIFO policy, produces L2 blocks at
+    1-second intervals, and submits batches to L1.
+  \item A \textbf{Rust-based ZK prover} that generates validity proofs for each batch
+    of state transitions.
+  \item \textbf{L1 smart contracts} on Basis Network (Avalanche Subnet-EVM, Chain~ID
+    43199) that verify proofs and anchor state roots.
+\end{itemize}
+
+The sequencer is the focus of this paper. It sits between the transaction ingestion
+layer (enterprise applications submitting via RPC) and the proving layer (Rust prover
+consuming state transitions).
+
+\subsection{Design Decisions}
+
+Table~\ref{tab:design-decisions} summarizes the architectural choices for the Basis
+Network sequencer and their rationale.
+
+\begin{table}[htbp]
+\caption{Sequencer Design Decisions}
+\label{tab:design-decisions}
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Decision} & \textbf{Choice} & \textbf{Rationale} \\
+\midrule
+Sequencer type & Single-operator & Per-enterprise chains \\
+Ordering policy & FIFO (arrival) & Zero-fee, no MEV \\
+Block time & 1~second & Enterprise latency req. \\
+Block gas limit & 10M (configurable) & Bounds execution/block \\
+Forced inclusion & Arbitrum-style & FIFO queue, 24h deadline \\
+Batch strategy & Hybrid (size OR time) & Validated in RU-V4 \\
+Mempool & Simple FIFO queue & No priority needed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sequencer State Machine}
+
+The sequencer operates as a deterministic state machine with the following cycle,
+repeated every block interval $\Delta t = 1$~second:
+
+\begin{enumerate}
+  \item \textbf{Drain forced inclusion queue}: Check for L1-submitted transactions
+    whose deadline has expired. These are prepended to the block with highest priority.
+  \item \textbf{Drain mempool}: Extract up to $N_{max}$ transactions from the FIFO
+    mempool, preserving arrival order.
+  \item \textbf{Assemble block}: Combine forced transactions and mempool transactions
+    into an L2 block with sequential numbering, parent hash linkage, and timestamp.
+  \item \textbf{Advance state}: Update block height, parent hash, and metrics counters.
+\end{enumerate}
+
+The forced inclusion queue takes absolute priority: forced transactions are always
+included before mempool transactions in each block. This guarantees that censored
+transactions bypass the sequencer's mempool entirely.
+
+\subsection{Formal Properties}
+
+The sequencer must satisfy the following properties:
+
+\textbf{FIFO Ordering}: For any two transactions $tx_a$ and $tx_b$ where $tx_a$
+arrives before $tx_b$ and both are included in block $B_k$, $tx_a$ must appear
+before $tx_b$ in $B_k$'s transaction list:
+\[
+  \text{arrival}(tx_a) < \text{arrival}(tx_b) \implies \text{index}(tx_a, B_k) < \text{index}(tx_b, B_k)
+\]
+
+\textbf{Forced Inclusion Liveness}: For any transaction $tx_f$ submitted to the
+forced inclusion queue at time $t_0$ with deadline $d$, there exists a block $B_k$
+with timestamp $t_k \leq t_0 + d$ such that $tx_f \in B_k$:
+\[
+  \forall tx_f \in Q_{forced}: \exists B_k \text{ s.t. } tx_f \in B_k \land t_k \leq t_0 + d
+\]
+
+\textbf{Block Production Regularity}: The sequencer produces a block at every tick
+interval $\Delta t$, even if no transactions are pending (empty blocks are permitted
+but configurable):
+\[
+  \forall k \geq 1: t_{B_k} - t_{B_{k-1}} \leq \Delta t + \epsilon
+\]
+where $\epsilon$ accounts for processing overhead.
+
+\textbf{Mempool Capacity Enforcement}: The mempool has a maximum capacity $C_{max}$.
+When full, new insertions are rejected (not silently dropped):
+\[
+  |Q_{mempool}| = C_{max} \implies \text{Insert}(tx) = \text{false}
+\]

@@ -1,0 +1,116 @@
+% related-work.tex -- Sequencer Paper (BNR-2026-009)
+
+\section{Related Work}
+
+\subsection{Production L2 Sequencer Architectures}
+
+Table~\ref{tab:sequencer-comparison} summarizes the sequencer architectures of eight
+production and near-production L2 systems. A universal pattern emerges: every production
+rollup with significant throughput uses a centralized sequencer operated by a single
+entity.
+
+\begin{table*}[htbp]
+\caption{Production L2 Sequencer Performance and Architecture}
+\label{tab:sequencer-comparison}
+\centering
+\begin{tabular}{lrllll}
+\toprule
+\textbf{System} & \textbf{Block Time} & \textbf{TPS (Observed)} & \textbf{Sequencer Type} & \textbf{Forced Inclusion} & \textbf{Language} \\
+\midrule
+zkSync Era & ${\sim}$1~s & 15{,}000+ (Atlas target) & Centralized (State Keeper) & PriorityQueue (partial) & Rust+Go \\
+Polygon CDK & 2--3~s & ${\sim}$400--1{,}000 & Centralized (Trusted Seq.) & 5~days (forceBatchTimeout) & Go \\
+Scroll & ${\sim}$3~s & 100--500 (pre-Euclid) & Centralized (Execution Node) & Not documented & Go \\
+Arbitrum One & ${\sim}$0.25~s & ${\sim}$4{,}000+ & Centralized (SequencerInbox) & 24~hours (DelayedInbox) & Go \\
+OP Stack & ${\sim}$2~s & ${\sim}$2{,}000 & Centralized (op-node) & 12~hours (sequencing window) & Go \\
+Taiko & ${\sim}$12~s & ${\sim}$100 & Decentralized (L1 proposers) & Inherits L1 & Go \\
+MegaETH & $<$1~s (target) & 100{,}000+ (claimed) & Centralized & Not documented & Rust \\
+Starknet & 5--10~s & 7{,}000+ (Karnot demo) & Centralized (Madara) & Not documented & Rust \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The only exception is Taiko~\cite{taiko2024based}, which implements a ``based rollup''
+model where L1 validators propose L2 blocks. While this inherits L1 censorship resistance
+by default, it also inherits L1 block times (${\sim}$12~seconds) and reduces L2 throughput
+to ${\sim}$100~TPS---an order of magnitude below centralized alternatives.
+
+\subsection{Forced Inclusion Mechanisms}
+
+Forced inclusion is the mechanism by which L2 users can bypass a censoring sequencer
+and force their transactions onto the L2 chain via the L1 contract. Three distinct
+patterns exist in production:
+
+\textbf{Arbitrum DelayedInbox}~\cite{arbitrum2024architecture}: Users submit transactions
+to a FIFO queue on L1. The sequencer must process the front of this queue within
+24~hours. After the deadline, any user can call \texttt{forceInclusion()} to move the
+transaction into the L2 state. L1 gas cost is ${\sim}$50K per submission.
+
+\textbf{Polygon CDK forceBatch}~\cite{polygon2024cdk}: Users call \texttt{forceBatch()}
+on L1 to submit a batch directly. After a 5-day timeout, any user can call
+\texttt{sequenceForceBatches()} to finalize. L1 gas cost is ${\sim}$100K per force batch.
+
+\textbf{OP Stack Deposit Transactions}~\cite{optimism2024derivation}: Users call
+\texttt{depositTransaction()} on the OptimismPortal L1 contract. The derivation pipeline
+guarantees that deposit transactions appear at the start of each epoch (every L1 block).
+The sequencing window is 12~hours, after which the L1 ordering takes precedence.
+L1 gas cost is ${\sim}$60K.
+
+Table~\ref{tab:forced-inclusion-comparison} compares these mechanisms.
+
+\begin{table*}[htbp]
+\caption{Forced Inclusion Mechanisms -- Comparative Analysis}
+\label{tab:forced-inclusion-comparison}
+\centering
+\begin{tabular}{llrlll}
+\toprule
+\textbf{System} & \textbf{Mechanism} & \textbf{Timeout} & \textbf{L1 Gas} & \textbf{Queue Type} & \textbf{Ordering} \\
+\midrule
+Arbitrum & DelayedInbox + forceInclusion() & 24~hours & ${\sim}$50K & FIFO (strict) & Front of queue first \\
+Polygon CDK & forceBatch() + sequenceForceBatches() & 5~days & ${\sim}$100K & Mapping (indexed) & Any user after timeout \\
+OP Stack & depositTransaction() on Portal & 12~hours & ${\sim}$60K & L1 block ordering & Deposits first in epoch \\
+zkSync Era & PriorityQueue (requestL2Transaction) & Not enforced & ${\sim}$50K & Queue with expiry & Partial implementation \\
+Taiko & L1 proposer inclusion & ${\sim}$12~s (L1) & N/A & L1 ordering & Permissionless proposing \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Block Production Latency}
+
+Published benchmarks and source code analysis provide reference values for block
+production component latencies:
+
+\begin{table}[htbp]
+\caption{Block Production Latency Breakdown (Published)}
+\label{tab:latency-breakdown}
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Component} & \textbf{Typical Latency} \\
+\midrule
+Mempool insertion & $<$1~ms \\
+Transaction validation (sig, nonce) & 0.1--0.5~ms/tx \\
+Block assembly (tx selection) & 1--10~ms \\
+EVM execution (per block) & 10--100~ms \\
+Block sealing (hash, metadata) & $<$1~ms \\
+L1 batch submission & 100--500~ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These published values indicate that block assembly (the sequencer's core operation)
+consumes 1--10~ms per block in production systems, leaving the majority of the block
+interval budget for EVM execution.
+
+\subsection{MEV and Transaction Ordering}
+
+Maximal Extractable Value (MEV) represents the profit a sequencer can extract by
+reordering, inserting, or censoring transactions~\cite{daian2020flash}. In fee-based
+L2 systems, MEV is a significant concern: the sequencer can front-run DEX trades,
+sandwich attacks, and liquidations.
+
+The Basis Network enterprise context eliminates the primary MEV vectors:
+zero-fee transactions remove the economic incentive for priority gas auctions,
+the absence of public DEXs eliminates sandwich and front-running targets,
+and the single known enterprise operator removes the adversarial ordering incentive.
+FIFO ordering by arrival time is therefore both sufficient and optimal for this
+use case~\cite{kelkar2020order}.

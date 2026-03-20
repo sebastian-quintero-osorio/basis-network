@@ -1,0 +1,141 @@
+% methodology.tex -- Sequencer Paper (BNR-2026-009)
+
+\section{Methodology}
+
+\subsection{Research Design}
+
+The investigation follows a three-phase approach:
+
+\textbf{Phase 1: Literature Survey.} Systematic analysis of eight production L2 sequencer
+architectures to identify universal patterns, forced inclusion mechanisms, and published
+performance benchmarks. Sources include protocol documentation, source code repositories,
+and technical blog posts from each project.
+
+\textbf{Phase 2: Prototype Implementation.} A Go prototype implementing the core
+sequencer components: FIFO mempool, forced inclusion queue, and tick-based block
+production. The prototype omits EVM execution (which is the domain of RU-L1,
+BNR-2026-008~\cite{bnr2026008evm}) to isolate sequencer-specific performance
+characteristics.
+
+\textbf{Phase 3: Benchmark Evaluation.} Comprehensive benchmarks across four dimensions:
+(a)~block production scaling with increasing transaction counts, (b)~forced inclusion
+under cooperative and adversarial conditions, (c)~concurrent mempool access with multiple
+producer goroutines, and (d)~high-throughput direct measurement without ticker jitter.
+
+\subsection{Prototype Architecture}
+
+The prototype consists of four Go source files (${\sim}$500~LOC total):
+
+\begin{table}[htbp]
+\caption{Prototype Source Code Structure}
+\label{tab:prototype-structure}
+\centering
+\begin{tabular}{llr}
+\toprule
+\textbf{File} & \textbf{Component} & \textbf{LOC} \\
+\midrule
+\texttt{types.go} & Transaction, Block, Config, Metrics & 178 \\
+\texttt{mempool.go} & FIFO Mempool (Add, Drain, Capacity) & 139 \\
+\texttt{forced\_inclusion.go} & Forced Inclusion Queue (Arbitrum-style) & 115 \\
+\texttt{sequencer.go} & Block Production, Run Loop, Metrics & 230 \\
+\midrule
+\textbf{Total} & & \textbf{662} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Mempool} (Listing~\ref{lst:mempool}): Thread-safe FIFO queue backed by a
+\texttt{sync.Mutex}-protected slice. Each transaction receives a monotonically
+increasing sequence number via atomic counter. The \texttt{Drain(n)} operation extracts
+up to $n$ transactions from the front, preserving FIFO order.
+
+\begin{lstlisting}[language=Go, caption={FIFO Mempool core operations}, label={lst:mempool}]
+func (m *Mempool) Add(tx *Transaction) bool {
+  m.mu.Lock()
+  defer m.mu.Unlock()
+  if len(m.txs) >= m.maxSize {
+    return false // capacity enforcement
+  }
+  tx.Sequence = atomic.AddUint64(
+    &m.seqCounter, 1)
+  m.txs = append(m.txs, tx)
+  return true
+}
+
+func (m *Mempool) Drain(n int) []*Transaction {
+  m.mu.Lock()
+  defer m.mu.Unlock()
+  take := min(n, len(m.txs))
+  result := m.txs[:take]
+  m.txs = m.txs[take:]
+  return result
+}
+\end{lstlisting}
+
+\textbf{Forced Inclusion Queue}: Maintains a FIFO queue of L1-submitted transactions,
+each with a submission timestamp and configurable deadline. The \texttt{DrainDue(now)}
+method returns all transactions whose deadline has expired, preserving submission order.
+
+\textbf{Block Producer}: The \texttt{ProduceBlock()} method is the core benchmarked
+function. It drains forced transactions first, then mempool transactions up to the
+per-block limit, assembles the block with sequential numbering and parent hash linkage,
+and updates metrics.
+
+\subsection{Benchmark Methodology}
+
+\textbf{Environment}: Windows 11 Pro, 20 cores (Intel 3.30~GHz), Go 1.22.10.
+
+\textbf{Repetitions}: 30 repetitions per scaling configuration with different seeds.
+Scenario tests use fixed configurations to ensure reproducibility.
+
+\textbf{Direct measurement}: High-throughput benchmarks pre-load transactions into the
+mempool before timing block production, eliminating ticker jitter and measuring pure
+sequencer overhead.
+
+\textbf{Go native benchmarks}: \texttt{go test -bench} provides nanosecond-precision
+measurements of individual operations (mempool insert, mempool drain, block production)
+with automatic iteration count calibration.
+
+\textbf{Metrics}: All benchmarks report:
+\begin{itemize}
+  \item Block production latency (microseconds): time to execute \texttt{ProduceBlock()}
+  \item Mempool insert throughput (tx/s): insertion rate under load
+  \item FIFO accuracy (\%): percentage of transactions in correct arrival order
+  \item Forced inclusion rate (\%): percentage of forced transactions included within deadline
+  \item Forced inclusion latency (ms): time from submission to block inclusion
+\end{itemize}
+
+\subsection{Benchmark Validation Targets}
+
+Table~\ref{tab:validation-targets} presents the expected performance ranges derived
+from published benchmarks, against which our measurements are validated.
+
+\begin{table}[htbp]
+\caption{Benchmark Validation Targets}
+\label{tab:validation-targets}
+\centering
+\begin{tabular}{lrl}
+\toprule
+\textbf{Metric} & \textbf{Expected} & \textbf{Source} \\
+\midrule
+Block production & $<$50~ms at 100~TPS & Geth, OP Stack \\
+Mempool insert & $>$10{,}000~tx/s & Geth txpool \\
+Forced inclusion detect. & $<$100~ms/L1 block & ethers.js \\
+Block sealing overhead & $<$5~ms & Consensus layer \\
+FIFO ordering accuracy & 100\% & By design \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Test Suite}
+
+The prototype includes 8 unit tests and 6 scenario tests:
+
+\textbf{Unit tests}: Mempool FIFO ordering, capacity enforcement (insert rejected when
+full), forced inclusion deadline expiry, block production with mixed forced and mempool
+transactions, empty block production, sequence number monotonicity, concurrent mempool
+access safety, and metrics accuracy.
+
+\textbf{Scenario tests}: Steady-state 100~TPS, steady-state 500~TPS, burst 1{,}000~TPS,
+maximum capacity stress, cooperative forced inclusion (20~forced transactions at 1-second
+deadline), and adversarial censoring (forced inclusion under simulated sequencer delay).
