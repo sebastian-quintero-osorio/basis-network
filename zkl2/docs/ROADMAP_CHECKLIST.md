@@ -928,7 +928,7 @@ lab/4-prover/verification-history/YYYY-MM-proof-aggregation/
 
 ### [40] Prover | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 theorems, 0 Admitted, 1,246 lines Coq, AggregationSoundness + tree soundness)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [39] complete, snapshots prepared.
