@@ -1,0 +1,25 @@
+% abstract.tex -- BNR-2026-012
+
+\begin{abstract}
+Enterprise zkEVM Layer~2 architectures require data availability guarantees
+that simultaneously preserve commercial privacy and tolerate node failures.
+We present a production Data Availability Committee (DAC) architecture that
+combines AES-256-GCM symmetric encryption, Reed-Solomon $(5,7)$ erasure
+coding, and Shamir $(5,7)$-secret sharing into a hybrid protocol achieving
+computational data privacy with information-theoretic key secrecy. The
+design extends our prior Validium DAC (RU-V6), which employed full Shamir
+secret sharing over batch data, by restricting Shamir to the 32-byte AES
+key and distributing erasure-coded ciphertext chunks to committee members.
+Experimental evaluation on a Go implementation using the SIMD-optimized
+\texttt{klauspost/reedsolomon} library demonstrates attestation latency of
+4.5\,ms at 500\,KB and 8.9\,ms at 1\,MB---a 36$\times$ improvement over
+the TypeScript-based RU-V6 baseline. Storage overhead converges to the
+theoretical minimum of $1.40\times$ (versus $3.87\times$ for pure Shamir),
+and data recovery completes in sub-millisecond time, representing a
+$2{,}613\times$ speedup over Lagrange interpolation. Availability analysis
+confirms that a $(5,7)$ committee with per-node reliability $p = 0.99$
+achieves $99.997\%$ availability (4.5 nines). All hypothesis targets are
+confirmed with margins between $19\times$ and $2{,}613\times$. We formalize
+six invariants governing verifiable encoding, data recoverability, enterprise
+privacy, attestation liveness, fallback safety, and availability guarantees.
+\end{abstract}
