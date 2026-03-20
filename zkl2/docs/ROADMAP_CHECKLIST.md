@@ -951,7 +951,7 @@ lab/4-prover/verification-history/YYYY-MM-proof-aggregation/
 
 ### [41] Scientist | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- Rayls/EPIC analysis, ZK selective disclosure, Go prototype, 486-line findings)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [37], [25] complete. Validium RU-V7 should be done.
@@ -975,7 +975,7 @@ lab/2-logicist/research-history/YYYY-MM-hub-and-spoke/0-input/
 
 ### [42] Logicist | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- TLC PASS: 3,602 states, 7 invariants, Isolation + AtomicSettlement + ReplayProtection)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [41] complete, materials in `0-input/`.
@@ -998,7 +998,7 @@ lab/3-architect/implementation-history/cross-enterprise-hub/
 
 ### [43] Architect | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- Go cross-enterprise module + BasisHub.sol 590 lines, 51 Solidity tests, 17 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [42] complete, verified specs in `implementation-history/`.
@@ -1022,7 +1022,7 @@ lab/4-prover/verification-history/YYYY-MM-hub-and-spoke/
 
 ### [44] Prover | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- VERIFIED: 12 theorems, 0 Admitted, 1,105 lines Coq, Isolation + AtomicSettlement critical security proofs)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [43] complete, snapshots prepared.
