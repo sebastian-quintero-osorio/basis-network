@@ -1,0 +1,25 @@
+Hub-and-Spoke Verification Unit -- Coq Compilation Log
+=======================================================
+Date: 2026-03-20
+Compiler: coqc (Rocq Platform 9.0, 2025.08)
+Namespace: HubAndSpoke
+Flags: -Q . HubAndSpoke
+
+Compilation Order:
+  1. Common.v   -- PASS (types, map utilities, tactics)
+  2. Spec.v     -- PASS (TLA+ faithful translation)
+  3. Impl.v     -- PASS (implementation model, identity refinement)
+  4. Refinement.v -- PASS (all proofs, 0 Admitted)
+
+Output Files:
+  Common.vo     21.0K
+  Spec.vo       12.6K
+  Impl.vo        1.6K
+  Refinement.vo 80.0K
+
+Admitted Count: 0
+Axiom Count: 0 (beyond Coq kernel)
+Total Theorems: 9 + 3 corollaries = 12
+Total Preservation Lemmas: 9 (one per step constructor)
+
+Verdict: PASS
