@@ -857,7 +857,7 @@ lab/4-prover/verification-history/YYYY-MM-plonk-migration/
 
 ### [37] Scientist | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- 15.3x gas savings, binary tree + ProtoGalaxy folding, 27 references, Rust benchmarks)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [33] complete (needs PLONK knowledge).
