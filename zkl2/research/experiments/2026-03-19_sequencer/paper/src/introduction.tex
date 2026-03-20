@@ -1,0 +1,66 @@
+% introduction.tex -- Sequencer Paper (BNR-2026-009)
+
+\section{Introduction}
+
+The sequencer is the critical component of any Layer~2 rollup architecture: it receives
+user transactions, orders them into blocks, and submits batches to the Layer~1 for
+finality. In a zero-knowledge rollup, the sequencer's ordering decisions directly
+determine the state transitions that the ZK prover must certify. The design of the
+sequencer therefore affects not only throughput and latency but also the correctness
+guarantees of the entire system.
+
+A fundamental tension exists in sequencer design. Centralized (single-operator) sequencers
+achieve the lowest latency and highest throughput because a single entity controls
+transaction ordering without requiring consensus among multiple parties. However, this
+centralization introduces a trust assumption: the operator could censor transactions,
+reorder them for extractable value (MEV), or halt block production entirely. Decentralized
+sequencer designs~\cite{taiko2024based} eliminate this trust assumption but inherit L1
+block times and consensus overhead, reducing throughput by an order of magnitude.
+
+The established solution across production rollups is to combine centralized sequencing
+with a forced inclusion mechanism on L1~\cite{arbitrum2024architecture,
+optimism2024derivation}. The sequencer operates efficiently under normal conditions,
+while the L1 contract guarantees that any user can force-include a transaction if the
+sequencer censors it, with a bounded deadline (typically 12--24 hours).
+
+Basis Network is an enterprise blockchain platform deployed on Avalanche, targeting Latin
+American industrial and commercial clients. The enterprise zkEVM L2 architecture
+(established in BNR-2026-008~\cite{bnr2026008evm}) operates a per-enterprise chain model
+where each client runs an independent L2 instance. This enterprise context introduces
+unique constraints:
+
+\begin{enumerate}
+  \item \textbf{Zero-fee transactions}: The L1 operates with near-zero gas costs
+    (1~wei base fee), eliminating fee-based transaction priority and rendering
+    MEV extraction economically irrelevant.
+  \item \textbf{Single known operator}: Each enterprise chain is operated by the
+    enterprise itself, making the sequencer a trusted-but-verified component
+    rather than an adversarial one.
+  \item \textbf{FIFO fairness}: Without fee markets, the natural ordering policy
+    is strict FIFO (first-in, first-out) by arrival time, providing deterministic
+    ordering without priority auctions.
+  \item \textbf{Sub-second block times}: Enterprise workloads (industrial
+    traceability, commercial ERP) require low-latency confirmation, targeting
+    1-second L2 block times.
+\end{enumerate}
+
+The research question addressed by this paper is:
+
+\medskip
+\noindent\textit{Can a single-operator sequencer produce L2 blocks every 1--2 seconds
+with FIFO ordering while a forced inclusion mechanism via L1 guarantees censorship
+resistance with maximum 24-hour latency?}
+\medskip
+
+We investigate this question through a comparative analysis of eight production L2
+sequencer architectures, the design and implementation of a Go prototype
+(${\sim}$500~LOC) featuring FIFO mempool, Arbitrum-style forced inclusion queue, and
+tick-based block production, and comprehensive benchmarks across scaling, concurrency,
+and adversarial scenarios.
+
+The remainder of this paper is organized as follows. Section~II surveys related work
+on L2 sequencer architectures and forced inclusion mechanisms. Section~III presents the
+system model and design decisions. Section~IV describes the experimental methodology.
+Section~V presents benchmark results across block production scaling, forced inclusion,
+and concurrent access scenarios. Section~VI discusses implications, invariants, MEV
+analysis, and limitations. Section~VII concludes with recommendations.

@@ -1,0 +1,85 @@
+% conclusion.tex -- Sequencer Paper (BNR-2026-009)
+
+\section{Conclusion}
+
+This paper investigated the design and performance of a single-operator sequencer for
+the Basis Network enterprise zkEVM L2. Through comparative analysis of eight production
+L2 systems, implementation of a Go prototype (${\sim}$500~LOC), and comprehensive
+benchmarks across scaling, concurrency, and adversarial scenarios, we establish the
+following conclusions:
+
+\begin{enumerate}
+  \item Centralized sequencing with L1-based forced inclusion is the universal
+    production pattern. All eight surveyed systems use centralized sequencers; forced
+    inclusion via L1 provides the censorship resistance guarantee without sacrificing
+    throughput.
+
+  \item Block production overhead is negligible relative to EVM execution. At
+    5{,}000~transactions per block, the sequencer consumes $<$1~ms of the 1-second
+    block interval, leaving $>$99.9\% of the time budget for EVM execution.
+
+  \item FIFO ordering is deterministic and requires no enforcement mechanism beyond
+    atomic sequence numbering at insertion time. 100\% ordering accuracy is maintained
+    across all tested conditions, including concurrent access with 4 producer
+    goroutines.
+
+  \item Forced inclusion achieves single-tick latency (${\sim}$1~second) under both
+    cooperative and adversarial conditions, three orders of magnitude faster than the
+    24-hour deadline. 100\% of forced transactions are included within the first block
+    after deadline expiry.
+
+  \item The enterprise zero-fee model eliminates MEV as a design concern. FIFO
+    ordering provides fairness without the complexity of MEV-mitigation mechanisms
+    required in public L2 systems.
+
+  \item Five architectural invariants (INV-SEQ-1 through INV-SEQ-5) are established
+    as constraints for downstream pipeline stages: the Logicist (TLA+ specification),
+    the Architect (Go implementation), and the Prover (Coq verification).
+\end{enumerate}
+
+\subsection{Recommendations}
+
+For the Basis Network enterprise zkEVM L2 sequencer implementation:
+
+\begin{enumerate}
+  \item Deploy a single-operator sequencer with 1-second block intervals. The
+    enterprise operator runs the sequencer as part of their L2 node, with the
+    forced inclusion contract on L1 providing the censorship resistance fallback.
+
+  \item Implement FIFO mempool with atomic sequence numbering. The mutex-based
+    approach is sufficient for enterprise workloads (${\sim}$33K~tx/s under
+    contention, 66$\times$ above target).
+
+  \item Deploy an Arbitrum-style forced inclusion contract on the Basis Network L1
+    with a 24-hour deadline. The L1 contract maintains a FIFO queue; the sequencer
+    monitors events and includes pending forced transactions at block production time.
+
+  \item Use hybrid batch strategy (size OR time trigger) as validated in the
+    validium node research (RU-V4). Block production and batch aggregation are
+    separate concerns: blocks are produced every 1~second, batches are submitted
+    to L1 when size or time thresholds are met.
+
+  \item Do not implement MEV-mitigation mechanisms (threshold encryption,
+    commit-reveal, fair ordering protocols). The enterprise zero-fee model makes
+    these unnecessary and their complexity would degrade sequencer performance.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Immediate next steps in the Basis Network R\&D pipeline:
+
+\begin{itemize}
+  \item \textbf{RU-L3 (State Management)}: Integrate the Poseidon-based sparse Merkle
+    tree with the sequencer's block production loop, measuring the combined overhead
+    of state updates during block execution.
+  \item \textbf{Integration benchmarks}: Combine the EVM executor (RU-L1) with the
+    sequencer to measure end-to-end block production latency including transaction
+    execution.
+  \item \textbf{Forced inclusion contract}: Implement and deploy the Solidity L1
+    contract for the forced inclusion queue, including gas cost measurements on
+    the Basis Network L1.
+  \item \textbf{Network layer}: Add gRPC/JSON-RPC transaction submission and measure
+    end-to-end latency including serialization and network round-trip.
+  \item \textbf{WAL integration}: Add Write-Ahead Log for block persistence and
+    measure the overhead on block production latency.
+\end{itemize}

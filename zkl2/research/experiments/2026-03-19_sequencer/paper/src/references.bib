@@ -1,0 +1,126 @@
+% references.bib -- Sequencer Paper (BNR-2026-009)
+% BibTeX entries for the sequencer and block production paper
+
+@misc{arbitrum2024architecture,
+  author       = {{Offchain Labs}},
+  title        = {{Arbitrum} Architecture: Sequencer and Delayed Inbox},
+  howpublished = {Arbitrum documentation},
+  year         = {2024},
+  note         = {SequencerInbox, DelayedInbox, forceInclusion() with 24-hour deadline}
+}
+
+@misc{optimism2024derivation,
+  author       = {{OP Labs}},
+  title        = {{OP Stack} Derivation Pipeline and Deposit Transactions},
+  howpublished = {Optimism specifications},
+  year         = {2024},
+  note         = {depositTransaction() on OptimismPortal, 12-hour sequencing window}
+}
+
+@misc{polygon2024cdk,
+  author       = {{Polygon Labs}},
+  title        = {{Polygon CDK}: Trusted Sequencer and Force Batches},
+  howpublished = {Polygon technical documentation},
+  year         = {2024},
+  note         = {forceBatch() with 5-day timeout, sequenceForceBatches()}
+}
+
+@misc{zksync2024architecture,
+  author       = {{Matter Labs}},
+  title        = {{zkSync Era}: State Keeper and Block Production},
+  howpublished = {zkSync documentation},
+  year         = {2024},
+  note         = {Centralized State Keeper, PriorityQueue for forced transactions}
+}
+
+@misc{scroll2024whitepaper,
+  author       = {{Scroll Foundation}},
+  title        = {Scroll Whitepaper v1.0},
+  howpublished = {Scroll technical documentation},
+  year         = {2024},
+  note         = {Centralized execution node, 3-second L2 block time}
+}
+
+@misc{taiko2024based,
+  author       = {{Taiko Labs}},
+  title        = {Taiko: A Based Rollup},
+  howpublished = {Taiko documentation and ethresear.ch},
+  year         = {2024},
+  note         = {L1 proposers produce L2 blocks, inherits L1 censorship resistance}
+}
+
+@misc{megaeth2024whitepaper,
+  author       = {{MegaETH}},
+  title        = {{MegaETH}: Real-Time Blockchain},
+  howpublished = {MegaETH technical documentation},
+  year         = {2024},
+  note         = {Sub-millisecond block times, 100K+ TPS target, Rust implementation}
+}
+
+@misc{starknet2024madara,
+  author       = {{StarkWare}},
+  title        = {Starknet Sequencer and {Madara} Framework},
+  howpublished = {Starknet documentation},
+  year         = {2024},
+  note         = {Centralized Madara sequencer, 5--10 second block times}
+}
+
+@inproceedings{daian2020flash,
+  author    = {Daian, Philip and Goldfeder, Steven and Kell, Tyler and Li, Yunqi and Zhao, Xuejie and Bentov, Iddo and Breidenbach, Lorenz and Juels, Ari},
+  title     = {Flash Boys 2.0: Frontrunning in Decentralized Exchanges, Miner Extractable Value, and Consensus Instability},
+  booktitle = {IEEE Symposium on Security and Privacy (S\&P)},
+  year      = {2020},
+  pages     = {910--927},
+  publisher = {IEEE}
+}
+
+@inproceedings{kelkar2020order,
+  author    = {Kelkar, Mahimna and Zhang, Fan and Goldfeder, Steven and Juels, Ari},
+  title     = {Order-Fairness for Byzantine Consensus},
+  booktitle = {Advances in Cryptology -- CRYPTO 2020},
+  year      = {2020},
+  pages     = {451--480},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {12172}
+}
+
+@misc{geth2024tracing,
+  author       = {{Ethereum Foundation}},
+  title        = {Go {Ethereum}: Tracing Infrastructure and Performance Benchmarks},
+  howpublished = {Geth documentation},
+  year         = {2024},
+  note         = {3,000--5,000 simple transfers/s, structLogger 10--50x overhead}
+}
+
+@misc{bnr2026008evm,
+  author       = {Tobar Quintero, Sebastian},
+  title        = {{BNR-2026-008}: Minimal {Geth} Fork as {EVM} Execution Engine for Enterprise {zkEVM} {L2}},
+  howpublished = {Basis Network Research, Internal Technical Report},
+  year         = {2026},
+  note         = {EVM executor architecture, opcode constraint mapping, ZK trace generation}
+}
+
+@misc{optimism2024opgeth,
+  author       = {{OP Labs}},
+  title        = {{op-geth}: Optimism {Geth} Fork Diff},
+  howpublished = {op-geth.optimism.io},
+  year         = {2024},
+  note         = {16,881 lines added, 664 deleted, 34 lines in EVM}
+}
+
+@misc{ethereum2024txpool,
+  author       = {{Ethereum Foundation}},
+  title        = {Go {Ethereum} Transaction Pool ({TxPool}) Implementation},
+  howpublished = {Geth source: core/txpool/},
+  year         = {2024},
+  note         = {Slot-based pool, price-sorted heap, nonce tracking, account limits}
+}
+
+@misc{arbitrum2024nitro,
+  author       = {{Offchain Labs}},
+  title        = {{Arbitrum Nitro}: Technical Overview},
+  howpublished = {Arbitrum documentation},
+  year         = {2024},
+  note         = {0.25s L2 block time, 4000+ TPS, Geth-based execution}
+}
