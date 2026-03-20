@@ -1,0 +1,24 @@
+[package]
+name = "basis-circuit"
+version = "0.1.0"
+edition = "2021"
+description = "PLONK circuit for Basis Network zkEVM L2 -- halo2-KZG state transition prover"
+license = "BUSL-1.1"
+
+[dependencies]
+# halo2 proving system (PSE fork, KZG on BN254)
+halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
+
+# arkworks BN254 for witness interop (shared with basis-witness crate)
+ark-ff = "0.4"
+ark-bn254 = "0.4"
+
+# Randomness for proof generation
+rand = "0.8"
+rand_core = "0.6"
+
+# Structured error handling
+thiserror = "2"
+
+[dev-dependencies]
+rand = "0.8"
