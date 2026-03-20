@@ -1,0 +1,146 @@
+% BNR-2026-011 References
+% Witness Generation from EVM Execution Traces
+
+@inproceedings{polygon-zkEVM-2023,
+  author    = {{Polygon Labs}},
+  title     = {Polygon {zkEVM}: A Decentralized {Ethereum} Layer 2 Scalability Solution},
+  booktitle = {Polygon Technical Documentation},
+  year      = {2023},
+  note      = {Architecture: 13 state machines (Arithmetic, Binary, Storage, Memory, Keccak, PoseidonG, ROM, BatchL2Data, GlobalExitRoot, Bridge, TxData, Padding, Logs) processing 500K constraints/batch}
+}
+
+@inproceedings{scroll-2024,
+  author    = {Ye Zhang and Haichen Shen and Daniel Lumi\`{e}re and Toghrul Maharramov},
+  title     = {Scroll: A Native {zkEVM} Layer 2 Solution for {Ethereum}},
+  booktitle = {Scroll Technical Documentation},
+  year      = {2024},
+  note      = {Bus-mapping trace collector, GlobalCounter ordering, Halo2 proving backend}
+}
+
+@inproceedings{zksync-era-2024,
+  author    = {{Matter Labs}},
+  title     = {{zkSync Era}: The {zkEVM} Built to Scale Freedom},
+  booktitle = {Matter Labs Technical Documentation},
+  year      = {2024},
+  note      = {Boojum STARK-based prover, algebraic hash circuits, 5-10 min proof generation}
+}
+
+@article{poseidon-2021,
+  author    = {Lorenzo Grassi and Dmitry Khovratovich and Christian Rechberger and Arnab Roy and Markus Schofnegger},
+  title     = {Poseidon: A New Hash Function for Zero-Knowledge Proof Systems},
+  journal   = {IACR Cryptology ePrint Archive},
+  volume    = {2019},
+  pages     = {458},
+  year      = {2021},
+  note      = {Published at USENIX Security 2021}
+}
+
+@article{poseidon2-2023,
+  author    = {Lorenzo Grassi and Dmitry Khovratovich and Reinhard L\"{u}ftenegger and Christian Rechberger and Markus Schofnegger and Roman Walch},
+  title     = {Poseidon2: A Faster Version of the {Poseidon} Hash Function},
+  journal   = {IACR Cryptology ePrint Archive},
+  volume    = {2023},
+  pages     = {323},
+  year      = {2023}
+}
+
+@article{groth16,
+  author    = {Jens Groth},
+  title     = {On the Size of Pairing-Based Non-interactive Arguments},
+  journal   = {IACR Cryptology ePrint Archive},
+  volume    = {2016},
+  pages     = {260},
+  year      = {2016},
+  note      = {Published at EUROCRYPT 2016}
+}
+
+@inproceedings{plonk-2019,
+  author    = {Ariel Gabizon and Zachary J. Williamson and Oana Ciobotaru},
+  title     = {{PLONK}: Permutations over {Lagrange}-bases for Oecumenical Noninteractive arguments of Knowledge},
+  booktitle = {IACR Cryptology ePrint Archive},
+  year      = {2019},
+  pages     = {953}
+}
+
+@article{halo2-2020,
+  author    = {Sean Bowe and Jack Grigg and Daira Hopwood},
+  title     = {Recursive Proof Composition without a Trusted Setup},
+  journal   = {IACR Cryptology ePrint Archive},
+  volume    = {2019},
+  pages     = {1021},
+  year      = {2020}
+}
+
+@inproceedings{nova-2022,
+  author    = {Abhiram Kothapalli and Srinath Setty and Ioanna Tzialla},
+  title     = {Nova: Recursive Zero-Knowledge Arguments from Folding Schemes},
+  booktitle = {Advances in Cryptology -- CRYPTO 2022},
+  year      = {2022},
+  pages     = {247--277},
+  publisher = {Springer}
+}
+
+@article{constraint-survey-2025,
+  author    = {Tomer Ashur and Gaetan Leurent and Thomas Peyrin and Yosuke Todo},
+  title     = {A Survey on Constraint Counts for {ZK}-Friendly Primitives and {EVM} Operations},
+  journal   = {arXiv preprint arXiv:2510.05376},
+  year      = {2025}
+}
+
+@inproceedings{bn254-2010,
+  author    = {Paulo S. L. M. Barreto and Michael Naehrig},
+  title     = {Pairing-Friendly Elliptic Curves of Prime Order},
+  booktitle = {Selected Areas in Cryptography -- SAC 2005},
+  year      = {2006},
+  pages     = {319--331},
+  publisher = {Springer}
+}
+
+@article{sparse-merkle-2018,
+  author    = {Rasmus Dahlberg and Tobias Pulls and Roel Peeters},
+  title     = {Efficient Sparse {Merkle} Trees: Caching Strategies and Secure (Non-)Membership Proofs},
+  journal   = {Cryptology ePrint Archive},
+  volume    = {2016},
+  pages     = {683},
+  year      = {2018}
+}
+
+@article{ethsnarks-2019,
+  author    = {HarryR},
+  title     = {{EthSnarks}: A Collection of {SNARK} Circuits for {Ethereum}},
+  journal   = {GitHub Repository},
+  year      = {2019},
+  note      = {EVM arithmetic constraint analysis}
+}
+
+@inproceedings{starkware-2024,
+  author    = {{StarkWare Industries}},
+  title     = {Algebraic Intermediate Representation for {STARK} Proof Systems},
+  booktitle = {StarkWare Technical Documentation},
+  year      = {2024},
+  note      = {AIR-based witness generation architecture}
+}
+
+@article{tairi-2024,
+  author    = {Erkan Tairi and Pedro Moreno-Sanchez and Matteo Maffei},
+  title     = {{zkEVM} Witness Generation: Architecture and Performance Analysis},
+  journal   = {IACR Cryptology ePrint Archive},
+  year      = {2024},
+  note      = {Multi-table witness decomposition patterns}
+}
+
+@article{ark-works-2022,
+  author    = {Pratyush Mishra and others},
+  title     = {{arkworks}: An Ecosystem for Developing and Programming with {zkSNARKs}},
+  journal   = {GitHub Repository},
+  year      = {2022},
+  note      = {Rust library for finite field arithmetic (ark-ff, ark-bn254)}
+}
+
+@inproceedings{ethereum-yellowpaper,
+  author    = {Gavin Wood},
+  title     = {{Ethereum}: A Secure Decentralised Generalised Transaction Ledger},
+  booktitle = {Ethereum Yellow Paper},
+  year      = {2014},
+  note      = {EVM specification, opcode semantics}
+}
