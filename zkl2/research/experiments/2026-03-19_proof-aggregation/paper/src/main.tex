@@ -1,0 +1,98 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{tabularx}
+
+% Header/Footer
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-014}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Internal Technical Report. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% Code listings for Rust
+\lstdefinelanguage{Rust}{
+  keywords={fn, let, mut, pub, struct, impl, use, mod, crate, self, super,
+            return, if, else, for, while, loop, match, enum, trait, type,
+            where, const, static, ref, move, async, await, unsafe, extern},
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  sensitive=true
+}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2
+}
+
+\title{Recursive Proof Aggregation\\for Enterprise zkEVM L2}
+
+\author{
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
+  \IEEEauthorblockA{
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    NIT: 901872120-5\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
+
+\input{abstract}
+
+\begin{IEEEkeywords}
+proof aggregation, recursive SNARKs, folding schemes, ProtoGalaxy, Nova, SnarkPack, halo2, Groth16, zkEVM, enterprise blockchain, gas optimization
+\end{IEEEkeywords}
+
+\input{introduction}
+\input{related-work}
+\input{system-model}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+\section*{Acknowledgment}
+
+This work was produced by the Basis Network Automated R\&D Laboratory,
+a 4-agent research pipeline operated by Base Computing S.A.S. The
+experiment (RU-L10) builds on the PLONK migration study (RU-L9) that
+established halo2-KZG as the target proof system and feeds downstream
+to The Logicist (TLA+ specification of aggregation invariants), The
+Architect (production aggregation pipeline in Rust), and The Prover
+(Coq verification of soundness preservation under composition).
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

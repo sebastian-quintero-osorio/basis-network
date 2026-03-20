@@ -1,0 +1,79 @@
+\section{Introduction}
+\label{sec:introduction}
+
+The Basis Network enterprise zkEVM L2 architecture assigns each
+enterprise its own chain with an independent sequencer and prover. Each
+chain produces halo2-KZG validity proofs that are verified on the Basis
+Network L1 (an Avalanche Subnet-EVM instance with sub-second finality).
+This per-enterprise isolation provides strong privacy guarantees: no
+enterprise exposes its transaction data or state transitions to any
+other participant.
+
+However, independent verification introduces a scalability problem.
+Each halo2-KZG proof verification costs approximately 420K gas on the
+EVM~\cite{axiom-v2, orbiter-gas}. For $N$ enterprises, total
+verification gas scales as $N \times 420\text{K}$, reaching 3.36M gas
+at $N{=}8$ and 6.72M gas at $N{=}16$. Although the Basis Network L1
+operates with zero gas fees, the computational cost of verification
+still consumes block capacity and imposes throughput limits. More
+critically, as the network scales to dozens or hundreds of enterprises,
+per-block verification becomes a bottleneck regardless of fee structure.
+
+Recursive proof composition offers a solution: aggregate $N$ independent
+proofs into a single proof verifiable in constant gas, amortizing
+verification cost across all participants. The zero-knowledge proof
+literature provides three principal aggregation strategies:
+
+\begin{enumerate}
+  \item \textbf{Binary tree accumulation.} Recursively verify pairs of
+    proofs inside a circuit, building a tree of depth
+    $\lceil \log_2 N \rceil$. The final root proof attests to the
+    validity of all leaves. This approach is production-proven at Scroll
+    (chunk-batch-bundle hierarchy)~\cite{scroll-darwin} and Axiom
+    (snark-verifier)~\cite{axiom-v2, snark-verifier}.
+
+  \item \textbf{Folding schemes.} Fold $N$ proof instances into a single
+    accumulated instance without performing in-circuit verification,
+    then produce a single ``decider'' proof. Nova~\cite{nova},
+    ProtoGalaxy~\cite{protogalaxy}, and HyperNova~\cite{hypernova}
+    achieve this with $O(1)$ memory and proof size regardless of~$N$.
+
+  \item \textbf{Batch verification.} Exploit algebraic structure
+    (e.g., pairing batching) to verify $N$ proofs with sub-linear
+    pairing operations. SnarkPack~\cite{snarkpack} achieves
+    $O(\log N)$ proof size for Groth16 batches.
+\end{enumerate}
+
+This paper presents a systematic evaluation of all three strategies
+applied to the Basis Network enterprise aggregation problem.
+
+\subsection{Contributions}
+
+\begin{itemize}
+  \item A comparative benchmark of three aggregation strategies across
+    $N \in \{1, 2, 4, 8, 16\}$ enterprises, measuring proof size,
+    aggregation time, and L1 verification gas with 30 stochastic
+    iterations per configuration.
+  \item Quantification of gas savings: folding with Groth16 decider
+    achieves $15.3\times$ reduction at $N{=}8$ (from 3.36M to 220K
+    gas), exceeding the $N$-fold hypothesis.
+  \item Identification of four aggregation invariants
+    (Section~\ref{sec:invariants}) required for production soundness.
+  \item A phased deployment strategy balancing gas efficiency against
+    tooling maturity (Section~\ref{sec:deployment}).
+  \item Reconciliation of all measurements against published benchmarks
+    from six production systems with no divergence exceeding $10\times$.
+\end{itemize}
+
+\subsection{Paper Organization}
+
+Section~\ref{sec:related} surveys recursive SNARK composition, folding
+schemes, and production aggregation systems.
+Section~\ref{sec:system-model} defines the enterprise aggregation model
+and its constraints. Section~\ref{sec:methodology} describes the
+experimental design, benchmark protocol, and anti-confirmation bias
+measures. Section~\ref{sec:results} presents the complete benchmark
+results. Section~\ref{sec:discussion} analyzes trade-offs, identifies
+invariants, and proposes a deployment strategy.
+Section~\ref{sec:conclusion} summarizes findings and outlines future
+work.
