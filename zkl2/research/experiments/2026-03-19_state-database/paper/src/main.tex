@@ -1,0 +1,115 @@
+% main.tex -- Master document
+% BNR-2026-010: State Database with Poseidon2 Sparse Merkle Tree
+% in Go for Enterprise zkEVM L2
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-010}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Internal Technical Report. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% Listings style for Go
+\lstdefinelanguage{Go}{
+  keywords={package, import, func, struct, type, return, if, else, for, range,
+            var, const, map, make, append, len, nil, true, false, byte, int,
+            uint64, string, bool, error, int64, float64},
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]`,
+  sensitive=true
+}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2
+}
+
+% Metadata
+\title{State Database with Poseidon2 Sparse Merkle Tree\\in Go for Enterprise zkEVM L2:\\Performance Analysis and Architectural Implications}
+
+\author{
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
+  \IEEEauthorblockA{
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    NIT: 901872120-5\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+sparse Merkle tree, Poseidon2, state database, zkEVM, Go, gnark-crypto, enterprise blockchain
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{system-model}
+\input{methodology}
+\input{experimental-setup}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% Acknowledgment
+\section*{Acknowledgment}
+
+This work was produced by the Basis Network Automated R\&D Laboratory,
+a 4-agent research pipeline operated by Base Computing S.A.S. The
+experiment builds on prior work in RU-V1 (Sparse Merkle Tree for
+Validium) and feeds downstream to The Logicist (TLA+ specification),
+The Architect (production implementation), and The Prover (Coq
+verification).
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

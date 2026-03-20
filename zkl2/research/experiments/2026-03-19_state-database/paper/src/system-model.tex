@@ -1,0 +1,110 @@
+\section{System Model}
+\label{sec:system-model}
+
+\subsection{Architecture Context}
+
+The Basis Network zkEVM L2 employs a per-enterprise chain model
+where each enterprise operates its own sequencer, prover, and state
+database. The state database serves as the authoritative record of
+the EVM world state, mapping account addresses to their
+current state (nonce, balance, code hash, storage root). The
+sequencer updates the state database after executing each
+transaction, and the prover reads Merkle witnesses from it to
+construct validity proofs that are verified on the Basis Network L1.
+
+The state database occupies a critical position in the block
+production pipeline:
+
+\begin{enumerate}
+  \item Sequencer receives transactions and orders them into a block.
+  \item EVM executor processes each transaction, producing state
+    changes (account updates, storage modifications).
+  \item \textbf{State database applies updates and computes the new
+    state root.}
+  \item The state root is included in the block header.
+  \item The prover reads Merkle witnesses from the state database
+    to generate a ZK proof of the state transition.
+\end{enumerate}
+
+Step 3 is the subject of this paper. Its latency directly bounds
+block production throughput: if state root computation exceeds the
+block time budget, the sequencer cannot produce blocks at the target
+rate.
+
+\subsection{State Tree Requirements}
+
+The state database must satisfy the following requirements:
+
+\begin{table}[h]
+\centering
+\caption{State database requirements for Basis Network zkEVM L2}
+\label{tab:requirements}
+\begin{tabular}{lll}
+\toprule
+\textbf{Requirement} & \textbf{Target} & \textbf{Rationale} \\
+\midrule
+State root latency & $< 50$~ms/block & Sub-second finality \\
+Account capacity & $\geq 10{,}000$ & Enterprise scale \\
+Memory per account & $< 100$~KB & Commodity hardware \\
+Proof generation & $< 1$~ms/proof & Witness extraction \\
+Proof verification & $< 1$~ms/proof & Local consistency \\
+ZK compatibility & BN254 field & Circuit integration \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 50~ms budget derives from the target block time of 500~ms,
+allocating 10\% to state root computation. The remaining budget
+covers transaction execution ($\sim$200~ms), consensus
+($\sim$100~ms), and network propagation ($\sim$150~ms).
+
+\subsection{Data Model}
+
+Each EVM account maps to an SMT leaf:
+
+\begin{equation}
+\text{leaf}(a) = H_{\text{Poseidon2}}(\text{key}(a), \text{value}(a))
+\label{eq:leaf}
+\end{equation}
+
+where $\text{key}(a)$ is derived from the account address and
+$\text{value}(a)$ encodes the account state. The state root
+$R$ is the root hash of the SMT containing all account leaves:
+
+\begin{equation}
+R = \text{SMT}_{\text{root}}(\{\text{leaf}(a) : a \in \text{Accounts}\})
+\label{eq:root}
+\end{equation}
+
+For a block containing $n$ transactions that modify accounts
+$\{a_1, \ldots, a_k\}$ (where $k \leq n$), the state root update
+requires:
+
+\begin{equation}
+\text{Cost}_{\text{update}} = k \cdot d \cdot C_{\text{hash}}
+\label{eq:cost}
+\end{equation}
+
+where $d$ is the tree depth and $C_{\text{hash}}$ is the cost of
+one Poseidon2 2-to-1 hash compression. This linear relationship
+between batch size, depth, and hash cost defines the optimization
+space.
+
+\subsection{Threat Model}
+
+The state database operates within an enterprise-controlled
+environment where the sequencer is trusted but the state root
+must be independently verifiable via ZK proofs on L1. The primary
+threats are:
+
+\begin{itemize}
+  \item \textbf{State divergence:} Inconsistency between the
+    committed state root and the actual account state, detectable
+    by the ZK prover.
+  \item \textbf{Proof forgery:} Fabricated Merkle proofs for
+    non-existent state, prevented by the collision resistance
+    of Poseidon2.
+  \item \textbf{Performance degradation:} Pathological key
+    distributions causing worst-case tree behavior, mitigated
+    by key hashing.
+\end{itemize}

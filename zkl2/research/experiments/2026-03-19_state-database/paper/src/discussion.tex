@@ -1,0 +1,189 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Hypothesis Assessment}
+
+The hypothesis is \textbf{confirmed with qualification}. A Go SMT
+with Poseidon2 achieves state root computation under 50~ms for up
+to 250 transactions per block on a 10,000-entry tree at depth 32.
+However, the qualification is significant: at production EVM depths
+(160--256), the 50~ms target becomes considerably more challenging.
+
+\textbf{Prediction reconciliation:}
+
+\begin{table}[h]
+\centering
+\caption{Prediction vs. observed results}
+\label{tab:predictions}
+\begin{tabular}{llll}
+\toprule
+\textbf{Prediction} & \textbf{Expected} & \textbf{Observed} & \textbf{Status} \\
+\midrule
+Hash speedup vs.\ JS & 50--200$\times$ & 12.6$\times$ & Below range \\
+Insert latency & $< 100$~$\mu$s & 125.66~$\mu$s & Marginal miss \\
+Proof generation & $< 10$~$\mu$s & 10.06~$\mu$s & At boundary \\
+Batch 10K $< 50$~ms & $< 50$~ms & 46.05~ms (250 tx) & PASS \\
+Memory $< 500$~MB & $< 500$~MB & 29.3~MB & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The hash speedup prediction (50--200$\times$) was overly optimistic.
+The 12.6$\times$ observed speedup reflects the narrower gap between
+V8 BigInt and Go assembly than anticipated, as well as the different
+round counts between Poseidon and Poseidon2. Insert latency at
+125.66~$\mu$s narrowly missed the 100~$\mu$s target but remains
+14.3$\times$ faster than the TypeScript baseline.
+
+\subsection{Depth Sensitivity Analysis}
+
+The cost model (Equation~\ref{eq:cost}) predicts that operation
+latency scales linearly with tree depth. At depth 32, batch cost is
+dominated by $32 \times C_{\text{hash}}$ per update. At depth 160
+(Ethereum address length) or 256 (full key space), operations will
+be 5--8$\times$ slower:
+
+\begin{table}[h]
+\centering
+\caption{Projected batch latency at production depths}
+\label{tab:depth-projection}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Batch size} & \textbf{Depth 32} & \textbf{Depth 160 (est.)} & \textbf{Depth 256 (est.)} \\
+\midrule
+10 tx  & 1.86~ms  & 9.3~ms   & 14.9~ms \\
+50 tx  & 9.03~ms  & 45.2~ms  & 72.2~ms \\
+100 tx & 18.77~ms & 93.9~ms  & 150.2~ms \\
+250 tx & 46.05~ms & 230.3~ms & 368.4~ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At depth 160, the 50~ms target is achievable only for blocks of
+$\leq 50$ transactions. At depth 256, even 50-transaction blocks
+exceed the budget (72.2~ms projected). This analysis identifies
+three mitigation strategies:
+
+\begin{enumerate}
+  \item \textbf{Compact SMT:} Use extension nodes (as in Jellyfish
+    Merkle Tree~\cite{aptos2024jellyfish}) to skip sparse regions,
+    reducing effective depth to $O(\log n)$ where $n$ is the number
+    of populated leaves.
+  \item \textbf{Batch parallelism:} Updates to disjoint subtrees
+    can be parallelized across goroutines, achieving near-linear
+    speedup for non-overlapping key ranges.
+  \item \textbf{Incremental root computation:} Cache intermediate
+    nodes and only recompute the path from modified leaves to root,
+    avoiding redundant hash computations for unchanged subtrees.
+\end{enumerate}
+
+All three techniques are employed by production systems: Polygon
+zkEVM uses sparse node pruning~\cite{polygon2024zkprover}, zkSync
+Era uses incremental updates~\cite{zksync2024boojum}, and Scroll
+uses a modified trie with path compression~\cite{scroll2024architecture}.
+
+\subsection{Library Selection: gnark-crypto vs. vocdoni/arbo}
+
+The experiment used gnark-crypto's Poseidon2 for maximum native
+performance. However, the library choice has significant downstream
+implications:
+
+\begin{table}[h]
+\centering
+\caption{Go SMT library comparison}
+\label{tab:libraries}
+\begin{tabular}{lll}
+\toprule
+\textbf{Criterion} & \textbf{gnark-crypto} & \textbf{vocdoni/arbo} \\
+\midrule
+Hash function   & Poseidon2        & Poseidon (original) \\
+Performance     & Higher (asm)     & Lower ($\sim$2$\times$) \\
+Circuit compat. & gnark/halo2      & circom/snarkjs \\
+Persistent DB   & None (custom)    & BadgerDB/Pebble \\
+Compact SMT     & No               & Yes (built-in) \\
+Maturity        & Production       & Production \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Critical observation:} Poseidon2 produces \textit{different
+hashes} than circomlibjs Poseidon. The two are not cross-compatible.
+The choice of hash function in the state database must align with the
+prover's circuit library:
+\begin{itemize}
+  \item If the prover uses gnark or halo2 (Rust/Go native proving),
+    gnark-crypto with Poseidon2 is optimal.
+  \item If the prover uses circom/snarkjs (as in the current Validium
+    MVP), vocdoni/arbo with original Poseidon is required for
+    hash compatibility.
+\end{itemize}
+
+This decision propagates to every downstream component and must be
+resolved at the architecture level before implementation begins.
+
+\subsection{MPT vs. SMT Trade-offs}
+
+While our results validate SMT for the Basis Network use case, the
+MPT vs.\ SMT decision involves trade-offs beyond raw performance:
+
+\textbf{SMT advantages:}
+\begin{itemize}
+  \item Fixed-depth proofs simplify ZK circuit design.
+  \item Uniform proof structure for inclusion and exclusion.
+  \item ZK-friendly hash functions (Poseidon/Poseidon2) reduce
+    in-circuit constraint count by 500$\times$ vs.\ Keccak.
+  \item Deterministic proof size enables predictable proving costs.
+\end{itemize}
+
+\textbf{MPT advantages:}
+\begin{itemize}
+  \item Native Ethereum compatibility (no state translation layer).
+  \item Dynamic depth adapts to actual key distribution.
+  \item Mature tooling in go-ethereum ecosystem.
+  \item Direct compatibility with Ethereum JSON-RPC state proofs.
+\end{itemize}
+
+For the Basis Network architecture---where each enterprise operates
+a dedicated chain and EVM compatibility is provided at the execution
+layer, not the state layer---SMT with Poseidon2 provides the optimal
+balance of ZK efficiency and performance.
+
+\subsection{Reconciliation with Production Systems}
+
+Our measurements are consistent with published production benchmarks:
+
+\begin{itemize}
+  \item \textbf{Polygon zkEVM:} Reports 2--3~ms per Merkle proof
+    verification in the zkProver~\cite{polygon2024zkprover}, compared
+    to our 0.151~ms for local verification. The difference reflects
+    Polygon's depth-256 tree and C++ prover overhead.
+  \item \textbf{Scroll:} Uses Go-based state management with Poseidon
+    hashing~\cite{scroll2024architecture}. Their zktrie achieves
+    comparable per-operation latency to our measurements.
+  \item \textbf{zkSync Era:} Uses Rust with Blake2s
+    hashing~\cite{zksync2024boojum}, optimizing for native speed
+    over ZK-friendliness (re-proving the hash in-circuit).
+\end{itemize}
+
+The 10--14$\times$ speedup over TypeScript is consistent with the
+Go-vs-JavaScript performance gap observed in production systems
+where gnark-based provers outperform snarkjs by similar
+margins~\cite{chaliasos2024analyzing}.
+
+\subsection{Implications for Downstream Pipeline}
+
+The results establish the following constraints for the Architect
+(implementation) and Prover (verification) stages:
+
+\begin{enumerate}
+  \item The state database implementation must use compact SMT with
+    path compression for production depths ($\geq 160$).
+  \item Hash function choice (Poseidon2 vs.\ original Poseidon)
+    must be decided jointly with the prover framework selection.
+  \item Persistent storage (LevelDB or Pebble) is required for
+    deployments exceeding 100,000 accounts.
+  \item Batch parallelism should be investigated for blocks
+    exceeding 100 transactions.
+  \item Memory budget of 2.9~KB per account should inform
+    hardware sizing recommendations.
+\end{enumerate}

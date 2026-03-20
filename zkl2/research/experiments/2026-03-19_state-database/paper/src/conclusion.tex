@@ -1,0 +1,77 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented a performance evaluation of a Go-native Sparse
+Merkle Tree with Poseidon2 hashing for the Basis Network enterprise
+zkEVM L2 state database. Our key findings are:
+
+\begin{enumerate}
+  \item \textbf{Go achieves 10--14$\times$ speedup over TypeScript}
+    for all SMT operations, driven by gnark-crypto's
+    assembly-optimized BN254 field arithmetic. Poseidon2 hashing at
+    4.46~$\mu$s per 2-to-1 compression enables 224,000 hashes per
+    second.
+
+  \item \textbf{Block-level state root computation meets the 50~ms
+    target} for up to 250 transactions per block on a 10,000-entry
+    tree at depth 32, with batch latency of 46.05~ms (mean) and
+    48.92~ms (P95).
+
+  \item \textbf{Depth sensitivity is the critical constraint.}
+    At production EVM depths (160--256), the 50~ms budget is only
+    achievable for 20--50 transactions per block without compact
+    SMT optimizations or batch parallelism.
+
+  \item \textbf{Memory efficiency is excellent} at 2.9~KB per
+    account (29.3~MB for 10,000 entries), with linear scaling
+    enabling in-memory operation for typical enterprise deployments.
+
+  \item \textbf{Hash function alignment is architecturally critical.}
+    Poseidon2 (gnark-crypto) and original Poseidon (circomlibjs/arbo)
+    produce incompatible hashes. The state database hash function
+    must match the prover's circuit library.
+\end{enumerate}
+
+The hypothesis is confirmed with the qualification that production
+deployments at full EVM depths require compact SMT implementations
+with path compression and batch parallelism---standard optimizations
+in production zkEVM systems (Polygon, Scroll, zkSync).
+
+\subsection{Recommendations for Implementation}
+
+Based on these findings, we recommend the following for the Basis
+Network zkEVM L2 state database:
+
+\begin{enumerate}
+  \item Implement a compact SMT (Jellyfish-style) with path
+    compression to achieve $O(\log n)$ effective depth.
+  \item Select gnark-crypto with Poseidon2 if the prover uses
+    gnark/halo2; select vocdoni/arbo with original Poseidon if
+    the prover uses circom/snarkjs.
+  \item Use LevelDB or Pebble for persistent storage with an
+    in-memory cache for hot accounts.
+  \item Implement batch parallelism for blocks exceeding 100
+    transactions, exploiting disjoint subtree independence.
+  \item Target 100--250 transactions per block as the operational
+    sweet spot balancing throughput and state root latency.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Three directions emerge from this study:
+
+\begin{itemize}
+  \item \textbf{Compact SMT benchmarking:} Quantify the speedup from
+    path compression at depths 160 and 256 with realistic EVM key
+    distributions.
+  \item \textbf{Persistent storage integration:} Measure the
+    performance impact of LevelDB/Pebble-backed storage vs.\
+    in-memory operation.
+  \item \textbf{Witness generation coupling:} Profile the end-to-end
+    latency from state update through witness extraction to ZK
+    circuit input preparation.
+\end{itemize}
+
+These investigations will be pursued in subsequent research units
+as the Basis Network zkEVM L2 pipeline progresses toward production
+deployment.

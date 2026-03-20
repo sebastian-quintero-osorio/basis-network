@@ -1,0 +1,137 @@
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{ZK-Friendly Hash Functions}
+
+The dominant hash functions in ZK systems operate natively over prime
+fields, avoiding the bitwise operations that make SHA-256 and Keccak
+prohibitively expensive in arithmetic circuits.
+
+\textbf{Poseidon}~\cite{grassi2021poseidon} introduced an
+algebraic sponge construction optimized for prime-field arithmetic,
+achieving 8$\times$ fewer constraints than Pedersen hashes in Groth16
+circuits. The design uses partial rounds (applying the S-box to only
+one state element) to reduce constraint counts while maintaining
+security against algebraic attacks over the BN254 and BLS12-381 fields.
+
+\textbf{Poseidon2}~\cite{grassi2023poseidon2} is a refined variant
+that replaces the MDS matrix with a more efficient diffusion layer,
+reducing the number of multiplications per round. Benchmarks on the
+Goldilocks field report 2--3$\times$ improvement over original
+Poseidon in both native and in-circuit performance. Polygon zkEVM's
+zkProver uses Poseidon over Goldilocks with 12 state elements and
+achieves hashing rates sufficient for processing 1,000+ transactions
+per batch~\cite{polygon2024zkprover}.
+
+\textbf{MiMC}~\cite{albrecht2016mimc} uses a simpler $x^3$ or $x^7$
+round function but requires more rounds for equivalent security,
+resulting in deeper circuits. It remains used in legacy systems but
+has been largely superseded by Poseidon in new deployments.
+
+\textbf{Rescue-Prime}~\cite{aly2020rescue} provides an alternative
+algebraic hash with stronger security analysis but higher constraint
+counts than Poseidon, limiting its adoption in production systems
+where proving time is the primary bottleneck.
+
+\subsection{Sparse Merkle Trees}
+
+A Sparse Merkle Tree (SMT) is a fixed-depth binary Merkle tree where
+most leaves are empty (containing a default zero value). The key
+property is that inclusion and non-inclusion proofs have identical
+structure: a Merkle path of length equal to the tree depth,
+regardless of the number of populated leaves~\cite{laurie2012revocation}.
+
+\textbf{Depth selection} is a critical design parameter. Ethereum's
+state trie addresses are 160 bits (20-byte addresses), while storage
+tries use 256-bit keys. Production zkEVM implementations vary:
+Polygon zkEVM uses depth 256 with key hashing~\cite{polygon2024zkprover},
+zkSync Era uses depth 256 with a custom sparse
+tree~\cite{zksync2024boojum}, and Scroll uses a modified MPT
+with Poseidon hashing at variable depth~\cite{scroll2024architecture}.
+
+\textbf{Compact variants} such as the Jellyfish Merkle
+Tree~\cite{aptos2024jellyfish} (used in Aptos/Diem) employ
+internal extension nodes to skip long runs of single-child
+paths, reducing both storage and proof size. These optimizations
+become critical at depths beyond 64 where the full sparse
+structure incurs $O(\text{depth})$ hash computations per update.
+
+\subsection{MPT vs. SMT for EVM State}
+
+The Merkle Patricia Trie (MPT) is Ethereum's native state
+structure~\cite{wood2024ethereum}, combining a radix-16 trie with
+branch, extension, and leaf nodes. Its advantages include:
+dynamic depth (paths compress naturally), Keccak compatibility with
+existing EVM infrastructure, and mature tooling (go-ethereum's
+\texttt{trie} package).
+
+However, MPT has fundamental disadvantages for ZK proving:
+(1)~variable-depth proofs require conditional circuit logic,
+increasing constraint count; (2)~Keccak-256 costs approximately
+150,000 constraints per hash in R1CS~\cite{grassi2021poseidon}
+vs.\ approximately 300 for Poseidon; and (3)~the 16-ary branching
+factor means each level requires 16 child hashes, expanding
+proof width.
+
+SMT provides fixed-depth proofs (simplifying circuit design),
+native compatibility with ZK-friendly hash functions, and
+uniform proof structure for both inclusion and exclusion.
+The trade-off is higher worst-case proof size at large depths
+and the need for compact optimizations when the key space
+is sparse relative to $2^{\text{depth}}$.
+
+Production systems have converged on SMT with ZK-friendly hashing.
+Polygon zkEVM reports 2--3~ms per Merkle proof verification in
+their zkProver~\cite{polygon2024zkprover}. Scroll's modified
+zktrie achieves similar performance with a Poseidon-based binary
+trie~\cite{scroll2024architecture}.
+
+\subsection{Go Implementations}
+
+The Go ecosystem for ZK-friendly cryptographic primitives has matured
+significantly:
+
+\textbf{gnark-crypto}~\cite{gnark2024crypto} (ConsenSys) provides
+assembly-optimized BN254 field arithmetic with Poseidon2 support.
+The \texttt{fr.Element} type uses Montgomery form with platform-specific
+assembly (AMD64, ARM64), avoiding the overhead of Go's
+\texttt{math/big.Int}. Benchmarks report Poseidon2 hashing at
+3--5~$\mu$s per 2-to-1 compression on modern hardware.
+
+\textbf{vocdoni/arbo}~\cite{vocdoni2024arbo} implements a compact
+SMT in Go with Poseidon (original, not Poseidon2) using the
+iden3/go-iden3-crypto library. It supports persistent storage via
+BadgerDB/Pebble and provides Circom-compatible hashing, making it
+directly usable with snarkjs for proof generation.
+
+\textbf{iden3/go-iden3-crypto}~\cite{iden3gocrypto} provides
+Go implementations of Poseidon, Baby JubJub, and other
+ZK primitives compatible with circomlib's JavaScript
+implementations.
+
+\subsection{Production zkEVM State Databases}
+
+Table~\ref{tab:production-systems} summarizes state database
+designs in production zkEVM systems.
+
+\begin{table}[h]
+\centering
+\caption{State database designs in production zkEVM systems}
+\label{tab:production-systems}
+\begin{tabular}{lllll}
+\toprule
+\textbf{System} & \textbf{Tree} & \textbf{Hash} & \textbf{Depth} & \textbf{Language} \\
+\midrule
+Polygon zkEVM & SMT & Poseidon & 256 & C++/Go \\
+zkSync Era & SMT & Blake2s & 256 & Rust \\
+Scroll & mod.\ MPT & Poseidon & Variable & Go \\
+Aztec & Indexed MT & Pedersen & 32 & C++/TS \\
+Linea & SMT & MiMC & 40 & Go/Java \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The convergence toward SMT with algebraic hashing validates the
+architectural direction of this work. The primary open question
+is the quantitative performance of Go-native implementations at
+enterprise scale, which this paper addresses.

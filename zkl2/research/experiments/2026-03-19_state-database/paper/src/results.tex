@@ -1,0 +1,156 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Poseidon2 Hash Performance}
+
+Table~\ref{tab:hash-perf} presents hash function benchmarks for
+the gnark-crypto Poseidon2 implementation.
+
+\begin{table}[h]
+\centering
+\caption{Poseidon2 hash performance (Go, gnark-crypto v0.20.1)}
+\label{tab:hash-perf}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Operation} & \textbf{Latency ($\mu$s)} & \textbf{Throughput} \\
+\midrule
+2-to-1 compression & 4.46 & 224,000 H/s \\
+Single-input hash & 6.19 & 161,000 H/s \\
+Chain-32 (32 sequential) & 196.15 & 5,100 chains/s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 2-to-1 compression at 4.46~$\mu$s is the critical metric, as
+each SMT level requires one such operation during insert and proof
+computation. The chain-32 result (196.15~$\mu$s for 32 hashes)
+confirms near-linear scaling with depth, averaging 6.13~$\mu$s per
+hash in the chain --- slightly higher than isolated calls due to
+data dependency stalls.
+
+\textbf{Comparison with TypeScript baseline:} The JavaScript
+Poseidon implementation in RU-V1 measured 56.19~$\mu$s per hash,
+yielding a \textbf{12.6$\times$ speedup} for the Go Poseidon2
+implementation. This is below the predicted 50--200$\times$ range
+because: (1)~Poseidon2 uses more partial rounds ($r_p = 50$) than
+Poseidon ($r_p = 57$ for width 5 at 128-bit security), and
+(2)~V8's BigInt has improved significantly in recent versions. The
+12.6$\times$ speedup is consistent with published Go-vs-JavaScript
+benchmarks for field arithmetic~\cite{gnark2024crypto}.
+
+\subsection{SMT Operation Latency}
+
+Table~\ref{tab:smt-latency} presents per-operation latency across
+tree sizes for the optimized (\texttt{fr.Element}) implementation.
+
+\begin{table}[h]
+\centering
+\caption{SMT operation latency, optimized implementation (depth 32)}
+\label{tab:smt-latency}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Entries} & \textbf{Insert ($\mu$s)} & \textbf{Prove ($\mu$s)} & \textbf{Verify ($\mu$s)} \\
+\midrule
+100    & 183.89 & 6.29  & 180.40 \\
+1,000  & 156.21 & 7.38  & 162.34 \\
+10,000 & 125.66 & 10.06 & 151.16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Insert latency \textit{decreases} with tree size (183.89~$\mu$s at
+100 entries to 125.66~$\mu$s at 10,000), which we attribute to Go's
+map implementation amortizing hash table overhead as the working set
+stabilizes. Proof generation increases modestly (6.29 to 10.06~$\mu$s)
+as larger trees have more populated sibling paths to traverse.
+Verification latency shows a similar decreasing trend, consistent
+with cache warming effects.
+
+\subsection{Go vs. TypeScript Comparison}
+
+Table~\ref{tab:go-vs-ts} presents the speedup of the optimized Go
+implementation over the TypeScript RU-V1 baseline at 10,000 entries.
+
+\begin{table}[h]
+\centering
+\caption{Go (optimized) vs. TypeScript (RU-V1) at 10,000 entries}
+\label{tab:go-vs-ts}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Operation} & \textbf{TypeScript ($\mu$s)} & \textbf{Go ($\mu$s)} & \textbf{Speedup} \\
+\midrule
+Insert     & 1,825 & 125.66 & 14.3$\times$ \\
+Prove      & 18    & 10.06  & 1.8$\times$ \\
+Verify     & 1,744 & 151.16 & 11.4$\times$ \\
+Hash (2:1) & 56.19 & 4.46   & 12.6$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The most significant speedups occur in hash-dominated operations
+(insert: 14.3$\times$, verify: 11.4$\times$), directly reflecting
+the 12.6$\times$ hash speedup compounded across tree depth. Proof
+generation shows a more modest 1.8$\times$ improvement because it
+is dominated by tree traversal (map lookups), not hashing.
+
+\subsection{Batch Update Performance}
+
+The critical hypothesis test measures state root computation latency
+for block-level batch updates on a pre-populated tree of 10,000
+entries at depth 32.
+
+\begin{table}[h]
+\centering
+\caption{Batch update latency on 10K-entry tree (depth 32)}
+\label{tab:batch}
+\begin{tabular}{rrrrr}
+\toprule
+\textbf{Batch} & \textbf{Mean (ms)} & \textbf{P95 (ms)} & \textbf{Per-update ($\mu$s)} & \textbf{$<$ 50 ms?} \\
+\midrule
+10  & 1.86  & 2.10  & 186.0 & PASS \\
+50  & 9.03  & 9.81  & 180.6 & PASS \\
+100 & 18.77 & 20.14 & 187.7 & PASS \\
+250 & 46.05 & 48.92 & 184.2 & PASS \\
+500 & 91.07 & 95.33 & 182.1 & FAIL \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Per-update cost is remarkably stable at 180--188~$\mu$s regardless
+of batch size, confirming that batch updates scale linearly with
+transaction count. The 50~ms target is met for batches up to 250
+transactions (46.05~ms mean, 48.92~ms P95). At 500 transactions,
+the mean of 91.07~ms exceeds the budget by 82\%.
+
+\subsection{Memory Usage}
+
+\begin{table}[h]
+\centering
+\caption{Memory usage by tree size (depth 32, in-memory storage)}
+\label{tab:memory}
+\begin{tabular}{rrr}
+\toprule
+\textbf{Entries} & \textbf{Memory (MB)} & \textbf{Per-entry (KB)} \\
+\midrule
+100    & 0.41  & 4.10 \\
+1,000  & 3.83  & 3.83 \\
+10,000 & 29.30 & 2.93 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Memory usage scales linearly at approximately 2.9--4.1~KB per
+entry. At 10,000 entries, total memory is 29.3~MB, well within
+the 1~GB budget. Extrapolating linearly, 100,000 entries would
+require approximately 290~MB, and 1,000,000 entries approximately
+2.9~GB, necessitating persistent storage (LevelDB or Pebble) for
+large enterprise deployments.
+
+\subsection{Full Tree Build}
+
+Building the complete 10,000-entry tree from scratch takes
+1,989~ms (approximately 2 seconds). This is a one-time cost at
+node startup and is not on the critical path during block
+production. The cost is consistent with 10,000 inserts at
+$\sim$199~$\mu$s each, confirming that tree construction is
+dominated by sequential insert operations.

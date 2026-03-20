@@ -1,0 +1,111 @@
+\section{Experimental Setup}
+\label{sec:experimental-setup}
+
+\subsection{Hardware and Software}
+
+Experiments were conducted on the following platform:
+
+\begin{table}[h]
+\centering
+\caption{Benchmarking environment}
+\label{tab:environment}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+OS & Windows 11 Pro (amd64) \\
+CPU & 20 logical cores \\
+Go version & 1.25.7 \\
+gnark-crypto & v0.20.1 \\
+BN254 field & $p = 2^{254} + \epsilon$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The gnark-crypto library~\cite{gnark2024crypto} provides
+assembly-optimized BN254 field arithmetic for AMD64 using
+Montgomery multiplication. The \texttt{fr.Element} type stores
+field elements in 4$\times$64-bit limb representation, avoiding
+heap allocations that plague \texttt{math/big.Int} implementations.
+
+\subsection{Implementation Details}
+
+\subsubsection{Poseidon2 Hash Function}
+
+The Poseidon2 permutation is configured with width 2 (2-to-1
+compression), $r_f = 6$ full rounds, and $r_p = 50$ partial rounds
+over the BN254 scalar field. The compression function computes:
+
+\begin{equation}
+H(a, b) = \text{Perm}(a, b)[1] + b
+\label{eq:poseidon2}
+\end{equation}
+
+where $\text{Perm}$ is the Poseidon2 permutation and element
+index 1 of the output is used as the digest, following the
+feed-forward construction. A global permutation instance is
+shared across all tree operations to amortize initialization cost.
+
+\subsubsection{Sparse Merkle Tree}
+
+The SMT implementation uses a map-based in-memory store keyed by
+$(level, path)$ pairs. Key features:
+
+\begin{itemize}
+  \item \textbf{Precomputed defaults:} An array of $d + 1$ default
+    hashes is computed at initialization, where
+    $\text{default}[i] = H(\text{default}[i-1], \text{default}[i-1])$.
+  \item \textbf{Leaf construction:}
+    $\text{leaf} = H(\text{key}, \text{value})$.
+  \item \textbf{Path traversal:} Bit $i$ of the key determines
+    left (0) or right (1) child at level $i$.
+  \item \textbf{Sparse optimization:} Non-existent siblings use
+    precomputed default hashes, avoiding storage of empty subtrees.
+\end{itemize}
+
+\subsubsection{Optimized Variant}
+
+The optimized implementation replaces all \texttt{big.Int} operations
+with gnark-crypto's \texttt{fr.Element}:
+
+\begin{lstlisting}[language=Go, caption=Optimized SMT node storage]
+type SMTOptimized struct {
+  depth    int
+  nodes    map[string]fr.Element
+  defaults []fr.Element
+  perm     hash.Hash
+}
+\end{lstlisting}
+
+Key differences from the baseline:
+\begin{itemize}
+  \item Field elements stored in Montgomery form (no conversion
+    overhead).
+  \item Pre-allocated permutation buffer reused across hash calls.
+  \item \texttt{InsertUint64} fast path for keys representable in
+    64 bits (depth $\leq 64$).
+  \item Proof operations (\texttt{GetProofUint64},
+    \texttt{VerifyProofUint64}) operate entirely in
+    \texttt{fr.Element} domain.
+\end{itemize}
+
+\subsection{Benchmark Protocol}
+
+Each benchmark follows this protocol:
+
+\begin{enumerate}
+  \item Initialize tree with target parameters (depth, entry count).
+  \item Execute 10 warmup iterations (results discarded).
+  \item Execute 50 measured iterations with distinct random seeds.
+  \item Record wall-clock time via \texttt{time.Now()} /
+    \texttt{time.Since()}.
+  \item Compute statistical summary: mean, standard deviation,
+    min, max, P50, P95, P99.
+  \item Force garbage collection via \texttt{runtime.GC()} before
+    memory measurements.
+  \item Export results to JSON for analysis.
+\end{enumerate}
+
+Key generation uses deterministic sequential integers to ensure
+reproducibility across runs and comparability with the TypeScript
+RU-V1 baseline, which used the same key generation strategy.
