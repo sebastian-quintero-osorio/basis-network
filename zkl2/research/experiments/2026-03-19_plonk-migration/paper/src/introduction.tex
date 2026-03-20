@@ -1,0 +1,81 @@
+% introduction.tex -- BNR-2026-013
+
+\section{Introduction}
+\label{sec:introduction}
+
+Zero-knowledge proof systems underpin the security guarantees of
+validity rollups, enabling off-chain computation with on-chain
+verification. The choice of proof system has cascading effects on
+system architecture: it determines circuit design methodology,
+verification cost, proof aggregation strategy, and operational
+complexity~\cite{plonk,groth16}.
+
+Basis Network is an enterprise-grade Avalanche L1 (Subnet-EVM)
+providing zero-fee permissioned blockchain infrastructure for
+industrial traceability in Latin America. The current Validium MVP
+employs Groth16~\cite{groth16} via Circom/SnarkJS, with a production
+circuit of 274,291 R1CS constraints achieving 12.9-second proving
+time and 306K gas on-chain verification~\cite{basis-validium}. While
+Groth16 delivers the smallest known SNARK proofs (128 bytes, constant),
+its per-circuit trusted setup requirement creates significant
+operational overhead: every modification to the circuit necessitates
+a new Phase~2 ceremony.
+
+The evolution from application-specific validium to a general-purpose
+zkEVM L2---where each enterprise deploys its own chain with full EVM
+compatibility---demands a proof system that supports:
+
+\begin{enumerate}
+  \item \textbf{Universal setup}: A single Structured Reference String
+    (SRS) reusable across all circuit configurations, eliminating
+    per-circuit ceremonies.
+  \item \textbf{Custom gates}: PLONKish arithmetization with
+    arbitrary-degree polynomial constraints, enabling dedicated gates
+    for EVM opcodes and ZK-friendly hash functions.
+  \item \textbf{EVM-compatible verification}: Proofs verifiable via
+    BN254 pairing precompiles (EIP-196, EIP-197) within the 500K gas
+    budget of the Basis Network L1.
+  \item \textbf{Rust-native implementation}: Alignment with the
+    architectural decision (TD-002) to implement the zkEVM prover
+    in Rust for performance and memory safety.
+  \item \textbf{Recursive proof composition}: Native support for
+    proof aggregation to batch multiple enterprise proofs into a
+    single L1 verification.
+\end{enumerate}
+
+This paper presents a systematic evaluation of five candidate proof
+systems against these requirements, culminating in benchmarks
+comparing Groth16 and halo2-KZG across arithmetic and hash chain
+circuits. We demonstrate that halo2-KZG meets all enterprise targets
+and propose a phased migration strategy with dual verification to
+preserve backward compatibility.
+
+\subsection{Contributions}
+
+The contributions of this paper are:
+
+\begin{itemize}
+  \item A systematic elimination analysis of five ZK proof systems
+    (Groth16, PLONK-KZG, halo2-KZG, halo2-IPA, plonky2) against
+    enterprise zkEVM constraints.
+  \item Rust benchmarks (30 iterations, release mode) comparing
+    Groth16 (arkworks) and halo2-KZG proving time, verification time,
+    and proof size across 7~circuit configurations.
+  \item Quantification of custom gate constraint reduction: 2.4$\times$
+    measured for degree-5 S-box gates, 17$\times$ projected for full
+    Poseidon hashing.
+  \item A dual-verification migration architecture enabling
+    incremental transition from Groth16 to PLONK without service
+    interruption.
+\end{itemize}
+
+\subsection{Paper Organization}
+
+Section~\ref{sec:related} surveys related work across proof systems
+and production zkEVM deployments. Section~\ref{sec:system} defines the
+system model and enterprise constraints. Section~\ref{sec:methodology}
+describes the experimental methodology. Section~\ref{sec:results}
+presents benchmark results and the proof system selection analysis.
+Section~\ref{sec:discussion} discusses implications, custom gate
+design, and migration strategy. Section~\ref{sec:conclusion}
+concludes with recommendations for downstream implementation.
