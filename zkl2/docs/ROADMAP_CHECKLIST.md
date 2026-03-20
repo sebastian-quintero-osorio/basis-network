@@ -881,7 +881,7 @@ lab/2-logicist/research-history/YYYY-MM-proof-aggregation/0-input/
 
 ### [38] Logicist | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 209K states, 6 invariants, AggregationSoundness + IndependencePreservation)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [37] complete, materials in `0-input/`.
@@ -904,7 +904,7 @@ lab/3-architect/implementation-history/prover-aggregation/
 
 ### [39] Architect | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Rust aggregator 7 files, BasisAggregator.sol, 61 tests, 34 Rust + 27 Solidity)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [38] complete, verified specs in `implementation-history/`.
