@@ -1,0 +1,28 @@
+% abstract.tex -- BNR-2026-013
+
+\begin{abstract}
+Enterprise zero-knowledge (ZK) rollups on Avalanche require proof
+systems that balance verification cost, proof size, proving time, and
+operational flexibility. The Basis Network Validium MVP currently
+employs Groth16 via Circom/SnarkJS, achieving 306K gas verification
+at 128-byte proof size but incurring per-circuit trusted setup
+ceremonies that impede iterative circuit development. This paper
+evaluates the migration from Groth16 to halo2-KZG (PLONKish
+arithmetization with KZG polynomial commitments on BN254) for the
+Basis Network zkEVM L2 prover. We conduct a systematic comparison
+across five candidate proof systems---Groth16, PLONK-KZG, halo2-KZG,
+halo2-IPA, and plonky2---eliminating candidates against enterprise
+constraints (verification gas $< 500$K, proof size $< 1$~KB, BN254
+EVM compatibility). We implement Rust benchmarks comparing Groth16
+(arkworks) and halo2-KZG (PSE fork) across arithmetic chain and hash
+chain circuits at varying scales (10--500 steps, 30 iterations each).
+Results show that halo2-KZG proving time converges to within 1.2$\times$
+of Groth16 at 500-step circuits, with custom degree-5 gates reducing
+PLONKish rows by 2.4$\times$ for hash operations and a projected
+17$\times$ for full Poseidon hashing. Proof sizes (672--800~bytes) and
+published verification gas (290--420K) satisfy all targets.
+We recommend halo2-KZG (Axiom fork) with universal Structured
+Reference String as the production proof system for Basis Network
+zkEVM L2, with a dual-verification migration strategy to preserve
+backward compatibility during the transition period.
+\end{abstract}

@@ -1,0 +1,92 @@
+% related-work.tex -- BNR-2026-013
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{ZK Proof Systems}
+
+Groth16~\cite{groth16} remains the most widely deployed SNARK for
+on-chain verification due to its minimal proof size (128 bytes
+compressed on BN254) and low verification cost ($\sim$220K
+gas~\cite{nebra-gas}). However, the per-circuit trusted setup---a
+two-phase ceremony where Phase~1 is universal but Phase~2 is
+circuit-specific---creates operational friction for evolving systems.
+
+PLONK~\cite{plonk} introduced universal and updateable SRS via
+polynomial commitment schemes, enabling a single Powers-of-Tau
+ceremony to support arbitrary circuits up to a maximum size. The
+PLONKish arithmetization generalizes R1CS by allowing custom
+polynomial gates of arbitrary degree, copy constraints via
+permutation arguments, and lookup tables via
+plookup~\cite{plookup,plonkup}.
+
+The halo2 proving system implements PLONKish arithmetization with
+configurable polynomial commitment backends. The original Zcash
+implementation uses Inner Product Argument (IPA) on Pasta
+curves~\cite{halo}, achieving transparent setup but at the cost of
+EVM incompatibility (no precompile for Pallas/Vesta curves).
+The Privacy and Scaling Explorations (PSE) fork~\cite{pse-halo2}
+adapted halo2 to KZG commitments on BN254, enabling efficient EVM
+verification via existing pairing precompiles.
+
+FFLONK~\cite{fflonk} optimizes the PLONK verifier using
+Fast-Fourier techniques, achieving $\sim$200K gas verification
+cost~\cite{orbiter-gas}---comparable to Groth16---at the expense
+of implementation complexity.
+
+Plonky2~\cite{plonky2} combines PLONK with FRI (Fast Reed-Solomon
+Interactive Oracle Proofs) over the Goldilocks field, achieving
+170~ms recursive proofs but producing 43--130~KB proofs unsuitable
+for direct on-chain verification.
+
+Nova~\cite{nova} and SuperNova~\cite{supernova} introduce
+Incrementally Verifiable Computation (IVC) via folding schemes,
+offering an alternative recursion model with $\sim$10K constraint
+verifier circuits.
+
+\subsection{ZK-Friendly Hash Functions}
+
+Poseidon~\cite{poseidon} is a purpose-designed hash function for
+ZK circuits, requiring $\sim$300 R1CS constraints per invocation
+compared to 25,000--30,000 for SHA-256. Poseidon2~\cite{poseidon2}
+further reduces round counts. The Basis Network state trie uses
+Poseidon over BN254, making custom gate optimization for this hash
+function particularly impactful.
+
+\subsection{Production zkEVM Deployments}
+
+Several production systems inform our analysis:
+
+\textbf{Scroll}~\cite{scroll} pioneered halo2-KZG for zkEVM,
+employing 2000+ custom gates for EVM opcode verification on BN254.
+Scroll has since begun migrating to OpenVM for improved modularity.
+
+\textbf{Axiom}~\cite{axiom} deploys a production halo2-KZG prover
+on Ethereum mainnet with a fixed 420K gas verification cost,
+demonstrating the viability of this approach for high-value
+applications.
+
+\textbf{Polygon zkEVM}~\cite{polygon-zkevm} uses a two-layer
+architecture: eSTARK for fast inner proving with FFLONK for
+compact L1 verification at $\sim$179K gas.
+
+\textbf{zkSync Era}~\cite{zksync} employs a custom PLONK variant
+(Boojum) with FRI over the Goldilocks field, wrapping into
+PLONK-KZG on BN254 for L1 verification.
+
+\textbf{Taiko}~\cite{taiko} uses PSE halo2-KZG directly for
+Type~1 zkEVM proving, validating the approach for full EVM
+equivalence.
+
+\subsection{Benchmark Studies}
+
+The zk-Bench framework~\cite{zkbench} provides cross-system
+benchmarking methodology. Analysis of zkEVM constraint-level
+architectures~\cite{zkevm-constraints} documents custom gate
+design patterns across production systems. Research on ZK rollup
+performance bottlenecks~\cite{zk-bottlenecks} identifies proving
+time and circuit complexity as dominant cost factors. The
+Plonkify transpiler~\cite{plonkify} demonstrates 2.35$\times$
+constraint inflation when converting R1CS to PLONKish without
+custom gates, motivating the use of native PLONKish circuit
+design.
