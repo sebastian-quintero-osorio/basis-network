@@ -1,0 +1,139 @@
+% discussion.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Discussion}
+
+\subsection{Key Findings}
+
+\textbf{Finding 1: Execution and proving must be architecturally separated.}
+All five surveyed production systems maintain a clear boundary between the
+execution engine (which processes transactions and generates traces) and
+the proving engine (which consumes traces and generates ZK proofs). This
+separation is not merely an implementation choice but an architectural
+necessity: the EVM's 256-bit arithmetic, stack-based execution model, and
+Keccak-centric hashing are fundamentally mismatched with the finite field
+arithmetic and polynomial constraints of ZK proof systems. Attempting to
+prove execution inline---without a trace intermediary---would require
+encoding the full EVM interpreter in a constraint system, an approach no
+production system has found practical.
+
+\textbf{Finding 2: Import-as-module (Strategy~A) is viable for Basis Network.}
+Optimism's op-geth demonstrates that a complete L2 execution layer can be
+built with only 34~lines of EVM modification. The \texttt{vm.StateDB}
+interface provides sufficient abstraction to integrate a custom Poseidon-based
+sparse Merkle tree without modifying Geth's internal state management.
+Scroll's experience with zktrie (and subsequent migration away from it in the
+Euclid upgrade) validates that tight coupling between the state trie and the
+EVM fork creates maintenance burden that outweighs the benefits.
+
+\textbf{Finding 3: Geth's tracing hooks API enables efficient ZK trace capture.}
+The \texttt{core/tracing.Hooks} interface, available since Geth~1.14+, provides
+event-driven callbacks for all state-modifying operations. By capturing only
+state changes (10--30\% overhead) rather than every opcode execution
+(10--50$\times$ overhead with structLogger), the ZK tracer achieves throughput
+compatible with enterprise requirements.
+
+\textbf{Finding 4: KECCAK256 is the dominant ZK constraint cost.}
+At ${\sim}$150{,}000 R1CS constraints per invocation (approximately 1{,}000$\times$
+the cost of Poseidon), KECCAK256 represents the single largest proving cost
+in any zkEVM. Two mitigation strategies are available: (a)~replacing Keccak
+with Poseidon where possible (state trie, address derivation) and (b)~using
+a preimage oracle with lookup tables for Keccak values that must be verified
+(contract storage layout, ABI encoding).
+
+\textbf{Finding 5: Scroll is moving away from custom zktrie.}
+The 2025 Euclid upgrade migrates from the Poseidon-based zktrie back to
+standard MPT combined with OpenVM (a general-purpose zkVM). This suggests
+that the approach of modifying the state trie within the Geth fork---rather
+than abstracting it behind an interface---creates unsustainable coupling.
+Our Strategy~A approach (custom StateDB behind \texttt{vm.StateDB} interface)
+avoids this pitfall.
+
+\subsection{Invariants Discovered}
+
+The following invariants are established by this investigation and must be
+preserved by downstream pipeline stages:
+
+\begin{enumerate}
+  \item \textbf{INV-EVM-1 (Execution-Proving Separation)}: The EVM executor
+    SHALL produce execution traces consumed asynchronously by the ZK prover.
+    No inline proving within the execution loop.
+
+  \item \textbf{INV-EVM-2 (Trace Completeness)}: Every state-modifying operation
+    (SLOAD, SSTORE, balance change, nonce change, LOG, CREATE) SHALL appear in
+    the execution trace. Omitting any operation invalidates the ZK witness.
+
+  \item \textbf{INV-EVM-3 (Cancun Compatibility)}: The execution engine SHALL
+    support all Cancun EVM opcodes. No Pectra-era opcodes (PragueTime must
+    remain unset) due to the Avalanche Subnet-EVM constraint.
+
+  \item \textbf{INV-EVM-4 (KECCAK256 Mitigation)}: KECCAK256 operations SHALL
+    be handled via preimage oracle with lookup tables in the ZK circuit,
+    not proved directly in R1CS or PLONKish constraints.
+
+  \item \textbf{INV-EVM-5 (Module Import Strategy)}: The execution engine
+    SHALL import go-ethereum as a Go module dependency (Strategy~A) unless
+    the \texttt{vm.StateDB} interface proves insufficient for Poseidon SMT
+    integration, in which case a minimal fork (Strategy~B) is acceptable.
+
+  \item \textbf{INV-EVM-6 (Selective Tracing)}: The ZK tracer SHALL capture
+    state-modifying operations only (not every opcode) in production mode.
+    Full opcode capture SHALL be available as a debug mode only.
+\end{enumerate}
+
+\subsection{Precompile Considerations}
+
+EVM precompiled contracts (addresses 0x01--0x0a) require special handling
+in the ZK circuit:
+
+\begin{table}[htbp]
+\caption{Precompile ZK Constraint Estimates}
+\label{tab:precompiles}
+\centering
+\begin{tabular}{llrl}
+\toprule
+\textbf{Address} & \textbf{Name} & \textbf{Constraints} & \textbf{Notes} \\
+\midrule
+0x01 & ecRecover & ${\sim}$30{,}000 & secp256k1 recovery \\
+0x02 & SHA256 & ${\sim}$30{,}000 & Boolean circuit \\
+0x03 & RIPEMD160 & ${\sim}$30{,}000 & Boolean circuit \\
+0x04 & identity & Trivial & Data copy \\
+0x05 & modexp & Variable & Dynamic cost \\
+0x06 & ecAdd (BN254) & ${\sim}$1{,}000 & Native to ZK field \\
+0x07 & ecMul (BN254) & ${\sim}$5{,}000 & Native to ZK field \\
+0x08 & ecPairing & ${\sim}$100{,}000 & Per pair element \\
+0x09 & blake2f & ${\sim}$10{,}000 & Compression function \\
+0x0a & KZG eval & ${\sim}$50{,}000 & Cancun (EIP-4844) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+BN254 operations (ecAdd, ecMul) are natively efficient because the ZK proof
+system itself operates over the BN254 curve. KECCAK256-derived precompiles
+(ecRecover via message hash, SHA256, RIPEMD160) inherit the high constraint
+cost of Boolean circuit emulation.
+
+\subsection{Limitations}
+
+\textbf{Projected benchmarks.} The throughput figures in this paper are
+projections derived from published data, not direct measurements. While
+cross-validated against multiple independent sources, actual performance
+on Basis Network hardware may differ. The Go benchmark code is provided
+for execution once the Go runtime is available.
+
+\textbf{Trace format stability.} The ZK trace format defined in this paper
+is preliminary. The downstream witness generation module (RU-L3) will
+specify the exact trace schema consumed by the Rust prover, which may
+require modifications to the tracer output structure.
+
+\textbf{StateDB interface sufficiency.} The recommendation to use Strategy~A
+(import as module) rests on the assumption that \texttt{vm.StateDB} can
+accommodate a Poseidon SMT. Scroll's zktrie experience validates this
+assumption, but edge cases (state root computation during EVM execution,
+snapshot/revert semantics) may require interface extensions. If extensions
+prove necessary, a minimal fork targeting only \texttt{core/state} becomes
+the fallback.
+
+\textbf{Single-threaded execution.} All projections assume single-threaded
+EVM execution. Parallel execution (as demonstrated by Gravity Reth at
+41{,}000~tx/s for ERC20 transfers) could improve throughput substantially
+but introduces complexity in trace ordering and state consistency.
