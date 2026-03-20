@@ -813,7 +813,7 @@ lab/3-architect/implementation-history/prover-plonk-migration/
 
 ### [35] Architect | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Rust halo2 circuit 1,593 lines, BasisVerifier.sol 657 lines, 94 tests, 36 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [34] complete, verified specs in `implementation-history/`.
