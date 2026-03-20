@@ -1,0 +1,182 @@
+% references.bib -- State Database with Poseidon2 SMT in Go (BNR-2026-010)
+% BibTeX entries for ZK-friendly hashing, Sparse Merkle Trees, and zkEVM state management
+
+% --- Hash Functions ---
+
+@article{grassi2021poseidon,
+  author    = {Grassi, Lorenzo and Khovratovich, Dmitry and Rechberger, Christian and Roy, Arnab and Schofnegger, Markus},
+  title     = {{Poseidon}: A New Hash Function for Zero-Knowledge Proof Systems},
+  journal   = {IACR ePrint 2019/458},
+  year      = {2021},
+  note      = {Presented at USENIX Security 2021. 8x fewer constraints than Pedersen in Groth16}
+}
+
+@article{grassi2023poseidon2,
+  author    = {Grassi, Lorenzo and Khovratovich, Dmitry and Schofnegger, Markus},
+  title     = {{Poseidon2}: A Faster Version of the {Poseidon} Hash Function},
+  journal   = {IACR ePrint 2023/323},
+  year      = {2023},
+  note      = {2-3x improvement over Poseidon via optimized diffusion layer}
+}
+
+@article{albrecht2016mimc,
+  author    = {Albrecht, Martin and Grassi, Lorenzo and Rechberger, Christian and Roy, Arnab and Tiessen, Tyge},
+  title     = {{MiMC}: Efficient Encryption and Cryptographic Hashing with Minimal Multiplicative Complexity},
+  journal   = {IACR ePrint 2016/492},
+  year      = {2016},
+  note      = {Presented at ASIACRYPT 2016}
+}
+
+@inproceedings{aly2020rescue,
+  author    = {Aly, Abdelrahaman and Ashur, Tomer and Ben-Sasson, Eli and Dhooghe, Siemen and Szepieniec, Alan},
+  title     = {Design of Symmetric-Key Primitives for Advanced Cryptographic Protocols},
+  booktitle = {IACR Transactions on Symmetric Cryptology},
+  year      = {2020},
+  note      = {Rescue-Prime hash function for ZK proof systems}
+}
+
+% --- Sparse Merkle Trees ---
+
+@misc{laurie2012revocation,
+  author       = {Laurie, Ben and Kasper, Emilia},
+  title        = {Revocation Transparency},
+  howpublished = {Google Research},
+  year         = {2012},
+  note         = {Early formalization of sparse Merkle tree for certificate transparency}
+}
+
+@misc{aptos2024jellyfish,
+  author       = {{Aptos Labs}},
+  title        = {Jellyfish Merkle Tree: A Space-Efficient Authenticated Data Structure},
+  howpublished = {Aptos technical documentation},
+  year         = {2024},
+  note         = {Compact SMT with extension nodes, used in Aptos/Diem}
+}
+
+% --- Production zkEVM Systems ---
+
+@misc{polygon2024zkprover,
+  author       = {{Polygon Labs}},
+  title        = {{Polygon zkEVM}: zkProver Architecture and State Management},
+  howpublished = {Polygon technical documentation},
+  year         = {2024},
+  note         = {Poseidon over Goldilocks, SMT depth 256, C++/Go implementation}
+}
+
+@misc{scroll2024architecture,
+  author       = {{Scroll Foundation}},
+  title        = {{Scroll}: zkEVM Architecture and zktrie Design},
+  howpublished = {Scroll technical documentation},
+  year         = {2024},
+  note         = {Modified MPT with Poseidon hashing, Go state management}
+}
+
+@misc{zksync2024boojum,
+  author       = {{Matter Labs}},
+  title        = {{zkSync Era}: Boojum Proof System and State Architecture},
+  howpublished = {Matter Labs technical documentation},
+  year         = {2024},
+  note         = {Blake2s hashing, SMT depth 256, Rust implementation}
+}
+
+@article{chaliasos2024analyzing,
+  author    = {Chaliasos, Stefanos and others},
+  title     = {Analyzing and Benchmarking {ZK-Rollups}},
+  journal   = {IACR ePrint 2024/889},
+  year      = {2024},
+  note      = {Presented at AFT 2024. Comprehensive zkEVM performance comparison}
+}
+
+% --- Go Libraries ---
+
+@misc{gnark2024crypto,
+  author       = {{ConsenSys}},
+  title        = {{gnark-crypto}: Cryptographic Primitives for {Go}},
+  howpublished = {GitHub: consensys/gnark-crypto},
+  year         = {2024},
+  note         = {Assembly-optimized BN254/BLS12-381, Poseidon2, Montgomery form fr.Element}
+}
+
+@misc{vocdoni2024arbo,
+  author       = {{Vocdoni}},
+  title        = {{arbo}: Compact Sparse Merkle Tree in {Go}},
+  howpublished = {GitHub: vocdoni/arbo},
+  year         = {2024},
+  note         = {Poseidon/Blake2b, BadgerDB/Pebble persistence, Circom-compatible}
+}
+
+@misc{iden3gocrypto,
+  author       = {{iden3}},
+  title        = {{go-iden3-crypto}: Cryptographic Primitives for {Go}},
+  howpublished = {GitHub: iden3/go-iden3-crypto},
+  year         = {2024},
+  note         = {Poseidon, Baby JubJub, circomlib-compatible}
+}
+
+% --- Ethereum ---
+
+@misc{wood2024ethereum,
+  author       = {Wood, Gavin},
+  title        = {Ethereum: A Secure Decentralised Generalised Transaction Ledger},
+  howpublished = {Ethereum Yellow Paper},
+  year         = {2024},
+  note         = {Merkle Patricia Trie specification, Keccak-256 state hashing}
+}
+
+% --- ZK Proof Systems ---
+
+@inproceedings{groth2016size,
+  author    = {Groth, Jens},
+  title     = {On the Size of Pairing-Based Non-interactive Arguments},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 2016},
+  year      = {2016},
+  pages     = {305--326},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {9666}
+}
+
+@misc{gabizon2019plonk,
+  author       = {Gabizon, Ariel and Williamson, Zachary and Ciobotaru, Oana},
+  title        = {{PLONK}: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge},
+  howpublished = {IACR ePrint 2019/953},
+  year         = {2019},
+  note         = {Universal trusted setup, custom gates, lookup tables}
+}
+
+% --- Basis Network Internal ---
+
+@misc{basis2026ruv1,
+  author       = {Tobar Quintero, Sebastian},
+  title        = {Sparse Merkle Tree with {Poseidon} Hash for Enterprise {ZK} Validium ({BNR-2026-001})},
+  howpublished = {Basis Network Research -- Internal Technical Report},
+  year         = {2026},
+  note         = {TypeScript baseline: insert 1.825ms, prove 0.018ms, verify 1.744ms at 10K entries}
+}
+
+@misc{basis2026ruv3,
+  author       = {Tobar Quintero, Sebastian},
+  title        = {Batch Aggregation for Enterprise {ZK} Validium ({BNR-2026-003})},
+  howpublished = {Basis Network Research -- Internal Technical Report},
+  year         = {2026},
+  note         = {Optimal batch sizes and throughput analysis for Groth16 proving}
+}
+
+% --- Data Availability ---
+
+@misc{celestia2024da,
+  author       = {{Celestia Labs}},
+  title        = {{Celestia}: Modular Data Availability},
+  howpublished = {Celestia documentation},
+  year         = {2024},
+  note         = {Erasure coding, data availability sampling, modular DA layer}
+}
+
+% --- Benchmarking Methodology ---
+
+@book{lilja2000measuring,
+  author    = {Lilja, David J.},
+  title     = {Measuring Computer Performance: A Practitioner's Guide},
+  publisher = {Cambridge University Press},
+  year      = {2000}
+}

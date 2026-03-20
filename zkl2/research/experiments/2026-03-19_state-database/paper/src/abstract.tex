@@ -1,0 +1,26 @@
+\begin{abstract}
+
+Enterprise zkEVM Layer 2 systems require state databases capable of
+computing cryptographic state roots within strict block-time budgets.
+This paper presents a Go implementation of a Sparse Merkle Tree (SMT)
+using Poseidon2 hashing over the BN254 scalar field, targeting the
+state database layer of the Basis Network enterprise zkEVM L2. We
+benchmark the implementation against a prior TypeScript baseline
+(RU-V1) and published production benchmarks from Polygon zkEVM, Scroll,
+and zkSync Era. Our results demonstrate that Go with gnark-crypto
+assembly-optimized field arithmetic achieves 10--14$\times$ speedup over
+TypeScript across all operations: Poseidon2 hashing at 4.46~$\mu$s
+(12.6$\times$ faster), SMT insertion at 125.66~$\mu$s per entry
+(14.3$\times$ faster), and proof verification at 151.16~$\mu$s
+(11.4$\times$ faster). Block-level batch state root computation
+completes in under 50~ms for up to 250 transactions on a tree of
+10,000 entries at depth 32, confirming the hypothesis for
+enterprise-scale workloads. We identify a critical depth sensitivity
+factor: production EVM state trees at depth 160--256 require compact
+SMT optimizations or batch parallelism to maintain the 50~ms target
+beyond 50 transactions per block. We provide a comprehensive analysis
+of the Go SMT library landscape (gnark-crypto vs.\ vocdoni/arbo),
+Merkle Patricia Trie vs.\ SMT trade-offs for EVM state, and
+architectural recommendations for the downstream zkEVM implementation.
+
+\end{abstract}

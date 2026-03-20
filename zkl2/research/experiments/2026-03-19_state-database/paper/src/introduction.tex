@@ -1,0 +1,83 @@
+\section{Introduction}
+\label{sec:introduction}
+
+The state database is the foundational data structure of any
+Ethereum-compatible execution layer. Every account balance, contract
+storage slot, and nonce maps to a leaf in a cryptographic accumulator
+whose root commits the entire world state into a single hash. In
+zero-knowledge rollup architectures, this structure carries an
+additional constraint: the state root computation and its associated
+Merkle proofs must be efficiently provable inside a ZK circuit, placing
+strict requirements on both the hash function and the tree topology.
+
+Ethereum's Merkle Patricia Trie (MPT) uses Keccak-256 hashing, a
+function that is catastrophically expensive inside arithmetic circuits
+over prime fields~\cite{grassi2021poseidon}. Production zkEVM systems
+have universally adopted ZK-friendly alternatives: Polygon zkEVM uses
+Poseidon over the Goldilocks field with a Sparse Merkle Tree at depth
+256~\cite{polygon2024zkprover}, Scroll employs a modified
+MPT with Poseidon~\cite{scroll2024architecture}, and zkSync Era uses
+a custom sparse Merkle tree at depth 256 with Blake2s for
+hashing~\cite{zksync2024boojum}. The choice of hash function, tree
+structure, and implementation language directly determines whether
+state root updates can meet block-time deadlines.
+
+This paper investigates the performance of a Go-native Sparse Merkle
+Tree implementation using Poseidon2~\cite{grassi2023poseidon2} over
+the BN254 scalar field, targeting the state database of the Basis
+Network enterprise zkEVM L2. The work is motivated by three
+requirements:
+
+\begin{enumerate}
+  \item \textbf{Block-time budget.} State root computation for a
+    block of transactions must complete in under 50~ms to avoid
+    becoming the bottleneck in a sub-second finality pipeline.
+  \item \textbf{ZK-circuit compatibility.} The hash function and
+    tree operations must be efficiently expressible as constraints
+    in a PLONK or Groth16 arithmetic circuit over BN254.
+  \item \textbf{Enterprise scale.} The state tree must support
+    10,000+ accounts with acceptable memory overhead and predictable
+    latency characteristics.
+\end{enumerate}
+
+This experiment builds directly on RU-V1~\cite{basis2026ruv1}, which
+established baseline performance for a TypeScript SMT with Poseidon
+(circomlibjs) in the Validium architecture. RU-V1 confirmed that SMT
+with Poseidon is viable at the application layer but identified
+JavaScript BigInt arithmetic as the primary performance bottleneck.
+The present study migrates to Go with assembly-optimized BN254 field
+arithmetic via gnark-crypto~\cite{gnark2024crypto}, quantifying the
+speedup and establishing the performance envelope for the production
+zkEVM state database.
+
+\subsection{Contributions}
+
+\begin{itemize}
+  \item A Go SMT implementation using Poseidon2 with gnark-crypto's
+    \texttt{fr.Element} API, achieving 10--14$\times$ speedup over
+    the TypeScript baseline across all operations.
+  \item Block-level batch update benchmarks demonstrating sub-50~ms
+    state root computation for up to 250 transactions on 10K-entry
+    trees at depth 32.
+  \item A depth sensitivity analysis projecting performance at
+    production EVM depths (160--256) and identifying the optimization
+    frontier for enterprise workloads.
+  \item A comparative analysis of Go SMT libraries (gnark-crypto
+    vs.\ vocdoni/arbo) with architectural recommendations for
+    downstream implementation.
+  \item Reconciliation with published benchmarks from Polygon zkEVM,
+    Scroll, and zkSync Era, validating our measurements against
+    production systems.
+\end{itemize}
+
+\subsection{Paper Organization}
+
+Section~\ref{sec:related-work} surveys ZK-friendly hash functions and
+state tree designs in production systems.
+Section~\ref{sec:system-model} defines the state database architecture
+and requirements. Section~\ref{sec:methodology} describes the
+experimental methodology and hypothesis.
+Section~\ref{sec:experimental-setup} details the benchmarking
+environment. Section~\ref{sec:results} presents performance results.
+Section~\ref{sec:discussion} analyzes implications and trade-offs.
+Section~\ref{sec:conclusion} summarizes findings and next steps.
