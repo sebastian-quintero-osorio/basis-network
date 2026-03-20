@@ -790,7 +790,7 @@ lab/2-logicist/research-history/YYYY-MM-plonk-migration/0-input/
 
 ### [34] Logicist | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 3.98M states, 9 invariants, dual-verification + rollback)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [33] complete, materials in `0-input/`.
