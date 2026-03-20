@@ -1,0 +1,28 @@
+% abstract.tex -- EVM Executor Paper (BNR-2026-008)
+
+\begin{abstract}
+Enterprise zkEVM Layer~2 architectures require an EVM execution engine capable of
+processing transactions with full opcode compatibility while simultaneously producing
+structured execution traces for downstream zero-knowledge proof generation. We
+investigate the feasibility of using a minimal fork of go-ethereum (Geth) as the
+execution engine for Basis Network, an enterprise zkEVM L2 deployed on Avalanche.
+Through systematic analysis of five production systems---Polygon CDK (cdk-erigon),
+Scroll (scroll-geth), zkSync Era (EraVM), Optimism (op-geth), and Reth---we
+establish that no production zkEVM uses the EVM directly for proving; all separate
+execution from proof generation. We map 75 Cancun EVM opcodes to their
+zero-knowledge constraint costs across both R1CS and PLONKish arithmetizations,
+identifying KECCAK256 (${\sim}150{,}000$ R1CS constraints) and SLOAD/SSTORE (255
+Poseidon operations each) as the dominant proving costs. We design a custom ZK
+tracer leveraging Geth's \texttt{core/tracing} hooks API that captures only
+state-modifying operations (storage, balance, nonce, logs), achieving a projected
+10--30\% execution overhead compared to 10--50$\times$ for full opcode tracing.
+Projected benchmarks based on published Geth throughput data indicate 5{,}000--15{,}000
+simple transfers per second and 2{,}000--8{,}000 storage writes per second without
+tracing, with selective ZK tracing reducing throughput by 10--25\% and 15--30\%
+respectively---well above the 1{,}000~tx/s hypothesis threshold. The key
+architectural recommendation is to import Geth as a Go module dependency (Strategy~A)
+rather than maintaining a full repository fork (Strategy~B), leveraging the
+\texttt{vm.StateDB} interface to integrate a custom Poseidon-based sparse Merkle tree
+without modifying Geth internals. This approach is validated by Optimism's op-geth,
+which achieves a complete L2 execution layer with only 34~lines of EVM modifications.
+\end{abstract}

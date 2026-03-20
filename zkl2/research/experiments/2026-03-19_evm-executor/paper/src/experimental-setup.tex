@@ -1,0 +1,68 @@
+% experimental-setup.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Experimental Setup}
+
+\subsection{Implementation}
+
+The experimental implementation consists of three Go source files targeting
+go-ethereum v1.14.12:
+
+\begin{itemize}
+  \item \texttt{main.go}: Benchmark suite implementing simple transfer and
+    storage write benchmarks with configurable tracing modes (no tracing,
+    selective ZK tracing, full opcode capture).
+  \item \texttt{opcode\_analysis.go}: Complete mapping of 75 Cancun EVM opcodes
+    (plus PUSH1--32, DUP1--16, SWAP1--16) to ZK constraint estimates and
+    circuit treatment recommendations.
+  \item \texttt{setup.sh}: Build and execution script with dependency analysis.
+\end{itemize}
+
+\subsection{Chain Configuration}
+
+The benchmark uses the Basis Network L2 chain configuration:
+
+\begin{lstlisting}[language=Go,caption={Basis L2 chain configuration}]
+ChainConfig{
+  ChainID:      43199,  // Basis Network
+  CancunTime:   0,      // Cancun from genesis
+  // No PragueTime (Avalanche constraint)
+}
+\end{lstlisting}
+
+The EVM target is Cancun, consistent with the Avalanche Subnet-EVM constraint
+that prevents use of Pectra-era opcodes. Gas price is set to zero, matching
+the zero-fee enterprise model.
+
+\subsection{Benchmark Configurations}
+
+Five benchmark configurations are evaluated:
+
+\begin{enumerate}
+  \item \textbf{Simple transfer, no tracing}: Baseline ETH transfers (21{,}000 gas)
+    between 100 pre-funded accounts. 10{,}000 iterations with 10\% warm-up.
+  \item \textbf{Simple transfer, ZK tracing}: Same workload with selective ZK
+    tracer (state changes only, no opcode log).
+  \item \textbf{Storage write, no tracing}: SSTORE operations via minimal
+    contract (8~bytes bytecode) with varying slot addresses.
+  \item \textbf{Storage write, ZK tracing}: Same workload with selective ZK
+    tracer capturing StorageChange events.
+  \item \textbf{Full opcode trace}: Storage write workload with complete opcode
+    capture (every instruction logged).
+\end{enumerate}
+
+\subsection{StateDB Configuration}
+
+All benchmarks use an in-memory StateDB (\texttt{rawdb.NewMemoryDatabase()})
+with 100 accounts pre-funded with 1{,}000~ETH each. This eliminates disk I/O
+as a confounding variable and represents the expected deployment configuration
+where the L2 node maintains state in memory with periodic persistence.
+
+\subsection{Metrics}
+
+\begin{itemize}
+  \item \textbf{Transactions per second} (tx/s): Primary throughput metric.
+  \item \textbf{Average transaction time} ($\mu$s/tx): Per-transaction latency.
+  \item \textbf{Trace size} (bytes/tx): Serialized JSON trace per transaction.
+  \item \textbf{Tracing overhead} (\%): Throughput reduction attributable to tracing.
+  \item \textbf{Memory usage} (MB): Heap allocation delta during benchmark.
+\end{itemize}

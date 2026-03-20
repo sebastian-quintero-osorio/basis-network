@@ -1,0 +1,199 @@
+% results.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Results}
+
+\subsection{Production zkEVM Architecture Comparison}
+
+Table~\ref{tab:zkevm-comparison} summarizes the architectural choices of five
+production systems.
+
+\begin{table*}[htbp]
+\caption{Production zkEVM and L2 Execution Engine Architectures}
+\label{tab:zkevm-comparison}
+\centering
+\begin{tabular}{llllrr}
+\toprule
+\textbf{System} & \textbf{EVM Approach} & \textbf{Fork Base} & \textbf{Type} & \textbf{Proving Time/Batch} & \textbf{L2 TPS} \\
+\midrule
+Polygon zkEVM & Custom executor (C++) + zkASM & Not Geth (custom) & Type 3 & ${\sim}$190--200 s & ${\sim}$30--50 \\
+Polygon CDK & Erigon fork (Go) & Erigon & Type 3 & ${\sim}$190--200 s & ${\sim}$30--50 \\
+Scroll & Geth fork (scroll-geth) & go-ethereum & Type 2 & Target $<$30 s (2025) & Target 10K+ \\
+zkSync Era & Custom VM (EraVM) & Not Geth & Type 4 & Variable & ${\sim}$100--300 \\
+Optimism (op-geth) & Geth fork (minimal diff) & go-ethereum & Optimistic & N/A (no ZK) & ${\sim}$2{,}000 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+A universal pattern emerges: no production zkEVM uses Geth's EVM directly for
+proof generation. All systems separate the execution layer from the proving layer.
+The execution engine (Geth, Erigon, or custom) processes transactions and generates
+traces; a separate prover (C++ executor, zkASM interpreter, or custom circuit)
+consumes these traces for proof generation.
+
+\subsection{EVM Execution Performance Benchmarks (Published)}
+
+Table~\ref{tab:evm-benchmarks} presents published execution performance data
+used as the basis for throughput projections.
+
+\begin{table}[htbp]
+\caption{Published EVM Execution Performance}
+\label{tab:evm-benchmarks}
+\centering
+\begin{tabular}{llr}
+\toprule
+\textbf{Implementation} & \textbf{Metric} & \textbf{Value} \\
+\midrule
+Reth (live sync) & Throughput & 100--200 MGas/s \\
+Reth (single-thread) & Throughput & ${\sim}$700 MGas/s \\
+Gravity Reth (ERC20) & Transfer rate & ${\sim}$41{,}000 tx/s \\
+Gravity Reth (Uniswap) & Throughput & 1.9 GGas/s \\
+revmc (JIT) & Improvement & 1.85--19$\times$ \\
+Geth (standard) & Transfers & ${\sim}$3{,}000--5{,}000 tx/s \\
+op-geth (fork diff) & Lines changed & +16{,}881 / $-$664 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Opcode ZK Constraint Mapping}
+
+Table~\ref{tab:opcode-constraints} presents the constraint costs for
+representative opcodes across each difficulty tier. The complete mapping
+covers 75 explicitly analyzed opcodes.
+
+\begin{table}[htbp]
+\caption{Representative Opcode ZK Constraint Costs}
+\label{tab:opcode-constraints}
+\centering
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Opcode} & \textbf{Category} & \textbf{R1CS} & \textbf{PLONK} & \textbf{Treatment} \\
+\midrule
+KECCAK256 & crypto & 150{,}000 & 50{,}000 & Oracle \\
+CREATE2 & system & 60{,}000 & 6{,}000 & Special \\
+CREATE & system & 50{,}000 & 5{,}000 & Special \\
+CALL & system & 20{,}000 & 2{,}000 & Special \\
+DELEGATECALL & system & 20{,}000 & 2{,}000 & Special \\
+STATICCALL & system & 15{,}000 & 1{,}500 & Special \\
+EXP & arithmetic & 5{,}000 & 500 & Special \\
+BLOCKHASH & block & 5{,}000 & 500 & Oracle \\
+SELFDESTRUCT & system & 5{,}000 & 500 & Special \\
+SLOAD & storage & 2{,}000 & 255 & Special \\
+SSTORE & storage & 2{,}000 & 255 & Special \\
+EXTCODECOPY & environment & 2{,}000 & 510 & Special \\
+ADD & arithmetic & 30 & 3 & Direct \\
+MLOAD & memory & 20 & 2 & Direct \\
+PUSH0 & stack & 1 & 1 & Direct \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Polygon zkEVM ZK Counter Costs}
+
+Table~\ref{tab:polygon-counters} presents per-opcode ZK resource consumption
+from the Polygon zkEVM ROM specification~\cite{polygon2024zkcounters}.
+
+\begin{table}[htbp]
+\caption{Polygon zkEVM Per-Opcode ZK Counter Costs}
+\label{tab:polygon-counters}
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Opcode} & \textbf{Arith} & \textbf{Binary} & \textbf{Keccak-f} & \textbf{Poseidon} \\
+\midrule
+KECCAK256 & 192 & 193 & 2 & 10 \\
+SLOAD & 0 & 0 & 0 & 255 \\
+SSTORE & 0 & -- & 0 & 255 \\
+EXTCODESIZE & 0 & 0 & 0 & 255 \\
+EXTCODECOPY & 0 & -- & 0 & 510 \\
+BLOCKHASH & 0 & 0 & 1 & 9 \\
+LOG0--LOG4 & 0 & -- & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Opcode Distribution by Difficulty and Treatment}
+
+Table~\ref{tab:opcode-distribution} shows the distribution of the 75
+explicitly analyzed opcodes across difficulty tiers and circuit treatments.
+
+\begin{table}[htbp]
+\caption{Opcode Distribution by ZK Difficulty}
+\label{tab:opcode-distribution}
+\centering
+\begin{tabular}{lrl}
+\toprule
+\textbf{Difficulty} & \textbf{Count} & \textbf{Constraints} \\
+\midrule
+Prohibitive & 1 & $>$100{,}000 \\
+Very Expensive & 7 & 10{,}000--100{,}000 \\
+Expensive & 9 & 1{,}000--10{,}000 \\
+Moderate & 17 & 100--1{,}000 \\
+Cheap & 18 & 10--100 \\
+Trivial & 23 & $<$10 \\
+\midrule
+\textbf{Total (explicit)} & \textbf{75} & \\
++ PUSH/DUP/SWAP & ${\sim}$65 & All Trivial \\
+\midrule
+\textbf{Total (all)} & ${\sim}$\textbf{140} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Opcode Distribution by Circuit Treatment}
+\label{tab:opcode-treatment}
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Treatment} & \textbf{Count} \\
+\midrule
+Direct (arithmetic circuit) & 39 \\
+Lookup (precomputed tables) & 8 \\
+Oracle (preimage oracle) & 2 \\
+Special (dedicated sub-circuit) & 16 \\
+Replace (ZK-friendly alternative) & 0 \\
+Unsupported (initial exclusion) & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Projected Throughput Benchmarks}
+
+Table~\ref{tab:throughput} presents the projected throughput for each
+benchmark configuration.
+
+\begin{table*}[htbp]
+\caption{Projected EVM Execution Throughput with ZK Tracing}
+\label{tab:throughput}
+\centering
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Benchmark} & \textbf{Tracing} & \textbf{Projected tx/s} & \textbf{Trace (B/tx)} & \textbf{Overhead (\%)} & \textbf{Confidence} \\
+\midrule
+Simple transfer & None & 5{,}000--15{,}000 & -- & -- & High \\
+Simple transfer & Selective ZK & 4{,}000--12{,}000 & 200--500 & 10--25 & Medium \\
+Storage write & None & 2{,}000--8{,}000 & -- & -- & Medium \\
+Storage write & Selective ZK & 1{,}500--6{,}000 & 500--1{,}500 & 15--30 & Medium \\
+Storage write & Full opcode & 500--3{,}000 & 2{,}000--10{,}000 & 40--70 & Low \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+All configurations with selective ZK tracing exceed the 1{,}000~tx/s hypothesis
+threshold. Even the lower bound of storage writes with ZK tracing
+(1{,}500~tx/s) provides 50\% headroom above the target.
+
+\subsection{Geth Module Analysis}
+
+The required modules (Table~\ref{tab:geth-modules}) total approximately
+24{,}500~lines of code, representing ${\sim}$25\% of Geth's core Go code and
+${\sim}$5\% of the total codebase (${\sim}$500{,}000+~LOC). The excluded modules
+(Table~\ref{tab:geth-excluded}) account for ${\sim}$71{,}000~LOC of unnecessary
+networking, consensus, mining, and CLI infrastructure.
+
+The op-geth reference point is instructive: Optimism achieved a complete L2
+execution layer with 16{,}881~lines added and 664~deleted, of which only
+34~lines touch the EVM itself (precompile and caller overrides). The Basis
+Network use case (execution + tracing, no L2 protocol features such as deposit
+transactions or L1 cost computation) is expected to require a smaller
+modification surface.
