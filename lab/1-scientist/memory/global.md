@@ -19,6 +19,8 @@
 | 2026-03-19 | e2e-pipeline (RU-L6) | zkl2 | CONFIRMED | 14s@100tx E2E, prove=71.3% bottleneck, 100% retry reliability |
 | 2026-03-19 | production-dac (RU-L8) | zkl2 | CONFIRMED | 4.5ms@500KB attest, 1.40x storage, <1ms recovery, 7.5 nines@p=0.999 |
 | 2026-03-19 | plonk-migration (RU-L9) | zkl2 | CONFIRMED | halo2-KZG selected, 672-800B proof, 290-420K gas, 1.2x prove@500step |
+| 2026-03-19 | proof-aggregation (RU-L10) | zkl2 | CONFIRMED | ProtoGalaxy+Groth16 decider, 15.3x gas@N=8, 220K total, 11.75s agg |
+| 2026-03-20 | hub-and-spoke (RU-L11) | zkl2 | CONFIRMED | 243K gas aggregated, 10.5-16s latency, 20.5 msg/s, 100% atomic, 1-bit leak |
 
 ## Key Patterns
 
@@ -122,6 +124,19 @@
 - Dense interactions (interactions > enterprises) break Sequential; always use Batched
 - Groth16 sufficient for MVP; PLONK + StarkPack for heterogeneous future aggregation
 
+## Hub-and-Spoke Cross-Enterprise Patterns (zkL2, RU-L11)
+
+- Hub-and-spoke: O(N) connections, fault isolation per spoke, L1 hub is decentralized (not SPoF)
+- Aggregation is REQUIRED at N>=8: Sequential 813K/cross-ref, batched 860K -- both exceed 500K target
+- ProtoGalaxy aggregation: 243K gas constant regardless of N enterprises (includes Groth16 decider)
+- Direct latency: 10.5s (proof gen + L1 finality + response proof + settlement)
+- Aggregated latency: 16s at N=8, 25s at N=32, 31.75s at N=50 (approaches 30s limit)
+- Throughput: 20.5 msg/s (aggregated), 31.0 msg/s (batched), 9.5 msg/s (sequential)
+- Atomic settlement: two-phase with timeout (100 blocks = 200s default)
+- Privacy: 1 bit/interaction (existence), Poseidon 128-bit preimage resistance
+- Rayls/Enygma is closest production analogue (commit chain + privacy ledgers)
+- Scaling limit: N <= 50 enterprises at 30s latency target with aggregation
+
 ## EVM Execution Patterns (zkL2)
 
 - Import Geth as Go module (Strategy A) over forking (Strategy B) -- op-geth changed only 34 EVM lines
@@ -205,3 +220,5 @@
 12. `zkl2/research/experiments/2026-03-19_e2e-pipeline/` -- RU-L6, Stage 2 complete, CONFIRMED
 13. `zkl2/research/experiments/2026-03-19_production-dac/` -- RU-L8, Stage 1 complete, CONFIRMED
 14. `zkl2/research/experiments/2026-03-19_plonk-migration/` -- RU-L9, Stage 1 complete, CONFIRMED
+15. `zkl2/research/experiments/2026-03-19_proof-aggregation/` -- RU-L10, Stage 1 complete, CONFIRMED
+16. `zkl2/research/experiments/2026-03-19_hub-and-spoke/` -- RU-L11, Stage 1 complete, CONFIRMED

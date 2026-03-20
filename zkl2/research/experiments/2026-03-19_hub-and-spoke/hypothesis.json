@@ -1,0 +1,46 @@
+{
+  "name": "hub-and-spoke",
+  "target": "zkl2",
+  "title": "Cross-Enterprise Hub-and-Spoke Communication with ZK Privacy",
+  "hypothesis": "A hub-and-spoke model using the Basis Network L1 as hub can verify cross-enterprise interactions with recursive proofs, maintaining complete data isolation between enterprises while enabling verifiable inter-enterprise transactions with cross-enterprise message latency < 30 seconds and verification gas < 500K on L1.",
+  "null_hypothesis": "The hub-and-spoke model cannot maintain complete data isolation while enabling verifiable cross-enterprise interactions, either because ZK proof overhead makes cross-enterprise latency impractical (> 5 minutes), or because the privacy model leaks enterprise-specific information through proof metadata or message patterns.",
+  "domain": "enterprise-privacy",
+  "independent_variables": [
+    "num_enterprises",
+    "message_topology",
+    "proof_aggregation_strategy",
+    "privacy_model",
+    "cross_enterprise_tx_type",
+    "batch_size"
+  ],
+  "dependent_variables": [
+    "cross_enterprise_latency_ms",
+    "l1_verification_gas",
+    "privacy_leakage_bits",
+    "cross_enterprise_throughput_msg_per_sec",
+    "proof_size_bytes",
+    "hub_contract_gas_per_message",
+    "atomic_settlement_success_rate"
+  ],
+  "success_criteria": {
+    "cross_enterprise_latency": "< 30 seconds end-to-end for verified cross-enterprise message",
+    "l1_verification_gas": "< 500K gas for cross-enterprise proof verification on L1",
+    "privacy_guarantee": "Zero information leakage about enterprise-specific state (transaction values, balances, business logic) to other enterprises or the hub",
+    "atomic_settlement": "Cross-enterprise transactions either complete fully or revert fully with 100% atomicity",
+    "throughput": "> 10 cross-enterprise messages per second sustained"
+  },
+  "baseline": {
+    "individual_proof_gas": "220-420K (from RU-L10)",
+    "bridge_deposit_latency_s": 4.6,
+    "bridge_withdrawal_latency_s": 21.1,
+    "avalanche_finality_s": 2,
+    "aggregation_time_n8_s": 11.75
+  },
+  "created": "2026-03-19",
+  "roadmap_item": "RU-L11",
+  "checklist_item": 41,
+  "depends_on": [
+    "RU-L10 (Proof Aggregation -- ProtoGalaxy folding + Groth16 decider)",
+    "RU-L7 (Bridge -- lock-mint pattern, escape hatch)"
+  ]
+}
