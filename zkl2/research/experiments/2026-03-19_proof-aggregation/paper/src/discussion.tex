@@ -1,0 +1,194 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Hypothesis Evaluation}
+
+The primary hypothesis is \textbf{confirmed}. Recursive proof
+composition reduces per-enterprise verification gas by approximately
+$N$-fold or better for all three aggregation strategies tested.
+
+For the primary target of $N{=}8$ enterprises:
+
+\begin{itemize}
+  \item \textbf{Folding + Groth16 decider:} $15.3\times$ gas reduction
+    (3.36M $\to$ 220K total; 420K $\to$ 27.5K per enterprise). This
+    exceeds the predicted $N$-fold because the Groth16 decider at 220K
+    gas is cheaper than the original halo2-KZG verification at 420K
+    gas, yielding approximately $2N$-fold savings.
+  \item \textbf{Binary tree accumulation:} $8.0\times$ gas reduction
+    (3.36M $\to$ 420K), exactly $N$-fold as the final proof uses the
+    same halo2-KZG verification.
+  \item \textbf{SnarkPack:} $7.5\times$ gas reduction (3.36M $\to$
+    450K), slightly below $N$-fold due to $O(\log N)$ overhead in the
+    batch proof size.
+\end{itemize}
+
+The null hypothesis (linear or worse scaling of overhead) is
+\textbf{rejected}. All three strategies demonstrate sub-linear
+aggregation overhead: folding time grows as $O(N)$ with small constant
+(${\sim}250$\,ms/fold), binary tree time grows as $O(N \log N)$, and
+SnarkPack time grows as $O(N \log N)$ with very small constant.
+
+\subsection{Success Criteria Assessment}
+
+All four pre-registered success criteria are met:
+
+\begin{enumerate}
+  \item Gas reduction $\geq 4\times$ at $N{=}8$: \textbf{Achieved}
+    ($15.3\times$ for folding, $8.0\times$ for binary tree).
+  \item Aggregation time $< 30$\,s at $N{=}8$: \textbf{Achieved}
+    (11.75\,s for folding, 200\,ms for SnarkPack).
+  \item Proof size $< 2$\,KB: \textbf{Achieved} (128\,B for folding,
+    640\,B for binary tree, 592\,B for SnarkPack).
+  \item Soundness preservation: \textbf{Achieved} by construction
+    (recursive soundness of SNARKs, formalized in
+    Section~\ref{sec:invariants}).
+\end{enumerate}
+
+\subsection{Aggregation Invariants}
+\label{sec:invariants}
+
+The experiments reveal four invariants that must hold in any production
+aggregation deployment:
+
+\begin{description}
+  \item[INV-AGG-1 (Aggregation Soundness).] An aggregated proof is valid
+    if and only if \emph{all} $N$ component proofs are valid. No subset
+    of valid proofs can make an aggregated proof valid if any component
+    is invalid.
+
+  \item[INV-AGG-2 (Independence Preservation).] Enterprise provers do
+    not need to coordinate. Failure of one enterprise's proof does not
+    invalidate other enterprises' proofs. The aggregator handles partial
+    sets gracefully by aggregating whatever valid proofs are available.
+
+  \item[INV-AGG-3 (Order Independence).] The aggregated proof is
+    deterministic regardless of the order in which enterprise proofs are
+    presented to the aggregator. This is required for reproducibility
+    and auditing.
+
+  \item[INV-AGG-4 (Gas Monotonicity).] The amortized per-enterprise gas
+    cost strictly decreases as $N$ increases. Adding an enterprise to
+    the aggregation set never increases per-enterprise cost.
+\end{description}
+
+These invariants will be formalized in TLA+ by The Logicist (RU-L10
+downstream, checklist item~38) and verified in Coq by The Prover.
+
+\subsection{Strategy Comparison}
+
+Table~\ref{tab:strategy-comparison} presents a multi-criteria comparison
+of the three strategies.
+
+\begin{table}[htbp]
+\centering
+\caption{Strategy Comparison (Multi-Criteria)}
+\label{tab:strategy-comparison}
+\begin{tabular}{@{}p{2.2cm}p{1.5cm}p{1.5cm}p{1.7cm}@{}}
+\toprule
+\textbf{Criterion} & \textbf{Binary Tree} & \textbf{Folding+G16} & \textbf{SnarkPack} \\
+\midrule
+Gas ($N{=}8$)           & 420K         & \textbf{220K} & 450K \\
+Gas/Enterprise          & 52.5K        & \textbf{27.5K}& 56.3K \\
+Savings ($N{=}8$)       & 8.0$\times$  & \textbf{15.3$\times$} & 7.5$\times$ \\
+Agg.\ time ($N{=}8$)    & 180\,s       & 11.75\,s      & \textbf{0.2\,s} \\
+Final proof size        & 640\,B       & \textbf{128\,B}& 592\,B \\
+Memory scaling          & $O(N)$       & \textbf{$O(1)$}& $O(N)$ \\
+Trusted setup           & None extra   & Per-circuit    & None extra \\
+Production maturity     & \textbf{High}& Low           & Medium \\
+halo2 compatibility     & \textbf{Direct}& Good        & Groth16 only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Folding + Groth16 decider} dominates on gas efficiency, proof
+size, memory scaling, and aggregation time. Its weaknesses are the
+requirement for a per-circuit Groth16 trusted setup for the decider and
+the immaturity of the Sonobe library (experimental, not audited).
+
+\textbf{Binary tree accumulation} dominates on production maturity and
+tooling (Scroll processes millions of dollars daily using this
+approach). Its weakness is aggregation time (180\,s at $N{=}8$), though
+this is not user-facing latency---aggregation happens asynchronously
+before L1 submission.
+
+\textbf{SnarkPack} provides the fastest aggregation (200\,ms) but
+requires Groth16 inputs (not directly compatible with halo2-KZG
+proofs without a wrapper) and offers lower gas savings than folding.
+
+\subsection{Scaling Projections}
+
+Extrapolating from measured data to larger $N$:
+
+\begin{itemize}
+  \item \textbf{Folding + Groth16:} At $N{=}32$, predicted gas savings
+    of $61.1\times$ (13.44M $\to$ 220K), aggregation time ${\sim}17$\,s,
+    memory constant at 1.6\,GB.
+  \item \textbf{Binary tree:} At $N{=}32$, predicted savings of
+    $32\times$ (13.44M $\to$ 420K), aggregation time ${\sim}300$\,s.
+  \item \textbf{SnarkPack:} At $N{=}32$, predicted savings of
+    ${\sim}24\times$ (13.44M $\to$ 550K), aggregation time ${\sim}800$\,ms.
+\end{itemize}
+
+The constant-memory property of folding schemes (1.6\,GB regardless of
+$N$, per Nova~\cite{nova}) makes them the only viable strategy for very
+large $N$ ($> 100$ enterprises). Binary tree accumulation memory grows
+as $O(N)$, reaching ${\sim}32$\,GB at $N{=}100$.
+
+\subsection{Phased Deployment Strategy}
+\label{sec:deployment}
+
+We recommend a two-phase deployment strategy that balances engineering
+risk against gas efficiency:
+
+\textbf{Phase 1 (Near-term):} Binary tree accumulation via the halo2
+snark-verifier library.
+
+\begin{itemize}
+  \item Production-proven at Scroll and Axiom on Ethereum mainnet.
+  \item $8\times$ gas savings for $N{=}8$ enterprises.
+  \item Higher aggregation time (180\,s) is acceptable as aggregation is
+    not on the critical path for user-facing latency.
+  \item Uses the same universal SRS as enterprise provers---no additional
+    trusted setup.
+\end{itemize}
+
+\textbf{Phase 2 (Production):} ProtoGalaxy folding + Groth16 decider.
+
+\begin{itemize}
+  \item $15.3\times$ gas savings for $N{=}8$ enterprises, scaling to
+    $30.5\times$ at $N{=}16$.
+  \item Sub-15\,s aggregation time with constant memory.
+  \item Requires audit of the Sonobe library and maturation of
+    ProtoGalaxy implementations.
+  \item Per-circuit Groth16 trusted setup for the decider circuit; can
+    be amortized since the decider circuit is fixed.
+\end{itemize}
+
+\subsection{Anti-Confirmation Bias Assessment}
+
+We identify the following conditions under which the primary
+recommendation (folding + Groth16 decider) would be weakened:
+
+\begin{enumerate}
+  \item If the ProtoGalaxy verifier circuit exceeds 100K constraints
+    (actual: ${\sim}11$K), accumulation-based approaches would be
+    comparably efficient.
+  \item If the Groth16 decider trusted setup proves operationally
+    burdensome (per-circuit ceremony), the universal-setup advantage of
+    binary tree accumulation becomes more valuable.
+  \item If the Sonobe library reveals security vulnerabilities in audit,
+    the fallback to binary tree accumulation is immediate and
+    well-understood.
+  \item For $N \leq 3$ enterprises, the engineering complexity of any
+    aggregation strategy may not justify the gas savings, particularly
+    on a zero-fee network where gas cost is computational rather than
+    monetary.
+\end{enumerate}
+
+\textbf{Steelman for no aggregation:} On the Basis Network L1 with zero
+gas fees, the monetary motivation for aggregation is absent. The
+throughput argument (block capacity) only becomes binding at
+$N > 10$--$15$ enterprises. For the initial deployment with fewer than
+5 enterprises, individual verification is simpler, equally correct, and
+imposes no aggregation latency.

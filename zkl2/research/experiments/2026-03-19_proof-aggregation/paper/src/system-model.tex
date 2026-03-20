@@ -1,0 +1,100 @@
+\section{System Model}
+\label{sec:system-model}
+
+\subsection{Enterprise Chain Architecture}
+
+The Basis Network zkEVM L2 follows a hub-and-spoke topology (established
+in RU-L7~\cite{rul7-hub-spoke}) where each enterprise operates an
+independent chain. The settlement layer (Basis Network L1, an Avalanche
+Subnet-EVM instance) serves as the hub, and each enterprise chain is a
+spoke. Each spoke:
+
+\begin{enumerate}
+  \item Sequences transactions from its enterprise's applications
+    (e.g., PLASMA industrial maintenance, Trace ERP).
+  \item Maintains an independent Sparse Merkle Tree of enterprise state
+    (depth 32, Poseidon hash, as established in RU-L1).
+  \item Produces halo2-KZG validity proofs attesting to correct state
+    transitions (proof system selected in RU-L9~\cite{rul9-plonk}).
+  \item Submits proofs and state roots to the L1 for verification.
+\end{enumerate}
+
+\subsection{Verification Cost Model}
+
+Let $G(s)$ denote the L1 verification gas cost for proof system $s$.
+Based on published benchmarks and our prior measurements:
+
+\begin{align}
+  G(\text{halo2-KZG}) &= 420\text{K gas} \label{eq:halo2-gas} \\
+  G(\text{Groth16}) &= 207\text{K} + 7.16\text{K} \cdot l \label{eq:groth16-gas} \\
+  G(\text{PLONK-KZG}) &= 290\text{K gas} \label{eq:plonk-gas}
+\end{align}
+
+\noindent where $l$ is the number of public inputs. For $N$ enterprises
+submitting individually, total verification gas is:
+
+\begin{equation}
+  G_{\text{total}} = N \cdot G(s) \label{eq:total-gas}
+\end{equation}
+
+\noindent At $N{=}8$ with halo2-KZG: $G_{\text{total}} = 8 \times 420\text{K} = 3.36\text{M gas}$.
+
+\subsection{Aggregation Model}
+
+An aggregation strategy $\mathcal{A}$ takes $N$ proofs
+$\{\pi_1, \ldots, \pi_N\}$ and produces a single aggregated proof
+$\pi_{\text{agg}}$ verifiable on L1. We define:
+
+\begin{itemize}
+  \item $G_{\mathcal{A}}$: L1 gas cost to verify $\pi_{\text{agg}}$
+    (ideally independent of $N$).
+  \item $T_{\mathcal{A}}(N)$: Wall-clock time to produce
+    $\pi_{\text{agg}}$ from $N$ inner proofs.
+  \item $|\pi_{\mathcal{A}}|$: Size of $\pi_{\text{agg}}$ in bytes.
+  \item $M_{\mathcal{A}}(N)$: Peak memory during aggregation.
+\end{itemize}
+
+The gas savings factor is:
+
+\begin{equation}
+  S(N) = \frac{N \cdot G(s)}{G_{\mathcal{A}}} \label{eq:savings}
+\end{equation}
+
+\noindent and the amortized per-enterprise gas cost is:
+
+\begin{equation}
+  G_{\text{amort}}(N) = \frac{G_{\mathcal{A}}}{N} \label{eq:amort}
+\end{equation}
+
+\subsection{Threat Model}
+
+The aggregation layer introduces a new trust assumption: the aggregator
+must faithfully include all valid enterprise proofs. We assume:
+
+\begin{itemize}
+  \item \textbf{Honest aggregator}: The aggregator does not forge proofs
+    or selectively exclude valid proofs. Censorship resistance is
+    addressed by forced inclusion mechanisms (out of scope for this
+    paper).
+  \item \textbf{Adversarial enterprises}: Individual enterprises may
+    submit invalid proofs. The aggregation must reject these without
+    invalidating other enterprises' proofs.
+  \item \textbf{Trusted L1 verifier}: The L1 smart contract correctly
+    implements the verification algorithm. The Groth16 verifier is
+    audited; the halo2-KZG verifier follows production patterns from
+    Axiom and Scroll.
+\end{itemize}
+
+\subsection{Success Criteria}
+
+Based on the system model and operational requirements, we define the
+following success criteria:
+
+\begin{enumerate}
+  \item Gas reduction $\geq 4\times$ for $N{=}8$ enterprises compared
+    to individual verification.
+  \item Aggregation time $< 30$\,s for $N{=}8$.
+  \item Final proof size $< 2$\,KB regardless of $N$.
+  \item Soundness: the aggregated proof is valid if and only if all
+    component proofs are valid.
+\end{enumerate}
