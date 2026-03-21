@@ -442,7 +442,7 @@ Tests include unit tests, integration tests, adversarial scenarios, and model-ch
 
 **Base Computing S.A.S.** -- Colombian deep tech startup, founded September 2024.
 
-Basis Network began as a [university thesis project](https://demos.basecomputing.com.co/) at Pontificia Universidad Javeriana (Cali, 2023) -- a blockchain-based voting system that required its own blockchain infrastructure. The first prototype was built in Python. During that research, the founder identified fundamental gaps in enterprise blockchain: no privacy, no interoperability, no affordability for Latin American markets. He left a CTO position to found Base Computing and solve these problems full-time.
+The founder is a serial entrepreneur in crypto since 2017 who left a CTO position to build Base Computing full-time. Basis Network began as his [university thesis project](https://demos.basecomputing.com.co/) at Pontificia Universidad Javeriana (Cali, 2023) -- a blockchain-based voting system that required its own blockchain infrastructure. The first prototype was built in Python. During that research, he identified fundamental gaps in enterprise blockchain: no privacy, no interoperability, no affordability for Latin American markets. Base Computing was founded to solve these problems.
 
 Today, the company operates two revenue-generating SaaS products (PLASMA and Trace), serves enterprise clients in production, and is building Basis Network as the enterprise blockchain infrastructure layer for LATAM on Avalanche.
 
