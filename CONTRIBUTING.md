@@ -37,4 +37,4 @@ Scopes: `l1`, `l1/contracts`, `validium`, `validium/node`, `validium/circuits`, 
 
 ## Questions
 
-Contact social@basecomputing.com.co for inquiries.
+Contact [sebastian@basisnetwork.co](mailto:sebastian@basisnetwork.co) for inquiries.

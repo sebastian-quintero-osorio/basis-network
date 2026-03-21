@@ -24,19 +24,21 @@ This document records the key technical decisions made for Basis Network and the
 
 ---
 
-## TD-002: Zero-Fee Gas Model
+## TD-002: Near-Zero-Fee Gas Model
 
-**Decision:** Configure `minBaseFee: 0` with `minBlockGasCost: 0` and `maxBlockGasCost: 0`.
+**Decision:** Configure `minBaseFee: 1` (1 wei) with `minBlockGasCost: 0` and `maxBlockGasCost: 1000000`.
 
 **Alternatives considered:**
-- Minimal fee (1 wei): technically simpler, prevents certain edge cases.
+- True zero fee (`minBaseFee: 0`): Subnet-EVM v0.8.0 rejects `baseFee == 0` during `BuildBlock`, causing the chain to stall. This was discovered during production deployment and required recreating the L1.
 - Sponsored transactions (ERC-4337): adds complexity, requires paymaster infrastructure.
 
 **Rationale:**
-- Enterprise clients expect predictable costs. Per-transaction fees create friction.
+- Enterprise clients expect predictable costs. A 1-wei base fee is effectively free (~$0.000000000000000001 per transaction) while avoiding the Subnet-EVM edge case.
 - Revenue comes from SaaS subscriptions, not gas. The blockchain is infrastructure.
-- Zero-fee removes the need for enterprises to hold Lithos (the native token) for gas.
-- Allowlist controls prevent spam (only authorized addresses can transact), mitigating the abuse vector that zero-fee normally introduces.
+- The 1-wei minimum prevents the dynamic baseFee from decaying to 0, which the fee calculation logic cannot handle.
+- Allowlist controls prevent spam (only authorized addresses can transact), mitigating the abuse vector that near-zero-fee normally introduces.
+
+**Lesson learned:** Never set `minBaseFee` to 0 on Subnet-EVM. The chain will produce blocks initially but stall once the dynamic fee algorithm attempts to compute with a zero base fee.
 
 ---
 
