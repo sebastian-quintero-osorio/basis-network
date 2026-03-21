@@ -5,7 +5,9 @@ go 1.24
 require (
 	github.com/consensys/gnark-crypto v0.17.0
 	github.com/ethereum/go-ethereum v1.15.11
+	github.com/holiman/uint256 v1.3.2
 	github.com/klauspost/reedsolomon v1.12.4
+	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
 require (
@@ -23,7 +25,6 @@ require (
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
