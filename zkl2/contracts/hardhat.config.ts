@@ -19,6 +19,12 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 31337,
     },
+    basis: {
+      url: process.env.L1_RPC_URL || "https://rpc.basisnetwork.com.co",
+      chainId: 43199,
+      accounts: process.env.DEPLOYER_KEY ? [process.env.DEPLOYER_KEY] : [],
+      gasPrice: 1, // Near-zero fee (minBaseFee: 1 wei)
+    },
   },
 };
 
