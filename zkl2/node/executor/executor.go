@@ -8,9 +8,11 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
 )
 
 // Config holds the configuration for the EVM executor.
@@ -74,7 +76,7 @@ func New(cfg Config, logger *slog.Logger) *Executor {
 // [Spec: Determinism invariant -- same tx + same state => same result + same trace]
 func (e *Executor) ExecuteTransaction(
 	ctx context.Context,
-	stateDB vm.StateDB,
+	stateDB *state.StateDB,
 	block BlockInfo,
 	msg Message,
 ) (*TransactionResult, error) {
@@ -97,8 +99,12 @@ func (e *Executor) ExecuteTransaction(
 		"gas", msg.Gas,
 	)
 
-	// --- Create tracer ---
+	// --- Create tracer and wrap StateDB with hooks ---
+	// go-ethereum v1.15+ requires wrapping the StateDB with hooks via NewHookedState
+	// to receive OnBalanceChange, OnStorageChange, OnNonceChange callbacks.
 	tracer := NewZKTracer(stateDB, e.config.CaptureOps)
+	hooks := tracer.Hooks()
+	hookedDB := state.NewHookedState(stateDB, hooks)
 
 	// --- Build block context ---
 	// [Spec: Not directly modeled -- EVM infrastructure]
@@ -122,41 +128,41 @@ func (e *Executor) ExecuteTransaction(
 		blockCtx.BaseFee = new(big.Int) // Zero-fee L2
 	}
 
-	// --- Build transaction context ---
-	txCtx := vm.TxContext{
+	// --- Create EVM instance ---
+	// Use hookedDB so state-change callbacks (OnBalanceChange, OnStorageChange, etc.)
+	// are fired to our ZKTracer during execution.
+	vmConfig := vm.Config{
+		Tracer: hooks,
+	}
+	evm := vm.NewEVM(blockCtx, hookedDB, e.config.ChainConfig, vmConfig)
+
+	// --- Set transaction context ---
+	evm.SetTxContext(vm.TxContext{
 		Origin:   msg.From,
 		GasPrice: msg.GasPrice,
-	}
-
-	// --- Create EVM instance ---
-	vmConfig := vm.Config{
-		Tracer: tracer.Hooks(),
-	}
-	evm := vm.NewEVM(blockCtx, txCtx, stateDB, e.config.ChainConfig, vmConfig)
+	})
 
 	// --- Execute ---
 	// [Spec: SubmitTx transfers msg.value before opcode execution]
 	// go-ethereum's EVM.Call handles value transfer internally via CanTransfer/Transfer.
-	//
-	// Note on type compatibility: The EVM.Call/Create value parameter type depends on
-	// the go-ethereum version. If v1.14.x requires *uint256.Int instead of *big.Int,
-	// convert via: uint256.MustFromBig(msg.Value). The scientist's experiment validated
-	// compilation with *big.Int against go-ethereum v1.14.12.
+	// go-ethereum v1.15+ uses *uint256.Int for value parameters and common.Address for callers.
 	var (
 		ret     []byte
 		gasLeft uint64
 		execErr error
 	)
 
+	value256 := uint256.MustFromBig(msg.Value)
+
 	if msg.To == nil {
 		// Contract creation
 		// [Spec: Not modeled in current TLA+ -- future extension]
 		var contractAddr common.Address
 		ret, contractAddr, gasLeft, execErr = evm.Create(
-			vm.AccountRef(msg.From),
+			msg.From,
 			msg.Data,
 			msg.Gas,
-			msg.Value,
+			value256,
 		)
 		e.logger.DebugContext(ctx, "contract created",
 			"address", contractAddr.Hex(),
@@ -166,11 +172,11 @@ func (e *Executor) ExecuteTransaction(
 		// Regular call or value transfer
 		// [Spec: SubmitTx + opcode execution + FinishTx]
 		ret, gasLeft, execErr = evm.Call(
-			vm.AccountRef(msg.From),
+			msg.From,
 			*msg.To,
 			msg.Data,
 			msg.Gas,
-			msg.Value,
+			value256,
 		)
 	}
 
@@ -212,25 +218,18 @@ func (e *Executor) ExecuteTransaction(
 // canTransfer checks whether the sender has sufficient balance for the transfer.
 // This is the CanTransfer function wired into the EVM's BlockContext.
 //
-// Note: If go-ethereum v1.14.x uses *uint256.Int for the amount parameter,
-// adjust the signature to: func(vm.StateDB, common.Address, *uint256.Int) bool
-// and use db.GetBalance(addr).Cmp(amount) >= 0 with uint256 comparison.
-//
 // [Spec: SubmitTx guard -- accountState[from].balance >= value]
 // [Source: 0-input/code/main.go, lines 249-251 -- CanTransfer]
-func canTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
+func canTransfer(db vm.StateDB, addr common.Address, amount *uint256.Int) bool {
 	return db.GetBalance(addr).Cmp(amount) >= 0
 }
 
 // transfer moves value from sender to recipient.
 // This is the Transfer function wired into the EVM's BlockContext.
 //
-// Note: If go-ethereum v1.14.x uses *uint256.Int for the amount parameter,
-// adjust the signature to: func(vm.StateDB, common.Address, common.Address, *uint256.Int)
-//
 // [Spec: SubmitTx -- accountState[from].balance - value, accountState[to].balance + value]
 // [Source: 0-input/code/main.go, lines 252-254 -- Transfer]
-func transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
+func transfer(db vm.StateDB, sender, recipient common.Address, amount *uint256.Int) {
 	db.SubBalance(sender, amount, tracing.BalanceChangeTransfer)
 	db.AddBalance(recipient, amount, tracing.BalanceChangeTransfer)
 }

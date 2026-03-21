@@ -267,7 +267,7 @@ var zkDifficultyMap = map[vm.OpCode]OpcodeInfo{
 	// permutation requires ~150K R1CS constraints per invocation -- 1000x more
 	// expensive than Poseidon hashing.
 	// [Source: 0-input/REPORT.md -- "KECCAK256 is the dominant ZK cost"]
-	vm.SHA3: {ZKCritical, 150000, false, "Keccak-256 hash (dominant ZK cost)"},
+	vm.KECCAK256: {ZKCritical, 150000, false, "Keccak-256 hash (dominant ZK cost)"},
 }
 
 // GetOpcodeInfo returns the ZK proving characteristics of an EVM opcode.

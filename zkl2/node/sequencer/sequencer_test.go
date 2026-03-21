@@ -2,6 +2,7 @@ package sequencer
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
