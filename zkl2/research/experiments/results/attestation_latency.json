@@ -1,0 +1,122 @@
+[
+  {
+    "name": "attestation_5of7_10KB",
+    "batch_size_bytes": 10240,
+    "config": "5-of-7 hybrid AES+RS+Shamir",
+    "iterations": 50,
+    "warm_up": 3,
+    "mean_latency_ms": 0.29168,
+    "p50_latency_ms": 0.503,
+    "p95_latency_ms": 0.6003999999999999,
+    "p99_latency_ms": 0.8203099999999992,
+    "stddev_ms": 0.2893991269749747,
+    "ci95_lower_ms": 0.21146265461983926,
+    "ci95_upper_ms": 0.3718973453801607,
+    "storage_overhead": 1.4697265625,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "encrypt_encode_ms": 0.11693999999999999,
+      "key_share_ms": 0,
+      "distribution_ms": 0.01016,
+      "attestation_ms": 0.16451999999999997,
+      "total_ms": 0.29168
+    }
+  },
+  {
+    "name": "attestation_5of7_100KB",
+    "batch_size_bytes": 102400,
+    "config": "5-of-7 hybrid AES+RS+Shamir",
+    "iterations": 50,
+    "warm_up": 3,
+    "mean_latency_ms": 1.1208799999999999,
+    "p50_latency_ms": 1.0725,
+    "p95_latency_ms": 2.0511,
+    "p99_latency_ms": 2.457959999999999,
+    "stddev_ms": 0.5756735412735668,
+    "ci95_lower_ms": 0.9613114354045884,
+    "ci95_upper_ms": 1.2804485645954113,
+    "storage_overhead": 1.40697265625,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "encrypt_encode_ms": 1.04142,
+      "key_share_ms": 0.0012,
+      "distribution_ms": 0,
+      "attestation_ms": 0.07822,
+      "total_ms": 1.1208799999999999
+    }
+  },
+  {
+    "name": "attestation_5of7_500KB",
+    "batch_size_bytes": 512000,
+    "config": "5-of-7 hybrid AES+RS+Shamir",
+    "iterations": 50,
+    "warm_up": 3,
+    "mean_latency_ms": 4.5091600000000005,
+    "p50_latency_ms": 4.451499999999999,
+    "p95_latency_ms": 5.392799999999999,
+    "p99_latency_ms": 5.838699999999999,
+    "stddev_ms": 0.605988763955914,
+    "ci95_lower_ms": 4.341188484388097,
+    "ci95_upper_ms": 4.677131515611904,
+    "storage_overhead": 1.40139453125,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "encrypt_encode_ms": 4.32976,
+      "key_share_ms": 0,
+      "distribution_ms": 0,
+      "attestation_ms": 0.17927999999999997,
+      "total_ms": 4.5091600000000005
+    }
+  },
+  {
+    "name": "attestation_5of7_1024KB",
+    "batch_size_bytes": 1048576,
+    "config": "5-of-7 hybrid AES+RS+Shamir",
+    "iterations": 50,
+    "warm_up": 3,
+    "mean_latency_ms": 8.93958,
+    "p50_latency_ms": 8.783000000000001,
+    "p95_latency_ms": 10.374749999999999,
+    "p99_latency_ms": 11.991769999999995,
+    "stddev_ms": 0.9516644728997672,
+    "ci95_lower_ms": 8.675792066336914,
+    "ci95_upper_ms": 9.203367933663085,
+    "storage_overhead": 1.400679588317871,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "encrypt_encode_ms": 8.69668,
+      "key_share_ms": 0.04168,
+      "distribution_ms": 0.01012,
+      "attestation_ms": 0.19087999999999997,
+      "total_ms": 8.93958
+    }
+  },
+  {
+    "name": "attestation_5of7_5120KB",
+    "batch_size_bytes": 5242880,
+    "config": "5-of-7 hybrid AES+RS+Shamir",
+    "iterations": 50,
+    "warm_up": 3,
+    "mean_latency_ms": 46.87107999999998,
+    "p50_latency_ms": 45.724999999999994,
+    "p95_latency_ms": 52.67525,
+    "p99_latency_ms": 53.50241,
+    "stddev_ms": 3.305872886922574,
+    "ci95_lower_ms": 45.95473878665517,
+    "ci95_upper_ms": 47.787421213344786,
+    "storage_overhead": 1.4001361846923828,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "encrypt_encode_ms": 46.63853999999998,
+      "key_share_ms": 0.05351999999999999,
+      "distribution_ms": 0,
+      "attestation_ms": 0.17885999999999996,
+      "total_ms": 46.87107999999998
+    }
+  }
+]

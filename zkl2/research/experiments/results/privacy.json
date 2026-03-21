@@ -1,0 +1,100 @@
+[
+  {
+    "name": "privacy_chunk_independence",
+    "batch_size_bytes": 0,
+    "config": "Single node chunk comparison",
+    "iterations": 0,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "chunks_identical": false,
+      "verdict": "PASS: chunks are different (different AES keys)"
+    }
+  },
+  {
+    "name": "privacy_insufficient_shares",
+    "batch_size_bytes": 0,
+    "config": "4-of-5 shares (below threshold)",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "pass_count": 30,
+      "total": 30,
+      "verdict": "30/30: k-1 shares do not reveal key"
+    }
+  },
+  {
+    "name": "privacy_correct_recovery",
+    "batch_size_bytes": 0,
+    "config": "5-of-7 shares (at threshold)",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "pass_count": 30,
+      "total": 30
+    }
+  },
+  {
+    "name": "privacy_round_trip",
+    "batch_size_bytes": 0,
+    "config": "Full encode-disperse-recover cycle",
+    "iterations": 40,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "pass_count": 40,
+      "sizes_kb": [
+        1,
+        10,
+        100,
+        500
+      ],
+      "total": 40
+    }
+  },
+  {
+    "name": "certificate_verification",
+    "batch_size_bytes": 0,
+    "config": "ECDSA multi-sig verification",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1
+  }
+]

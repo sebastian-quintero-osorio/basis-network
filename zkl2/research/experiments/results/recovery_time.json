@@ -1,0 +1,150 @@
+[
+  {
+    "name": "recovery_5of7_10KB",
+    "batch_size_bytes": 10240,
+    "config": "5-of-7 recovery, all nodes online",
+    "iterations": 30,
+    "warm_up": 3,
+    "mean_latency_ms": 0.06699999999999999,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0.5334999999999972,
+    "p99_latency_ms": 1.0197,
+    "stddev_ms": 0.2551422861990864,
+    "ci95_lower_ms": -0.024301494542790056,
+    "ci95_upper_ms": 0.15830149454279002,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "chunk_collect_ms": 0,
+      "key_recover_ms": 0.03233333333333333,
+      "rs_decode_ms": 0.034666666666666665,
+      "total_ms": 0.06699999999999999
+    }
+  },
+  {
+    "name": "recovery_5of7_100KB",
+    "batch_size_bytes": 102400,
+    "config": "5-of-7 recovery, all nodes online",
+    "iterations": 30,
+    "warm_up": 3,
+    "mean_latency_ms": 0.14089999999999997,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 1.0063,
+    "p99_latency_ms": 1.3782000000000003,
+    "stddev_ms": 0.3753607322434578,
+    "ci95_lower_ms": 0.006578887035752906,
+    "ci95_upper_ms": 0.275221112964247,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "chunk_collect_ms": 0.0377,
+      "key_recover_ms": 0.016766666666666666,
+      "rs_decode_ms": 0.08643333333333333,
+      "total_ms": 0.14089999999999997
+    }
+  },
+  {
+    "name": "recovery_5of7_500KB",
+    "batch_size_bytes": 512000,
+    "config": "5-of-7 recovery, all nodes online",
+    "iterations": 30,
+    "warm_up": 3,
+    "mean_latency_ms": 0.6766666666666666,
+    "p50_latency_ms": 0.63,
+    "p95_latency_ms": 1.7467499999999998,
+    "p99_latency_ms": 2.0581000000000005,
+    "stddev_ms": 0.6396441000373909,
+    "ci95_lower_ms": 0.4477729651211608,
+    "ci95_upper_ms": 0.9055603682121725,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "chunk_collect_ms": 0.16146666666666668,
+      "key_recover_ms": 0.0028,
+      "rs_decode_ms": 0.5123666666666666,
+      "total_ms": 0.6766666666666666
+    }
+  },
+  {
+    "name": "recovery_5of7_1024KB",
+    "batch_size_bytes": 1048576,
+    "config": "5-of-7 recovery, all nodes online",
+    "iterations": 30,
+    "warm_up": 3,
+    "mean_latency_ms": 0.9488000000000002,
+    "p50_latency_ms": 1.0110000000000001,
+    "p95_latency_ms": 1.9592499999999986,
+    "p99_latency_ms": 2.2127600000000003,
+    "stddev_ms": 0.6259199794619558,
+    "ci95_lower_ms": 0.7248174119296044,
+    "ci95_upper_ms": 1.1727825880703961,
+    "nodes_online": 7,
+    "success_rate": 1,
+    "details": {
+      "chunk_collect_ms": 0.4614,
+      "key_recover_ms": 0.0407,
+      "rs_decode_ms": 0.44653333333333334,
+      "total_ms": 0.9488000000000002
+    }
+  },
+  {
+    "name": "recovery_5of7_2down_100KB",
+    "batch_size_bytes": 102400,
+    "config": "5-of-7 recovery, 2 nodes offline",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0.10323333333333334,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0.5251,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0.2500890439124782,
+    "ci95_lower_ms": 0.013740118319300623,
+    "ci95_upper_ms": 0.19272654834736608,
+    "nodes_online": 5,
+    "success_rate": 1,
+    "details": {
+      "data_match": 30,
+      "total": 30
+    }
+  },
+  {
+    "name": "recovery_5of7_2down_500KB",
+    "batch_size_bytes": 512000,
+    "config": "5-of-7 recovery, 2 nodes offline",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0.4179000000000001,
+    "p50_latency_ms": 0.522,
+    "p95_latency_ms": 0.8055999999999987,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0.2862780599106521,
+    "ci95_lower_ms": 0.3154567119271722,
+    "ci95_upper_ms": 0.520343288072828,
+    "nodes_online": 5,
+    "success_rate": 1,
+    "details": {
+      "data_match": 30,
+      "total": 30
+    }
+  },
+  {
+    "name": "recovery_5of7_2down_1024KB",
+    "batch_size_bytes": 1048576,
+    "config": "5-of-7 recovery, 2 nodes offline",
+    "iterations": 30,
+    "warm_up": 0,
+    "mean_latency_ms": 0.6652666666666669,
+    "p50_latency_ms": 0.5245,
+    "p95_latency_ms": 1.52555,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0.5304295548361517,
+    "ci95_lower_ms": 0.4754548881972268,
+    "ci95_upper_ms": 0.855078445136107,
+    "nodes_online": 5,
+    "success_rate": 1,
+    "details": {
+      "data_match": 30,
+      "total": 30
+    }
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "name": "compare_100KB",
+    "batch_size_bytes": 102400,
+    "config": "5-of-7 vs 2-of-3",
+    "iterations": 0,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "config_2of3_mean_ms": 1.0016666666666667,
+      "config_2of3_p95_ms": 1.57295,
+      "config_5of7_mean_ms": 1.1051333333333337,
+      "config_5of7_p95_ms": 2.01665,
+      "overhead_ratio": 1.1032945091514146,
+      "storage_2of3": 1.50322265625,
+      "storage_5of7": 1.40697265625
+    }
+  },
+  {
+    "name": "compare_500KB",
+    "batch_size_bytes": 512000,
+    "config": "5-of-7 vs 2-of-3",
+    "iterations": 0,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "config_2of3_mean_ms": 4.761933333333333,
+      "config_2of3_p95_ms": 6.824549999999995,
+      "config_5of7_mean_ms": 4.524533333333334,
+      "config_5of7_p95_ms": 5.0581,
+      "overhead_ratio": 0.9501462991222055,
+      "storage_2of3": 1.50064453125,
+      "storage_5of7": 1.40139453125
+    }
+  },
+  {
+    "name": "compare_1024KB",
+    "batch_size_bytes": 1048576,
+    "config": "5-of-7 vs 2-of-3",
+    "iterations": 0,
+    "warm_up": 0,
+    "mean_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "stddev_ms": 0,
+    "ci95_lower_ms": 0,
+    "ci95_upper_ms": 0,
+    "success_rate": 1,
+    "details": {
+      "config_2of3_mean_ms": 8.999766666666666,
+      "config_2of3_p95_ms": 10.149649999999998,
+      "config_5of7_mean_ms": 9.489766666666666,
+      "config_5of7_p95_ms": 10.926849999999996,
+      "overhead_ratio": 1.0544458560036742,
+      "storage_2of3": 1.500314712524414,
+      "storage_5of7": 1.400679588317871
+    }
+  }
+]

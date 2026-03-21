@@ -1,0 +1,29 @@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+Running breadth-first search Model-Checking with fp 40 and seed 4092255528251756991 with 4 workers on 20 cores with 7252MB heap and 64MB offheap memory (Windows 11 10.0 amd64, Oracle Corporation 1.8.0_461 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-plonk-migration\1-formalization\v0-analysis\experiments\PlonkMigration\_build\MC_PlonkMigration.tla
+Parsing file C:\Users\BASSEE\Desktop\basis-network-avalanche-build-games\zkl2\specs\units\2026-03-plonk-migration\1-formalization\v0-analysis\experiments\PlonkMigration\_build\PlonkMigration.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Integers.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Sequences.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\FiniteSets.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\TLC.tla
+Parsing file C:\Users\BASSEE\AppData\Local\Temp\Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module PlonkMigration
+Semantic processing of module MC_PlonkMigration
+Starting... (2026-03-19 19:07:50)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-03-19 19:07:51.
+Progress(13) at 2026-03-19 19:07:54: 655,746 states generated (655,746 s/min), 261,184 distinct states found (261,184 ds/min), 120,017 states left on queue.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 1.1E-6
+  based on the actual fingerprints:  val = 9.1E-7
+9117756 states generated, 3985171 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 22.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 8 and the 95th percentile is 3).
+Finished in 37s at (2026-03-19 19:08:28)
