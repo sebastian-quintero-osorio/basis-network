@@ -64,16 +64,21 @@ A customized Subnet-EVM blockchain with the native currency **Lithos** (LITHOS, 
 
 Smart contracts deployed on this layer handle enterprise registration, generic event recording, state commitment, ZK proof verification, DAC attestation, and cross-enterprise verification.
 
-### Layer 3 -- Enterprise Instances (Future)
+### Layer 3 -- Enterprise ZK Layer 2 (Operational)
 
-Each enterprise gets a private execution environment implemented as a ZK validium:
+Each enterprise gets a private execution environment implemented as a ZK validium node:
 
-- Transactions are processed off-chain in enterprise infrastructure
-- ZK proofs attest to transaction validity without revealing data
-- Proofs are verified on-chain by `ZKVerifier.sol`
-- The L1 records "Enterprise X processed N valid transactions" with no content exposure
+- Transactions are received via REST API and persisted to a Write-Ahead Log (WAL)
+- State is maintained in a Sparse Merkle Tree (Poseidon hash, BN128 curve)
+- A Batch Aggregator groups transactions by size or time threshold
+- The ZK Prover generates Groth16 proofs attesting to batch validity (12.9s, 274K constraints)
+- Proofs are submitted to `StateCommitment.sol` with delegated verification via `Groth16Verifier.sol` (306K gas)
+- Data availability is ensured through a DAC with Shamir (2,3) Secret Sharing
+- Cross-enterprise verification enables trustless inter-enterprise proofs without data disclosure
 
-This evolves toward full ZK rollups with per-enterprise sequencers and provers.
+The validium pipeline is **fully operational and verified on-chain**. All 7 modules are backed by TLA+ formal specifications (10.7M states explored), Coq verification proofs (125+ theorems, 0 Admitted), and adversarial test reports (~100 attack vectors tested).
+
+This evolves toward full zkEVM L2 with per-enterprise sequencers, EVM execution, and PLONK provers (architecture 80% complete in `zkl2/`).
 
 ---
 
@@ -261,14 +266,15 @@ graph TB
     style Deploy fill:#0f0f1a,stroke:#f5a623,color:#fff
 ```
 
-The dashboard is deployed at [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) and provides four views:
+The dashboard is deployed at [dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co) and provides six pages:
 
 - **Overview** -- block height, gas price, enterprise count, ZK batch stats, recent blocks
 - **Enterprises** -- registered enterprises, authorization status, registration dates
 - **Activity** -- real-time event feed with type badges (auto-refresh every 10s)
-- **Modules** -- deployed protocol components and their status
+- **Modules** -- deployed protocol components and their status (7 contracts)
+- **Validium** -- batch history, ZK circuit specifications, DAC status, state machine visualization
 
-Ecosystem navigation links connect the dashboard to the landing page and block explorer.
+All pages share state via `NetworkContext` with 10-second polling. Ecosystem navigation links connect the dashboard to the landing page and block explorer.
 
 ---
 

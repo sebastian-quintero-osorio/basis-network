@@ -24,8 +24,25 @@ jobs:
       - run: npx hardhat compile
       - run: npx hardhat test
 
+  validium-node:
+    name: Validium Node
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: validium/node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: validium/node/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+
   adapters:
-    name: Adapters Build
+    name: Adapters
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -41,7 +58,7 @@ jobs:
       - run: npx tsc --noEmit
 
   dashboard:
-    name: Dashboard Build
+    name: Dashboard
     runs-on: ubuntu-latest
     defaults:
       run:

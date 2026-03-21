@@ -1,6 +1,6 @@
 # User Journey
 
-This document describes the end-to-end user journey for Basis Network, from enterprise onboarding to on-chain verification.
+This document describes the end-to-end user journeys for Basis Network, from enterprise onboarding to ZK-verified operations.
 
 ---
 
@@ -15,14 +15,14 @@ This document describes the end-to-end user journey for Basis Network, from ente
 1. Enterprise contacts Base Computing and completes KYC/KYB verification.
 2. Network Admin generates an Ethereum-compatible wallet for the enterprise.
 3. Network Admin calls `EnterpriseRegistry.registerEnterprise()` with the enterprise address, name, and metadata.
-4. Network Admin adds the enterprise address to the L1 transaction allowlist via the precompile.
+4. Network Admin adds the enterprise address to the L1 transaction allowlist via the Subnet-EVM precompile.
 5. Enterprise receives their wallet credentials and RPC endpoint.
 6. Enterprise can now send zero-fee transactions to the network.
 7. The registration event is visible on the network dashboard.
 
 ---
 
-## Journey 2: PLASMA — Maintenance Traceability
+## Journey 2: PLASMA -- Maintenance Traceability
 
 ### Actors
 - **Maintenance Technician** (at Ingenio Sancarlos)
@@ -51,7 +51,7 @@ At any time, an auditor can:
 
 ---
 
-## Journey 3: Trace — Commercial Traceability
+## Journey 3: Trace -- Commercial Traceability
 
 ### Actors
 - **Business Owner** (SME using Trace)
@@ -72,40 +72,94 @@ At any time, an auditor can:
 
 ---
 
-## Journey 4: ZK Proof Verification
+## Journey 4: ZK Validium Pipeline (End-to-End)
 
 ### Actors
-- **Enterprise Prover** (off-chain service)
-- **ZKVerifier Contract** (on-chain)
-- **Network Dashboard** (visualization)
+- **Enterprise Application** (PLASMA, Trace, or any integrated system)
+- **Validium Node** (enterprise-operated service)
+- **Basis Network L1** (blockchain)
+- **DAC Members** (Data Availability Committee)
 
 ### Steps
 
-1. An enterprise accumulates a batch of transactions off-chain.
-2. The enterprise prover compiles the transaction data into a Circom circuit.
-3. SnarkJS generates a Groth16 proof attesting to batch validity.
-4. The proof and public signals are submitted to `ZKVerifier.verifyBatchProof()`.
-5. The contract verifies the Groth16 proof on-chain (~200K gas).
-6. If valid, the batch is recorded with its state root and transaction count.
-7. The verification result appears on the network dashboard.
-8. Anyone on the network can confirm that the enterprise processed valid transactions without seeing the transaction data.
+1. Enterprise application generates a business event (work order, sale, inspection, etc.).
+2. Application submits the event to the Validium Node REST API (authenticated via Bearer token + API key).
+3. The API validates the request and persists it to the **Write-Ahead Log** (WAL) with SHA-256 checksum.
+4. The **Transaction Queue** orders events chronologically and deduplicates.
+5. When the batch threshold is reached (by count or time), the **Batch Aggregator** forms a batch.
+6. The **Sparse Merkle Tree** (Poseidon hash, BN128) is updated with each transaction in the batch.
+7. The **Batch Builder** generates a Circom witness from the batch (previous state root, new state root, transaction data).
+8. The **ZK Prover** generates a Groth16 proof attesting to batch validity (~12.9 seconds for batch of 8).
+   - Public inputs: previous state root, new state root, batch number, enterprise ID.
+   - Private inputs: individual transaction keys, values, and Merkle siblings (never revealed).
+9. The **L1 Submitter** calls `StateCommitment.submitBatch()` on the Basis Network L1.
+10. `StateCommitment.sol` delegates proof verification to `Groth16Verifier.sol` (~306K gas).
+11. If the proof is valid, the enterprise's state root is updated on-chain.
+12. The **DAC Protocol** distributes the batch data via Shamir (2,3) Secret Sharing to DAC members.
+13. DAC members sign attestations confirming data availability.
+14. Attestations are recorded on-chain via `DACAttestation.sol`.
+15. The batch appears on the dashboard's Validium page with proof status and gas cost.
+
+### Privacy Guarantee
+
+At no point during this process does the L1 learn:
+- What the transactions contained
+- Who the counterparties were
+- What amounts were involved
+- What business operations occurred
+
+The L1 only knows: "Enterprise X processed 8 valid transactions. Previous state root A, new state root B. Proof verified."
+
+### Crash Recovery
+
+If the node crashes at any point:
+- Transactions in the WAL are recovered on restart (checksum-verified).
+- The WAL checkpoint is deferred until after batch processing (not at formation), preventing silent data loss during the 12.9-second proving window.
+- This crash-recovery guarantee was discovered by TLA+ model checking and proven in Coq.
 
 ---
 
-## Journey 5: Network Dashboard
+## Journey 5: Cross-Enterprise Verification
+
+### Actors
+- **Enterprise A** (e.g., supplier)
+- **Enterprise B** (e.g., buyer)
+- **CrossEnterpriseVerifier Contract** (on-chain)
+
+### Steps
+
+1. Enterprise A processes a batch of transactions (e.g., shipment of goods).
+2. Enterprise A's validium node includes a cross-reference commitment in the batch.
+3. Enterprise B independently processes their corresponding transactions (e.g., receipt of goods).
+4. Enterprise B's validium node includes a matching cross-reference commitment.
+5. Either enterprise calls `CrossEnterpriseVerifier.verifyCrossReference()` with both commitments.
+6. The contract verifies that both enterprises have valid, matching cross-references without accessing private data.
+7. The verification result is recorded on-chain.
+8. Both enterprises now have cryptographic proof of their interaction without revealing details to each other or the network.
+
+### Privacy
+
+- Enterprise A does not learn Enterprise B's internal transaction details.
+- Enterprise B does not learn Enterprise A's internal transaction details.
+- The L1 does not learn either enterprise's details.
+- Only the existence and validity of the interaction is proven (1 bit of leakage: "an interaction occurred").
+
+---
+
+## Journey 6: Network Dashboard
 
 ### Actors
 - **Judge / Auditor / Stakeholder** (external viewer)
 
 ### Steps
 
-1. User opens the Basis Network dashboard (hosted on Vercel).
-2. Dashboard connects to the L1 RPC endpoint.
-3. User sees:
-   - Total registered enterprises and their status.
-   - Real-time transaction feed with event types.
-   - Metrics: total transactions, events by type, completion rates.
-   - Network health: current block, gas price (confirming zero-fee).
-   - ZK verification history and batch summaries.
-4. User can click on any transaction to see its on-chain details.
-5. User can filter events by enterprise, type, or time range.
+1. User opens the Basis Network dashboard ([dashboard.basisnetwork.com.co](https://dashboard.basisnetwork.com.co)).
+2. Dashboard connects to the L1 RPC endpoint and polls every 10 seconds.
+3. User navigates between pages:
+   - **Overview** -- block height, gas price, enterprise count, ZK batch stats, recent blocks.
+   - **Enterprises** -- registered enterprises, authorization status, registration dates.
+   - **Activity** -- real-time event feed with type badges.
+   - **Modules** -- 7 deployed protocol contracts with addresses and status.
+   - **Validium** -- batch history, ZK circuit specifications, DAC status, state machine visualization.
+4. User can verify on-chain data through the [block explorer](https://explorer.basisnetwork.com.co).
+5. All data is queried directly from the blockchain -- no backend server, no intermediary.
