@@ -2,7 +2,25 @@
 
 The long-term evolution of Basis Network -- a full zero-knowledge EVM-compatible Layer 2 where each enterprise operates their own chain with dedicated sequencer, EVM executor, ZK prover, and data availability layer. Settles on the Basis Network L1 (Avalanche).
 
-**Status:** Architecture 80% complete. EVM Executor implemented (1,748 lines Go). 386 contract tests. Built in days via the AI-driven R&D pipeline.
+**Status:** R&D pipeline complete (44/44 agents, 11 research units). Node binary operational. Integration in progress. See [POST_ROADMAP_TODO.md](./docs/POST_ROADMAP_TODO.md) for detailed completion plan.
+
+## Quick Start
+
+```bash
+# Build the node binary
+cd node && go build -o basis-l2 ./cmd/basis-l2/
+
+# Run the node
+./basis-l2 --version
+./basis-l2 --log-level info
+
+# Run all tests
+cd node && go test ./... -count=1       # Go (7 packages, ~180 tests)
+cd prover && cargo test                 # Rust (142 tests)
+cd contracts && npx hardhat test        # Solidity (322 tests)
+```
+
+See [node/STARTUP.md](./node/STARTUP.md) for the full startup guide.
 
 ## Architecture
 
@@ -20,26 +38,40 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 
 ## Components
 
-| Directory | Technology | Description | Status |
-|-----------|-----------|-------------|--------|
-| [node/](./node/) | Go | L2 node (sequencer, EVM executor, state DB) | In development |
-| [prover/](./prover/) | Rust | ZK prover (witness generation, circuit, aggregation) | In development |
-| [contracts/](./contracts/) | Solidity | L1 settlement contracts (386 tests) | In development |
-| [bridge/](./bridge/) | Go | Cross-layer message relay | Planned |
-| [specs/](./specs/) | TLA+ | Formal specifications | In progress |
-| [proofs/](./proofs/) | Coq | Formal verification | In progress |
-| [research/](./research/) | -- | R&D experiments | In progress |
-| [tests/](./tests/) | -- | Adversarial test reports | In progress |
-| [docs/](./docs/) | -- | Architecture, decisions, roadmap | Complete |
+| Directory | Technology | Description | Tests | Status |
+|-----------|-----------|-------------|-------|--------|
+| [node/](./node/) | Go 1.24 | L2 node (binary, sequencer, executor, state DB, pipeline, DAC, cross-enterprise) | ~180 Go | Operational |
+| [prover/](./prover/) | Rust 1.83 | ZK prover (witness generation, PLONK circuit, aggregation) | 142 Rust | Tested |
+| [contracts/](./contracts/) | Solidity 0.8.24 | L1 settlement contracts (6 contracts) | 322 TS | Tested |
+| [bridge/](./bridge/) | Go 1.24 | Cross-layer message relay with Merkle proofs | 33 Go | Tested |
+| [specs/](./specs/) | TLA+ | 11 formal specifications (all TLC-verified) | -- | Complete |
+| [proofs/](./proofs/) | Coq | 107 formal verification files (0 Admitted) | -- | Complete |
+| [tests/](./tests/) | -- | 11 adversarial reports (0 violations) | -- | Complete |
+| [docs/](./docs/) | -- | Architecture, decisions, roadmap, integration plan | -- | Complete |
 
 ## L1 Settlement Contracts
 
-| Contract | Purpose |
-|----------|---------|
-| BasisRollup.sol | State root verification + ZK proof verification |
-| BasisBridge.sol | Deposit/withdrawal bridge with escape hatch |
-| BasisDAC.sol | Data availability committee management |
-| BasisGovernance.sol | Protocol parameter updates |
+| Contract | Purpose | Tests |
+|----------|---------|-------|
+| BasisRollup.sol | State root management + ZK proof verification | 88 |
+| BasisBridge.sol | Deposit/withdrawal bridge with escape hatch | 40 |
+| BasisDAC.sol | Data availability committee management | 68 |
+| BasisHub.sol | Cross-enterprise hub-and-spoke settlement | 51 |
+| BasisAggregator.sol | Proof aggregation for multi-enterprise batches | 27 |
+| BasisVerifier.sol | PLONK/Groth16 verification + migration state machine | 48 |
+
+## Test Summary
+
+| Component | Tests | Status |
+|-----------|-------|--------|
+| Go node (7 packages) | ~180 | All passing |
+| Go bridge | 33 | All passing |
+| Rust prover (3 crates) | 142 | All passing |
+| Solidity contracts (6) | 322 | All passing |
+| TLA+ specifications | 11 | All TLC-verified |
+| Coq proofs | 107 files | All compiled (0 Admitted) |
+| Adversarial reports | 11 | 0 violations |
+| **Total** | **~677+** | |
 
 ## Technical Decisions
 
@@ -52,16 +84,6 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 | State Tree | Poseidon SMT | 500x constraint reduction vs Keccak |
 | Architecture | Per-enterprise chains | Maximum data sovereignty |
 
-## Roadmap
-
-| Phase | Research Units | Focus |
-|-------|---------------|-------|
-| 1. L2 Foundation | RU-L1 to RU-L4 | EVM Executor, Sequencer, State DB |
-| 2. ZK Proving | RU-L3, RU-L5, RU-L6 | Witness generation, L1 settlement, E2E pipeline |
-| 3. Bridge & DA | RU-L7, RU-L8 | Bridge with escape hatch, production DAC |
-| 4. Production Hardening | RU-L9, RU-L10 | PLONK migration, proof aggregation |
-| 5. Enterprise Features | RU-L11 | Cross-enterprise hub-and-spoke verification |
-
 ## Documentation
 
 | Document | Description |
@@ -70,6 +92,8 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 | [Architecture](./docs/ARCHITECTURE.md) | 4-layer system design |
 | [Technical Decisions](./docs/TECHNICAL_DECISIONS.md) | 9 justified ADRs |
 | [Roadmap](./docs/ROADMAP.md) | 11 research units across 5 phases |
+| [Startup Guide](./node/STARTUP.md) | How to build, configure, and run the node |
+| [Integration Plan](./docs/POST_ROADMAP_TODO.md) | Detailed plan for 100% completion |
 
 ## Relationship to Validium MVP
 
