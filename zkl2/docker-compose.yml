@@ -1,0 +1,47 @@
+# Basis Network zkEVM L2 -- Docker Compose
+#
+# Services:
+#   - l2-node: Basis L2 node (sequencer + proving pipeline)
+#   - hardhat: Local L1 (for development/testing only)
+#
+# Usage:
+#   docker compose up -d         # Start all services
+#   docker compose logs -f       # Follow logs
+#   docker compose down          # Stop all services
+
+services:
+  l2-node:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-l2-node
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+    env_file:
+      - zkl2/node/.env
+    healthcheck:
+      test: ["CMD", "basis-l2", "--version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # Local L1 for development and testing.
+  # Replace with the real Fuji RPC endpoint for production.
+  hardhat:
+    image: node:22-slim
+    container_name: basis-l1-local
+    working_dir: /app
+    command: ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
+    ports:
+      - "8546:8545"
+    volumes:
+      - ./zkl2/contracts:/app
+    profiles:
+      - dev
