@@ -26,7 +26,7 @@ Built by [Base Computing S.A.S.](https://basecomputing.com.co) -- Submitted to [
 
 ## The Problem
 
-Latin American enterprises in agribusiness, manufacturing, and logistics need immutable, auditable records of their operations. Current solutions fail:
+Enterprise blockchain in Latin America is projected to grow from **$1.2B to $58B by 2034** -- yet no existing solution serves this market effectively. Enterprises in agribusiness, manufacturing, logistics, and financial services need immutable, auditable records of their operations. Current solutions fail:
 
 - **Public blockchains** (Ethereum, Polygon): expensive per-transaction fees and expose proprietary data.
 - **Private blockchains** (Hyperledger Fabric): isolated silos with zero interoperability and no ZK privacy.
@@ -334,12 +334,14 @@ The pipeline produced the entire validium node (28/28 research units completed) 
 
 ## Real-World Traction
 
-Basis Network is built on top of real products with real clients:
+Basis Network is not a competition project. It is built by a two-year-old deep tech company with production software and enterprise clients:
 
 - **[PLASMA](https://basecomputing.com.co)** is deployed at Ingenio Sancarlos (one of Colombia's largest sugar mills), delivering 75-91% operational efficiency gains and 300M COP in documented savings.
 - **[Trace](https://traceerp.com)** is a live ERP serving SME clients at ~3M COP/year per client.
 - **Base Computing S.A.S.** generates 50M+ COP in revenue before its first year of operation.
 - **First ZK batch verified on-chain** -- 8 transactions, Groth16 proof, 306K gas, confirmed on Basis Network L1.
+- **SaaS partnerships in progress** -- allied with DSI (health sector SaaS) and Fanelian (custom software), with advanced negotiations in Colombia's gaming sector.
+- **Zero cold outreach needed** -- first mainnet users will be existing PLASMA and Trace clients, migrating with real transaction volume from day one.
 
 ---
 
@@ -365,9 +367,9 @@ graph LR
 | Phase | Timeline | Milestone |
 |---|---|---|
 | MVP (current) | Build Games 2026 | L1 on Fuji, 7 contracts, ZK validium pipeline verified E2E, 604+ tests |
-| Mainnet | Q2 2026 | Security audit, Avalanche Mainnet launch, C-Chain bridge, first enterprise live |
-| Scale | Q3 2026 | 5+ enterprises on mainnet, SaaS Partnership Program, cross-enterprise ZKP verification |
-| Expand | Q4 2026 - 2027 | 50+ enterprises via SaaS partnerships, PLONK migration, open validator program |
+| Mainnet | Q2 2026 | Security audit, Avalanche Mainnet launch, C-Chain bridge, Delaware LLC, Codebase accelerator |
+| Scale | Q3 2026 | 5+ enterprises on mainnet, SaaS Partnership Program, seed round ($500K-1M) |
+| Expand | Q4 2026 - 2027 | 50+ enterprises via SaaS partnerships across 3+ LATAM countries, PLONK migration |
 
 ---
 
@@ -440,11 +442,16 @@ Tests include unit tests, integration tests, adversarial scenarios, and model-ch
 
 **Base Computing S.A.S.** -- Colombian deep tech startup, founded September 2024.
 
-- Serial entrepreneur founder in crypto since 2017, left CTO position to build Base Computing full-time
-- Winner of **Gen N 2025 "Next" category** (Ruta N Medellin -- innovation hub of LATAM)
+Basis Network began as a [university thesis project](https://demos.basecomputing.com.co/) at Pontificia Universidad Javeriana (Cali, 2023) -- a blockchain-based voting system that required its own blockchain infrastructure. The first prototype was built in Python. During that research, the founder identified fundamental gaps in enterprise blockchain: no privacy, no interoperability, no affordability for Latin American markets. He left a CTO position to found Base Computing and solve these problems full-time.
+
+Today, the company operates two revenue-generating SaaS products (PLASMA and Trace), serves enterprise clients in production, and is building Basis Network as the enterprise blockchain infrastructure layer for LATAM on Avalanche.
+
+- Winner of **Gen N 2025 "Next" category** (Ruta N Medellin -- LATAM's leading innovation hub)
 - **"Joven Referente 2026"** and **Innovation Ambassador** (District of Medellin)
+- Ruta N Innovation Ambassador 2026 with year-round access to enterprise ecosystem and regional media
 - Top 50 / 1,300+ in Nestle Young Creators Challenge 2025
 - Accepted into **Avalanche Build Games 2026** ($1M prize pool)
+- **Next:** Delaware LLC incorporation, [Codebase](https://codebase.avax.network/) accelerator application, seed round
 
 ### In the Press
 
