@@ -1,0 +1,64 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper evaluated three recursive proof aggregation strategies for
+compressing $N$ independent enterprise halo2-KZG validity proofs into a
+single L1-verifiable proof on the Basis Network settlement layer.
+
+\subsection{Key Findings}
+
+\begin{enumerate}
+  \item \textbf{Folding + Groth16 decider} achieves the strongest
+    results across all metrics: $15.3\times$ gas reduction at $N{=}8$
+    (from 3.36M to 220K gas), constant 128-byte proof size, sub-linear
+    aggregation time (11.75\,s), and constant 1.6\,GB memory. The
+    ${\sim}2N$-fold savings exceed the initial $N$-fold hypothesis
+    because the Groth16 decider (220K gas) is cheaper than the original
+    halo2-KZG verification (420K gas).
+
+  \item \textbf{Binary tree accumulation} delivers exactly $N$-fold gas
+    savings ($8.0\times$ at $N{=}8$) with production-proven tooling
+    (Scroll, Axiom) but incurs 180\,s aggregation time due to sequential
+    halo2-in-halo2 verification at each tree level.
+
+  \item \textbf{SnarkPack} provides $7.5\times$ savings with the fastest
+    aggregation (200\,ms at $N{=}8$) but requires Groth16-compatible
+    inputs and incurs higher gas than the folding approach.
+
+  \item Four aggregation invariants---soundness, independence
+    preservation, order independence, and gas monotonicity---are
+    identified as necessary conditions for production deployment.
+\end{enumerate}
+
+\subsection{Recommendations}
+
+For the Basis Network zkEVM L2:
+
+\begin{itemize}
+  \item Deploy binary tree accumulation (Phase~1) for immediate
+    $8\times$ gas savings using production-proven halo2 tooling.
+  \item Transition to ProtoGalaxy folding + Groth16 decider (Phase~2)
+    once the Sonobe library is audited, achieving $15.3\times$ savings
+    with superior scaling properties.
+  \item Formalize INV-AGG-1 through INV-AGG-4 in TLA+ (downstream
+    Logicist task, checklist item~38) to ensure aggregation correctness
+    is model-checked before implementation.
+\end{itemize}
+
+\subsection{Future Work}
+
+\begin{itemize}
+  \item \textbf{Stage 2 (Baseline):} Extend benchmarks to larger
+    circuits (batch\_size 64, 256) with full stochastic analysis.
+  \item \textbf{Stage 3 (Adversarial):} Test invalid proof injection,
+    duplicate submissions, and wrong-circuit proofs to validate
+    INV-AGG-1 and INV-AGG-2 under attack conditions.
+  \item \textbf{Stage 4 (Ablation):} Compare Nova R1CS vs.\ ProtoGalaxy
+    PLONKish folding, vary tree arity (2, 4, 8), and measure the gas
+    delta of removing the Groth16 decider in favor of direct halo2-KZG
+    final verification.
+  \item \textbf{Cross-enterprise privacy:} Investigate selective
+    disclosure mechanisms that allow auditors to verify individual
+    enterprise proofs within an aggregated proof without revealing other
+    enterprises' data.
+\end{itemize}

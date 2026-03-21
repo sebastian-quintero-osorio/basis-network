@@ -1,0 +1,74 @@
+% conclusion.tex -- BNR-2026-013
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper evaluated the migration from Groth16 to PLONKish proof
+systems for the Basis Network enterprise zkEVM L2. Through
+systematic elimination of five candidates against enterprise
+constraints and Rust benchmarks comparing Groth16 (arkworks)
+and halo2-KZG (PSE fork) across arithmetic and hash chain
+circuits, we established the following:
+
+\begin{enumerate}
+  \item \textbf{halo2-KZG satisfies all enterprise constraints}:
+    verification gas 290--420K ($< 500$K), proof size 672--800~bytes
+    ($< 1$~KB), proving time converging to 1.2$\times$ of Groth16
+    at scale, universal SRS, custom gate support, native recursion,
+    and Rust-native implementation.
+
+  \item \textbf{Custom gates provide significant constraint
+    reduction}: 2.4$\times$ measured for degree-5 S-box gates,
+    17$\times$ projected for full Poseidon hashing, and
+    100--900$\times$ for individual EVM operations. For
+    Poseidon-heavy enterprise circuits, this translates to a
+    projected 5--9$\times$ reduction in circuit row count.
+
+  \item \textbf{Proving time converges at production scale}: The
+    halo2-KZG overhead of 3--5$\times$ at small circuit sizes
+    reduces to 1.2$\times$ at 500~steps, with asymptotic parity
+    projected at production scale (30K--50K rows). Combined with
+    custom gate row reduction, proving time is projected to
+    improve over the current Groth16 baseline.
+
+  \item \textbf{Universal SRS eliminates operational friction}: A
+    single Powers-of-Tau ceremony replaces per-circuit Phase~2
+    ceremonies, enabling rapid circuit iteration during zkEVM
+    development.
+\end{enumerate}
+
+We recommend \textbf{halo2-KZG via the Axiom fork} as the
+production proof system for Basis Network zkEVM L2, with:
+
+\begin{itemize}
+  \item Library: \texttt{axiom-crypto/halo2} (active development,
+    KZG on BN254, production-proven on Ethereum mainnet)
+  \item SRS: PSE perpetual-powers-of-tau, degree $k = 20$
+    ($\sim$1M rows)
+  \item Custom gates: ArithmeticGate, PoseidonGate, BitwiseGate,
+    StorageGate
+  \item Migration: Dual-verification router during transition
+    period
+\end{itemize}
+
+This recommendation feeds downstream to the Logicist (TLA+
+formalization of soundness preservation and migration safety),
+the Architect (Rust implementation of the halo2-KZG prover and
+PLONKVerifier contract), and the Prover (Coq verification of
+custom gate correctness and proof system isomorphism).
+
+\subsection{Future Work}
+
+Five directions remain for subsequent research units:
+
+\begin{enumerate}
+  \item Optimal SRS degree ($k$) selection for enterprise circuits
+    with varying batch sizes.
+  \item GPU acceleration via ICICLE backend for halo2-KZG proving.
+  \item FFLONK wrapper for sub-200K gas verification (optimization,
+    not required for initial deployment).
+  \item Proof aggregation via snark-verifier for multi-enterprise
+    batching (RU-L10).
+  \item Poseidon2 custom gate evaluation vs original Poseidon for
+    further round count reduction.
+\end{enumerate}

@@ -1,0 +1,81 @@
+% related-work.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Related Work}
+
+\subsection{zkEVM Type Spectrum}
+
+Buterin~\cite{buterin2022zkevm} introduced the zkEVM type classification
+ranging from Type~1 (fully Ethereum-equivalent) to Type~4 (language-compatible
+only). Chaliasos et al.~\cite{chaliasos2024analyzing} formalized this spectrum
+and benchmarked production zkEVM systems, finding that Type~2--3 systems
+(Polygon zkEVM, Scroll) achieve practical proving times of 190--200 seconds
+per batch while maintaining high EVM compatibility. The constraint-level
+analysis by Burchardt et al.~\cite{burchardt2025constraint} demonstrates that
+PLONKish arithmetizations with custom gates reduce constraint counts by
+$5\times$--$30\times$ compared to R1CS for arithmetic-heavy opcodes.
+
+\subsection{Production zkEVM Architectures}
+
+Five production systems inform the architectural decisions in this paper.
+
+\textbf{Polygon CDK (cdk-erigon).} Polygon migrated from a custom Go
+implementation (zkevm-node, archived February 2025) to an Erigon
+fork~\cite{polygon2024cdk}. The execution layer uses Go (Erigon), while the
+proving layer is a separate C++ executor that processes transactions through
+zkASM (a custom assembly language). This separation achieves 10$\times$ less
+disk usage and 150$\times$ faster synchronization compared to the original
+zkevm-node. The key insight is that \emph{the proving executor is architecturally
+separate from the EVM executor}.
+
+\textbf{Scroll (scroll-geth).} Scroll maintains a direct fork of
+go-ethereum~\cite{scroll2024whitepaper} that replaces the Merkle Patricia Trie
+(MPT) with a ZK-friendly Poseidon-based trie (zktrie), activated via
+\texttt{config.scroll.useZktrie}. However, the 2025 Euclid
+upgrade~\cite{scroll2025euclid} migrates \emph{back} to standard MPT combined
+with OpenVM (a general-purpose zkVM), suggesting that tightly coupling the
+state trie to the EVM fork creates unsustainable maintenance burden.
+
+\textbf{zkSync Era (EraVM).} Rather than forking Geth, zkSync built a custom
+register-based virtual machine (EraVM)~\cite{zksync2024architecture} optimized
+for ZK circuits. An EVM bytecode interpreter was added on top for compatibility.
+This approach trades compatibility (Type~4) for proving efficiency, with the
+Boojum~2.0 upgrade targeting native EVM execution.
+
+\textbf{Optimism (op-geth).} Optimism's Geth fork~\cite{optimism2024opgeth}
+demonstrates the minimal viable diff: 16{,}881 lines added and 664 deleted
+against upstream Geth, with only 34~lines touching the EVM itself (precompile
+overrides, caller overrides). While op-geth is an optimistic rollup (no ZK
+proving), it establishes an upper bound on fork minimality.
+
+\textbf{Reth.} Paradigm's Rust EVM implementation~\cite{paradigm2024reth}
+achieves 100--200~MGas/s in live sync and up to 1.5~GGas/s with parallel
+execution (Gravity Reth)~\cite{galxe2025gravity}. The revmc JIT
+compiler~\cite{paradigm2024revmc} further improves interpreted EVM performance
+by 1.85$\times$--19$\times$. These benchmarks establish the performance ceiling
+for EVM execution engines.
+
+\subsection{EVM Tracing Infrastructure}
+
+Geth provides three tracing approaches with different performance
+characteristics. The \texttt{structLogger} captures every opcode with full
+stack, memory, and storage state, incurring 10--50$\times$
+overhead~\cite{geth2024tracing}. The \texttt{callTracer} operates at call-frame
+granularity with lower overhead. Since Geth~1.14+, the
+\texttt{core/tracing} hooks API~\cite{geth2024hooks} provides event-driven
+callbacks (\texttt{OnOpcode}, \texttt{OnStorageChange},
+\texttt{OnBalanceChange}, \texttt{OnNonceChange}) that enable selective
+capture of only the operations relevant to ZK witness generation. Production
+zkEVMs universally use custom compiled tracers rather than the built-in
+JavaScript-based tracing infrastructure.
+
+\subsection{ZK Constraint Costs}
+
+The Polygon zkEVM ROM specification~\cite{polygon2024zkcounters} documents
+per-opcode ZK counter costs across five resource dimensions: arithmetic
+(\texttt{cnt\_arith}), binary (\texttt{cnt\_binary}), Keccak-f permutations
+(\texttt{cnt\_keccak\_f}), Poseidon operations (\texttt{cnt\_poseidon\_g}),
+and memory alignment (\texttt{cnt\_mem\_align}). KECCAK256 dominates with
+192~arithmetic counters, 193~binary counters, and 2~Keccak-f permutations,
+translating to approximately 150{,}000 R1CS constraints per
+invocation~\cite{burchardt2025constraint}. Storage operations (SLOAD, SSTORE)
+require 255~Poseidon operations each for state trie traversal.

@@ -457,6 +457,51 @@ that batch data is available (at least k=5 of n=7 nodes online) MUST exceed 99.9
 | DAC availability (p=0.99) | > 99.9% | RU-L8 experiment (measured: 99.997%) |
 | DAC failure tolerance | 2 nodes | RU-L8 experiment (verified: 2 of 7) |
 
+### I-37: Proof System Agnosticism
+
+The L1 rollup verification infrastructure MUST support multiple proof systems via a
+verifier router pattern. During migration periods, BasisRollup.sol accepts both legacy
+(Groth16) and target (PLONK/halo2-KZG) proof formats. A batch is valid if ANY accepted
+verifier confirms the proof.
+
+**Source:** RU-L9 (PLONK Migration)
+**Why:** Circuit evolution is frequent during active development. Per-circuit trusted setup
+(Groth16) creates a hard dependency between circuit changes and ceremony execution.
+Universal SRS (PLONK/halo2-KZG) eliminates this, but the migration itself requires a
+dual verification period to prevent gaps.
+
+### I-38: Universal SRS Reuse
+
+The ZK prover MUST use a proof system with a universal Structured Reference String (SRS)
+that is reusable across all circuit configurations. Per-circuit trusted setup ceremonies
+are not acceptable for production deployment due to operational overhead and security
+ceremony coordination requirements.
+
+**Source:** RU-L9 (PLONK Migration), TD-003
+**Why:** Enterprise circuits evolve as new EVM opcodes are supported, batch sizes change,
+and optimizations are applied. A universal SRS (one ceremony) enables circuit changes
+without re-running setup ceremonies.
+
+### I-39: Proof Size Bound
+
+ZK proofs submitted to the L1 rollup contract MUST be < 1KB in size. This ensures
+reasonable calldata costs and storage efficiency for on-chain proof archives.
+
+**Source:** RU-L9 (PLONK Migration)
+**Why:** Measured: Groth16 proofs are 128 bytes (constant). halo2-KZG proofs are 672-800
+bytes. FRI/STARK proofs are 43-130KB (rejected). The 1KB bound eliminates FRI-based
+systems from consideration for direct on-chain verification.
+
+## Performance Targets (Updated with PLONK Migration)
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| Proof size (PLONK/halo2-KZG) | < 1KB | RU-L9 experiment (measured: 672-800 bytes) |
+| L1 verification gas (PLONK) | < 500K | RU-L9 literature (Axiom: 420K, general: 290-300K) |
+| Proving time ratio (PLONK/Groth16) | < 2x at production scale | RU-L9 experiment (measured: 1.2x at 500 steps) |
+| Custom gate row reduction (Poseidon) | > 5x vs R1CS | RU-L9 analysis (projected: 17x for full Poseidon) |
+| SRS degree (k) | k=20 (1M rows max) | RU-L9 analysis (enterprise circuits ~50K rows) |
+
 ## Experiment Log
 
 | Date | Experiment | Invariants Affected | Update |
@@ -468,3 +513,109 @@ that batch data is available (at least k=5 of n=7 nodes online) MUST exceed 99.9
 | 2026-03-19 | RU-L5: Basis Rollup | I-20 through I-24 | L1 rollup contract invariants, gas performance targets |
 | 2026-03-19 | RU-L7: Bridge | I-25 through I-31 | Bridge security invariants, gas and latency targets |
 | 2026-03-19 | RU-L8: Production DAC | I-32 through I-36 | DAC verifiable encoding, recoverability, privacy, liveness, availability |
+| 2026-03-19 | RU-L9: PLONK Migration | I-37 through I-39 | Proof system agnosticism, universal SRS, proof size bound |
+| 2026-03-20 | RU-L11: Hub-and-Spoke | I-40 through I-45 | Cross-enterprise isolation, atomic settlement, hub neutrality |
+
+---
+
+## Cross-Enterprise Hub-and-Spoke Invariants (RU-L11)
+
+### I-40: Cross-Enterprise Isolation
+
+Enterprise A's ZK proof reveals nothing about A's internal state to any other party.
+The hub contract, destination enterprise, and external observers see only:
+- The commitment (Poseidon hash, 128-bit preimage resistant)
+- Proof validity (boolean)
+- Enterprise IDs (already public on L1)
+- Timestamp (L1 block time)
+
+No keys, values, balances, or transaction details are exposed.
+Information leakage per cross-enterprise interaction: exactly 1 bit (existence only).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Enterprise data privacy is the fundamental requirement. Without isolation,
+enterprises will not join the network. The 1-bit leakage (interaction existence) is
+the information-theoretic minimum for any verifiable cross-enterprise system.
+
+### I-41: Atomic Settlement
+
+A cross-enterprise transaction either settles completely (both enterprises' state
+transitions committed, cross-reference recorded on L1) or reverts completely (no state
+changes). Partial settlement is impossible by construction of the hub smart contract.
+
+The hub contract enforces:
+- Both enterprises' individual batch proofs are valid
+- Cross-reference proof binds both commitments
+- Both state roots are current on L1
+- If any check fails, the entire transaction reverts
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Partial settlement would leave one enterprise committed and the other not,
+creating inconsistent cross-enterprise state. Atomicity is a hard requirement.
+
+### I-42: Cross-Reference Consistency
+
+A cross-enterprise reference is valid if and only if:
+1. Both enterprises' individual batch proofs are valid
+2. The cross-reference proof binds to both enterprises' CURRENT state roots
+3. The commitment matches the claimed relationship between enterprise states
+
+A cross-reference with a stale state root is always rejected (measured: 100% rejection
+rate for stale roots in 30/30 tests).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Stale state roots could allow referencing data that no longer exists or has
+been modified, creating false cross-enterprise claims.
+
+### I-43: Replay Protection
+
+Each cross-enterprise message includes a per-enterprise-pair nonce. The hub contract
+rejects any message with a nonce that has already been processed for that enterprise pair.
+
+This prevents:
+- Double-submission of the same cross-enterprise message
+- Replay of previously valid cross-enterprise transactions
+- Cross-enterprise front-running via message duplication
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Without replay protection, a valid cross-enterprise message could be
+re-submitted after settlement, potentially triggering duplicate state transitions.
+
+### I-44: Timeout Safety
+
+If a cross-enterprise transaction does not settle within T blocks (configurable,
+default 100), either party can unilaterally claim a timeout and revert to
+pre-transaction state without requiring the other party's cooperation.
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** Without timeouts, a malicious enterprise could block atomic settlement
+indefinitely by submitting one side and never completing, locking the counterparty's
+resources.
+
+### I-45: Hub Neutrality
+
+The hub (L1 smart contract) does not have preferential access to any enterprise's
+private data. It verifies proofs and enforces protocol rules. A compromised or
+malicious hub cannot:
+- Fabricate valid ZK proofs (soundness guarantee, 128-bit security)
+- Access enterprise internal state (ZK zero-knowledge property)
+- Selectively exclude verified messages (on-chain, permissionless verification)
+
+Enterprises can fall back to sequential verification if the hub coordinator is unavailable
+(hub aggregation is an optimization, not a requirement).
+
+**Source:** RU-L11 (Hub-and-Spoke)
+**Why:** The hub must be trustless. If the hub could access enterprise data or
+fabricate proofs, the privacy model collapses.
+
+## Cross-Enterprise Performance Targets (RU-L11)
+
+| Metric | Target | Measured | Source |
+|--------|--------|----------|--------|
+| Cross-enterprise latency (direct) | < 30s | 10.5s | RU-L11 experiment |
+| Cross-enterprise latency (aggregated, N=8) | < 30s | 16.0s | RU-L11 experiment |
+| L1 verification gas (aggregated) | < 500K | 243K | RU-L11 experiment |
+| Privacy leakage per interaction | 0 state bits | 1 bit (existence) | RU-L11 experiment |
+| Atomic settlement success rate | 100% | 100% | RU-L11 experiment |
+| Cross-enterprise throughput (aggregated) | > 10 msg/s | 20.5 msg/s | RU-L11 experiment |
+| Scaling limit (< 30s latency) | N <= 50 | N = 50 at 31.75s | RU-L11 experiment |

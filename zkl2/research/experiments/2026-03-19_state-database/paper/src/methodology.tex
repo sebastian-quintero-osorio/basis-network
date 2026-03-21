@@ -1,0 +1,100 @@
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Hypothesis}
+
+\textbf{H1:} A state database based on Sparse Merkle Tree with
+Poseidon hash implemented in Go can support 10,000+ accounts with
+state root computation $< 50$~ms, compatible with witness generation
+for the ZK prover.
+
+\textbf{H0 (null):} A Go SMT with Poseidon cannot achieve state root
+computation $< 50$~ms at 10,000+ accounts, or the implementation
+introduces incompatibility with the BN254 field arithmetic required
+by the ZK prover, or memory usage exceeds 1~GB at 10,000 accounts.
+
+\subsection{Predictions}
+
+Prior to experimentation, we registered the following quantitative
+predictions based on published benchmarks and the RU-V1 baseline:
+
+\begin{enumerate}
+  \item Go Poseidon2 hash will be 50--200$\times$ faster than
+    JavaScript BigInt due to native field arithmetic.
+  \item Insert latency will be $< 100$~$\mu$s per account
+    (vs.\ 1.8~ms in TypeScript RU-V1).
+  \item Proof generation will be $O(d)$ traversal, $< 10$~$\mu$s
+    per proof.
+  \item State root computation for 10,000 accounts via batch insert
+    will complete in $< 50$~ms.
+  \item Memory usage will be $< 500$~MB at 10,000 accounts with
+    in-memory storage.
+\end{enumerate}
+
+\subsection{Experimental Design}
+
+The experiment follows a controlled benchmarking methodology with
+two implementation phases:
+
+\textbf{Phase 1: Baseline implementation.} SMT using Go's
+\texttt{math/big.Int} for field elements, wrapping gnark-crypto's
+Poseidon2 permutation. This establishes correctness and provides
+initial performance measurements.
+
+\textbf{Phase 2: Optimized implementation.} SMT using gnark-crypto's
+native \texttt{fr.Element} type (Montgomery form, assembly-optimized),
+eliminating \texttt{big.Int} allocation overhead. This represents the
+production-viable implementation.
+
+Both phases use identical tree parameters (depth 32, BN254 scalar
+field) and benchmark workloads (100, 1,000, and 10,000 entries)
+to enable direct comparison.
+
+\subsection{Variables}
+
+\textbf{Independent variables:}
+\begin{itemize}
+  \item Account count: 100, 1,000, 10,000
+  \item Tree depth: 32 (matching RU-V1 baseline)
+  \item Batch size: 10, 50, 100, 250, 500 transactions
+  \item Implementation variant: \texttt{big.Int} vs.\ \texttt{fr.Element}
+\end{itemize}
+
+\textbf{Dependent variables:}
+\begin{itemize}
+  \item Hash latency ($\mu$s per Poseidon2 2-to-1 compression)
+  \item Insert latency ($\mu$s per SMT insert operation)
+  \item Proof generation latency ($\mu$s per Merkle proof)
+  \item Proof verification latency ($\mu$s per proof verification)
+  \item Batch update latency (ms per batch of $n$ updates)
+  \item Memory usage (MB at $n$ entries)
+\end{itemize}
+
+\textbf{Controls:}
+\begin{itemize}
+  \item Field: BN254 scalar field ($p = 2^{254} + \epsilon$)
+  \item Hash: Poseidon2 with $r_f = 6$, $r_p = 50$
+  \item Benchmark repetitions: 50 per configuration
+  \item Warmup iterations: 10 (excluded from measurements)
+  \item Key generation: deterministic sequential keys for
+    reproducibility
+\end{itemize}
+
+\subsection{Metrics and Evaluation Criteria}
+
+All metrics are standard in ZK systems literature:
+
+\begin{itemize}
+  \item \textbf{Latency metrics} reported as mean, standard
+    deviation, and percentiles (P50, P95, P99) over 50 repetitions.
+  \item \textbf{Throughput} derived as inverse of per-operation
+    latency.
+  \item \textbf{Memory} measured via Go's \texttt{runtime.MemStats}
+    after garbage collection.
+  \item \textbf{Speedup} computed as ratio of TypeScript RU-V1
+    baseline to Go optimized implementation.
+\end{itemize}
+
+The hypothesis is \textbf{confirmed} if batch update latency for
+a realistic block size ($\leq 250$ transactions) on a 10,000-entry
+tree remains below 50~ms, with memory under 1~GB.

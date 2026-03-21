@@ -1,0 +1,194 @@
+% BNR-2026-015 References
+% Basis Network Research
+
+% --- Enterprise Privacy Systems ---
+
+@inproceedings{rayls2025,
+  author    = {{Parfin}},
+  title     = {{Rayls II / Enygma}: Privacy-Preserving Enterprise Blockchain
+               with Commit Chain Architecture},
+  booktitle = {IACR ePrint Archive},
+  number    = {2025/1638},
+  year      = {2025},
+  note      = {Deployed for Brazilian Drex CBDC pilot by Nuclea and Cielo}
+}
+
+@inproceedings{rayles_sp2024,
+  author    = {{Parfin}},
+  title     = {Enygma: Privacy-Preserving Enterprise Ledger with
+               Zero-Knowledge Proofs and Homomorphic Encryption},
+  booktitle = {Proc. IEEE Symposium on Security and Privacy (S\&P)},
+  year      = {2024}
+}
+
+@techreport{epic2024,
+  author      = {{J.P. Morgan Kinexys}},
+  title       = {{Project EPIC}: Enterprise-Grade Privacy, Identity, and
+                 Composability for Institutional Blockchain},
+  institution = {J.P. Morgan},
+  year        = {2024}
+}
+
+@techreport{avacloud2024,
+  author      = {{Ava Labs}},
+  title       = {{AvaCloud}: Institutional Blockchain Privacy on {Avalanche}},
+  institution = {Ava Labs},
+  year        = {2024}
+}
+
+% --- Multi-Chain ZK Aggregation ---
+
+@techreport{agglayer2024,
+  author      = {{Polygon Labs}},
+  title       = {{AggLayer}: Pessimistic Proofs for Cross-Chain Safety with
+                 Unified Bridge},
+  institution = {Polygon Labs},
+  year        = {2024},
+  note        = {SP1/Plonky3 STARKs implementation}
+}
+
+@techreport{zksync2024,
+  author      = {{Matter Labs}},
+  title       = {{zkSync Elastic Chain}: Shared Bridge and Proof Aggregation
+                 with {ZK} Router and Gateway},
+  institution = {Matter Labs},
+  year        = {2024},
+  note        = {Approximately 1s soft confirmations; 15 recursive circuits}
+}
+
+@inproceedings{snarkpack2022,
+  author    = {Gailly, Nicolas and Maller, Mary and Nitulescu, Anca},
+  title     = {{SnarkPack}: Practical {SNARK} Aggregation},
+  booktitle = {Proc. Financial Cryptography and Data Security (FC)},
+  year      = {2022},
+  note      = {IACR ePrint 2021/529. O(log N) proof size; 8.7s at 8192 proofs}
+}
+
+@techreport{nebra2024,
+  author      = {{Nebra Labs}},
+  title       = {{Nebra UPA}: Universal Proof Aggregation for Heterogeneous
+                 {ZK} Proofs},
+  institution = {Nebra Labs},
+  year        = {2024},
+  note        = {Cost formula: 350K/N + 7K gas per proof}
+}
+
+% --- Cross-Chain Privacy Protocols ---
+
+@inproceedings{zkcross2024,
+  author    = {{Anonymous}},
+  title     = {{zkCross}: Cross-Chain Zero-Knowledge Auditing with {HTLC}
+               Atomicity},
+  booktitle = {IACR ePrint Archive},
+  number    = {2024/888},
+  year      = {2024}
+}
+
+@inproceedings{p2c2t2024,
+  author    = {{Anonymous}},
+  title     = {{P2C2T}: Privacy-Preserving Cross-Chain Token Transfer with
+               Atomicity and Unlinkability},
+  booktitle = {IACR ePrint Archive},
+  number    = {2024/1467},
+  year      = {2024}
+}
+
+@inproceedings{ultramixer2025,
+  author    = {{Anonymous}},
+  title     = {{UltraMixer}: Zero-Knowledge Whitelist Membership Proofs for
+               Cross-Chain Privacy},
+  booktitle = {IACR ePrint Archive},
+  number    = {2025/1715},
+  year      = {2025}
+}
+
+@techreport{ccip2024,
+  author      = {{Chainlink Labs}},
+  title       = {{Chainlink CCIP}: Privacy-Preserving Cross-Chain
+                 Interoperability Protocol},
+  institution = {Chainlink Labs},
+  year        = {2024}
+}
+
+% --- Cross-Chain Messaging ---
+
+@techreport{icm2025,
+  author      = {{Ava Labs}},
+  title       = {{Avalanche ICM/AWM}: Native Cross-{L1} Messaging with {BLS}
+                 Multi-Signatures},
+  institution = {Ava Labs},
+  year        = {2025},
+  note        = {Sub-second finality; configurable stake threshold}
+}
+
+@inproceedings{ibc2023,
+  author    = {{Anonymous}},
+  title     = {Performance Analysis of the {Inter-Blockchain Communication}
+               Protocol},
+  booktitle = {Proc. IEEE International Conference on Decentralized
+               Applications and Infrastructures (DAPPS)},
+  year      = {2023},
+  note      = {455s for 5000 transfers; RPC bottleneck = 69\% of relay time}
+}
+
+@techreport{layerzero2025,
+  author      = {{LayerZero Labs}},
+  title       = {{LayerZero} v2: Oracle-Relayer Dual Verification with
+                 Customizable Security},
+  institution = {LayerZero Labs},
+  year        = {2025}
+}
+
+@techreport{axelar2024,
+  author      = {{Axelar Network}},
+  title       = {Asset Depeg Isolation in Hub-and-Spoke vs.\ Mesh Topologies},
+  institution = {Axelar Network},
+  year        = {2024},
+  note        = {Fault containment analysis per spoke}
+}
+
+% --- Prior Basis Network Research ---
+
+@techreport{ruv7,
+  author      = {Tobar Quintero, Sebastian},
+  title       = {{BNR RU-V7}: Cross-Enterprise Verification with Zero-Knowledge
+                 Proofs for {Basis Network} Validium},
+  institution = {Base Computing S.A.S.},
+  year        = {2026},
+  note        = {68,868 constraints; 1-bit leakage; 3 verification strategies}
+}
+
+@techreport{rul10,
+  author      = {Tobar Quintero, Sebastian},
+  title       = {{BNR RU-L10}: Proof Aggregation via {ProtoGalaxy} Folding with
+                 {Groth16} Decider for {Basis Network} {zkEVM} {L2}},
+  institution = {Base Computing S.A.S.},
+  year        = {2026},
+  note        = {15.3x gas savings at N=8; 220K final gas; 11.75s aggregation}
+}
+
+@techreport{rul7,
+  author      = {Tobar Quintero, Sebastian},
+  title       = {{BNR RU-L7}: Lock-Mint Bridge Design with Escape Hatch for
+                 {Basis Network} {zkEVM} {L2}},
+  institution = {Base Computing S.A.S.},
+  year        = {2026},
+  note        = {4.6s deposit; 21.1s withdrawal on Avalanche}
+}
+
+@techreport{rul9,
+  author      = {Tobar Quintero, Sebastian},
+  title       = {{BNR RU-L9}: {PLONK} Migration for {Basis Network} {zkEVM}
+                 {L2} Proving System},
+  institution = {Base Computing S.A.S.},
+  year        = {2026},
+  note        = {Custom gates, lookup tables, universal setup}
+}
+
+@techreport{rul8,
+  author      = {Tobar Quintero, Sebastian},
+  title       = {{BNR RU-L8}: Production Data Availability Committee for
+                 {Basis Network} {zkEVM} {L2}},
+  institution = {Base Computing S.A.S.},
+  year        = {2026}
+}

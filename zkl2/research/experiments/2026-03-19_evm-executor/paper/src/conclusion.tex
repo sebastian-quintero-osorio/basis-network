@@ -1,0 +1,79 @@
+% conclusion.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Conclusion}
+
+This paper investigated the feasibility of using a minimal go-ethereum fork as
+the EVM execution engine for the Basis Network enterprise zkEVM L2. Through
+systematic analysis of five production L2 systems, a complete mapping of 75
+Cancun EVM opcodes to ZK constraint costs, and the design of a selective ZK
+tracer, we establish the following conclusions:
+
+\begin{enumerate}
+  \item The execution-proving separation pattern is universal across production
+    zkEVM systems. Geth's role is transaction execution and trace generation;
+    a separate prover (in our case, a Rust-based PLONK prover communicating
+    via gRPC) consumes these traces for proof generation.
+
+  \item A minimal Geth integration via Go module import (Strategy~A) is the
+    recommended approach, requiring approximately 24{,}500~LOC of Geth's core
+    packages with zero lines of EVM modification. This is validated by
+    Optimism's op-geth achieving a complete L2 with only 34~EVM lines changed,
+    and Scroll's subsequent migration away from tight fork coupling.
+
+  \item The \texttt{core/tracing} hooks API provides an efficient mechanism
+    for ZK-specific trace capture, with projected overhead of 10--30\% for
+    selective tracing versus 10--50$\times$ for full opcode capture.
+
+  \item Projected throughput of 4{,}000--12{,}000~tx/s for simple transfers
+    and 1{,}500--6{,}000~tx/s for storage writes with ZK tracing comfortably
+    exceeds the 1{,}000~tx/s hypothesis threshold.
+
+  \item KECCAK256 (${\sim}$150{,}000 R1CS constraints) and storage operations
+    (255 Poseidon operations per SLOAD/SSTORE) dominate ZK proving costs.
+    KECCAK256 mitigation via preimage oracle with lookup tables is a mandatory
+    circuit-level optimization.
+
+  \item Six architectural invariants (INV-EVM-1 through INV-EVM-6) are
+    established as constraints for downstream pipeline stages: the Logicist
+    (TLA+ specification), the Architect (Go/Rust implementation), and the
+    Prover (Coq verification).
+\end{enumerate}
+
+\subsection{Recommendations}
+
+For the Basis Network enterprise zkEVM L2 implementation:
+
+\begin{enumerate}
+  \item Import go-ethereum v1.14+ as a Go module dependency. Use
+    \texttt{core/vm}, \texttt{core/state}, \texttt{core/types},
+    \texttt{core/tracing}, and supporting packages.
+
+  \item Implement a custom \texttt{StateDB} satisfying the \texttt{vm.StateDB}
+    interface, backed by a Poseidon-based sparse Merkle tree for ZK-friendly
+    state management.
+
+  \item Deploy the selective ZK tracer (state changes only) in production, with
+    full opcode capture available as a debug mode.
+
+  \item Target Geth v1.14.12+ for the Cancun EVM feature set. Do not set
+    PragueTime in the chain configuration.
+
+  \item Monitor Scroll's Euclid migration and Geth upstream releases for
+    tracing API changes that may affect the \texttt{core/tracing.Hooks}
+    interface.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Immediate next steps in the Basis Network R\&D pipeline:
+
+\begin{itemize}
+  \item \textbf{RU-L2 (State Management)}: Design and benchmark the Poseidon
+    SMT implementation behind the \texttt{vm.StateDB} interface.
+  \item \textbf{RU-L3 (Witness Generation)}: Specify the exact trace format
+    consumed by the Rust prover and validate end-to-end trace completeness.
+  \item \textbf{Actual benchmarks}: Execute the Go benchmark suite on target
+    hardware to validate projected throughput figures.
+  \item \textbf{KECCAK256 circuit}: Design and benchmark the preimage oracle
+    with lookup tables for KECCAK256 proving.
+\end{itemize}

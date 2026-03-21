@@ -1,0 +1,121 @@
+% system-model.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{System Model}
+
+\subsection{Target Architecture}
+
+The Basis Network enterprise zkEVM L2 operates a per-enterprise chain
+architecture where each client enterprise runs an independent L2 instance.
+Each instance consists of:
+
+\begin{itemize}
+  \item A \textbf{Go-based sequencer/executor node} that receives transactions,
+    executes them against a Poseidon-based sparse Merkle tree (SMT), and
+    produces structured execution traces.
+  \item A \textbf{Rust-based ZK prover} that consumes execution traces via
+    gRPC, generates PLONK validity proofs, and returns proof artifacts.
+  \item A \textbf{proof submitter} that posts validity proofs and state roots
+    to the Basis Network L1 (Avalanche Subnet-EVM, Chain~ID 43199).
+\end{itemize}
+
+This architecture separates execution (Go) from proving (Rust), matching the
+established pattern observed in all five production zkEVM systems surveyed
+in Section~II.
+
+\subsection{EVM Execution Requirements}
+
+The execution engine must satisfy the following formal requirements:
+
+\begin{enumerate}
+  \item \textbf{Opcode completeness}: For every Cancun EVM opcode $o \in O_{cancun}$
+    and valid input state $\sigma$, the execution result must be identical to
+    the reference Geth implementation:
+    $\forall o \in O_{cancun}, \sigma: \text{exec}_{basis}(o, \sigma) = \text{exec}_{geth}(o, \sigma)$.
+
+  \item \textbf{Trace completeness}: For every executed transaction $tx$, the
+    trace $T(tx)$ must contain all state-modifying operations:
+    $T(tx) \supseteq \{(op, addr, slot, val) \mid op \in \{$SLOAD, SSTORE,
+    BALANCE$\_$CHANGE, NONCE$\_$CHANGE, LOG, CREATE$\}\}$.
+
+  \item \textbf{Throughput bound}: With selective ZK tracing enabled,
+    throughput must exceed 1{,}000 transactions per second for simple
+    transfers (21{,}000 gas each).
+\end{enumerate}
+
+\subsection{Geth Module Dependency Analysis}
+
+We analyze go-ethereum's module structure to identify the minimal set of
+packages required for standalone EVM execution with tracing.
+
+\begin{table}[htbp]
+\caption{Go-Ethereum Modules Required for Standalone Execution}
+\label{tab:geth-modules}
+\centering
+\begin{tabular}{llr}
+\toprule
+\textbf{Module} & \textbf{Purpose} & \textbf{LOC} \\
+\midrule
+\texttt{core/vm/} & EVM interpreter, opcodes, stack, memory & ${\sim}$8{,}000 \\
+\texttt{core/vm/runtime/} & Standalone execution helpers & ${\sim}$500 \\
+\texttt{core/state/} & StateDB, stateObject, journal & ${\sim}$5{,}000 \\
+\texttt{core/types/} & Transaction, Block, Receipt, Log & ${\sim}$4{,}000 \\
+\texttt{ethdb/} & Database interface (LevelDB, memorydb) & ${\sim}$1{,}000 \\
+\texttt{params/} & Chain config, protocol params & ${\sim}$2{,}000 \\
+\texttt{crypto/} & Keccak hashing, secp256k1 signing & ${\sim}$1{,}500 \\
+\texttt{common/} & Address, Hash, Big types & ${\sim}$2{,}000 \\
+\texttt{core/tracing/} & Tracing hooks interface & ${\sim}$500 \\
+\midrule
+\textbf{Subtotal (required)} & & ${\sim}$\textbf{24{,}500} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Go-Ethereum Modules Not Required}
+\label{tab:geth-excluded}
+\centering
+\begin{tabular}{llrl}
+\toprule
+\textbf{Module} & \textbf{Purpose} & \textbf{LOC} & \textbf{Exclusion Reason} \\
+\midrule
+\texttt{p2p/} & Peer networking & ${\sim}$15{,}000 & Custom L2 networking \\
+\texttt{eth/} & Protocol handler & ${\sim}$20{,}000 & Full node protocol \\
+\texttt{les/} & Light client & ${\sim}$10{,}000 & Not applicable \\
+\texttt{consensus/} & PoW/PoS consensus & ${\sim}$8{,}000 & L2 uses sequencer \\
+\texttt{miner/} & Block mining & ${\sim}$3{,}000 & Not applicable \\
+\texttt{cmd/} & CLI tools & ${\sim}$10{,}000 & Custom node binary \\
+\texttt{internal/} & Internal APIs & ${\sim}$5{,}000 & Custom APIs \\
+\midrule
+\textbf{Subtotal (excluded)} & & ${\sim}$\textbf{71{,}000} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The estimated fork ratio is approximately 24{,}500 / 95{,}500 $\approx$ 25\%
+of core Go code. In practice, the preferred approach imports go-ethereum as a
+Go module dependency rather than forking the repository, using only the
+required packages (Table~\ref{tab:geth-modules}).
+
+\subsection{Fork Strategy Decision Framework}
+
+Two strategies exist for integrating Geth's EVM:
+
+\textbf{Strategy~A (Import as Go module):}
+\begin{lstlisting}[language=Go]
+import (
+  "github.com/ethereum/go-ethereum/core/vm"
+  "github.com/ethereum/go-ethereum/core/state"
+)
+\end{lstlisting}
+This provides automatic upstream updates, zero maintenance burden, and clean
+dependency management, but limits modification to public APIs.
+
+\textbf{Strategy~B (Repository fork):}
+Full control over all internals, including the ability to modify StateDB,
+add custom opcodes, and alter execution semantics. The cost is merge
+conflicts on upstream updates and ongoing maintenance overhead.
+
+Based on the analysis in this paper, we recommend Strategy~A. The
+\texttt{vm.StateDB} interface is sufficiently abstract to accommodate a
+custom Poseidon SMT implementation, and the \texttt{core/tracing} hooks
+API provides the trace capture capabilities needed for ZK witness generation.

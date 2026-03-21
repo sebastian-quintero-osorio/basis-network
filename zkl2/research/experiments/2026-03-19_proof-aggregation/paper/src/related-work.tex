@@ -1,0 +1,79 @@
+\section{Related Work}
+\label{sec:related}
+
+We organize related work into four categories: foundational recursive
+SNARK theory, folding schemes, batch verification and aggregation, and
+production systems.
+
+\subsection{Recursive SNARK Composition}
+
+Bitansky et al.~\cite{bitansky-pcd} introduced proof-carrying data
+(PCD), establishing the theoretical foundation for recursive SNARK
+composition. Ben-Sasson et al.~\cite{ben-sasson-cycle} demonstrated
+practical recursion using cycles of elliptic curves (MNT4/MNT6),
+enabling native-field verification. Bowe, Grigg, and
+Hopwood~\cite{halo} introduced accumulation schemes that defer
+polynomial commitment checks rather than verifying them in-circuit,
+eliminating the need for trusted setup in the recursive step.
+B\"{u}nz et al.~\cite{bunz-accumulation} formalized the accumulation
+framework, generalizing the Halo approach to a broader class of
+proof systems. The inner product argument techniques of
+TIPP/MIPP~\cite{bunz-mipp} provided the algebraic foundation for
+SnarkPack's batch verification.
+
+\subsection{Folding Schemes}
+
+Nova~\cite{nova} introduced folding for relaxed R1CS, achieving
+incrementally verifiable computation (IVC) with a verifier circuit of
+approximately 10K constraints and constant memory regardless of the
+number of folding steps. CycleFold~\cite{cyclefold} reduced the
+secondary curve circuit from ${\sim}10$K to ${\sim}1.5$K constraints.
+SuperNova~\cite{supernova} extended folding to non-uniform IVC,
+supporting per-opcode circuits without a universal circuit tax.
+ProtoStar~\cite{protostar} and ProtoGalaxy~\cite{protogalaxy} adapted
+folding to PLONKish arithmetization, enabling native support for custom
+gates and lookup tables. HyperNova~\cite{hypernova} unified R1CS,
+PLONKish, and AIR under the Customizable Constraint System (CCS)
+abstraction, achieving multi-folding with a single multi-scalar
+multiplication per fold step.
+
+\subsection{Batch Verification and Aggregation}
+
+SnarkPack~\cite{snarkpack} batches $N$ Groth16 proofs into a single
+$O(\log N)$-sized proof using inner product arguments in the pairing
+setting, achieving verification of 8,192 proofs in 8.7\,s with proof
+size under 1.8\,KB. SnarkFold~\cite{snarkfold} applies Nova-style
+folding to SNARK verification circuits, reporting 4.5\,ms verification
+for 4,096 aggregated proofs.
+
+\subsection{Production Systems}
+
+Six production systems provide reference benchmarks for aggregation
+performance:
+
+\begin{itemize}
+  \item \textbf{Polygon zkEVM}~\cite{polygon-zkevm} uses eSTARK to
+    FFLONK binary tree aggregation, achieving ${\sim}350$K gas for the
+    final verification.
+  \item \textbf{zkSync Era (Boojum)}~\cite{zksync-era} employs a custom
+    PLONK+FRI system with 15 recursive circuits and a PLONK-KZG wrapper,
+    verifying at ${\sim}460$K gas.
+  \item \textbf{Scroll (Darwin)}~\cite{scroll-darwin} implements a
+    chunk-batch-bundle hierarchy using halo2-KZG, achieving 34\% gas
+    reduction via bundling.
+  \item \textbf{Nebra UPA}~\cite{nebra-upa} provides universal proof
+    aggregation, reaching ${\sim}18$K gas per proof at $N{=}32$.
+  \item \textbf{Axiom V2}~\cite{axiom-v2} uses halo2-KZG with the
+    snark-verifier library for recursive aggregation at 420K fixed gas
+    on Ethereum mainnet.
+  \item \textbf{Taiko (Raiko)}~\cite{taiko-raiko} implements a
+    multi-proof hybrid (SGX+ZK) but is not primarily focused on proof
+    aggregation.
+\end{itemize}
+
+Our work differs from these systems in its enterprise-specific focus:
+rather than aggregating batches within a single rollup, we aggregate
+independent proofs from $N$ separate enterprise chains, each with its
+own circuit and state. This introduces requirements for independence
+preservation and order independence that do not arise in single-rollup
+aggregation.

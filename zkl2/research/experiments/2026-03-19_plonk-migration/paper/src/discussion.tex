@@ -1,0 +1,172 @@
+% discussion.tex -- BNR-2026-013
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Proving Time Convergence}
+
+The most significant finding is the scale-dependent convergence
+of halo2-KZG proving time toward Groth16. At 10~arithmetic
+steps, halo2-KZG is 4.7$\times$ slower; at 500~steps, the ratio
+drops to 1.2$\times$. This convergence is explained by three
+factors:
+
+\begin{enumerate}
+  \item \textbf{Fixed overhead amortization}: halo2-KZG incurs
+    fixed costs for FFT setup, polynomial commitment, and SRS
+    loading that are independent of circuit size. These costs
+    dominate at small scales but become negligible as row count
+    increases.
+  \item \textbf{Equivalent asymptotic complexity}: Both Groth16
+    and halo2-KZG have $O(n \log n)$ proving complexity, so
+    per-row marginal cost is comparable.
+  \item \textbf{Power-of-two padding}: halo2 circuits are padded
+    to the next power of two ($2^k$ rows). Small circuits pay
+    significant padding overhead (e.g., 11 constraints padded to
+    32~rows), but this penalty diminishes at larger scales.
+\end{enumerate}
+
+At production scale---enterprise state transition circuits with
+30K--50K rows after custom gate optimization---the proving time
+ratio is projected to approach 1.0$\times$ or potentially favor
+halo2-KZG due to reduced row count.
+
+\subsection{Custom Gate Impact}
+
+The hash chain benchmark directly measures the impact of custom
+gates: the degree-5 S-box gate ($s \cdot (a^5 + c - b) = 0$)
+reduces 3~R1CS constraints to 1~PLONKish row per hash round,
+a 2.4$\times$ row reduction at chain length~100 (301~constraints
+vs 128~rows).
+
+For full Poseidon hashing (width~3, 8~full rounds + partial
+rounds), the projected reduction is more dramatic: $\sim$211~R1CS
+constraints reduce to $\sim$12 halo2 rows using degree-5 S-box
+gates, representing a 17$\times$ reduction. Since the Basis
+Network state trie is Poseidon-based, this reduction translates
+directly to faster proving.
+
+The current Validium circuit (274,291 R1CS constraints) is
+projected to reduce to 30K--50K halo2 rows with full custom gate
+optimization (ArithmeticGate, PoseidonGate, BitwiseGate,
+StorageGate), representing a 5--9$\times$ circuit size reduction.
+
+\subsection{Proposed Custom Gate Architecture}
+
+Table~\ref{tab:gate-arch} presents the proposed custom gate
+architecture for the Basis Network zkEVM prover, informed by
+Scroll and zkSync patterns.
+
+\begin{table}[htbp]
+\caption{Proposed Custom Gate Architecture for zkEVM}
+\label{tab:gate-arch}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Gate} & \textbf{EVM Opcodes} & \textbf{Reduction} \\
+\midrule
+ArithmeticGate & ADD, SUB, MUL, DIV & 100--250$\times$ \\
+BitwiseGate & AND, OR, XOR, SHL, SHR & 25--31$\times$ \\
+ComparisonGate & LT, GT, SLT, SGT, EQ & 8--50$\times$ \\
+MemoryGate & MLOAD, MSTORE, MCOPY & Permutation \\
+StorageGate & SLOAD, SSTORE & Poseidon + path \\
+StackGate & PUSH, POP, DUP, SWAP & Permutation \\
+PoseidonGate & State root computation & 600--900$\times$ \\
+HashGate & KECCAK256 & 5--10$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Migration Strategy}
+
+We propose a two-phase migration to minimize risk:
+
+\textbf{Phase~1: Dual Verification.} Deploy a PLONKVerifier
+contract alongside the existing Groth16Verifier on the Basis
+Network L1. The BasisRollup contract accepts both proof types
+via a router pattern. New enterprise chains deploy with PLONK;
+existing chains continue Groth16. This ensures zero downtime
+and provides a fallback path.
+
+\textbf{Phase~2: PLONK-Only.} After validation, all enterprise
+chains migrate to the halo2-KZG prover. The Groth16Verifier
+remains deployed for historical proof verification but is
+deprecated for new batches. The universal SRS is published and
+frozen for the deployment.
+
+\subsection{SRS Requirements}
+
+The universal Structured Reference String must support circuits
+up to a maximum row count:
+
+\begin{itemize}
+  \item Current Groth16 circuit: 274K R1CS constraints
+  \item Enterprise circuits: $\sim$500 constraints/tx $\times$
+    1,000~tx/batch = $\sim$500K rows
+  \item Safety margin: $2^{20} \approx 1$M rows ($k = 20$)
+\end{itemize}
+
+PSE's converted perpetual-powers-of-tau files provide SRS for
+$k$ up to 26 ($\sim$67M rows). Scroll uses $k \in \{20, 24, 26\}$.
+For Basis Network, $k = 20$ is sufficient for initial deployment,
+with headroom to $k = 24$ for future circuit growth.
+
+\subsection{Projected Production Performance}
+
+Based on our benchmarks, published Axiom data, and custom gate
+analysis, we project the following production metrics for the
+Basis Network zkEVM L2 prover:
+
+\begin{itemize}
+  \item \textbf{Row count}: 30K--50K rows (5--9$\times$ reduction
+    from 274K R1CS constraints via custom gates)
+  \item \textbf{Circuit size}: $k = 16$--17 (64K--128K rows with
+    power-of-two padding)
+  \item \textbf{Proving time}: 2--8~s (based on Axiom's 2~s for
+    ECDSA at $k = 15$)
+  \item \textbf{Proof size}: 672--900~bytes
+  \item \textbf{Verification gas}: 290--420K ($< 500$K budget)
+  \item \textbf{Setup}: Universal SRS (one-time, reusable)
+\end{itemize}
+
+\subsection{FFLONK Alternative}
+
+For applications requiring minimum verification gas, a two-layer
+approach---halo2-KZG inner proof with FFLONK outer wrapper---could
+reduce L1 verification to $\sim$200K gas (the Polygon zkEVM
+pattern). However, on the zero-fee Basis Network L1, the
+additional 120--220K gas savings do not justify the implementation
+complexity. The simpler single-layer halo2-KZG at 290--420K gas
+is recommended.
+
+\subsection{Risk Assessment}
+
+Table~\ref{tab:risks} identifies migration risks and mitigations.
+
+\begin{table}[htbp]
+\caption{Risk Assessment}
+\label{tab:risks}
+\centering
+\begin{tabular}{@{}p{2.5cm}lp{3cm}@{}}
+\toprule
+\textbf{Risk} & \textbf{Severity} & \textbf{Mitigation} \\
+\midrule
+Verification gas exceeds 500K & Low & Axiom production: 420K \\
+SRS ceremony compromise & Medium & PSE PoT (71+ participants) \\
+Axiom fork unmaintained & Medium & PSE fork fallback; stable API \\
+Custom gate design errors & High & Coq verification; MockProver \\
+Proving time regression & Low & Poseidon-heavy = PLONK advantage \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations}
+
+Our benchmarks use small circuits (10--500 steps) on a commodity
+desktop. While the convergence trend is clear, production-scale
+validation at 30K--50K rows on server hardware is needed before
+deployment. Published production data from Scroll, Axiom, and
+Taiko corroborates our projections but uses different circuit
+structures. The hash chain benchmark approximates Poseidon via
+an $x^5$ S-box; a full Poseidon circuit would provide more
+precise constraint reduction measurements.

@@ -1,0 +1,83 @@
+% system-model.tex -- BNR-2026-013
+
+\section{System Model}
+\label{sec:system}
+
+\subsection{Basis Network Architecture}
+
+Basis Network operates as an Avalanche L1 (Subnet-EVM) with
+Chain~ID~43199, providing zero-fee permissioned infrastructure
+for enterprise traceability. The current Validium MVP processes
+enterprise transactions through an off-chain node that:
+
+\begin{enumerate}
+  \item Maintains a Sparse Merkle Tree (depth~32) of enterprise
+    state using Poseidon hashing over BN254.
+  \item Aggregates transactions into batches (currently batch
+    size~8).
+  \item Generates Groth16 proofs via Circom/SnarkJS (274,291
+    R1CS constraints, 12.9~s proving time).
+  \item Submits proofs and state roots to the L1 for on-chain
+    verification (306K gas via delegated Groth16Verifier).
+\end{enumerate}
+
+The evolution to a zkEVM L2 requires each enterprise to deploy
+its own chain with full EVM compatibility, necessitating a more
+flexible proof system.
+
+\subsection{Enterprise Constraints}
+
+The proof system must satisfy the invariants in
+Table~\ref{tab:constraints}, derived from the Basis Network
+objectives and invariants specification (ZK-01).
+
+\begin{table}[htbp]
+\caption{Enterprise Proof System Constraints}
+\label{tab:constraints}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{ID} & \textbf{Constraint} & \textbf{Target} \\
+\midrule
+C1 & Verification gas & $< 500$K \\
+C2 & Proof size & $< 1$~KB \\
+C3 & Proving time ratio vs Groth16 & $< 2\times$ at scale \\
+C4 & Setup type & Universal or transparent \\
+C5 & EVM curve compatibility & BN254 (EIP-196/197) \\
+C6 & Custom gate support & Required \\
+C7 & Recursive proof support & Required \\
+C8 & Implementation language & Rust-native \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Candidate Proof Systems}
+
+We evaluate five proof systems spanning three commitment
+schemes:
+
+\begin{itemize}
+  \item \textbf{Groth16} (BN254): R1CS arithmetization, per-circuit
+    trusted setup, pairing-based verification. Current production
+    system.
+  \item \textbf{PLONK-KZG} (BN254): PLONKish arithmetization,
+    universal KZG-based SRS, pairing-based verification.
+  \item \textbf{halo2-KZG} (BN254): PLONKish arithmetization via
+    halo2 framework, KZG commitments on BN254, custom gates and
+    lookup tables.
+  \item \textbf{halo2-IPA} (Pasta): PLONKish arithmetization,
+    Inner Product Argument on Pallas/Vesta curves, transparent setup.
+  \item \textbf{plonky2} (Goldilocks): PLONKish arithmetization
+    with FRI commitments over 64-bit Goldilocks field, transparent
+    setup.
+\end{itemize}
+
+\subsection{Threat Model}
+
+The proof system migration must preserve invariant I-07 (Proof
+Soundness) from the Basis Network threat model (ZK-02): no
+computationally bounded adversary can produce a valid proof for
+an invalid state transition. During the dual-verification
+transition period, the system must additionally guarantee that no
+batch goes unverified---i.e., every submitted batch is validated
+by at least one proof system at all times.

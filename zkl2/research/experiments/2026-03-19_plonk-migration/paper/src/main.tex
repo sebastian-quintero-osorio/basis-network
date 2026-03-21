@@ -1,0 +1,113 @@
+% main.tex -- Master document
+% BNR-2026-013: PLONK Migration from Groth16 to halo2-KZG
+% for Enterprise zkEVM L2
+%
+% Compile:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+% --- Paper ID and Classification Footer ---
+\fancypagestyle{basisnetwork}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize BNR-2026-013}%
+  \fancyhead[R]{\footnotesize Basis Network Research}%
+  \fancyfoot[C]{\footnotesize Basis Network Research -- Internal Technical Report. Web: https://basisnetwork.com.co}%
+  \fancyfoot[R]{\footnotesize \thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% Listings style for Rust
+\lstdefinelanguage{Rust}{
+  keywords={fn, let, mut, pub, struct, impl, use, mod, crate, self, super,
+            return, if, else, for, while, loop, match, enum, trait, type,
+            where, const, static, ref, move, async, await, unsafe, extern},
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  sensitive=true
+}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=2
+}
+
+% Metadata
+\title{PLONK Migration from Groth16 to halo2-KZG\\for Enterprise zkEVM L2}
+
+\author{
+  \IEEEauthorblockN{Sebastian Tobar Quintero}
+  \IEEEauthorblockA{
+    Basis Network Research\\
+    Base Computing S.A.S.\\
+    NIT: 901872120-5\\
+    Medell\'{i}n, Colombia\\
+    sebastian@basisnetwork.co
+  }
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{basisnetwork}
+\pagestyle{basisnetwork}
+
+% Abstract
+\input{abstract}
+
+% Keywords
+\begin{IEEEkeywords}
+zero-knowledge proofs, PLONK, Groth16, halo2, KZG, custom gates, universal SRS, zkEVM, enterprise blockchain, proof migration
+\end{IEEEkeywords}
+
+% Sections
+\input{introduction}
+\input{related-work}
+\input{system-model}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+% Acknowledgment
+\section*{Acknowledgment}
+
+This work was produced by the Basis Network Automated R\&D Laboratory,
+a 4-agent research pipeline operated by Base Computing S.A.S. The
+experiment (RU-L9) builds on the production Groth16 pipeline established
+in the Validium MVP and feeds downstream to The Logicist (TLA+
+specification), The Architect (production implementation in Rust), and
+The Prover (Coq verification of soundness preservation).
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

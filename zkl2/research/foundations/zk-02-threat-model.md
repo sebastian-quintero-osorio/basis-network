@@ -385,6 +385,55 @@ restart relayer from last processed event.
 **Source:** RU-L7 design analysis.
 **Severity:** MEDIUM -- service disruption but no fund loss.
 
+### T-32: Proof System Migration Gap
+
+**Threat:** During migration from Groth16 to PLONK/halo2-KZG, a batch is committed with
+one proof system but the verifier only accepts the other, creating a window where no valid
+proof can be submitted.
+**Impact:** Batches stuck in Committed state, unable to advance to Proven/Executed.
+**Mitigation:** (a) Dual verification router: BasisRollup accepts both Groth16 AND PLONK
+proofs during transition period, (b) per-enterprise migration flag allowing controlled
+rollout, (c) migration can be rolled back by re-enabling legacy verifier.
+**Source:** RU-L9 PLONK Migration research.
+**Severity:** MEDIUM -- operational disruption if migration is not carefully coordinated.
+
+### T-33: Universal SRS Compromise
+
+**Threat:** The universal Structured Reference String (Powers-of-Tau) ceremony is compromised
+-- all MPC participants collude or leak their toxic waste.
+**Impact:** Attacker can forge proofs for any circuit using the SRS, breaking soundness.
+**Mitigation:** (a) Use PSE perpetual-powers-of-tau ceremony (71+ participants; only 1 honest
+participant needed), (b) SRS is updateable: any party can add randomness post-ceremony,
+(c) for maximum security, Basis Network can contribute its own participant to the ceremony,
+(d) enterprise context: the attacker would need to forge proofs AND control the sequencer.
+**Source:** RU-L9 PLONK Migration, PLONK paper (IACR 2019/953).
+**Severity:** LOW -- 71+ participants makes total compromise extremely unlikely.
+
+### T-34: Custom Gate Soundness Error
+
+**Threat:** A custom gate's polynomial constraint does not correctly encode the intended
+EVM operation. The gate accepts invalid witnesses, allowing false state transitions.
+**Impact:** Invalid state transitions pass proof verification. Potential fund theft via
+forged proofs.
+**Mitigation:** (a) halo2 MockProver detects constraint violations during development,
+(b) formal verification of each gate via Coq (RU-L9 Prover step), (c) extensive test
+vectors comparing gate output against reference EVM execution, (d) production zkEVMs
+(Scroll, Taiko) have validated the halo2 custom gate approach.
+**Source:** RU-L9 PLONK Migration research.
+**Severity:** HIGH -- soundness bugs are the most critical ZK vulnerability. Mitigated
+by formal verification and extensive testing.
+
+### T-35: halo2 Library Dependency Risk
+
+**Threat:** The selected halo2 fork (Axiom or PSE) introduces a regression, vulnerability,
+or becomes unmaintained.
+**Impact:** Security vulnerability in the proving system, or inability to update dependencies.
+**Mitigation:** (a) PSE fork is in maintenance mode (bug fixes), providing a stable fallback,
+(b) Axiom fork is actively maintained and production-grade, (c) halo2 API is stable; switching
+forks requires minimal code changes, (d) Basis Network can fork the library if needed.
+**Source:** RU-L9 PLONK Migration research (PSE maintenance mode announcement Jan 2025).
+**Severity:** MEDIUM -- library risk is real but mitigated by ecosystem breadth.
+
 ## Experiment Log
 
 | Date | Experiment | Threats Discovered/Updated | Update |
@@ -395,3 +444,92 @@ restart relayer from last processed event.
 | 2026-03-19 | RU-L3: Witness Generation | T-17 through T-20 | Witness completeness, determinism, IPC latency, JSON bottleneck |
 | 2026-03-19 | RU-L5: Basis Rollup | T-21 through T-24 | L1 rollup contract threats: front-running, stale proofs, gas exhaustion, cross-enterprise revert |
 | 2026-03-19 | RU-L7: Bridge | T-10 (updated), T-25 through T-31 | Bridge security threats: double-spend, escape hatch, reentrancy, relayer failure |
+| 2026-03-19 | RU-L9: PLONK Migration | T-32 through T-35 | Migration gap, SRS compromise, custom gate soundness, library dependency |
+| 2026-03-20 | RU-L11: Hub-and-Spoke | T-36 through T-42 | Cross-enterprise attacks: false cross-ref, stale root, commitment replay, front-running, hub manipulation, timeout griefing, topology leak |
+
+---
+
+## Cross-Enterprise Hub-and-Spoke Threats (RU-L11)
+
+### T-36: False Cross-Enterprise Reference
+
+**Threat:** Attacker fabricates a cross-enterprise reference claiming an interaction
+that never occurred between enterprises A and B.
+**Impact:** False business claim recorded on L1 (e.g., fake invoice verification).
+**Mitigation:** Hub contract verifies ZK proof against both enterprises' state roots
+(independently verified on L1). Forging requires breaking either: (a) ZK proof
+soundness (128-bit security on BN254), or (b) Poseidon preimage resistance (128-bit).
+Both are computationally infeasible.
+**Source:** RU-L11 Hub-and-Spoke research. Extended from RU-V7 ATK-CE1.
+**Severity:** CRITICAL -- false cross-references could cause real financial damage.
+
+### T-37: Stale State Root in Cross-Reference
+
+**Threat:** Enterprise submits cross-reference proof against an old (but once-valid)
+state root, referencing data that has since been updated or deleted.
+**Impact:** Cross-reference based on outdated enterprise state.
+**Mitigation:** Hub contract verifies state root against CURRENT on-chain root in
+StateCommitment contract. Stale roots are always rejected. Measured: 100% rejection
+rate in 30/30 tests.
+**Source:** RU-L11 Hub-and-Spoke research. Extended from RU-V7 ATK-CE2.
+**Severity:** HIGH -- stale references could validate outdated claims.
+
+### T-38: Cross-Reference Commitment Replay
+
+**Threat:** Replay a valid commitment from a previous cross-enterprise transaction.
+**Impact:** Duplicate cross-enterprise record without new underlying interaction.
+**Mitigation:** Per-enterprise-pair nonce tracked on-chain. Each nonce can only be
+used once. Replay attempts are rejected with "nonce already processed". Nullifier
+set prevents cross-nonce replay.
+**Source:** RU-L11 Hub-and-Spoke research. Extended from RU-V7 ATK-CE3.
+**Severity:** HIGH -- replay could cause double-counting of interactions.
+
+### T-39: Cross-Enterprise Front-Running
+
+**Threat:** Observer detects pending cross-enterprise transaction in mempool and
+extracts relationship information or front-runs the transaction.
+**Impact:** Information leakage or transaction manipulation.
+**Mitigation:** (a) Commitment hides data content (Poseidon 128-bit). Only 1 bit
+of information available (interaction exists). (b) Basis Network is permissioned --
+only authorized submitters can send transactions. (c) Zero-fee model eliminates
+MEV incentive. (d) Enterprise sequencers can use private mempools.
+**Source:** RU-L11 Hub-and-Spoke research. Extended from RU-V7 ATK-CE4.
+**Severity:** LOW on permissioned network. MEDIUM on public network.
+
+### T-40: Hub Coordinator Manipulation
+
+**Threat:** Hub coordinator (off-chain aggregation service) selectively excludes,
+delays, or reorders cross-enterprise messages for profit or sabotage.
+**Impact:** Censorship of cross-enterprise transactions; delayed settlement.
+**Mitigation:** (a) Enterprises can bypass the coordinator and submit directly to
+L1 using sequential verification (1.41x overhead but functional). (b) Hub
+coordinator is an optimization, not a requirement. (c) Multiple competing
+coordinators can exist. (d) On-chain inclusion is permissionless.
+**Source:** RU-L11 Hub-and-Spoke research. Extended from RU-V7 ATK-CE5.
+**Severity:** MEDIUM -- degraded performance but no data loss or security breach.
+
+### T-41: Atomic Settlement Timeout Griefing
+
+**Threat:** Enterprise A submits one side of an atomic cross-enterprise transaction
+and never submits the second side, intentionally blocking Enterprise B's resources.
+**Impact:** Enterprise B's cross-enterprise slot is locked until timeout.
+**Mitigation:** (a) Timeout mechanism (T blocks, default 100 = ~200 seconds).
+After timeout, either party can unilaterally revert. (b) No funds are locked during
+the prepare phase -- only a logical slot is reserved. (c) Enterprise reputation
+system can penalize repeat griefers.
+**Source:** RU-L11 Hub-and-Spoke research (new threat, not in RU-V7).
+**Severity:** LOW -- bounded by timeout. No financial loss, only temporary delay.
+
+### T-42: Network Topology Information Leakage
+
+**Threat:** Observer reconstructs the enterprise interaction graph from on-chain
+cross-enterprise events, revealing business relationships.
+**Impact:** Competitive intelligence extraction (who trades with whom, how often).
+**Mitigation:** (a) Enterprise IDs are public by design (registered on L1). This is
+known and accepted. (b) Interaction frequency can be masked by batching multiple
+interactions or padding with null interactions. (c) Commitment content is hidden;
+only existence is visible. (d) For maximum privacy, enterprises can use intermediate
+relay enterprises to break linkability.
+**Source:** RU-L11 Hub-and-Spoke research (new threat, not in RU-V7).
+**Severity:** MEDIUM -- business relationship patterns are sensitive for enterprise users.
+Future work: evaluate k-anonymity approaches for interaction graph privacy.

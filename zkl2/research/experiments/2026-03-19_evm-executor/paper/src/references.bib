@@ -1,0 +1,141 @@
+% references.bib -- EVM Executor Paper (BNR-2026-008)
+% BibTeX entries for the minimal Geth fork EVM execution engine paper
+
+@misc{buterin2022zkevm,
+  author       = {Buterin, Vitalik},
+  title        = {The Different Types of {ZK-EVMs}},
+  howpublished = {Blog post},
+  year         = {2022},
+  note         = {Defines Type 1--4 zkEVM compatibility spectrum}
+}
+
+@article{chaliasos2024analyzing,
+  author    = {Chaliasos, Stefanos and others},
+  title     = {Analyzing and Benchmarking {ZK-Rollups}},
+  journal   = {IACR ePrint 2024/889},
+  year      = {2024},
+  note      = {Presented at AFT 2024. Polygon 190--200s/batch proving time}
+}
+
+@article{burchardt2025constraint,
+  author    = {Burchardt, Alexander and others},
+  title     = {Constraint-Level Design of {zkEVMs}},
+  journal   = {arXiv:2510.05376},
+  year      = {2025},
+  note      = {PLONKish vs R1CS cost analysis, Type 1--4 spectrum formalization}
+}
+
+@misc{polygon2024cdk,
+  author       = {{Polygon Labs}},
+  title        = {{Polygon CDK}: {cdk-erigon} Architecture},
+  howpublished = {Polygon technical documentation},
+  year         = {2024},
+  note         = {Erigon fork, 10x less disk, 150x faster sync vs zkevm-node}
+}
+
+@misc{polygon2024zkcounters,
+  author       = {{Polygon Labs}},
+  title        = {{zkEVM ROM} Opcode Cost {ZK} Counters},
+  howpublished = {GitHub: 0xPolygonHermez/zkevm-rom},
+  year         = {2024},
+  note         = {Per-opcode ZK counter costs: cnt\_arith, cnt\_binary, cnt\_keccak\_f, cnt\_poseidon\_g}
+}
+
+@misc{scroll2024whitepaper,
+  author       = {{Scroll Foundation}},
+  title        = {Scroll Whitepaper v1.0},
+  howpublished = {Scroll technical documentation},
+  year         = {2024},
+  note         = {Geth fork with zktrie (Poseidon SMT), zkEVM circuit specification}
+}
+
+@misc{scroll2025euclid,
+  author       = {{Scroll Foundation}},
+  title        = {Scroll Euclid Upgrade: Migration to {MPT} + {OpenVM}},
+  howpublished = {Scroll blog},
+  year         = {2025},
+  note         = {Moving from custom zktrie back to standard MPT with general-purpose zkVM}
+}
+
+@misc{zksync2024architecture,
+  author       = {{Matter Labs}},
+  title        = {{zkSync Era}: {EraVM} Architecture and Blocks/Batches},
+  howpublished = {zkSync documentation},
+  year         = {2024},
+  note         = {Custom register-based VM, EVM interpreter on top, Boojum 2.0 upgrade}
+}
+
+@misc{optimism2024opgeth,
+  author       = {{OP Labs}},
+  title        = {{op-geth}: Optimism {Geth} Fork Diff},
+  howpublished = {op-geth.optimism.io},
+  year         = {2024},
+  note         = {16,881 lines added, 664 deleted, 34 lines in EVM (precompile/caller overrides)}
+}
+
+@misc{paradigm2024reth,
+  author       = {{Paradigm}},
+  title        = {Reth: Modular, Contributor-Friendly, and Blazing Fast {Ethereum} Execution Client},
+  howpublished = {GitHub: paradigmxyz/reth},
+  year         = {2024},
+  note         = {100--200 MGas/s live sync, 700 MGas/s single-threaded with prewarming}
+}
+
+@misc{paradigm2024revmc,
+  author       = {{Paradigm}},
+  title        = {{revmc}: {EVM} Bytecode Compiler},
+  howpublished = {GitHub: paradigmxyz/revmc},
+  year         = {2024},
+  note         = {JIT compiler for EVM, 1.85x--19x improvement over interpreter}
+}
+
+@misc{galxe2025gravity,
+  author       = {{Galxe}},
+  title        = {Gravity {Reth}: High-Performance {EVM} Execution},
+  howpublished = {Galxe documentation},
+  year         = {2025},
+  note         = {41,000 ERC20 transfers/s (1.5 GGas/s), 1.9 GGas/s Uniswap workload}
+}
+
+@misc{geth2024tracing,
+  author       = {{Ethereum Foundation}},
+  title        = {Go {Ethereum}: Tracing Infrastructure},
+  howpublished = {Geth documentation},
+  year         = {2024},
+  note         = {structLogger (10--50x overhead), callTracer, custom Go tracers}
+}
+
+@misc{geth2024hooks,
+  author       = {{Ethereum Foundation}},
+  title        = {Go {Ethereum} Core Tracing Hooks {API} (v1.14+)},
+  howpublished = {Geth source: core/tracing/hooks.go},
+  year         = {2024},
+  note         = {OnOpcode, OnStorageChange, OnBalanceChange, OnNonceChange callbacks}
+}
+
+@misc{pse2024zkevm,
+  author       = {{Privacy and Scaling Explorations}},
+  title        = {{zkEVM} Circuits Specification},
+  howpublished = {PSE documentation},
+  year         = {2024},
+  note         = {Community zkEVM circuit design and opcode constraint analysis}
+}
+
+@inproceedings{groth2016size,
+  author    = {Groth, Jens},
+  title     = {On the Size of Pairing-Based Non-interactive Arguments},
+  booktitle = {Advances in Cryptology -- EUROCRYPT 2016},
+  year      = {2016},
+  pages     = {305--326},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {9666}
+}
+
+@misc{quarkchain2026reth,
+  author       = {{QuarkChain}},
+  title        = {Reth Single-Threaded Execution with State Prewarming},
+  howpublished = {QuarkChain blog},
+  year         = {2026},
+  note         = {${\sim}$700 MGas/s single-threaded Reth execution}
+}

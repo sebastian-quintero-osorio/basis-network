@@ -1,0 +1,57 @@
+% introduction.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Introduction}
+
+The construction of a zero-knowledge Ethereum Virtual Machine (zkEVM) Layer~2
+requires solving a fundamental architectural problem: how to execute EVM bytecode
+with full compatibility while simultaneously producing the structured execution
+traces that a zero-knowledge prover requires for witness generation. This problem
+sits at the intersection of systems engineering (EVM execution performance, state
+management, tracing infrastructure) and applied cryptography (constraint system
+design, hash function selection, proof generation).
+
+Basis Network is an enterprise blockchain platform deployed on Avalanche,
+targeting Latin American industrial and commercial clients. The platform operates
+an application-specific L1 (Subnet-EVM, Chain~ID 43199) with zero-fee
+permissioned transactions. The next phase of development---an enterprise zkEVM
+L2---requires each client enterprise to operate its own execution chain with
+ZK validity proofs verified on the Basis Network L1. This architecture demands
+an execution engine that satisfies three properties simultaneously:
+
+\begin{enumerate}
+  \item \textbf{Full Cancun opcode compatibility}: Enterprise smart contracts
+    compiled with Solidity 0.8.24+ targeting the Cancun EVM version must execute
+    identically to mainnet Ethereum, including transient storage (EIP-1153),
+    memory copy (EIP-5656), and blob operations (EIP-4844).
+  \item \textbf{Structured trace generation}: Every state-modifying operation
+    (storage reads/writes, balance changes, nonce updates, log emissions,
+    contract creation) must be captured in a format consumable by the downstream
+    Rust-based ZK prover via gRPC.
+  \item \textbf{Enterprise-grade throughput}: The execution engine must sustain
+    at least 1{,}000 transactions per second with trace generation enabled,
+    matching the throughput requirements of industrial traceability and
+    commercial ERP workloads.
+\end{enumerate}
+
+The research question addressed by this paper is:
+
+\medskip
+\noindent\textit{Can a minimal fork of go-ethereum execute EVM transactions with
+custom state management, producing execution traces necessary for ZK witness
+generation, while maintaining 100\% Cancun opcode compatibility and processing
+1{,}000+ simple transactions per second?}
+\medskip
+
+This question is investigated through a systematic analysis of five production
+L2 architectures, a complete mapping of Cancun EVM opcodes to their
+zero-knowledge constraint costs, and the design of a custom ZK tracer
+that leverages Geth's event-driven tracing hooks API.
+
+The remainder of this paper is organized as follows. Section~II surveys related
+work on zkEVM architectures and EVM fork strategies. Section~III presents the
+system model and architectural constraints. Section~IV describes the
+experimental methodology, including the opcode constraint mapping and tracer
+design. Section~V details the experimental setup. Section~VI presents results
+including projected throughput benchmarks and constraint cost analysis.
+Section~VII discusses implications, invariants, and limitations. Section~VIII
+concludes with recommendations for the Basis Network execution engine.

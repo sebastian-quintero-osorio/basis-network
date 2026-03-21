@@ -743,7 +743,7 @@ lab/4-prover/verification-history/YYYY-MM-production-dac/
 
 ### [32] Prover | RU-L8: Production DAC
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 19 theorems, 0 Admitted, 1,360 lines Coq, 8 safety invariants + 3 crypto properties)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [31] complete, snapshots prepared.
@@ -766,7 +766,7 @@ lab/4-prover/verification-history/YYYY-MM-production-dac/
 
 ### [33] Scientist | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- halo2-KZG selected, Rust benchmarks, 402-line findings, BN254 field compatible)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [21] complete (needs working E2E pipeline).
@@ -790,7 +790,7 @@ lab/2-logicist/research-history/YYYY-MM-plonk-migration/0-input/
 
 ### [34] Logicist | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 3.98M states, 9 invariants, dual-verification + rollback)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [33] complete, materials in `0-input/`.
@@ -813,7 +813,7 @@ lab/3-architect/implementation-history/prover-plonk-migration/
 
 ### [35] Architect | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Rust halo2 circuit 1,593 lines, BasisVerifier.sol 657 lines, 94 tests, 36 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [34] complete, verified specs in `implementation-history/`.
@@ -838,7 +838,7 @@ lab/4-prover/verification-history/YYYY-MM-plonk-migration/
 
 ### [36] Prover | RU-L9: PLONK
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 invariants proved, 0 Admitted, MigrationSafety + Soundness + BackwardCompatibility)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [35] complete, snapshots prepared.
@@ -857,7 +857,7 @@ lab/4-prover/verification-history/YYYY-MM-plonk-migration/
 
 ### [37] Scientist | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- 15.3x gas savings, binary tree + ProtoGalaxy folding, 27 references, Rust benchmarks)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Item [33] complete (needs PLONK knowledge).
@@ -881,7 +881,7 @@ lab/2-logicist/research-history/YYYY-MM-proof-aggregation/0-input/
 
 ### [38] Logicist | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- TLC PASS: 209K states, 6 invariants, AggregationSoundness + IndependencePreservation)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [37] complete, materials in `0-input/`.
@@ -904,7 +904,7 @@ lab/3-architect/implementation-history/prover-aggregation/
 
 ### [39] Architect | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- Rust aggregator 7 files, BasisAggregator.sol, 61 tests, 34 Rust + 27 Solidity)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [38] complete, verified specs in `implementation-history/`.
@@ -928,7 +928,7 @@ lab/4-prover/verification-history/YYYY-MM-proof-aggregation/
 
 ### [40] Prover | RU-L10: Proof Aggregation
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-19 -- VERIFIED: 7 theorems, 0 Admitted, 1,246 lines Coq, AggregationSoundness + tree soundness)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [39] complete, snapshots prepared.
@@ -951,7 +951,7 @@ lab/4-prover/verification-history/YYYY-MM-proof-aggregation/
 
 ### [41] Scientist | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- Rayls/EPIC analysis, ZK selective disclosure, Go prototype, 486-line findings)
 
 **Directory:** `lab/1-scientist/`
 **Prerequisite:** Items [37], [25] complete. Validium RU-V7 should be done.
@@ -975,7 +975,7 @@ lab/2-logicist/research-history/YYYY-MM-hub-and-spoke/0-input/
 
 ### [42] Logicist | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- TLC PASS: 3,602 states, 7 invariants, Isolation + AtomicSettlement + ReplayProtection)
 
 **Directory:** `lab/2-logicist/`
 **Prerequisite:** Item [41] complete, materials in `0-input/`.
@@ -998,7 +998,7 @@ lab/3-architect/implementation-history/cross-enterprise-hub/
 
 ### [43] Architect | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- Go cross-enterprise module + BasisHub.sol 590 lines, 51 Solidity tests, 17 adversarial)
 
 **Directory:** `lab/3-architect/`
 **Prerequisite:** Item [42] complete, verified specs in `implementation-history/`.
@@ -1022,7 +1022,7 @@ lab/4-prover/verification-history/YYYY-MM-hub-and-spoke/
 
 ### [44] Prover | RU-L11: Hub-and-Spoke
 
-- [ ] **Complete**
+- [x] **Complete** (2026-03-20 -- VERIFIED: 12 theorems, 0 Admitted, 1,105 lines Coq, Isolation + AtomicSettlement critical security proofs)
 
 **Directory:** `lab/4-prover/`
 **Prerequisite:** Item [43] complete, snapshots prepared.

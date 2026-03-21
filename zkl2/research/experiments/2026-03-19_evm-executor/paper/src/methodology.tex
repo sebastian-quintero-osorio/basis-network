@@ -1,0 +1,112 @@
+% methodology.tex -- EVM Executor Paper (BNR-2026-008)
+
+\section{Methodology}
+
+\subsection{Research Design}
+
+This study employs a three-phase methodology:
+
+\begin{enumerate}
+  \item \textbf{Comparative architecture analysis}: Systematic examination of
+    five production L2 systems to extract common patterns and identify the
+    minimal EVM fork surface.
+  \item \textbf{Opcode constraint mapping}: Classification of all 75 explicitly
+    analyzed Cancun EVM opcodes (plus ${\sim}$65 PUSH/DUP/SWAP variants, totaling
+    ${\sim}$140) by ZK proving difficulty, estimated constraint count (R1CS and
+    PLONKish), and recommended circuit treatment.
+  \item \textbf{Trace format design and benchmark projection}: Design of a
+    selective ZK tracer using Geth's \texttt{core/tracing} hooks, with throughput
+    projections derived from published benchmarks.
+\end{enumerate}
+
+\subsection{Opcode Constraint Classification}
+
+Each EVM opcode is classified along three dimensions:
+
+\textbf{ZK Difficulty} (six tiers):
+\begin{itemize}
+  \item \textsc{Trivial} ($<$10 constraints): Pure stack manipulation (POP, PUSH,
+    DUP, SWAP, PC).
+  \item \textsc{Cheap} (10--100 constraints): Simple arithmetic (ADD, SUB, MUL),
+    comparisons, memory loads.
+  \item \textsc{Moderate} (100--1{,}000 constraints): Division, modular
+    arithmetic, memory copies, log emissions.
+  \item \textsc{Expensive} (1{,}000--10{,}000 constraints): Storage access
+    (SLOAD, SSTORE), external code queries, balance lookups.
+  \item \textsc{Very Expensive} (10{,}000--100{,}000 constraints): Cross-contract
+    calls (CALL, DELEGATECALL, STATICCALL), contract creation (CREATE, CREATE2).
+  \item \textsc{Prohibitive} ($>$100{,}000 constraints): KECCAK256.
+\end{itemize}
+
+\textbf{Circuit Treatment} (six strategies):
+\begin{itemize}
+  \item \textsc{Direct}: Prove directly in arithmetic circuit.
+  \item \textsc{Lookup}: Use precomputed lookup tables.
+  \item \textsc{Oracle}: Use preimage oracle for hash precomputation.
+  \item \textsc{Special}: Dedicated sub-circuit required.
+  \item \textsc{Replace}: Substitute with ZK-friendly alternative.
+  \item \textsc{Unsupported}: Excluded from initial version.
+\end{itemize}
+
+\textbf{Constraint Count}: Estimated R1CS and PLONKish constraints per
+invocation, sourced from Polygon zkEVM ZK counter
+documentation~\cite{polygon2024zkcounters}, Scroll circuit
+specifications~\cite{scroll2024whitepaper}, and the constraint-level
+analysis of Burchardt et al.~\cite{burchardt2025constraint}.
+
+\subsection{ZK Tracer Design}
+
+The tracer implements Geth's \texttt{tracing.Hooks} struct with selective
+callbacks:
+
+\begin{lstlisting}[language=Go,caption={ZK Tracer hook registration}]
+func (t *ZKTracer) Hooks() *tracing.Hooks {
+  return &tracing.Hooks{
+    OnOpcode:        t.onOpcode,
+    OnStorageChange: t.onStorageChange,
+    OnBalanceChange: t.onBalanceChange,
+    OnNonceChange:   t.onNonceChange,
+    OnLog:           t.onLog,
+  }
+}
+\end{lstlisting}
+
+In selective mode (default), the \texttt{OnOpcode} callback increments a
+counter without recording individual instructions. In full-capture mode
+(debugging only), it records the program counter, opcode name, remaining
+gas, and call depth for each instruction.
+
+The trace output structure captures:
+\begin{itemize}
+  \item \textbf{Storage accesses}: Address, slot, value for each SLOAD/SSTORE.
+  \item \textbf{Balance changes}: Address, previous/new balance, change reason.
+  \item \textbf{Nonce changes}: Address, previous/new nonce.
+  \item \textbf{Log emissions}: Address, topics, data.
+  \item \textbf{Opcode count}: Total instructions executed (always captured).
+  \item \textbf{Contract creation}: Addresses of newly deployed contracts.
+\end{itemize}
+
+\subsection{Benchmark Projection Methodology}
+
+Due to the Go runtime not being available on the experimental platform at the
+time of this study, throughput benchmarks are projected from published data
+using the following methodology:
+
+\begin{enumerate}
+  \item \textbf{Base throughput}: Derived from Geth's measured live sync rate of
+    100--200~MGas/s~\cite{paradigm2024reth} and standard gas costs (21{,}000 gas
+    for simple transfers, 20{,}000--22{,}000 gas for cold SSTORE operations).
+  \item \textbf{In-memory adjustment}: A 1.5--2$\times$ multiplier accounts for
+    in-memory StateDB eliminating disk I/O latency.
+  \item \textbf{Tracing overhead}: Estimated from the difference between Geth's
+    structLogger overhead (10--50$\times$) and the selective nature of our ZK
+    tracer, yielding 10--30\% overhead for state-change-only capture.
+  \item \textbf{Validation}: All projections are cross-referenced against
+    independent benchmarks (Reth at 700~MGas/s single-threaded, Gravity Reth
+    at 1.5~GGas/s, op-geth community benchmarks at 3{,}000--5{,}000~tx/s).
+\end{enumerate}
+
+Confidence levels are assigned to each projection: \textsc{High} (supported by
+multiple independent sources), \textsc{Medium} (extrapolated from related
+benchmarks), or \textsc{Low} (estimated from first principles with limited
+validation data).

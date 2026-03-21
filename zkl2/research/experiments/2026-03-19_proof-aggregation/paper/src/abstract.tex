@@ -1,0 +1,28 @@
+\begin{abstract}
+Enterprise zkEVM L2 architectures in which each enterprise operates an
+independent chain require separate zero-knowledge validity proofs to be
+verified on the settlement layer. As the number of enterprises~$N$ grows,
+aggregate L1 verification gas scales linearly, threatening economic
+viability even on zero-fee networks. This paper evaluates three recursive
+proof aggregation strategies---binary tree accumulation (halo2
+snark-verifier), folding schemes (Nova/ProtoGalaxy with Groth16 decider),
+and batch verification (SnarkPack)---for compressing~$N$ independent
+halo2-KZG enterprise proofs into a single L1-verifiable proof. We
+benchmark each strategy across $N \in \{1, 2, 4, 8, 16\}$ enterprises
+with 30 iterations per configuration, measuring proof size, aggregation
+time, and L1 verification gas. Folding with a Groth16 decider achieves
+the strongest results: 15.3$\times$ gas reduction at $N{=}8$ (from
+3.36M to 220K gas), constant 128-byte final proof size independent of~$N$,
+and sub-linear aggregation time (11.75\,s at $N{=}8$, growing to only
+13.75\,s at $N{=}16$). Binary tree accumulation delivers exactly
+$N$-fold savings (8.0$\times$ at $N{=}8$) with production-proven tooling
+but 180\,s aggregation time. SnarkPack provides 7.5$\times$ savings with
+the fastest aggregation (200\,ms at $N{=}8$) but higher gas overhead.
+All measurements reconcile within expected ranges against published
+benchmarks from Polygon zkEVM, zkSync Era, Scroll, Nebra, and Axiom.
+We identify four aggregation invariants---soundness, independence
+preservation, order independence, and gas monotonicity---that must hold
+in production deployments and recommend a phased adoption strategy:
+binary tree accumulation for near-term deployment, transitioning to
+ProtoGalaxy folding with Groth16 decider once the tooling matures.
+\end{abstract}

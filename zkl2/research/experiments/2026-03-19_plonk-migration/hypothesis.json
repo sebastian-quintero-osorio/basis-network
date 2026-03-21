@@ -1,0 +1,64 @@
+{
+  "name": "plonk-migration",
+  "target": "zkl2",
+  "title": "PLONK Migration: Eliminating Per-Circuit Trusted Setup for zkEVM L2",
+  "hypothesis": "Migrating from Groth16 to PLONK (via halo2 or plonky2 in Rust) eliminates the need for per-circuit trusted setup, allows custom gates for EVM operations, and maintains on-chain verification < 500K gas with proof size < 1KB.",
+  "null_hypothesis": "PLONK-based systems cannot simultaneously achieve verification gas < 500K, proof size < 1KB, and proving time within 2x of Groth16, making migration unjustified for the Basis Network zkEVM L2.",
+  "domain": "zk-proofs",
+  "independent_variables": [
+    "proof_system",
+    "circuit_complexity",
+    "commitment_scheme",
+    "batch_size",
+    "custom_gate_configuration"
+  ],
+  "dependent_variables": [
+    "proof_generation_time_ms",
+    "proof_size_bytes",
+    "verification_gas_cost",
+    "constraint_count",
+    "setup_time_s",
+    "setup_type",
+    "custom_gate_support",
+    "recursion_support",
+    "developer_experience_score"
+  ],
+  "proof_systems": {
+    "groth16": {
+      "library": "arkworks (ark-groth16)",
+      "commitment": "Pairing-based (BN254)",
+      "setup": "Per-circuit trusted setup",
+      "field": "BN254 scalar field"
+    },
+    "halo2_kzg": {
+      "library": "halo2 (PSE/Scroll fork)",
+      "commitment": "KZG (BN254)",
+      "setup": "Universal SRS (one ceremony)",
+      "field": "BN254 scalar field"
+    },
+    "halo2_ipa": {
+      "library": "halo2 (Zcash original)",
+      "commitment": "IPA (Pallas/Vesta)",
+      "setup": "Transparent (no trusted setup)",
+      "field": "Pallas/Vesta curves"
+    },
+    "plonky2": {
+      "library": "plonky2 (Polygon)",
+      "commitment": "FRI (Goldilocks)",
+      "setup": "Transparent (no trusted setup)",
+      "field": "Goldilocks (p = 2^64 - 2^32 + 1)"
+    }
+  },
+  "success_criteria": {
+    "verification_gas": "< 500K gas on EVM (Cancun)",
+    "proof_size": "< 1KB",
+    "proving_time": "< 2x Groth16 for equivalent circuit",
+    "setup_type": "Universal or transparent (not per-circuit)",
+    "custom_gates": "Demonstrable constraint reduction for EVM opcodes",
+    "recursion": "Native recursive proof support"
+  },
+  "created": "2026-03-19",
+  "roadmap_item": "RU-L9",
+  "checklist_item": 33,
+  "depends_on": ["RU-L6 (E2E Pipeline)"]
+}
