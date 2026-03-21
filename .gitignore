@@ -15,6 +15,9 @@ out/
 .next/
 cache/
 
+# Rust build artifacts
+target/
+
 # Hardhat
 l1/contracts/cache/
 l1/contracts/artifacts/
@@ -90,6 +93,7 @@ _build/
 **/experiments/**/results/wal/
 **/experiments/**/code/node_modules/
 **/experiments/**/code/package-lock.json
+**/experiments/**/code/Cargo.lock
 **/experiments/**/code/dist/
 **/experiments/**/results/build_*/
 
