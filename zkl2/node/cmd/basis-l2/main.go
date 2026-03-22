@@ -25,6 +25,10 @@ import (
 
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/holiman/uint256"
+
 	"basis-network/zkl2/node/config"
 	"basis-network/zkl2/node/executor"
 	"basis-network/zkl2/node/pipeline"
@@ -163,6 +167,30 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 
 	// 2. Initialize StateDB Adapter + EVM Executor.
 	adapter := statedb.NewAdapter(sdb)
+
+	// Genesis funding: pre-fund known accounts on L2 (like all L2s do).
+	// These accounts have funds on L1 and are pre-funded on L2 for testing.
+	genesisAccounts := []struct {
+		addr    string
+		balance string // in wei
+	}{
+		// ewoq test default account (1M LITHOS = 1M * 10^18 wei)
+		{"0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC", "1000000000000000000000000"},
+		// Deployer/admin account
+		{"0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", "1000000000000000000000000"},
+	}
+	for _, ga := range genesisAccounts {
+		addr := common.HexToAddress(ga.addr)
+		bal, _ := new(big.Int).SetString(ga.balance, 10)
+		adapter.CreateAccount(addr)
+		uint256Bal, _ := uint256.FromBig(bal)
+		adapter.AddBalance(addr, uint256Bal, tracing.BalanceChangeUnspecified)
+		logger.Info("genesis account funded",
+			"address", addr.Hex(),
+			"balance_eth", new(big.Int).Div(bal, big.NewInt(1e18)).String(),
+		)
+	}
+
 	exec := executor.New(executor.Config{
 		ChainConfig: executor.BasisL2ChainConfig(),
 		CaptureOps:  false, // Production: no opcode capture overhead
