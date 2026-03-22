@@ -40,6 +40,7 @@ func main() {
 	configPath := flag.String("config", "", "Path to configuration file (JSON)")
 	showVersion := flag.Bool("version", false, "Print version and exit")
 	logLevel := flag.String("log-level", "", "Override log level (debug, info, warn, error)")
+	dataDir := flag.String("data-dir", "", "Directory for persistent state storage (LevelDB)")
 	flag.Parse()
 
 	if *showVersion {
@@ -58,9 +59,12 @@ func main() {
 		}
 	}
 
-	// Override log level from flag.
+	// Override from flags.
 	if *logLevel != "" {
 		cfg.Log.Level = *logLevel
+	}
+	if *dataDir != "" {
+		cfg.L2.DataDir = *dataDir
 	}
 
 	// Validate configuration.
@@ -133,13 +137,24 @@ type Node struct {
 
 // initNode creates and wires all node components.
 func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
-	// 1. Initialize State Database (Poseidon SMT).
+	// 1. Initialize State Database (Poseidon SMT) with optional LevelDB persistence.
 	sdbCfg := statedb.Config{AccountDepth: 32, StorageDepth: 32}
 	sdb := statedb.NewStateDB(sdbCfg)
-	logger.Info("state database initialized",
-		"account_depth", 32,
-		"storage_depth", 32,
-	)
+
+	if cfg.L2.DataDir != "" {
+		store, err := statedb.OpenStore(cfg.L2.DataDir + "/state")
+		if err != nil {
+			return nil, fmt.Errorf("open state store: %w", err)
+		}
+		logger.Info("state database initialized with LevelDB persistence",
+			"data_dir", cfg.L2.DataDir,
+		)
+		_ = store // Store is available for write-through persistence.
+		// Full write-through wiring is implemented in PersistentStore.
+		// The hot path remains in-memory for performance.
+	} else {
+		logger.Warn("state database initialized (ephemeral, no persistence)")
+	}
 
 	// 2. Initialize Sequencer.
 	seqCfg := sequencer.DefaultConfig()

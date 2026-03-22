@@ -70,6 +70,10 @@ type L2Config struct {
 
 	// GasLimit is the gas limit per L2 block.
 	GasLimit uint64 `json:"gas_limit"`
+
+	// DataDir is the path for persistent state storage (LevelDB).
+	// If empty, state is ephemeral (in-memory only).
+	DataDir string `json:"data_dir"`
 }
 
 // ContractAddresses holds deployed L1 contract addresses.
