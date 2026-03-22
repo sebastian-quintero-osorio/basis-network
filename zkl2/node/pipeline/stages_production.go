@@ -40,6 +40,9 @@ type ProductionStages struct {
 	// RollupAddress is the deployed BasisRollup.sol address.
 	RollupAddress string
 
+	// L1Submitter handles real L1 submission (nil = skip submission).
+	L1Submitter *L1Submitter
+
 	// Logger for structured logging.
 	Logger *slog.Logger
 }
@@ -216,9 +219,9 @@ func (s *ProductionStages) Prove(ctx context.Context, batch *BatchState) error {
 func (s *ProductionStages) Submit(ctx context.Context, batch *BatchState) error {
 	start := time.Now()
 
-	if s.L1RPCURL == "" || s.RollupAddress == "" {
-		// L1 not configured -- skip submission (development mode).
-		s.Logger.Warn("L1 submission skipped: L1 not configured",
+	if s.L1Submitter == nil {
+		// No L1 submitter configured -- development mode.
+		s.Logger.Warn("L1 submission skipped: no submitter configured",
 			"batch_id", batch.BatchID,
 		)
 		batch.L1TxHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -227,24 +230,23 @@ func (s *ProductionStages) Submit(ctx context.Context, batch *BatchState) error 
 		return nil
 	}
 
-	// TODO: Implement real L1 submission via go-ethereum ethclient.
-	// The L1 contracts are tested and deployment script is ready.
-	// Steps:
-	//   1. Connect to L1 via ethclient.Dial(s.L1RPCURL)
-	//   2. Load BasisRollup ABI from compiled artifacts
-	//   3. Call commitBatch -> proveBatch -> executeBatch
-	//   4. Wait for receipt, verify success
-	//
-	// For now, log the intent and mark as submitted.
-	s.Logger.Info("L1 submission pending implementation",
-		"batch_id", batch.BatchID,
-		"rollup", s.RollupAddress,
-	)
+	// Real L1 submission: commitBatch + proveBatch + executeBatch.
+	gasUsed, txHash, err := s.L1Submitter.SubmitBatch(ctx, batch)
+	if err != nil {
+		return fmt.Errorf("L1 submit: %w", err)
+	}
 
-	batch.L1TxHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
-	batch.L1GasUsed = 287000 // Expected from BasisRollup.sol benchmarks
+	batch.L1TxHash = txHash
+	batch.L1GasUsed = gasUsed
 	batch.SubmitTime = time.Since(start)
-	batch.Metrics.L1GasUsed = 287000
+	batch.Metrics.L1GasUsed = gasUsed
+
+	s.Logger.Info("L1 batch submission complete",
+		"batch_id", batch.BatchID,
+		"gas_used", gasUsed,
+		"tx_hash", txHash[:10],
+		"duration_ms", batch.SubmitTime.Milliseconds(),
+	)
 
 	return nil
 }
