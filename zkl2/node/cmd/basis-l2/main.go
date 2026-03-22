@@ -25,6 +25,7 @@ import (
 
 	"basis-network/zkl2/node/config"
 	"basis-network/zkl2/node/pipeline"
+	"basis-network/zkl2/node/rpc"
 	"basis-network/zkl2/node/sequencer"
 	"basis-network/zkl2/node/statedb"
 )
@@ -121,12 +122,13 @@ func main() {
 
 // Node is the top-level container for all L2 node components.
 type Node struct {
-	cfg      *config.Config
-	logger   *slog.Logger
-	state    *statedb.StateDB
-	seq      *sequencer.Sequencer
-	pipeline *pipeline.Orchestrator
-	stopCh   chan struct{}
+	cfg       *config.Config
+	logger    *slog.Logger
+	state     *statedb.StateDB
+	seq       *sequencer.Sequencer
+	pipeline  *pipeline.Orchestrator
+	rpcServer *rpc.Server
+	stopCh    chan struct{}
 }
 
 // initNode creates and wires all node components.
@@ -169,18 +171,45 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		"stages", "simulated",
 	)
 
+	// 4. Initialize RPC Server with real backend.
+	backend := &NodeBackend{
+		stateDB:   sdb,
+		seq:       seq,
+		l2ChainID: cfg.L2.ChainID,
+	}
+	rpcCfg := rpc.ServerConfig{
+		Host:            cfg.RPC.Host,
+		Port:            cfg.RPC.Port,
+		RateLimitPerSec: cfg.RPC.RateLimitPerSec,
+		RateLimitBurst:  cfg.RPC.RateLimitBurst,
+		ReadTimeout:     30 * time.Second,
+		WriteTimeout:    30 * time.Second,
+		MaxBodySize:     1 << 20,
+	}
+	rpcServer := rpc.NewServer(rpcCfg, backend, logger.With("component", "rpc"))
+	logger.Info("JSON-RPC server configured",
+		"host", cfg.RPC.Host,
+		"port", cfg.RPC.Port,
+	)
+
 	return &Node{
-		cfg:      cfg,
-		logger:   logger,
-		state:    sdb,
-		seq:      seq,
-		pipeline: orch,
-		stopCh:   make(chan struct{}),
+		cfg:       cfg,
+		logger:    logger,
+		state:     sdb,
+		seq:       seq,
+		pipeline:  orch,
+		rpcServer: rpcServer,
+		stopCh:    make(chan struct{}),
 	}, nil
 }
 
 // Start begins the node's event loops.
 func (n *Node) Start(ctx context.Context) error {
+	// Start the JSON-RPC server.
+	if err := n.rpcServer.Start(); err != nil {
+		return fmt.Errorf("start rpc server: %w", err)
+	}
+
 	// Start the block production loop.
 	go n.blockProductionLoop(ctx)
 
@@ -188,9 +217,12 @@ func (n *Node) Start(ctx context.Context) error {
 }
 
 // Stop gracefully shuts down all node components.
-func (n *Node) Stop(_ context.Context) error {
+func (n *Node) Stop(ctx context.Context) error {
 	n.logger.Info("shutting down node components")
 	close(n.stopCh)
+	if err := n.rpcServer.Stop(ctx); err != nil {
+		n.logger.Error("rpc server shutdown error", "error", err)
+	}
 	return nil
 }
 
