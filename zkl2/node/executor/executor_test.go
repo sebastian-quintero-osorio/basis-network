@@ -45,13 +45,13 @@ func setupTestState(t *testing.T) (*state.StateDB, common.Address, common.Addres
 	recipient := common.HexToAddress("0x2222222222222222222222222222222222222222")
 
 	// Fund accounts with 1000 ETH each.
-	// [Spec: Init -- accountState[a].balance = 1 per account]
 	fundAmount := uint256.MustFromBig(new(big.Int).Mul(big.NewInt(1000), oneEther()))
 	stateDB.AddBalance(sender, fundAmount, tracing.BalanceChangeUnspecified)
 	stateDB.SetNonce(sender, 0, tracing.NonceChangeUnspecified)
 	stateDB.AddBalance(recipient, fundAmount, tracing.BalanceChangeUnspecified)
 	stateDB.SetNonce(recipient, 0, tracing.NonceChangeUnspecified)
 
+	// The executor auto-wraps *state.StateDB with NewHookedState for tracing hooks.
 	return stateDB, sender, recipient
 }
 

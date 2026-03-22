@@ -76,7 +76,7 @@ func New(cfg Config, logger *slog.Logger) *Executor {
 // [Spec: Determinism invariant -- same tx + same state => same result + same trace]
 func (e *Executor) ExecuteTransaction(
 	ctx context.Context,
-	stateDB *state.StateDB,
+	stateDB vm.StateDB,
 	block BlockInfo,
 	msg Message,
 ) (*TransactionResult, error) {
@@ -99,12 +99,25 @@ func (e *Executor) ExecuteTransaction(
 		"gas", msg.Gas,
 	)
 
-	// --- Create tracer and wrap StateDB with hooks ---
-	// go-ethereum v1.15+ requires wrapping the StateDB with hooks via NewHookedState
-	// to receive OnBalanceChange, OnStorageChange, OnNonceChange callbacks.
+	// --- Create tracer and wire hooks ---
 	tracer := NewZKTracer(stateDB, e.config.CaptureOps)
 	hooks := tracer.Hooks()
-	hookedDB := state.NewHookedState(stateDB, hooks)
+
+	// Wire state-change hooks to the StateDB.
+	// go-ethereum v1.15 requires explicit hook wiring for OnBalanceChange,
+	// OnStorageChange, etc. (these are NOT fired by the EVM directly).
+	//
+	// For go-ethereum *state.StateDB: wrap with NewHookedState.
+	// For our statedb.Adapter: call SetHooks.
+	var evmStateDB vm.StateDB = stateDB
+	if gethDB, ok := stateDB.(*state.StateDB); ok {
+		evmStateDB = state.NewHookedState(gethDB, hooks)
+	} else {
+		type hooksSetter interface{ SetHooks(*tracing.Hooks) }
+		if hs, ok := stateDB.(hooksSetter); ok {
+			hs.SetHooks(hooks)
+		}
+	}
 
 	// --- Build block context ---
 	// [Spec: Not directly modeled -- EVM infrastructure]
@@ -129,12 +142,10 @@ func (e *Executor) ExecuteTransaction(
 	}
 
 	// --- Create EVM instance ---
-	// Use hookedDB so state-change callbacks (OnBalanceChange, OnStorageChange, etc.)
-	// are fired to our ZKTracer during execution.
 	vmConfig := vm.Config{
 		Tracer: hooks,
 	}
-	evm := vm.NewEVM(blockCtx, hookedDB, e.config.ChainConfig, vmConfig)
+	evm := vm.NewEVM(blockCtx, evmStateDB, e.config.ChainConfig, vmConfig)
 
 	// --- Set transaction context ---
 	evm.SetTxContext(vm.TxContext{

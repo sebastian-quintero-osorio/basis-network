@@ -261,6 +261,27 @@ func (db *StateDB) SetBalance(addr TreeKey, balance *big.Int) error {
 	return nil
 }
 
+// GetNonce returns the nonce of an account. Returns 0 for nonexistent accounts.
+func (db *StateDB) GetNonce(addr TreeKey) uint64 {
+	acct, ok := db.accounts[addr]
+	if !ok || !acct.Alive {
+		return 0
+	}
+	return acct.Nonce
+}
+
+// SetNonce sets the nonce of an alive account.
+func (db *StateDB) SetNonce(addr TreeKey, nonce uint64) error {
+	acct, ok := db.accounts[addr]
+	if !ok || !acct.Alive {
+		return ErrAccountNotAlive
+	}
+	acct.Nonce = nonce
+	val := db.accountValue(addr)
+	db.accountTrie.Insert(addr, val)
+	return nil
+}
+
 // GetStorage returns the value at an account's storage slot.
 // Returns zero for nonexistent accounts, dead accounts, or empty slots.
 //
