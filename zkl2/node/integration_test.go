@@ -43,13 +43,14 @@ func TestSequencerProducesBlocks(t *testing.T) {
 
 	// Add transactions to the mempool.
 	for i := 0; i < 5; i++ {
+		toAddr := sequencer.Address{byte(i + 10)}
 		tx := sequencer.Transaction{
 			Hash:     sequencer.ComputeTxHash(sequencer.Address{byte(i)}, uint64(i), nil),
 			From:     sequencer.Address{byte(i)},
-			To:       sequencer.Address{byte(i + 10)},
+			To:       &toAddr,
 			Nonce:    uint64(i),
 			GasLimit: 21000,
-			Value:    1000,
+			Value:    big.NewInt(1000),
 		}
 		seq.Mempool().Add(tx)
 	}
