@@ -23,7 +23,10 @@ import (
 	"syscall"
 	"time"
 
+	"math/big"
+
 	"basis-network/zkl2/node/config"
+	"basis-network/zkl2/node/executor"
 	"basis-network/zkl2/node/pipeline"
 	"basis-network/zkl2/node/rpc"
 	"basis-network/zkl2/node/sequencer"
@@ -129,6 +132,8 @@ type Node struct {
 	cfg       *config.Config
 	logger    *slog.Logger
 	state     *statedb.StateDB
+	adapter   *statedb.Adapter
+	exec      *executor.Executor
 	seq       *sequencer.Sequencer
 	pipeline  *pipeline.Orchestrator
 	rpcServer *rpc.Server
@@ -156,7 +161,15 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		logger.Warn("state database initialized (ephemeral, no persistence)")
 	}
 
-	// 2. Initialize Sequencer.
+	// 2. Initialize StateDB Adapter + EVM Executor.
+	adapter := statedb.NewAdapter(sdb)
+	exec := executor.New(executor.Config{
+		ChainConfig: executor.BasisL2ChainConfig(),
+		CaptureOps:  false, // Production: no opcode capture overhead
+	}, logger.With("component", "executor"))
+	logger.Info("evm executor initialized")
+
+	// 3. Initialize Sequencer.
 	seqCfg := sequencer.DefaultConfig()
 	seqCfg.MempoolCapacity = cfg.Sequencer.MempoolCapacity
 	seqCfg.BlockInterval = cfg.L2.BlockInterval
@@ -211,6 +224,8 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		cfg:       cfg,
 		logger:    logger,
 		state:     sdb,
+		adapter:   adapter,
+		exec:      exec,
 		seq:       seq,
 		pipeline:  orch,
 		rpcServer: rpcServer,
@@ -242,12 +257,16 @@ func (n *Node) Stop(ctx context.Context) error {
 }
 
 // blockProductionLoop runs the sequencer block production cycle.
-// Produces blocks at the configured interval, executing included transactions.
+// Each tick: produce block -> execute transactions via EVM -> collect traces.
+// When a batch is full, feed it to the proving pipeline.
 func (n *Node) blockProductionLoop(ctx context.Context) {
 	ticker := time.NewTicker(n.cfg.L2.BlockInterval)
 	defer ticker.Stop()
 
 	var blockNumber uint64
+	var batchTxCount int
+	var batchID uint64
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -259,15 +278,86 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 		case <-ticker.C:
 			block := n.seq.ProduceBlock()
 			if block == nil || len(block.Transactions) == 0 {
-				continue // No transactions to process
+				continue
 			}
 
 			blockNumber++
 			n.logger.Info("produced L2 block",
 				"number", blockNumber,
 				"tx_count", len(block.Transactions),
-				"gas_used", block.GasUsed,
 			)
+
+			// Execute each transaction through the EVM via the Adapter.
+			for _, tx := range block.Transactions {
+				msg := executor.Message{
+					From:     tx.From.ToCommon(),
+					To:       sequencer.ToCommonAddressPtr(tx.To),
+					Value:    tx.Value,
+					Gas:      tx.GasLimit,
+					GasPrice: new(big.Int), // Zero-fee L2
+					Data:     tx.Data,
+					Nonce:    tx.Nonce,
+				}
+
+				result, err := n.exec.ExecuteTransaction(
+					ctx,
+					n.adapter,
+					executor.BlockInfo{
+						Number:    blockNumber,
+						Timestamp: uint64(time.Now().Unix()),
+						GasLimit:  n.cfg.L2.GasLimit,
+						BaseFee:   new(big.Int),
+					},
+					msg,
+				)
+				if err != nil {
+					n.logger.Error("execution infrastructure error",
+						"tx", fmt.Sprintf("%x", tx.Hash[:8]),
+						"error", err,
+					)
+					continue
+				}
+
+				if result.VMError != nil {
+					n.logger.Warn("transaction reverted",
+						"tx", fmt.Sprintf("%x", tx.Hash[:8]),
+						"error", result.VMError,
+						"gas_used", result.GasUsed,
+					)
+				} else {
+					n.logger.Info("transaction executed",
+						"tx", fmt.Sprintf("%x", tx.Hash[:8]),
+						"gas_used", result.GasUsed,
+						"trace_entries", len(result.Trace.Entries),
+					)
+				}
+
+				batchTxCount++
+			}
+
+			// When batch is full, submit to proving pipeline.
+			if batchTxCount >= n.cfg.L2.BatchSize {
+				batch := pipeline.NewBatchState(batchID, blockNumber, batchTxCount)
+				n.logger.Info("submitting batch to pipeline",
+					"batch_id", batchID,
+					"tx_count", batchTxCount,
+					"block", blockNumber,
+				)
+
+				go func(b *pipeline.BatchState) {
+					if err := n.pipeline.ProcessBatch(ctx, b); err != nil {
+						n.logger.Error("pipeline failed", "batch_id", b.BatchID, "error", err)
+					} else {
+						n.logger.Info("batch finalized",
+							"batch_id", b.BatchID,
+							"stage", b.Stage,
+						)
+					}
+				}(batch)
+
+				batchID++
+				batchTxCount = 0
+			}
 		}
 	}
 }
