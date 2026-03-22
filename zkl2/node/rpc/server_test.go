@@ -2,12 +2,18 @@ package rpc
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // ---------------------------------------------------------------------------
@@ -42,8 +48,8 @@ func (m *mockBackend) GetBalance(addr string) (*big.Int, error) {
 	}
 	return big.NewInt(0), nil
 }
-func (m *mockBackend) SendRawTransaction(rawTx []byte) (string, error) {
-	return "0xdeadbeef", nil
+func (m *mockBackend) SubmitTransaction(from common.Address, tx *types.Transaction) error {
+	return nil
 }
 func (m *mockBackend) GetTransactionReceipt(txHash string) (*TransactionReceipt, error) {
 	if r, ok := m.txHashes[txHash]; ok {
@@ -161,15 +167,55 @@ func TestEthGetBalance_ZeroBalance(t *testing.T) {
 
 func TestEthSendRawTransaction(t *testing.T) {
 	s := testServer()
-	w := makeRequest(t, s, "eth_sendRawTransaction", "0xdeadbeef")
+
+	// Create a real signed Ethereum transaction.
+	key, _ := crypto.GenerateKey()
+	chainID := big.NewInt(int64(s.backend.ChainID()))
+	signer := types.LatestSignerForChainID(chainID)
+	tx := types.MustSignNewTx(key, signer, &types.DynamicFeeTx{
+		ChainID:   chainID,
+		Nonce:     0,
+		GasTipCap: new(big.Int),
+		GasFeeCap: new(big.Int),
+		Gas:       21000,
+		To:        &common.Address{0x42},
+		Value:     big.NewInt(1000),
+	})
+
+	// RLP encode and hex the transaction.
+	rawBytes, _ := rlp.EncodeToBytes(tx)
+	rawHex := "0x" + hex.EncodeToString(rawBytes)
+
+	w := makeRequest(t, s, "eth_sendRawTransaction", rawHex)
 	resp := parseResponse(t, w)
 
 	if resp.Error != nil {
 		t.Fatalf("unexpected error: %v", resp.Error.Message)
 	}
+
+	// Verify the returned hash matches the transaction hash.
 	result, _ := json.Marshal(resp.Result)
-	if string(result) != `"0xdeadbeef"` {
-		t.Errorf("expected 0xdeadbeef, got %s", string(result))
+	expectedHash := `"` + tx.Hash().Hex() + `"`
+	if string(result) != expectedHash {
+		t.Errorf("expected %s, got %s", expectedHash, string(result))
+	}
+}
+
+func TestEthSendRawTransaction_InvalidHex(t *testing.T) {
+	s := testServer()
+	w := makeRequest(t, s, "eth_sendRawTransaction", "0xNOTHEX")
+	resp := parseResponse(t, w)
+	if resp.Error == nil {
+		t.Fatal("expected error for invalid hex")
+	}
+}
+
+func TestEthSendRawTransaction_InvalidRLP(t *testing.T) {
+	s := testServer()
+	w := makeRequest(t, s, "eth_sendRawTransaction", "0xdeadbeef")
+	resp := parseResponse(t, w)
+	if resp.Error == nil {
+		t.Fatal("expected error for invalid RLP")
 	}
 }
 

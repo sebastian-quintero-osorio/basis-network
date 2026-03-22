@@ -10,6 +10,7 @@ package rpc
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,8 +18,13 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // Server is the JSON-RPC 2.0 HTTP server for the Basis L2 node.
@@ -66,9 +72,9 @@ type Backend interface {
 	// GetBalance returns the balance of an account in the L2 state.
 	GetBalance(address string) (*big.Int, error)
 
-	// SendRawTransaction submits a signed transaction to the L2 mempool.
-	// Returns the transaction hash.
-	SendRawTransaction(rawTx []byte) (string, error)
+	// SubmitTransaction submits a decoded, signature-verified transaction to the L2 mempool.
+	// The sender address has been recovered from the ECDSA signature by the RPC layer.
+	SubmitTransaction(from common.Address, tx *types.Transaction) error
 
 	// GetTransactionReceipt returns the receipt for a transaction hash.
 	GetTransactionReceipt(txHash string) (*TransactionReceipt, error)
@@ -305,11 +311,33 @@ func (s *Server) ethSendRawTransaction(params []json.RawMessage) (interface{}, *
 		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid raw transaction parameter"}
 	}
 
-	txHash, err := s.backend.SendRawTransaction([]byte(rawTxHex))
+	// Step 1: Hex decode.
+	rawBytes, err := hex.DecodeString(strings.TrimPrefix(rawTxHex, "0x"))
 	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid hex encoding"}
+	}
+
+	// Step 2: RLP decode to *types.Transaction.
+	var tx types.Transaction
+	if err := rlp.DecodeBytes(rawBytes, &tx); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: fmt.Sprintf("invalid RLP: %v", err)}
+	}
+
+	// Step 3: Recover sender address from ECDSA signature.
+	chainID := new(big.Int).SetUint64(s.backend.ChainID())
+	signer := types.LatestSignerForChainID(chainID)
+	from, err := types.Sender(signer, &tx)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: fmt.Sprintf("invalid signature: %v", err)}
+	}
+
+	// Step 4: Submit decoded transaction to the backend.
+	if err := s.backend.SubmitTransaction(from, &tx); err != nil {
 		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
 	}
-	return txHash, nil
+
+	// Step 5: Return transaction hash.
+	return tx.Hash().Hex(), nil
 }
 
 func (s *Server) ethGetTransactionReceipt(params []json.RawMessage) (interface{}, *jsonrpcError) {
