@@ -53,9 +53,9 @@ const rollupABI = `[
 ]`
 
 func main() {
-	rpcURL := envOrDefault("L1_RPC_URL", "https://rpc.basisnetwork.com.co/ext/bc/2VtYqDeZ5RabHM8zA4x94T6DMdzs3svkfcpF7TLEmTpETUTufR/rpc")
+	rpcURL := envOrDefault("L1_RPC_URL", "https://rpc.basisnetwork.com.co/")
 	privateKeyHex := os.Getenv("L1_PRIVATE_KEY")
-	rollupAddr := envOrDefault("BASIS_ROLLUP", "0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49")
+	rollupAddr := envOrDefault("BASIS_ROLLUP", "0x65219ceCe953f1CA4ce789aa351295618fe81183")
 
 	if privateKeyHex == "" {
 		fmt.Println("ERROR: L1_PRIVATE_KEY environment variable is required")

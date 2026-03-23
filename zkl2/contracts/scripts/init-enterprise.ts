@@ -16,7 +16,7 @@
 import { ethers } from "hardhat";
 
 // Deployed BasisRollup address (from 2026-03-21 deployment)
-const BASIS_ROLLUP = "0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49";
+const BASIS_ROLLUP = "0x65219ceCe953f1CA4ce789aa351295618fe81183";
 
 // Real Poseidon SMT genesis root (computed by Go node after funding genesis accounts).
 // This MUST match what the Go node computes in initNode() -> cmd/basis-l2/main.go
