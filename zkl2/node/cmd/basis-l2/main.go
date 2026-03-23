@@ -286,6 +286,8 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	// 4. Initialize RPC Server with real backend.
 	backend := &NodeBackend{
 		stateDB:   sdb,
+		adapter:   adapter,
+		exec:      exec,
 		seq:       seq,
 		l2ChainID: cfg.L2.ChainID,
 	}

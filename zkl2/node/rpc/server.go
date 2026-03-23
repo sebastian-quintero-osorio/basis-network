@@ -71,8 +71,28 @@ type Backend interface {
 	// GetBalance returns the balance of an account in the L2 state.
 	GetBalance(address string) (*big.Int, error)
 
+	// GetNonce returns the transaction count (nonce) for an account.
+	GetNonce(address string) (uint64, error)
+
+	// GetCode returns the bytecode deployed at an address.
+	GetCode(address string) ([]byte, error)
+
+	// Call executes a read-only EVM call (eth_call). Does not modify state.
+	Call(from, to string, data []byte, value *big.Int) ([]byte, error)
+
+	// EstimateGas estimates gas for a transaction.
+	EstimateGas(from, to string, data []byte, value *big.Int) (uint64, error)
+
+	// GetBlockByNumber returns block data by number.
+	GetBlockByNumber(number uint64, fullTx bool) (map[string]interface{}, error)
+
+	// GetTransactionByHash returns full transaction data.
+	GetTransactionByHash(txHash string) (map[string]interface{}, error)
+
+	// GetLogs returns logs matching a filter.
+	GetLogs(fromBlock, toBlock uint64, addresses []common.Address, topics [][]common.Hash) ([]map[string]interface{}, error)
+
 	// SubmitTransaction submits a decoded, signature-verified transaction to the L2 mempool.
-	// The sender address has been recovered from the ECDSA signature by the RPC layer.
 	SubmitTransaction(from common.Address, tx *types.Transaction) error
 
 	// GetTransactionReceipt returns the receipt for a transaction hash.
@@ -260,6 +280,30 @@ func (s *Server) dispatch(req jsonrpcRequest) (interface{}, *jsonrpcError) {
 		return s.ethSendRawTransaction(req.Params)
 	case "eth_getTransactionReceipt":
 		return s.ethGetTransactionReceipt(req.Params)
+	case "eth_getTransactionCount":
+		return s.ethGetTransactionCount(req.Params)
+	case "eth_getCode":
+		return s.ethGetCode(req.Params)
+	case "eth_call":
+		return s.ethCall(req.Params)
+	case "eth_estimateGas":
+		return s.ethEstimateGas(req.Params)
+	case "eth_getBlockByNumber":
+		return s.ethGetBlockByNumber(req.Params)
+	case "eth_getBlockByHash":
+		return s.ethGetBlockByNumber(req.Params) // hash lookup falls back to number
+	case "eth_getTransactionByHash":
+		return s.ethGetTransactionByHash(req.Params)
+	case "eth_getLogs":
+		return s.ethGetLogs(req.Params)
+	case "eth_gasPrice":
+		return "0x0", nil
+	case "eth_accounts":
+		return []string{}, nil
+	case "eth_mining":
+		return false, nil
+	case "eth_syncing":
+		return false, nil
 	case "net_version":
 		return s.netVersion()
 	case "web3_clientVersion":
@@ -365,6 +409,194 @@ func (s *Server) netVersion() (interface{}, *jsonrpcError) {
 
 func (s *Server) web3ClientVersion() (interface{}, *jsonrpcError) {
 	return "basis-l2/v0.1.0", nil
+}
+
+func (s *Server) ethGetTransactionCount(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing address parameter"}
+	}
+	var address string
+	if err := json.Unmarshal(params[0], &address); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid address parameter"}
+	}
+	nonce, err := s.backend.GetNonce(address)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	return fmt.Sprintf("0x%x", nonce), nil
+}
+
+func (s *Server) ethGetCode(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing address parameter"}
+	}
+	var address string
+	if err := json.Unmarshal(params[0], &address); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid address parameter"}
+	}
+	code, err := s.backend.GetCode(address)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	if len(code) == 0 {
+		return "0x", nil
+	}
+	return "0x" + hex.EncodeToString(code), nil
+}
+
+func (s *Server) ethCall(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing call object parameter"}
+	}
+	var callObj struct {
+		From  string `json:"from"`
+		To    string `json:"to"`
+		Data  string `json:"data"`
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(params[0], &callObj); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid call object"}
+	}
+	var data []byte
+	if callObj.Data != "" {
+		var err error
+		data, err = hex.DecodeString(strings.TrimPrefix(callObj.Data, "0x"))
+		if err != nil {
+			return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid data hex"}
+		}
+	}
+	var value *big.Int
+	if callObj.Value != "" {
+		value = new(big.Int)
+		value.SetString(strings.TrimPrefix(callObj.Value, "0x"), 16)
+	}
+	result, err := s.backend.Call(callObj.From, callObj.To, data, value)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	if len(result) == 0 {
+		return "0x", nil
+	}
+	return "0x" + hex.EncodeToString(result), nil
+}
+
+func (s *Server) ethEstimateGas(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing call object parameter"}
+	}
+	var callObj struct {
+		From  string `json:"from"`
+		To    string `json:"to"`
+		Data  string `json:"data"`
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(params[0], &callObj); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid call object"}
+	}
+	var data []byte
+	if callObj.Data != "" {
+		var err error
+		data, err = hex.DecodeString(strings.TrimPrefix(callObj.Data, "0x"))
+		if err != nil {
+			return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid data hex"}
+		}
+	}
+	var value *big.Int
+	if callObj.Value != "" {
+		value = new(big.Int)
+		value.SetString(strings.TrimPrefix(callObj.Value, "0x"), 16)
+	}
+	gas, err := s.backend.EstimateGas(callObj.From, callObj.To, data, value)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	return fmt.Sprintf("0x%x", gas), nil
+}
+
+func (s *Server) ethGetBlockByNumber(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing block number parameter"}
+	}
+	var blockTag string
+	if err := json.Unmarshal(params[0], &blockTag); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid block number"}
+	}
+	var blockNum uint64
+	switch blockTag {
+	case "latest", "pending":
+		blockNum = s.backend.BlockNumber()
+	case "earliest":
+		blockNum = 0
+	default:
+		fmt.Sscanf(strings.TrimPrefix(blockTag, "0x"), "%x", &blockNum)
+	}
+	fullTx := false
+	if len(params) > 1 {
+		json.Unmarshal(params[1], &fullTx)
+	}
+	block, err := s.backend.GetBlockByNumber(blockNum, fullTx)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	return block, nil
+}
+
+func (s *Server) ethGetTransactionByHash(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing transaction hash"}
+	}
+	var txHash string
+	if err := json.Unmarshal(params[0], &txHash); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid transaction hash"}
+	}
+	tx, err := s.backend.GetTransactionByHash(txHash)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	return tx, nil
+}
+
+func (s *Server) ethGetLogs(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing filter object"}
+	}
+	var filter struct {
+		FromBlock string        `json:"fromBlock"`
+		ToBlock   string        `json:"toBlock"`
+		Address   interface{}   `json:"address"`
+		Topics    []interface{} `json:"topics"`
+	}
+	if err := json.Unmarshal(params[0], &filter); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid filter object"}
+	}
+	var fromBlock, toBlock uint64
+	if filter.FromBlock != "" && filter.FromBlock != "latest" {
+		fmt.Sscanf(strings.TrimPrefix(filter.FromBlock, "0x"), "%x", &fromBlock)
+	}
+	if filter.ToBlock == "" || filter.ToBlock == "latest" {
+		toBlock = s.backend.BlockNumber()
+	} else {
+		fmt.Sscanf(strings.TrimPrefix(filter.ToBlock, "0x"), "%x", &toBlock)
+	}
+	// Parse addresses.
+	var addresses []common.Address
+	if addrStr, ok := filter.Address.(string); ok && addrStr != "" {
+		addresses = append(addresses, common.HexToAddress(addrStr))
+	} else if addrList, ok := filter.Address.([]interface{}); ok {
+		for _, a := range addrList {
+			if s, ok := a.(string); ok {
+				addresses = append(addresses, common.HexToAddress(s))
+			}
+		}
+	}
+	logs, err := s.backend.GetLogs(fromBlock, toBlock, addresses, nil)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+	if logs == nil {
+		return []interface{}{}, nil
+	}
+	return logs, nil
 }
 
 // ---------------------------------------------------------------------------

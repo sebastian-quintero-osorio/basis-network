@@ -56,6 +56,27 @@ func (m *mockBackend) GetTransactionReceipt(txHash string) (*TransactionReceipt,
 	}
 	return nil, nil
 }
+func (m *mockBackend) GetNonce(addr string) (uint64, error) {
+	return 0, nil
+}
+func (m *mockBackend) GetCode(addr string) ([]byte, error) {
+	return nil, nil
+}
+func (m *mockBackend) Call(from, to string, data []byte, value *big.Int) ([]byte, error) {
+	return nil, nil
+}
+func (m *mockBackend) EstimateGas(from, to string, data []byte, value *big.Int) (uint64, error) {
+	return 21000, nil
+}
+func (m *mockBackend) GetBlockByNumber(number uint64, fullTx bool) (map[string]interface{}, error) {
+	return map[string]interface{}{"number": fmt.Sprintf("0x%x", number)}, nil
+}
+func (m *mockBackend) GetTransactionByHash(txHash string) (map[string]interface{}, error) {
+	return nil, nil
+}
+func (m *mockBackend) GetLogs(fromBlock, toBlock uint64, addresses []common.Address, topics [][]common.Hash) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
 func (m *mockBackend) GetBatchStatus(batchID uint64) (*BatchStatus, error) {
 	return &BatchStatus{
 		BatchID:   batchID,
