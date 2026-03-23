@@ -89,6 +89,29 @@ pub enum CircuitOp {
     Call { gas: Fr, target: Fr, value: Fr, success: bool },
     /// Return/Revert: offset=a, size=b, is_revert=d. Selector: q_return.
     Return { offset: Fr, size: Fr, is_revert: bool },
+
+    // -- Extended EVM operations (evm_gates.rs selectors) --
+
+    /// Shift left: c = a << b. d = 2^b (precomputed). Selector: q_shl.
+    Shl { a: Fr, shift_pow: Fr },
+    /// Shift right: c = a >> b. d = 2^b (precomputed). Selector: q_shr.
+    Shr { a: Fr, shift_pow: Fr },
+    /// Extract byte: a=word, b=index, c=byte. Selector: q_byte.
+    Byte { word: Fr, index: Fr, result: Fr },
+    /// Exponentiation: c = a^b (single step, d=1). Selector: q_exp.
+    Exp { base: Fr, result: Fr },
+    /// SHA3/Keccak256: a=offset, b=size, c=hash. Selector: q_sha3.
+    Sha3 { offset: Fr, size: Fr, hash: Fr },
+    /// Calldata load: a=offset, c=value. Selector: q_calldataload.
+    CalldataLoad { offset: Fr, value: Fr },
+    /// Environment opcode: c=value, d=expected. Selector: q_env.
+    Env { value: Fr },
+    /// Block context opcode: c=value, d=expected. Selector: q_block.
+    Block { value: Fr },
+    /// Log emission: a=offset, b=topic_count. Selector: q_log.
+    Log { offset: Fr, topic_count: Fr },
+    /// Contract creation: a=value, b=salt, c=address, d=success. Selector: q_create.
+    Create { value: Fr, salt: Fr, address: Fr, success: bool },
 }
 
 impl CircuitOp {
@@ -155,6 +178,18 @@ impl CircuitOp {
             CircuitOp::Swap { second, .. } => *second,
             CircuitOp::Call { value, .. } => *value,
             CircuitOp::Return { offset, .. } => *offset,
+            CircuitOp::Shl { a, shift_pow } => *a * *shift_pow,
+            CircuitOp::Shr { a, shift_pow } => {
+                if *shift_pow == Fr::ZERO { *a } else { *a * shift_pow.invert().unwrap() }
+            }
+            CircuitOp::Byte { result, .. } => *result,
+            CircuitOp::Exp { result, .. } => *result,
+            CircuitOp::Sha3 { hash, .. } => *hash,
+            CircuitOp::CalldataLoad { value, .. } => *value,
+            CircuitOp::Env { value } => *value,
+            CircuitOp::Block { value } => *value,
+            CircuitOp::Log { offset, .. } => *offset,
+            CircuitOp::Create { address, .. } => *address,
         }
     }
 }
@@ -606,6 +641,91 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "ret_b", config.b, row, || Value::known(*size))?;
                             let c_cell = region.assign_advice(|| "ret_c", config.c, row, || Value::known(Fr::ZERO))?;
                             region.assign_advice(|| "ret_d", config.d, row, || Value::known(d_val))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        // -- Extended EVM ops --
+
+                        CircuitOp::Shl { a, shift_pow } => {
+                            config.q_shl.enable(&mut region, row)?;
+                            region.assign_advice(|| "shl_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "shl_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "shl_c", config.c, row, || Value::known(*a * *shift_pow))?;
+                            region.assign_advice(|| "shl_d", config.d, row, || Value::known(*shift_pow))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Shr { a, shift_pow } => {
+                            config.q_shr.enable(&mut region, row)?;
+                            let c_val = if *shift_pow == Fr::ZERO { *a } else { *a * shift_pow.invert().unwrap() };
+                            region.assign_advice(|| "shr_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "shr_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "shr_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "shr_d", config.d, row, || Value::known(*shift_pow))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Byte { word, index, result } => {
+                            config.q_byte.enable(&mut region, row)?;
+                            region.assign_advice(|| "byte_a", config.a, row, || Value::known(*word))?;
+                            region.assign_advice(|| "byte_b", config.b, row, || Value::known(*index))?;
+                            let c_cell = region.assign_advice(|| "byte_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "byte_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Exp { base, result } => {
+                            config.q_exp.enable(&mut region, row)?;
+                            region.assign_advice(|| "exp_a", config.a, row, || Value::known(*base))?;
+                            region.assign_advice(|| "exp_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "exp_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "exp_d", config.d, row, || Value::known(Fr::from(1u64)))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Sha3 { offset, size, hash } => {
+                            config.q_sha3.enable(&mut region, row)?;
+                            region.assign_advice(|| "sha3_a", config.a, row, || Value::known(*offset))?;
+                            region.assign_advice(|| "sha3_b", config.b, row, || Value::known(*size))?;
+                            let c_cell = region.assign_advice(|| "sha3_c", config.c, row, || Value::known(*hash))?;
+                            region.assign_advice(|| "sha3_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::CalldataLoad { offset, value } => {
+                            config.q_calldataload.enable(&mut region, row)?;
+                            region.assign_advice(|| "cdl_a", config.a, row, || Value::known(*offset))?;
+                            region.assign_advice(|| "cdl_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "cdl_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "cdl_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Env { value } => {
+                            config.q_env.enable(&mut region, row)?;
+                            region.assign_advice(|| "env_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "env_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "env_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "env_d", config.d, row, || Value::known(*value))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Block { value } => {
+                            config.q_block.enable(&mut region, row)?;
+                            region.assign_advice(|| "blk_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "blk_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "blk_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "blk_d", config.d, row, || Value::known(*value))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Log { offset, topic_count } => {
+                            config.q_log.enable(&mut region, row)?;
+                            region.assign_advice(|| "log_a", config.a, row, || Value::known(*offset))?;
+                            region.assign_advice(|| "log_b", config.b, row, || Value::known(*topic_count))?;
+                            let c_cell = region.assign_advice(|| "log_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "log_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Create { value, salt, address, success } => {
+                            config.q_create.enable(&mut region, row)?;
+                            let d_val = if *success { Fr::from(1u64) } else { Fr::ZERO };
+                            region.assign_advice(|| "crt_a", config.a, row, || Value::known(*value))?;
+                            region.assign_advice(|| "crt_b", config.b, row, || Value::known(*salt))?;
+                            let c_cell = region.assign_advice(|| "crt_c", config.c, row, || Value::known(*address))?;
+                            region.assign_advice(|| "crt_d", config.d, row, || Value::known(d_val))?;
                             assigned_cells.push(c_cell);
                         }
                     }

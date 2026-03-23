@@ -898,3 +898,18 @@ fn combined_evm_transaction() {
         CircuitOp::Return { offset: Fr::ZERO, size: Fr::ZERO, is_revert: false },
     ]);
 }
+
+// ===================================================================
+// Extended EVM Gate Tests (10 gates from evm_gates.rs)
+// ===================================================================
+
+#[test] fn gate_shl() { run_gate_test(vec![CircuitOp::Shl { a: Fr::from(5u64), shift_pow: Fr::from(4u64) }]); }
+#[test] fn gate_shr() { run_gate_test(vec![CircuitOp::Shr { a: Fr::from(20u64), shift_pow: Fr::from(4u64) }]); }
+#[test] fn gate_byte_op() { run_gate_test(vec![CircuitOp::Byte { word: Fr::from(0xffu64), index: Fr::from(31u64), result: Fr::from(0xffu64) }]); }
+#[test] fn gate_exp_op() { run_gate_test(vec![CircuitOp::Exp { base: Fr::from(2u64), result: Fr::from(2u64) }]); } // d=1 means b=1, so result=base
+#[test] fn gate_sha3_op() { run_gate_test(vec![CircuitOp::Sha3 { offset: Fr::ZERO, size: Fr::from(32u64), hash: Fr::from(0xabcdu64) }]); }
+#[test] fn gate_calldataload() { run_gate_test(vec![CircuitOp::CalldataLoad { offset: Fr::ZERO, value: Fr::from(42u64) }]); }
+#[test] fn gate_env_op() { run_gate_test(vec![CircuitOp::Env { value: Fr::from(0x1234u64) }]); }
+#[test] fn gate_block_op() { run_gate_test(vec![CircuitOp::Block { value: Fr::from(100u64) }]); }
+#[test] fn gate_log_op() { run_gate_test(vec![CircuitOp::Log { offset: Fr::from(0x80u64), topic_count: Fr::from(2u64) }]); }
+#[test] fn gate_create_op() { run_gate_test(vec![CircuitOp::Create { value: Fr::ZERO, salt: Fr::from(42u64), address: Fr::from(0xdeadu64), success: true }]); }
