@@ -202,8 +202,9 @@ type jsonrpcResponse struct {
 
 // jsonrpcError is a JSON-RPC 2.0 error object.
 type jsonrpcError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"` // Revert data for EVM errors (code 3)
 }
 
 // Standard JSON-RPC error codes.
@@ -491,11 +492,12 @@ func (s *Server) ethCall(params []json.RawMessage) (interface{}, *jsonrpcError) 
 	}
 	result, err := s.backend.Call(callObj.From, callObj.To, data, value)
 	if err != nil {
-		// If we have revert data, return it in a structured error (ethers.js v6 expects this).
+		// If we have revert data, include it in error.data (ethers.js v6 expects this).
 		if len(result) > 0 {
-			return "0x" + hex.EncodeToString(result), &jsonrpcError{
+			return nil, &jsonrpcError{
 				Code:    3, // EVM revert error code
 				Message: "execution reverted",
+				Data:    "0x" + hex.EncodeToString(result),
 			}
 		}
 		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
