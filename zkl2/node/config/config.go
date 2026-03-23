@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -196,7 +197,7 @@ func DefaultConfig() *Config {
 			MaxConcurrentBatches: 2,
 		},
 		Prover: ProverConfig{
-			BinaryPath:     "./target/release/basis-prover",
+			BinaryPath:     "../prover/target/release/basis-prover",
 			WitnessTimeout: 30 * time.Second,
 			ProveTimeout:   5 * time.Minute,
 		},
@@ -231,12 +232,47 @@ func LoadFromFile(path string) (*Config, error) {
 		return nil, fmt.Errorf("config: parse file %s: %w", path, err)
 	}
 
-	// Load sensitive values from environment.
+	// Load values from environment (overrides JSON config).
+	ApplyEnvOverrides(cfg)
+
+	return cfg, nil
+}
+
+// applyEnvOverrides applies environment variable overrides to the config.
+// Called from both LoadFromFile and directly from main for default config.
+func ApplyEnvOverrides(cfg *Config) {
 	if key := os.Getenv("L1_PRIVATE_KEY"); key != "" {
 		cfg.L1.PrivateKey = key
 	}
-
-	return cfg, nil
+	if rpc := os.Getenv("L1_RPC_URL"); rpc != "" {
+		cfg.L1.RPCURL = rpc
+	}
+	if bs := os.Getenv("L2_BATCH_SIZE"); bs != "" {
+		if v, err := strconv.Atoi(bs); err == nil && v > 0 {
+			cfg.L2.BatchSize = v
+		}
+	}
+	if bi := os.Getenv("L2_BLOCK_INTERVAL_MS"); bi != "" {
+		if v, err := strconv.Atoi(bi); err == nil && v > 0 {
+			cfg.L2.BlockInterval = time.Duration(v) * time.Millisecond
+		}
+	}
+	// Contract addresses from environment
+	if v := os.Getenv("BASIS_ROLLUP_ADDRESS"); v != "" {
+		cfg.Contracts.BasisRollup = v
+	}
+	if v := os.Getenv("BASIS_BRIDGE_ADDRESS"); v != "" {
+		cfg.Contracts.BasisBridge = v
+	}
+	if v := os.Getenv("BASIS_DAC_ADDRESS"); v != "" {
+		cfg.Contracts.BasisDAC = v
+	}
+	if v := os.Getenv("ENTERPRISE_REGISTRY_ADDRESS"); v != "" {
+		cfg.Contracts.EnterpriseRegistry = v
+	}
+	if v := os.Getenv("PROVER_BINARY_PATH"); v != "" {
+		cfg.Prover.BinaryPath = v
+	}
 }
 
 // Validate checks that the configuration is internally consistent.

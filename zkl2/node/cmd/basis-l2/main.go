@@ -15,6 +15,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -67,6 +68,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
+	} else {
+		// When no config file, apply environment variable overrides to defaults.
+		config.ApplyEnvOverrides(cfg)
 	}
 
 	// Override from flags.
@@ -468,7 +472,7 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 
 			// Capture pre-state root before executing this block's transactions.
 			if batchTxCount == 0 {
-				batchPreStateRoot = fmt.Sprintf("0x%x", n.adapter.DB().StateRoot())
+				func() { r := n.adapter.DB().StateRoot(); batchPreStateRoot = "0x" + hex.EncodeToString(r.Marshal()) }()
 			}
 
 			// Execute each transaction through the EVM via the Adapter.
@@ -536,7 +540,7 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 
 				// Pre-populate batch with real EVM execution traces and state roots.
 				batch.PreStateRoot = batchPreStateRoot
-				batch.PostStateRoot = fmt.Sprintf("0x%x", n.adapter.DB().StateRoot())
+				func() { r := n.adapter.DB().StateRoot(); batch.PostStateRoot = "0x" + hex.EncodeToString(r.Marshal()) }()
 				batch.Traces = pipeline.ConvertExecutionTraces(batchTraces)
 				batch.HasTrace = true
 
