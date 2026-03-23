@@ -293,6 +293,21 @@ func (db *StateDB) SetCodeHash(addr TreeKey, hash fr.Element) {
 	acct.CodeHash = hash
 }
 
+// KillAccount marks an account as dead and removes it from the trie.
+// Used by the adapter's RevertToSnapshot to undo account creation.
+func (db *StateDB) KillAccount(addr TreeKey) {
+	acct, ok := db.accounts[addr]
+	if !ok {
+		return
+	}
+	acct.Alive = false
+	acct.Balance.SetUint64(0)
+	acct.Nonce = 0
+	// Update account trie (dead account = EMPTY leaf).
+	val := db.accountValue(addr)
+	db.accountTrie.Insert(addr, val)
+}
+
 // EmptyStorageRoot returns the root hash of an empty storage trie.
 // This is the DefaultHash(storageDepth) from the Poseidon SMT.
 func (db *StateDB) EmptyStorageRoot() fr.Element {

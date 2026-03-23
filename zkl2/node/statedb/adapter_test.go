@@ -686,6 +686,174 @@ func TestAdapter_EVMExecution_ContractCreation(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// Snapshot/Revert Journaling Tests (production journaling, not structural)
+// ---------------------------------------------------------------------------
+
+func TestAdapter_SnapshotRevertBalance(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x1111111111111111111111111111111111111111")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(1000), tracing.BalanceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(5000), tracing.BalanceChangeUnspecified)
+	if a.GetBalance(addr).Uint64() != 6000 {
+		t.Fatalf("expected 6000 after add, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetBalance(addr).Uint64() != 1000 {
+		t.Errorf("expected 1000 after revert, got %d", a.GetBalance(addr).Uint64())
+	}
+}
+
+func TestAdapter_SnapshotRevertNonce(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x2222222222222222222222222222222222222222")
+	a.CreateAccount(addr)
+	a.SetNonce(addr, 5, tracing.NonceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.SetNonce(addr, 42, tracing.NonceChangeUnspecified)
+	if a.GetNonce(addr) != 42 {
+		t.Fatalf("expected nonce 42, got %d", a.GetNonce(addr))
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetNonce(addr) != 5 {
+		t.Errorf("expected nonce 5 after revert, got %d", a.GetNonce(addr))
+	}
+}
+
+func TestAdapter_SnapshotRevertStorage(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x3333333333333333333333333333333333333333")
+	a.CreateAccount(addr)
+	slot := common.HexToHash("0x01")
+	origVal := common.HexToHash("0xAA")
+	a.SetState(addr, slot, origVal)
+
+	snapID := a.Snapshot()
+	newVal := common.HexToHash("0xBB")
+	a.SetState(addr, slot, newVal)
+	if a.GetState(addr, slot) != newVal {
+		t.Fatalf("expected 0xBB, got %s", a.GetState(addr, slot).Hex())
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetState(addr, slot) != origVal {
+		t.Errorf("expected 0xAA after revert, got %s", a.GetState(addr, slot).Hex())
+	}
+}
+
+func TestAdapter_SnapshotRevertCode(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x4444444444444444444444444444444444444444")
+	a.CreateAccount(addr)
+	origCode := []byte{0x60, 0x42, 0x00}
+	a.SetCode(addr, origCode)
+
+	snapID := a.Snapshot()
+	a.SetCode(addr, []byte{0x60, 0xFF, 0x00})
+	if a.GetCodeSize(addr) != 3 {
+		t.Fatal("code should be set")
+	}
+
+	a.RevertToSnapshot(snapID)
+	code := a.GetCode(addr)
+	if !bytesEqual(code, origCode) {
+		t.Errorf("expected original code after revert, got %x", code)
+	}
+}
+
+func TestAdapter_SnapshotRevertSelfDestruct(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x5555555555555555555555555555555555555555")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(9000), tracing.BalanceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.SelfDestruct(addr)
+	if !a.HasSelfDestructed(addr) {
+		t.Fatal("should be self-destructed")
+	}
+	if a.GetBalance(addr).Uint64() != 0 {
+		t.Fatal("balance should be zero after self-destruct")
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.HasSelfDestructed(addr) {
+		t.Error("should NOT be self-destructed after revert")
+	}
+	if a.GetBalance(addr).Uint64() != 9000 {
+		t.Errorf("expected balance 9000 after revert, got %d", a.GetBalance(addr).Uint64())
+	}
+}
+
+func TestAdapter_SnapshotNestedReverts(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x6666666666666666666666666666666666666666")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(100), tracing.BalanceChangeUnspecified)
+
+	snapA := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(200), tracing.BalanceChangeUnspecified) // 300
+
+	snapB := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(400), tracing.BalanceChangeUnspecified) // 700
+
+	if a.GetBalance(addr).Uint64() != 700 {
+		t.Fatalf("expected 700, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	// Revert to A (skipping B) -- should undo both B's and A's mutations
+	a.RevertToSnapshot(snapA)
+	if a.GetBalance(addr).Uint64() != 100 {
+		t.Errorf("expected 100 after revert to A, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	_ = snapB // used above
+}
+
+func TestAdapter_SnapshotRevertLogs(t *testing.T) {
+	a, _ := testAdapter()
+	log1 := &types.Log{Address: common.HexToAddress("0x01"), Data: []byte{1}}
+	a.AddLog(log1)
+
+	snapID := a.Snapshot()
+	log2 := &types.Log{Address: common.HexToAddress("0x02"), Data: []byte{2}}
+	log3 := &types.Log{Address: common.HexToAddress("0x03"), Data: []byte{3}}
+	a.AddLog(log2)
+	a.AddLog(log3)
+
+	if len(a.GetLogs()) != 3 {
+		t.Fatalf("expected 3 logs, got %d", len(a.GetLogs()))
+	}
+
+	a.RevertToSnapshot(snapID)
+	if len(a.GetLogs()) != 1 {
+		t.Errorf("expected 1 log after revert, got %d", len(a.GetLogs()))
+	}
+}
+
+func TestAdapter_SnapshotRevertAccountCreation(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x7777777777777777777777777777777777777777")
+
+	snapID := a.Snapshot()
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(500), tracing.BalanceChangeUnspecified)
+	if !a.Exist(addr) {
+		t.Fatal("account should exist after creation")
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.Exist(addr) {
+		t.Error("account should NOT exist after reverting creation")
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
