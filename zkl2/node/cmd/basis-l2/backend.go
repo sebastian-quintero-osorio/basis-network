@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"math/big"
+	"sync"
+	"sync/atomic"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	"basis-network/zkl2/node/executor"
 	"basis-network/zkl2/node/rpc"
 	"basis-network/zkl2/node/sequencer"
 	"basis-network/zkl2/node/statedb"
@@ -16,7 +20,10 @@ type NodeBackend struct {
 	stateDB   *statedb.StateDB
 	seq       *sequencer.Sequencer
 	l2ChainID uint64
-	blockNum  uint64
+	blockNum  atomic.Uint64
+
+	receiptsMu sync.RWMutex
+	receipts   map[string]*rpc.TransactionReceipt
 }
 
 // Compile-time check that NodeBackend implements rpc.Backend.
@@ -27,7 +34,7 @@ func (b *NodeBackend) ChainID() uint64 {
 }
 
 func (b *NodeBackend) BlockNumber() uint64 {
-	return b.blockNum
+	return b.blockNum.Load()
 }
 
 func (b *NodeBackend) GetBalance(address string) (*big.Int, error) {
@@ -42,8 +49,16 @@ func (b *NodeBackend) SubmitTransaction(from common.Address, tx *ethtypes.Transa
 }
 
 func (b *NodeBackend) GetTransactionReceipt(txHash string) (*rpc.TransactionReceipt, error) {
-	// Receipts not yet indexed. Return nil (not found).
-	return nil, nil
+	b.receiptsMu.RLock()
+	defer b.receiptsMu.RUnlock()
+	if b.receipts == nil {
+		return nil, nil
+	}
+	receipt, ok := b.receipts[txHash]
+	if !ok {
+		return nil, nil
+	}
+	return receipt, nil
 }
 
 func (b *NodeBackend) GetBatchStatus(batchID uint64) (*rpc.BatchStatus, error) {
@@ -51,4 +66,29 @@ func (b *NodeBackend) GetBatchStatus(batchID uint64) (*rpc.BatchStatus, error) {
 		BatchID: batchID,
 		Stage:   "unknown",
 	}, nil
+}
+
+// SetBlockNumber updates the current block number (called by block production loop).
+func (b *NodeBackend) SetBlockNumber(num uint64) {
+	b.blockNum.Store(num)
+}
+
+// StoreReceipt indexes a transaction receipt after EVM execution.
+func (b *NodeBackend) StoreReceipt(txHash sequencer.TxHash, blockNumber uint64, result *executor.TransactionResult) {
+	b.receiptsMu.Lock()
+	defer b.receiptsMu.Unlock()
+	if b.receipts == nil {
+		b.receipts = make(map[string]*rpc.TransactionReceipt)
+	}
+	status := uint64(1)
+	if result.VMError != nil {
+		status = 0
+	}
+	hashHex := fmt.Sprintf("0x%x", txHash)
+	b.receipts[hashHex] = &rpc.TransactionReceipt{
+		TxHash:      hashHex,
+		BlockNumber: blockNumber,
+		GasUsed:     result.GasUsed,
+		Status:      status,
+	}
 }

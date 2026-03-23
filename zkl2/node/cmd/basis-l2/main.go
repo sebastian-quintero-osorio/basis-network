@@ -141,6 +141,7 @@ type Node struct {
 	seq       *sequencer.Sequencer
 	pipeline  *pipeline.Orchestrator
 	rpcServer *rpc.Server
+	backend   *NodeBackend
 	stopCh    chan struct{}
 }
 
@@ -211,20 +212,27 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		"block_interval", cfg.L2.BlockInterval,
 	)
 
-	// 3. Initialize Pipeline Orchestrator.
-	// Currently uses simulated stages. Production stages (real EVM execution,
-	// Rust prover IPC, L1 submission) will be plugged in after the Go-Rust
-	// bridge and L1 submitter are implemented (POST_ROADMAP_TODO Section 2.2).
+	// 3. Initialize Pipeline Orchestrator with production stages.
+	// Production stages use real EVM execution traces and Rust prover via IPC.
 	pipelineCfg := pipeline.DefaultPipelineConfig()
 	pipelineCfg.MaxConcurrentBatches = cfg.Pipeline.MaxConcurrentBatches
+	prodStages := pipeline.DefaultProductionStages(logger.With("component", "pipeline-stages"))
+	prodStages.WitnessCommand = cfg.Prover.BinaryPath
+	prodStages.ProverCommand = cfg.Prover.BinaryPath
+	if cfg.L1.RPCURL != "" {
+		prodStages.L1RPCURL = cfg.L1.RPCURL
+		prodStages.L1PrivateKey = cfg.L1.PrivateKey
+		prodStages.RollupAddress = cfg.Contracts.BasisRollup
+	}
 	orch := pipeline.NewOrchestrator(
 		pipelineCfg,
 		logger.With("component", "pipeline"),
-		pipeline.DefaultSimulatedStages(),
+		prodStages,
 	)
 	logger.Info("pipeline orchestrator initialized",
 		"max_concurrent", cfg.Pipeline.MaxConcurrentBatches,
-		"stages", "simulated",
+		"stages", "production",
+		"prover_binary", cfg.Prover.BinaryPath,
 	)
 
 	// 4. Initialize RPC Server with real backend.
@@ -257,6 +265,7 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		seq:       seq,
 		pipeline:  orch,
 		rpcServer: rpcServer,
+		backend:   backend,
 		stopCh:    make(chan struct{}),
 	}, nil
 }
@@ -294,6 +303,8 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 	var blockNumber uint64
 	var batchTxCount int
 	var batchID uint64
+	var batchTraces []*executor.ExecutionTrace
+	var batchPreStateRoot string
 
 	for {
 		select {
@@ -314,6 +325,11 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 				"number", blockNumber,
 				"tx_count", len(block.Transactions),
 			)
+
+			// Capture pre-state root before executing this block's transactions.
+			if batchTxCount == 0 {
+				batchPreStateRoot = fmt.Sprintf("0x%x", n.adapter.DB().StateRoot())
+			}
 
 			// Execute each transaction through the EVM via the Adapter.
 			for _, tx := range block.Transactions {
@@ -360,15 +376,36 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 					)
 				}
 
+				// Accumulate execution traces for the proving pipeline.
+				if result.Trace != nil {
+					batchTraces = append(batchTraces, result.Trace)
+				}
+
+				// Store receipt in backend for eth_getTransactionReceipt.
+				n.backend.StoreReceipt(tx.Hash, blockNumber, result)
+
 				batchTxCount++
 			}
+
+			// Update backend block number for eth_blockNumber.
+			n.backend.SetBlockNumber(blockNumber)
 
 			// When batch is full, submit to proving pipeline.
 			if batchTxCount >= n.cfg.L2.BatchSize {
 				batch := pipeline.NewBatchState(batchID, blockNumber, batchTxCount)
+
+				// Pre-populate batch with real EVM execution traces and state roots.
+				batch.PreStateRoot = batchPreStateRoot
+				batch.PostStateRoot = fmt.Sprintf("0x%x", n.adapter.DB().StateRoot())
+				batch.Traces = pipeline.ConvertExecutionTraces(batchTraces)
+				batch.HasTrace = true
+
 				n.logger.Info("submitting batch to pipeline",
 					"batch_id", batchID,
 					"tx_count", batchTxCount,
+					"trace_count", len(batch.Traces),
+					"pre_root", batch.PreStateRoot[:18]+"...",
+					"post_root", batch.PostStateRoot[:18]+"...",
 					"block", blockNumber,
 				)
 
@@ -385,6 +422,7 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 
 				batchID++
 				batchTxCount = 0
+				batchTraces = nil
 			}
 		}
 	}

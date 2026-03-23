@@ -76,9 +76,25 @@ func DefaultProductionStages(logger *slog.Logger) *ProductionStages {
 func (s *ProductionStages) Execute(ctx context.Context, batch *BatchState) error {
 	start := time.Now()
 
-	// Generate execution traces from the batch's transactions.
-	// TODO: Replace with real EVM execution when JSON-RPC server is live.
-	// The executor library is tested and ready (zkl2/node/executor/).
+	// If the batch already has traces pre-populated by the block production loop
+	// (from real EVM execution), validate and use them directly.
+	if len(batch.Traces) > 0 && batch.PreStateRoot != "" && batch.PostStateRoot != "" {
+		s.Logger.Info("execute stage: using pre-populated EVM traces",
+			"batch_id", batch.BatchID,
+			"tx_count", batch.TxCount,
+			"trace_count", len(batch.Traces),
+		)
+		batch.ExecutionTime = time.Since(start)
+		return nil
+	}
+
+	// Fallback: generate synthetic traces for development/testing.
+	// This path is used when the batch was submitted without real EVM execution
+	// (e.g., from simulated tests or before the RPC server is fully integrated).
+	s.Logger.Warn("execute stage: generating synthetic traces (no real EVM execution)",
+		"batch_id", batch.BatchID,
+		"tx_count", batch.TxCount,
+	)
 	traces := make([]ExecutionTraceJSON, batch.TxCount)
 	for i := range traces {
 		traces[i] = ExecutionTraceJSON{
@@ -101,7 +117,7 @@ func (s *ProductionStages) Execute(ctx context.Context, batch *BatchState) error
 	batch.Traces = traces
 	batch.ExecutionTime = time.Since(start)
 
-	s.Logger.Info("execute stage complete",
+	s.Logger.Info("execute stage complete (synthetic)",
 		"batch_id", batch.BatchID,
 		"tx_count", batch.TxCount,
 		"duration_ms", batch.ExecutionTime.Milliseconds(),

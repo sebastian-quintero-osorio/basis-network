@@ -173,6 +173,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "basis-prover-cli"
+version = "0.1.0"
+dependencies = [
+ "basis-circuit",
+ "basis-witness",
+ "halo2_proofs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "basis-witness"
 version = "0.1.0"
 dependencies = [
