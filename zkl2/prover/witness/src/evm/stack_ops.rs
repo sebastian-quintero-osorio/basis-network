@@ -16,6 +16,11 @@ pub fn process_entry(
                 Fr::from(global_counter),
                 Fr::from(op_id),
                 value,
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         TraceOp::POP | TraceOp::SWAP => {
@@ -23,6 +28,11 @@ pub fn process_entry(
             Ok(vec![vec![
                 Fr::from(global_counter),
                 Fr::from(op_id),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
                 Fr::from(0u64),
             ]])
         }

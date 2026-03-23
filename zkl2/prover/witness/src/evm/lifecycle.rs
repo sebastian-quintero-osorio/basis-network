@@ -18,6 +18,9 @@ pub fn process_entry(
                 value,
                 Fr::from(0u64), // salt (CREATE2) or zero
                 Fr::from(1u64), // success flag
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         _ => Ok(vec![]),

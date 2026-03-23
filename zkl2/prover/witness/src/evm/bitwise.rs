@@ -20,6 +20,8 @@ pub fn process_entry(
                 shift,
                 Fr::from(0u64),
                 Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         TraceOp::BYTE => {
@@ -30,6 +32,8 @@ pub fn process_entry(
                 Fr::from(0x1Au64),
                 word,
                 index,
+                Fr::from(0u64),
+                Fr::from(0u64),
                 Fr::from(0u64),
                 Fr::from(0u64),
             ]])
