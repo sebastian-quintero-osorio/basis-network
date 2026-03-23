@@ -48,6 +48,44 @@ const (
 	// TraceOpLog records an event log emission.
 	// Not in TLA+ spec; captured for L1 event bridging.
 	TraceOpLog TraceOp = "LOG"
+
+	// -- Extended EVM opcodes for full witness generation --
+
+	// Arithmetic
+	TraceOpADD TraceOp = "ADD"
+	TraceOpSUB TraceOp = "SUB"
+	TraceOpMUL TraceOp = "MUL"
+	TraceOpDIV TraceOp = "DIV"
+	TraceOpMOD TraceOp = "MOD"
+	TraceOpEXP TraceOp = "EXP"
+
+	// Bitwise
+	TraceOpSHL  TraceOp = "SHL"
+	TraceOpSHR  TraceOp = "SHR"
+	TraceOpBYTE TraceOp = "BYTE"
+
+	// Memory
+	TraceOpMLOAD  TraceOp = "MLOAD"
+	TraceOpMSTORE TraceOp = "MSTORE"
+
+	// Stack
+	TraceOpPUSH TraceOp = "PUSH"
+	TraceOpPOP  TraceOp = "POP"
+	TraceOpDUP  TraceOp = "DUP"
+	TraceOpSWAP TraceOp = "SWAP"
+
+	// Control
+	TraceOpJUMP   TraceOp = "JUMP"
+	TraceOpJUMPI  TraceOp = "JUMPI"
+	TraceOpRETURN TraceOp = "RETURN"
+	TraceOpREVERT TraceOp = "REVERT"
+
+	// Crypto
+	TraceOpSHA3 TraceOp = "SHA3"
+
+	// Lifecycle
+	TraceOpCREATE  TraceOp = "CREATE"
+	TraceOpCREATE2 TraceOp = "CREATE2"
 )
 
 // TraceEntry records a single state-modifying operation during EVM execution.
@@ -85,6 +123,29 @@ type TraceEntry struct {
 	// Nonce fields (NONCE_CHANGE)
 	PrevNonce uint64 `json:"prev_nonce,omitempty"`
 	CurrNonce uint64 `json:"curr_nonce,omitempty"`
+
+	// Arithmetic fields (ADD, SUB, MUL, DIV, MOD, EXP)
+	OperandA *big.Int `json:"operand_a,omitempty"`
+	OperandB *big.Int `json:"operand_b,omitempty"`
+	Result   *big.Int `json:"result,omitempty"`
+
+	// Shift fields (SHL, SHR)
+	ShiftAmount uint64 `json:"shift_amount,omitempty"`
+
+	// Memory fields (MLOAD, MSTORE)
+	MemOffset uint64      `json:"mem_offset,omitempty"`
+	MemValue  common.Hash `json:"mem_value,omitempty"`
+
+	// SHA3 fields
+	Sha3Hash common.Hash `json:"sha3_hash,omitempty"`
+	Sha3Size uint64      `json:"sha3_size,omitempty"`
+
+	// Stack fields (PUSH, DUP)
+	StackValue *big.Int `json:"stack_value,omitempty"`
+
+	// Control flow fields
+	Destination uint64 `json:"destination,omitempty"`
+	Condition   uint64 `json:"condition,omitempty"`
 }
 
 // OpcodeEntry records a single EVM opcode execution step.
