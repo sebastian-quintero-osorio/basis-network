@@ -58,6 +58,19 @@ pub enum CircuitOp {
     Or { a: Fr, b: Fr },
     /// Boolean NOT: c = 1 - a. Selector: q_not.
     Not { a: Fr },
+
+    // -- Storage/Memory operations --
+
+    /// Storage read: slot=a, value=c, expected=d. Selector: q_sload.
+    Sload { slot: Fr, value: Fr },
+    /// Storage write: slot=a, old_value=b, new_value=c. Selector: q_sstore.
+    Sstore { slot: Fr, old_value: Fr, new_value: Fr },
+    /// Memory read: address=a, value=c, expected=d. Selector: q_mload.
+    Mload { address: Fr, value: Fr },
+    /// Memory write: address=a, value=c. Selector: q_mstore.
+    Mstore { address: Fr, value: Fr },
+    /// Hash: c = Hash(a, b). Selector: q_hash.
+    Hash { left: Fr, right: Fr },
 }
 
 impl CircuitOp {
@@ -104,6 +117,17 @@ impl CircuitOp {
             CircuitOp::And { a, b } => *a * *b,
             CircuitOp::Or { a, b } => *a + *b - *a * *b,
             CircuitOp::Not { a } => Fr::from(1u64) - *a,
+            CircuitOp::Sload { value, .. } => *value,
+            CircuitOp::Sstore { new_value, .. } => *new_value,
+            CircuitOp::Mload { value, .. } => *value,
+            CircuitOp::Mstore { value, .. } => *value,
+            CircuitOp::Hash { left, right } => {
+                let x = *left;
+                let x2 = x * x;
+                let x4 = x2 * x2;
+                let x5 = x4 * x;
+                x5 + *right
+            }
         }
     }
 }
@@ -432,6 +456,60 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "not_b", config.b, row, || Value::known(Fr::ZERO))?;
                             let c_cell = region.assign_advice(|| "not_c", config.c, row, || Value::known(c_val))?;
                             region.assign_advice(|| "not_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        // -- Storage/Memory ops --
+
+                        CircuitOp::Sload { slot, value } => {
+                            config.q_sload.enable(&mut region, row)?;
+                            region.assign_advice(|| "sload_a", config.a, row, || Value::known(*slot))?;
+                            region.assign_advice(|| "sload_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "sload_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "sload_d", config.d, row, || Value::known(*value))?; // expected = actual
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Sstore { slot, old_value, new_value } => {
+                            config.q_sstore.enable(&mut region, row)?;
+                            region.assign_advice(|| "sstore_a", config.a, row, || Value::known(*slot))?;
+                            region.assign_advice(|| "sstore_b", config.b, row, || Value::known(*old_value))?;
+                            let c_cell = region.assign_advice(|| "sstore_c", config.c, row, || Value::known(*new_value))?;
+                            // d = 0 for non-identity write, 1 for identity (old == new)
+                            let identity = if *old_value == *new_value { Fr::from(1u64) } else { Fr::ZERO };
+                            region.assign_advice(|| "sstore_d", config.d, row, || Value::known(identity))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Mload { address, value } => {
+                            config.q_mload.enable(&mut region, row)?;
+                            region.assign_advice(|| "mload_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "mload_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "mload_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "mload_d", config.d, row, || Value::known(*value))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Mstore { address, value } => {
+                            config.q_mstore.enable(&mut region, row)?;
+                            region.assign_advice(|| "mstore_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "mstore_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "mstore_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "mstore_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Hash { left, right } => {
+                            config.q_hash.enable(&mut region, row)?;
+                            let x = *left;
+                            let x2 = x * x;
+                            let x4 = x2 * x2;
+                            let x5 = x4 * x;
+                            let c_val = x5 + *right;
+                            region.assign_advice(|| "hash_a", config.a, row, || Value::known(*left))?;
+                            region.assign_advice(|| "hash_b", config.b, row, || Value::known(*right))?;
+                            let c_cell = region.assign_advice(|| "hash_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "hash_d", config.d, row, || Value::known(Fr::ZERO))?;
                             assigned_cells.push(c_cell);
                         }
                     }

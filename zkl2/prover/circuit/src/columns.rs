@@ -71,6 +71,19 @@ pub struct BasisCircuitConfig {
     /// Selector for NotGate: NOT a = c (modeled as 1 - a for booleans).
     pub q_not: Selector,
 
+    // -- Storage/Memory selectors --
+
+    /// Selector for SloadGate: storage read consistency (value matches state).
+    pub q_sload: Selector,
+    /// Selector for SstoreGate: storage write with state root transition.
+    pub q_sstore: Selector,
+    /// Selector for MloadGate: memory read consistency.
+    pub q_mload: Selector,
+    /// Selector for MstoreGate: memory write operation.
+    pub q_mstore: Selector,
+    /// Selector for HashGate: generic 2-to-1 hash (Poseidon for Merkle nodes).
+    pub q_hash: Selector,
+
     // -- Fixed column --
 
     /// Constants column for round constants and lookup values.
@@ -110,6 +123,13 @@ impl BasisCircuitConfig {
         let q_or = meta.selector();
         let q_not = meta.selector();
 
+        // Storage/Memory selectors
+        let q_sload = meta.selector();
+        let q_sstore = meta.selector();
+        let q_mload = meta.selector();
+        let q_mstore = meta.selector();
+        let q_hash = meta.selector();
+
         // Fixed column for constants
         let constant = meta.fixed_column();
 
@@ -143,6 +163,11 @@ impl BasisCircuitConfig {
             q_and,
             q_or,
             q_not,
+            q_sload,
+            q_sstore,
+            q_mload,
+            q_mstore,
+            q_hash,
             constant,
         }
     }
