@@ -79,6 +79,9 @@ export function loadConfig(
     maxRetries: optionalInt("MAX_RETRIES", 3),
     retryBaseDelayMs: optionalInt("RETRY_BASE_DELAY_MS", 1000),
     batchLoopIntervalMs: optionalInt("BATCH_LOOP_INTERVAL_MS", 1000),
+    txConfirmTimeoutMs: optionalInt("L1_TX_CONFIRM_TIMEOUT_MS", 120000),
+    walHmacKey: env["WAL_HMAC_KEY"] || undefined,
+    walEncryptionKey: env["WAL_ENCRYPTION_KEY"] || undefined,
   };
 
   // Validate constraints

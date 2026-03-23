@@ -217,6 +217,16 @@ export interface NodeConfig {
   // -- Batch loop --
   /** Interval (ms) for the batch monitoring loop. */
   readonly batchLoopIntervalMs: number;
+
+  // -- L1 submission --
+  /** Timeout (ms) for L1 tx confirmation. Default: 120000 (2 min). */
+  readonly txConfirmTimeoutMs: number;
+
+  // -- Security --
+  /** HMAC key for WAL checkpoint authentication. Mitigates checkpoint injection (ADV-WAL-04). */
+  readonly walHmacKey?: string;
+  /** AES-256-GCM key for WAL encryption at rest (hex, 64 chars = 32 bytes). */
+  readonly walEncryptionKey?: string;
 }
 
 // ---------------------------------------------------------------------------
