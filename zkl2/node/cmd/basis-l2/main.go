@@ -228,6 +228,26 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		prodStages.L1RPCURL = cfg.L1.RPCURL
 		prodStages.L1PrivateKey = cfg.L1.PrivateKey
 		prodStages.RollupAddress = cfg.Contracts.BasisRollup
+
+		// Wire L1Submitter for real on-chain proof submission.
+		if cfg.L1.PrivateKey != "" && cfg.Contracts.BasisRollup != "" {
+			l1Sub, err := pipeline.NewL1Submitter(
+				cfg.L1.RPCURL,
+				cfg.L1.PrivateKey,
+				cfg.Contracts.BasisRollup,
+				logger.With("component", "l1-submitter"),
+			)
+			if err != nil {
+				logger.Warn("L1 submitter not initialized (proofs will not reach L1)",
+					"error", err,
+				)
+			} else {
+				prodStages.L1Submitter = l1Sub
+				logger.Info("L1 submitter initialized",
+					"rollup", cfg.Contracts.BasisRollup,
+				)
+			}
+		}
 	}
 	orch := pipeline.NewOrchestrator(
 		pipelineCfg,
