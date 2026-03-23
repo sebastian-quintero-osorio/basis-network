@@ -19,8 +19,9 @@ import (
 // [Spec: zkl2/specs/units/2026-03-bridge/1-formalization/v0-analysis/specs/BasisBridge/BasisBridge.tla]
 // [Spec: BasisBridge.tla, FinalizeBatch -- relayer submits withdraw trie roots]
 type Relayer struct {
-	config Config
-	logger *slog.Logger
+	config         Config
+	logger         *slog.Logger
+	depositHandler DepositHandler
 
 	// Withdraw trie for the current batch.
 	// [Spec: BasisBridge.tla, finalizedWithdrawals -- finalized set mapped to trie]
@@ -61,6 +62,12 @@ func New(config Config, logger *slog.Logger) (*Relayer, error) {
 		ctx:          ctx,
 		cancel:       cancel,
 	}, nil
+}
+
+// OnDeposit registers a callback for processing deposits on L2.
+// The node uses this to connect the relayer to the L2 StateDB.
+func (r *Relayer) OnDeposit(handler DepositHandler) {
+	r.depositHandler = handler
 }
 
 // Start begins the relayer event loops.
@@ -104,11 +111,23 @@ func (r *Relayer) ProcessDeposit(deposit DepositEvent) error {
 		"l1_block", deposit.L1Block,
 	)
 
-	// Production implementation:
-	// 1. Verify the deposit event came from the correct BasisBridge contract address
-	// 2. Submit an L2 transaction to credit l2Recipient with the deposited amount
-	// 3. Wait for L2 transaction confirmation
-	// 4. If L2 tx fails, add to retry queue (bounded retries with exponential backoff)
+	// Credit the recipient on L2 via the deposit handler.
+	if r.depositHandler != nil {
+		if err := r.depositHandler(deposit.L2Recipient, deposit.Amount, deposit.DepositID); err != nil {
+			r.errorsEncountered.Add(1)
+			r.logger.Error("deposit L2 credit failed",
+				"recipient", deposit.L2Recipient.Hex(),
+				"amount", deposit.Amount.String(),
+				"error", err,
+			)
+			return err
+		}
+		r.logger.Info("deposit credited on L2",
+			"recipient", deposit.L2Recipient.Hex(),
+			"amount", deposit.Amount.String(),
+			"deposit_id", deposit.DepositID,
+		)
+	}
 
 	r.depositsProcessed.Add(1)
 	return nil

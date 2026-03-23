@@ -286,7 +286,14 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		logger.Warn("bridge relayer not initialized (non-critical)", "error", err)
 		bridgeRelay = nil
 	} else {
-		logger.Info("bridge relayer initialized",
+		// Register deposit handler: credit balance on L2 StateDB
+		bridgeRelay.OnDeposit(func(recipient common.Address, amount *big.Int, depositID uint64) error {
+			key := statedb.AddressToKey(recipient)
+			current := sdb.GetBalance(key)
+			newBalance := new(big.Int).Add(current, amount)
+			return sdb.SetBalance(key, newBalance)
+		})
+		logger.Info("bridge relayer initialized with L2 credit handler",
 			"bridge_contract", cfg.Contracts.BasisBridge,
 		)
 	}

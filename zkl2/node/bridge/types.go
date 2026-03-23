@@ -127,6 +127,10 @@ type Metrics struct {
 	LastL2Block          uint64
 }
 
+// DepositHandler is called when a deposit needs to be credited on L2.
+// The node provides this callback to connect the relayer to the L2 StateDB.
+type DepositHandler func(recipient common.Address, amount *big.Int, depositID uint64) error
+
 // Sentinel errors for relayer operations.
 var (
 	ErrMissingEnterprise   = errors.New("enterprise address is required")
