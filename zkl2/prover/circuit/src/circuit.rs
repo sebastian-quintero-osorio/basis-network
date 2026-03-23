@@ -71,6 +71,23 @@ pub enum CircuitOp {
     Mstore { address: Fr, value: Fr },
     /// Hash: c = Hash(a, b). Selector: q_hash.
     Hash { left: Fr, right: Fr },
+
+    // -- Control flow operations --
+
+    /// Jump: destination=a, condition=b, next_pc=c. Selector: q_jump.
+    Jump { destination: Fr, condition: Fr },
+    /// Push: value=a pushed to stack, c=a. Selector: q_push.
+    Push { value: Fr },
+    /// Pop: consume stack value (no output). Selector: q_pop.
+    Pop { value: Fr },
+    /// Dup: duplicate a -> c. Selector: q_dup.
+    Dup { value: Fr },
+    /// Swap: exchange a and b, c = b. Selector: q_swap.
+    Swap { first: Fr, second: Fr },
+    /// Call: gas=a, target=b, value=c, success=d. Selector: q_call.
+    Call { gas: Fr, target: Fr, value: Fr, success: bool },
+    /// Return/Revert: offset=a, size=b, is_revert=d. Selector: q_return.
+    Return { offset: Fr, size: Fr, is_revert: bool },
 }
 
 impl CircuitOp {
@@ -128,6 +145,15 @@ impl CircuitOp {
                 let x5 = x4 * x;
                 x5 + *right
             }
+            CircuitOp::Jump { destination, condition } => {
+                if *condition != Fr::ZERO { *destination } else { Fr::ZERO }
+            }
+            CircuitOp::Push { value } => *value,
+            CircuitOp::Pop { value } => *value,
+            CircuitOp::Dup { value } => *value,
+            CircuitOp::Swap { second, .. } => *second,
+            CircuitOp::Call { value, .. } => *value,
+            CircuitOp::Return { offset, .. } => *offset,
         }
     }
 }
@@ -510,6 +536,74 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "hash_b", config.b, row, || Value::known(*right))?;
                             let c_cell = region.assign_advice(|| "hash_c", config.c, row, || Value::known(c_val))?;
                             region.assign_advice(|| "hash_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        // -- Control flow ops --
+
+                        CircuitOp::Jump { destination, condition } => {
+                            config.q_jump.enable(&mut region, row)?;
+                            let c_val = if *condition != Fr::ZERO { *destination } else { Fr::ZERO };
+                            region.assign_advice(|| "jump_a", config.a, row, || Value::known(*destination))?;
+                            region.assign_advice(|| "jump_b", config.b, row, || Value::known(*condition))?;
+                            let c_cell = region.assign_advice(|| "jump_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "jump_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Push { value } => {
+                            config.q_push.enable(&mut region, row)?;
+                            region.assign_advice(|| "push_a", config.a, row, || Value::known(*value))?;
+                            region.assign_advice(|| "push_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "push_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "push_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Pop { value } => {
+                            config.q_pop.enable(&mut region, row)?;
+                            region.assign_advice(|| "pop_a", config.a, row, || Value::known(*value))?;
+                            region.assign_advice(|| "pop_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "pop_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "pop_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Dup { value } => {
+                            config.q_dup.enable(&mut region, row)?;
+                            region.assign_advice(|| "dup_a", config.a, row, || Value::known(*value))?;
+                            region.assign_advice(|| "dup_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "dup_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "dup_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Swap { first, second } => {
+                            config.q_swap.enable(&mut region, row)?;
+                            region.assign_advice(|| "swap_a", config.a, row, || Value::known(*first))?;
+                            region.assign_advice(|| "swap_b", config.b, row, || Value::known(*second))?;
+                            let c_cell = region.assign_advice(|| "swap_c", config.c, row, || Value::known(*second))?;
+                            region.assign_advice(|| "swap_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Call { gas, target, value, success } => {
+                            config.q_call.enable(&mut region, row)?;
+                            let d_val = if *success { Fr::from(1u64) } else { Fr::ZERO };
+                            region.assign_advice(|| "call_a", config.a, row, || Value::known(*gas))?;
+                            region.assign_advice(|| "call_b", config.b, row, || Value::known(*target))?;
+                            let c_cell = region.assign_advice(|| "call_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "call_d", config.d, row, || Value::known(d_val))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Return { offset, size, is_revert } => {
+                            config.q_return.enable(&mut region, row)?;
+                            let d_val = if *is_revert { Fr::from(1u64) } else { Fr::ZERO };
+                            region.assign_advice(|| "ret_a", config.a, row, || Value::known(*offset))?;
+                            region.assign_advice(|| "ret_b", config.b, row, || Value::known(*size))?;
+                            let c_cell = region.assign_advice(|| "ret_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "ret_d", config.d, row, || Value::known(d_val))?;
                             assigned_cells.push(c_cell);
                         }
                     }

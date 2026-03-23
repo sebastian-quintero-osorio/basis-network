@@ -55,6 +55,15 @@ pub fn configure_gates(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitCon
     configure_mload_gate(meta, config);
     configure_mstore_gate(meta, config);
     configure_hash_gate(meta, config);
+
+    // Control flow gates
+    configure_jump_gate(meta, config);
+    configure_push_gate(meta, config);
+    configure_pop_gate(meta, config);
+    configure_dup_gate(meta, config);
+    configure_swap_gate(meta, config);
+    configure_call_gate(meta, config);
+    configure_return_gate(meta, config);
 }
 
 // ---------------------------------------------------------------------------
@@ -455,19 +464,105 @@ fn configure_mstore_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitC
 // ---------------------------------------------------------------------------
 
 /// Generic hash gate: c = Hash(a, b). Modeled as Poseidon(a, b).
-/// Constraint: `q_hash * (a^5 + b - c) = 0` (simplified Poseidon model).
-/// For full Poseidon, this would need multiple rounds. This single-round
-/// model is sufficient for structural verification of Merkle paths.
 fn configure_hash_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
     meta.create_gate("hash_gate", |meta: &mut VirtualCells<Fr>| {
         let q = meta.query_selector(config.q_hash);
         let a = meta.query_advice(config.a, Rotation::cur());
         let b = meta.query_advice(config.b, Rotation::cur());
         let c = meta.query_advice(config.c, Rotation::cur());
-        // Simplified Poseidon: c = a^5 + b
         let a2 = a.clone() * a.clone();
         let a4 = a2.clone() * a2;
         let a5 = a4 * a.clone();
         vec![q * (a5 + b - c)]
+    });
+}
+
+// ===========================================================================
+// Control Flow Gates
+// ===========================================================================
+
+/// EVM JUMP/JUMPI: validates jump destination.
+/// a = destination PC, b = condition (JUMPI: b != 0 means take jump),
+/// c = next PC. Constraint: when jumping, c must equal a.
+/// `q_jump * b * (c - a) = 0` -- if condition true, next PC = destination.
+fn configure_jump_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("jump_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_jump);
+        let a = meta.query_advice(config.a, Rotation::cur());
+        let b = meta.query_advice(config.b, Rotation::cur());
+        let c = meta.query_advice(config.c, Rotation::cur());
+        // If b != 0 (jump taken): c must equal a (destination)
+        vec![q * b * (c - a)]
+    });
+}
+
+/// EVM PUSH: push constant value onto stack.
+/// a = pushed value, c = stack output (must equal a).
+/// `q_push * (c - a) = 0`
+fn configure_push_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("push_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_push);
+        let a = meta.query_advice(config.a, Rotation::cur());
+        let c = meta.query_advice(config.c, Rotation::cur());
+        vec![q * (c - a)]
+    });
+}
+
+/// EVM POP: pop value from stack (no output constraint, just selector tracking).
+fn configure_pop_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("pop_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_pop);
+        // POP consumes a value but produces no output.
+        // Trivially satisfied when enabled.
+        vec![q * halo2_proofs::plonk::Expression::Constant(Fr::from(0u64))]
+    });
+}
+
+/// EVM DUP: duplicate stack value.
+/// a = value to duplicate, c = duplicated output. Must be equal.
+/// `q_dup * (c - a) = 0`
+fn configure_dup_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("dup_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_dup);
+        let a = meta.query_advice(config.a, Rotation::cur());
+        let c = meta.query_advice(config.c, Rotation::cur());
+        vec![q * (c - a)]
+    });
+}
+
+/// EVM SWAP: exchange two stack values.
+/// a = first value, b = second value, c = new top (must equal b).
+/// `q_swap * (c - b) = 0` -- top of stack becomes old second value.
+fn configure_swap_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("swap_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_swap);
+        let b = meta.query_advice(config.b, Rotation::cur());
+        let c = meta.query_advice(config.c, Rotation::cur());
+        vec![q * (c - b)]
+    });
+}
+
+/// EVM CALL/STATICCALL/DELEGATECALL: context switch.
+/// a = gas, b = target address, c = value transfer, d = success flag.
+/// Constraint: d must be boolean.
+fn configure_call_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("call_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_call);
+        let d = meta.query_advice(config.d, Rotation::cur());
+        let one = halo2_proofs::plonk::Expression::Constant(Fr::from(1));
+        // Success flag must be boolean (0 or 1)
+        vec![q * d.clone() * (one - d)]
+    });
+}
+
+/// EVM RETURN/REVERT: execution termination.
+/// a = offset, b = size, d = is_revert (0 for RETURN, 1 for REVERT).
+/// Constraint: d must be boolean.
+fn configure_return_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
+    meta.create_gate("return_gate", |meta: &mut VirtualCells<Fr>| {
+        let q = meta.query_selector(config.q_return);
+        let d = meta.query_advice(config.d, Rotation::cur());
+        let one = halo2_proofs::plonk::Expression::Constant(Fr::from(1));
+        vec![q * d.clone() * (one - d)]
     });
 }

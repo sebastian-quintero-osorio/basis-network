@@ -84,6 +84,23 @@ pub struct BasisCircuitConfig {
     /// Selector for HashGate: generic 2-to-1 hash (Poseidon for Merkle nodes).
     pub q_hash: Selector,
 
+    // -- Control flow selectors --
+
+    /// Selector for JumpGate: JUMP/JUMPI destination validation.
+    pub q_jump: Selector,
+    /// Selector for PushGate: PUSH value onto stack.
+    pub q_push: Selector,
+    /// Selector for PopGate: POP value from stack.
+    pub q_pop: Selector,
+    /// Selector for DupGate: DUP copies stack value.
+    pub q_dup: Selector,
+    /// Selector for SwapGate: SWAP exchanges stack values.
+    pub q_swap: Selector,
+    /// Selector for CallGate: CALL/STATICCALL/DELEGATECALL context switch.
+    pub q_call: Selector,
+    /// Selector for ReturnGate: RETURN/REVERT execution termination.
+    pub q_return: Selector,
+
     // -- Fixed column --
 
     /// Constants column for round constants and lookup values.
@@ -130,6 +147,15 @@ impl BasisCircuitConfig {
         let q_mstore = meta.selector();
         let q_hash = meta.selector();
 
+        // Control flow selectors
+        let q_jump = meta.selector();
+        let q_push = meta.selector();
+        let q_pop = meta.selector();
+        let q_dup = meta.selector();
+        let q_swap = meta.selector();
+        let q_call = meta.selector();
+        let q_return = meta.selector();
+
         // Fixed column for constants
         let constant = meta.fixed_column();
 
@@ -168,6 +194,13 @@ impl BasisCircuitConfig {
             q_mload,
             q_mstore,
             q_hash,
+            q_jump,
+            q_push,
+            q_pop,
+            q_dup,
+            q_swap,
+            q_call,
+            q_return,
             constant,
         }
     }
