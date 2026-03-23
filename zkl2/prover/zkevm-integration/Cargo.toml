@@ -1,0 +1,38 @@
+[package]
+name = "basis-zkevm-integration"
+version = "0.1.0"
+edition = "2021"
+description = "PSE zkEVM circuit integration for Basis Network zkL2"
+license = "BUSL-1.1"
+
+[dependencies]
+# Our circuit crate (custom enterprise gates)
+basis-circuit = { path = "../circuit" }
+basis-witness = { path = "../witness" }
+
+# PSE zkEVM circuits -- the production-grade EVM circuit implementation
+# Used by Scroll (mainnet), Taiko, and other production rollups.
+# v0.3.1 is compatible with halo2 PSE fork v0.3.0.
+# PSE zkEVM circuits -- temporarily using local adapter while resolving
+# dependency chain issues with Scroll-specific branches in v0.3.1.
+# The full integration will use the PSE circuits when the dependency
+# chain is stabilized or when we vendor the required subcrates.
+#
+# zkevm-circuits = { git = "https://github.com/privacy-scaling-explorations/zkevm-circuits", tag = "v0.3.1", default-features = false }
+
+# halo2 proving system (same PSE fork as our circuit crate)
+halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
+
+# Field arithmetic
+ark-ff = "0.4"
+ark-bn254 = "0.4"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "2"
+
+[dev-dependencies]
+rand = "0.8"

@@ -6,4 +6,5 @@ members = [
     "aggregator",
     "cli",
     "evm-verifier",
+    "zkevm-integration",
 ]
