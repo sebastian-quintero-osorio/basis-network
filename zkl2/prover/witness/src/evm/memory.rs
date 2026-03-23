@@ -73,22 +73,11 @@ mod tests {
 
     #[test]
     fn sstore_produces_write_row() {
-        let entry = TraceEntry {
-            op: TraceOp::SSTORE,
-            account: "0x01".into(),
-            slot: "0x00".into(),
-            value: String::new(),
-            old_value: "0x00".into(),
-            new_value: "0xff".into(),
-            from: String::new(),
-            to: String::new(),
-            call_value: String::new(),
-            prev_balance: String::new(),
-            curr_balance: String::new(),
-            reason: String::new(),
-            prev_nonce: 0,
-            curr_nonce: 0,
-        };
+        let mut entry = TraceEntry::default_with_op(TraceOp::SSTORE);
+        entry.account = "0x01".into();
+        entry.old_value = "0x00".into();
+        entry.new_value = "0xff".into();
+        let entry = entry;
         let rows = process_entry(&entry, 5).unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0][COL_IS_WRITE], Fr::from(1u64));
@@ -96,22 +85,9 @@ mod tests {
 
     #[test]
     fn sload_produces_read_row() {
-        let entry = TraceEntry {
-            op: TraceOp::SLOAD,
-            account: "0x01".into(),
-            slot: "0x00".into(),
-            value: "0x42".into(),
-            old_value: String::new(),
-            new_value: String::new(),
-            from: String::new(),
-            to: String::new(),
-            call_value: String::new(),
-            prev_balance: String::new(),
-            curr_balance: String::new(),
-            reason: String::new(),
-            prev_nonce: 0,
-            curr_nonce: 0,
-        };
+        let mut entry = TraceEntry::default_with_op(TraceOp::SLOAD);
+        entry.account = "0x01".into();
+        entry.value = "0x42".into();
         let rows = process_entry(&entry, 3).unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0][COL_IS_WRITE], Fr::from(0u64));

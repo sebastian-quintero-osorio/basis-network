@@ -21,6 +21,12 @@
 pub mod execution;
 pub mod memory;
 pub mod tx;
+pub mod math;
+pub mod bitwise;
+pub mod control;
+pub mod crypto;
+pub mod lifecycle;
+pub mod stack_ops;
 
 // Types re-exported for sub-modules.
 // Sub-modules use crate::types directly for TraceEntry, Fr, etc.

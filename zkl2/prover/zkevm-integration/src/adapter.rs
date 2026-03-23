@@ -47,6 +47,7 @@ impl PseTraceAdapter {
                     TraceOp::BalanceChange => coverage.balance_change_count += 1,
                     TraceOp::NonceChange => coverage.nonce_change_count += 1,
                     TraceOp::LOG => coverage.log_count += 1,
+                    _ => {} // Extended opcodes counted via opcode_count
                 }
             }
         }
@@ -73,6 +74,16 @@ impl PseTraceAdapter {
                     TraceOp::BalanceChange => 3,
                     TraceOp::NonceChange => 2,
                     TraceOp::LOG => 5,
+                    // Extended opcodes: 1-2 rows each
+                    TraceOp::ADD | TraceOp::SUB | TraceOp::MUL | TraceOp::DIV | TraceOp::MOD => 1,
+                    TraceOp::EXP => 3,
+                    TraceOp::SHL | TraceOp::SHR | TraceOp::BYTE => 1,
+                    TraceOp::MLOAD | TraceOp::MSTORE => 2,
+                    TraceOp::PUSH | TraceOp::POP | TraceOp::DUP | TraceOp::SWAP => 1,
+                    TraceOp::JUMP | TraceOp::JUMPI => 1,
+                    TraceOp::RETURN | TraceOp::REVERT => 2,
+                    TraceOp::SHA3 => 5,
+                    TraceOp::CREATE | TraceOp::CREATE2 => 10,
                 };
             }
             // Opcode count from executor (approximation for non-state-modifying ops)
@@ -138,37 +149,19 @@ mod tests {
                 success: true,
                 opcode_count: 50,
                 entries: vec![
-                    TraceEntry {
-                        op: TraceOp::BalanceChange,
-                        account: "0x01".into(),
-                        slot: String::new(),
-                        value: String::new(),
-                        old_value: String::new(),
-                        new_value: String::new(),
-                        from: String::new(),
-                        to: String::new(),
-                        call_value: String::new(),
-                        prev_balance: "0x1000".into(),
-                        curr_balance: "0x500".into(),
-                        reason: String::new(),
-                        prev_nonce: 0,
-                        curr_nonce: 0,
+                    {
+                        let mut e = TraceEntry::default_with_op(TraceOp::BalanceChange);
+                        e.account = "0x01".into();
+                        e.prev_balance = "0x1000".into();
+                        e.curr_balance = "0x500".into();
+                        e
                     },
-                    TraceEntry {
-                        op: TraceOp::SSTORE,
-                        account: "0x02".into(),
-                        slot: "0x00".into(),
-                        value: String::new(),
-                        old_value: "0x00".into(),
-                        new_value: "0xff".into(),
-                        from: String::new(),
-                        to: String::new(),
-                        call_value: String::new(),
-                        prev_balance: String::new(),
-                        curr_balance: String::new(),
-                        reason: String::new(),
-                        prev_nonce: 0,
-                        curr_nonce: 0,
+                    {
+                        let mut e = TraceEntry::default_with_op(TraceOp::SSTORE);
+                        e.account = "0x02".into();
+                        e.old_value = "0x00".into();
+                        e.new_value = "0xff".into();
+                        e
                     },
                 ],
             }],

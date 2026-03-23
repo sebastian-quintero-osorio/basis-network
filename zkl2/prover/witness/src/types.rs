@@ -26,6 +26,7 @@ use crate::error::{WitnessError, WitnessResult};
 /// - Other (LOG): skipped, no witness rows produced
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum TraceOp {
+    // Original state-modifying ops
     SLOAD,
     SSTORE,
     CALL,
@@ -34,6 +35,42 @@ pub enum TraceOp {
     #[serde(rename = "NONCE_CHANGE")]
     NonceChange,
     LOG,
+
+    // Arithmetic
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    EXP,
+
+    // Bitwise
+    SHL,
+    SHR,
+    BYTE,
+
+    // Memory
+    MLOAD,
+    MSTORE,
+
+    // Stack
+    PUSH,
+    POP,
+    DUP,
+    SWAP,
+
+    // Control flow
+    JUMP,
+    JUMPI,
+    RETURN,
+    REVERT,
+
+    // Crypto
+    SHA3,
+
+    // Lifecycle
+    CREATE,
+    CREATE2,
 }
 
 /// Mirrors `executor.TraceEntry` in Go (`zkl2/node/executor/types.go`).
@@ -83,6 +120,40 @@ pub struct TraceEntry {
     pub prev_nonce: u64,
     #[serde(default)]
     pub curr_nonce: u64,
+
+    // Arithmetic fields (ADD, SUB, MUL, DIV, MOD, EXP)
+    #[serde(default)]
+    pub operand_a: String,
+    #[serde(default)]
+    pub operand_b: String,
+    #[serde(default)]
+    pub result: String,
+
+    // Shift fields (SHL, SHR)
+    #[serde(default)]
+    pub shift_amount: u64,
+
+    // Memory fields (MLOAD, MSTORE)
+    #[serde(default)]
+    pub mem_offset: u64,
+    #[serde(default)]
+    pub mem_value: String,
+
+    // SHA3 fields
+    #[serde(default)]
+    pub sha3_hash: String,
+    #[serde(default)]
+    pub sha3_size: u64,
+
+    // Stack fields (PUSH, DUP)
+    #[serde(default)]
+    pub stack_value: String,
+
+    // Control flow fields
+    #[serde(default)]
+    pub destination: u64,
+    #[serde(default)]
+    pub condition: u64,
 }
 
 impl TraceEntry {
@@ -103,6 +174,17 @@ impl TraceEntry {
             reason: String::new(),
             prev_nonce: 0,
             curr_nonce: 0,
+            operand_a: String::new(),
+            operand_b: String::new(),
+            result: String::new(),
+            shift_amount: 0,
+            mem_offset: 0,
+            mem_value: String::new(),
+            sha3_hash: String::new(),
+            sha3_size: 0,
+            stack_value: String::new(),
+            destination: 0,
+            condition: 0,
         }
     }
 }

@@ -48,11 +48,34 @@ pub fn process_entry(
 ) -> WitnessResult<Vec<WitnessRow>> {
     let op_id = match entry.op {
         TraceOp::BalanceChange => super::OP_BALANCE,
-        TraceOp::NonceChange => super::OP_ADD, // Nonce increment modeled as ADD
+        TraceOp::NonceChange => super::OP_ADD,
         TraceOp::SLOAD => super::OP_SLOAD,
         TraceOp::SSTORE => super::OP_SSTORE,
         TraceOp::CALL => super::OP_CALL,
-        TraceOp::LOG => return Ok(vec![]), // LOGs don't produce execution rows
+        TraceOp::LOG => return Ok(vec![]),
+        // Extended opcodes -- handled by specialized modules, skip here
+        TraceOp::ADD => super::OP_ADD,
+        TraceOp::SUB => super::OP_SUB,
+        TraceOp::MUL => super::OP_MUL,
+        TraceOp::DIV => super::OP_DIV,
+        TraceOp::MOD => super::OP_MOD,
+        TraceOp::EXP => super::OP_EXP,
+        TraceOp::SHL => super::OP_SHL,
+        TraceOp::SHR => super::OP_SHR,
+        TraceOp::BYTE => super::OP_BYTE,
+        TraceOp::SHA3 => super::OP_SHA3,
+        TraceOp::MLOAD => super::OP_MLOAD,
+        TraceOp::MSTORE => super::OP_MSTORE,
+        TraceOp::PUSH => super::OP_PUSH0,
+        TraceOp::POP => super::OP_POP,
+        TraceOp::DUP => super::OP_PUSH0, // Generic DUP
+        TraceOp::SWAP => super::OP_PUSH0, // Generic SWAP
+        TraceOp::JUMP => super::OP_JUMP,
+        TraceOp::JUMPI => super::OP_JUMPI,
+        TraceOp::RETURN => super::OP_RETURN,
+        TraceOp::REVERT => super::OP_REVERT,
+        TraceOp::CREATE => super::OP_CALL, // Mapped to CALL for now
+        TraceOp::CREATE2 => super::OP_CALL,
     };
 
     let mut row = vec![Fr::from(0u64); EXECUTION_TABLE_COLUMNS];
@@ -109,22 +132,11 @@ mod tests {
     use crate::types::TraceEntry;
 
     fn make_balance_entry() -> TraceEntry {
-        TraceEntry {
-            op: TraceOp::BalanceChange,
-            account: "0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD".into(),
-            slot: String::new(),
-            value: String::new(),
-            old_value: String::new(),
-            new_value: String::new(),
-            from: String::new(),
-            to: String::new(),
-            call_value: String::new(),
-            prev_balance: "0x1000".into(),
-            curr_balance: "0x500".into(),
-            reason: String::new(),
-            prev_nonce: 0,
-            curr_nonce: 0,
-        }
+        let mut e = TraceEntry::default_with_op(TraceOp::BalanceChange);
+        e.account = "0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD".into();
+        e.prev_balance = "0x1000".into();
+        e.curr_balance = "0x500".into();
+        e
     }
 
     #[test]
