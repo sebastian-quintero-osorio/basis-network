@@ -1,0 +1,42 @@
+version: "3.8"
+
+# DAC E2E test environment: 3 DAC nodes + 1 validium node.
+# Run: docker compose -f docker-compose.dac.yml up
+services:
+  dac-node-1:
+    build: ./dac-node
+    environment:
+      - DAC_NODE_ID=dac-node-1
+      - DAC_PORT=50051
+      - DAC_PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
+    ports:
+      - "50051:50051"
+    volumes:
+      - dac-data-1:/data
+
+  dac-node-2:
+    build: ./dac-node
+    environment:
+      - DAC_NODE_ID=dac-node-2
+      - DAC_PORT=50051
+      - DAC_PRIVATE_KEY=0x2222222222222222222222222222222222222222222222222222222222222222
+    ports:
+      - "50052:50051"
+    volumes:
+      - dac-data-2:/data
+
+  dac-node-3:
+    build: ./dac-node
+    environment:
+      - DAC_NODE_ID=dac-node-3
+      - DAC_PORT=50051
+      - DAC_PRIVATE_KEY=0x3333333333333333333333333333333333333333333333333333333333333333
+    ports:
+      - "50053:50051"
+    volumes:
+      - dac-data-3:/data
+
+volumes:
+  dac-data-1:
+  dac-data-2:
+  dac-data-3:
