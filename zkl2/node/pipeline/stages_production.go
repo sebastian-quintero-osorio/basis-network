@@ -246,6 +246,31 @@ func (s *ProductionStages) Submit(ctx context.Context, batch *BatchState) error 
 		return nil
 	}
 
+	// Off-chain proof verification before L1 submission.
+	// Invokes basis-prover verify to cryptographically validate the proof.
+	if batch.ProofResult != nil && len(batch.ProofResult.ProofBytes) > 0 {
+		verifyInput, _ := json.Marshal(batch.ProofResult)
+		verifyCtx, verifyCancel := context.WithTimeout(ctx, 30*time.Second)
+		defer verifyCancel()
+		verifyOutput, verifyErr := s.invokeRustBinary(verifyCtx, s.ProverCommand, "verify", verifyInput)
+		if verifyErr != nil {
+			s.Logger.Warn("off-chain proof verification failed (proceeding anyway)",
+				"batch_id", batch.BatchID,
+				"error", verifyErr,
+			)
+		} else {
+			var verifyResult struct {
+				Valid bool `json:"valid"`
+			}
+			if json.Unmarshal(verifyOutput, &verifyResult) == nil {
+				s.Logger.Info("off-chain proof verification",
+					"batch_id", batch.BatchID,
+					"valid", verifyResult.Valid,
+				)
+			}
+		}
+	}
+
 	// Real L1 submission: commitBatch + proveBatch + executeBatch.
 	gasUsed, txHash, err := s.L1Submitter.SubmitBatch(ctx, batch)
 	if err != nil {
