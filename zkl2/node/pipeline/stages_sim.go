@@ -228,6 +228,16 @@ func (s *SimulatedStages) Submit(ctx context.Context, batch *BatchState) error {
 	return nil
 }
 
+// Aggregate simulates proof aggregation for testing.
+func (s *SimulatedStages) Aggregate(ctx context.Context, batches []*BatchState) (*AggregateResult, error) {
+	return &AggregateResult{
+		InstanceCount:    len(batches),
+		IsSatisfiable:    true,
+		EstimatedGas:     220000,
+		GenerationTimeMs: 50,
+	}, nil
+}
+
 // generateSyntheticTrace creates a realistic synthetic execution trace.
 func generateSyntheticTrace(txIndex int) ExecutionTraceJSON {
 	from := "0x" + randomHex(20)

@@ -45,6 +45,19 @@ type Stages interface {
 	//
 	// [Spec: SubmitSuccess(b) -- batchStage' = "submitted", proofOnL1' = TRUE]
 	Submit(ctx context.Context, batch *BatchState) error
+
+	// Aggregate folds multiple proved batches into a single aggregated proof
+	// using ProtoGalaxy folding. Called after N batches are finalized.
+	Aggregate(ctx context.Context, batches []*BatchState) (*AggregateResult, error)
+}
+
+// AggregateResult is the output from proof aggregation (ProtoGalaxy folding).
+type AggregateResult struct {
+	InstanceCount    int    `json:"instance_count"`
+	IsSatisfiable    bool   `json:"is_satisfiable"`
+	ProofBytes       []byte `json:"proof_bytes"`
+	EstimatedGas     uint64 `json:"estimated_gas"`
+	GenerationTimeMs uint64 `json:"generation_time_ms"`
 }
 
 // ---------------------------------------------------------------------------

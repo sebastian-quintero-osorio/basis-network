@@ -21,6 +21,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -471,6 +472,10 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 	var batchTraces []*executor.ExecutionTrace
 	var batchPreStateRoot string
 
+	// Aggregation tracking: collect finalized batches for ProtoGalaxy folding.
+	var finalizedBatches []*pipeline.BatchState
+	var finalizedBatchesMu sync.Mutex
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -589,6 +594,32 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 							"batch_id", b.BatchID,
 							"stage", b.Stage,
 						)
+						// Track finalized batch for aggregation.
+						finalizedBatchesMu.Lock()
+						finalizedBatches = append(finalizedBatches, b)
+						count := len(finalizedBatches)
+						finalizedBatchesMu.Unlock()
+
+						// Trigger aggregation after every 4 finalized batches.
+						if count >= 4 && count%4 == 0 {
+							finalizedBatchesMu.Lock()
+							toAggregate := make([]*pipeline.BatchState, len(finalizedBatches))
+							copy(toAggregate, finalizedBatches)
+							finalizedBatchesMu.Unlock()
+
+							go func() {
+								result, err := n.pipeline.Stages().Aggregate(ctx, toAggregate)
+								if err != nil {
+									n.logger.Warn("aggregation failed (non-critical)", "error", err)
+								} else {
+									n.logger.Info("proof aggregation complete",
+										"instances", result.InstanceCount,
+										"satisfiable", result.IsSatisfiable,
+										"gas_estimate", result.EstimatedGas,
+									)
+								}
+							}()
+						}
 					}
 				}(batch)
 
