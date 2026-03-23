@@ -843,3 +843,58 @@ fn ark_halo2_fr_interop() {
     let prover = MockProver::run(TEST_K, &circuit, vec![public_inputs]).unwrap();
     prover.assert_satisfied();
 }
+
+// ===================================================================
+// EVM Gate Tests -- All 21 new gates verified with MockProver
+// ===================================================================
+
+fn run_gate_test(ops: Vec<CircuitOp>) {
+    let circuit = BasisCircuit::new(ops, Fr::ZERO, Fr::ZERO, Fr::ZERO);
+    let pi = vec![circuit.pre_state_root, circuit.post_state_root, circuit.batch_hash];
+    MockProver::run(TEST_K, &circuit, vec![pi]).unwrap().assert_satisfied();
+}
+
+#[test] fn gate_sub() { run_gate_test(vec![CircuitOp::Sub { a: Fr::from(100u64), b: Fr::from(30u64) }]); }
+#[test] fn gate_div() { run_gate_test(vec![CircuitOp::Div { a: Fr::from(100u64), b: Fr::from(5u64) }]); }
+#[test] fn gate_mod() { run_gate_test(vec![CircuitOp::Mod { a: Fr::from(17u64), b: Fr::from(5u64) }]); }
+#[test] fn gate_lt_true() { run_gate_test(vec![CircuitOp::Lt { a: Fr::from(3u64), b: Fr::from(10u64) }]); }
+#[test] fn gate_lt_false() { run_gate_test(vec![CircuitOp::Lt { a: Fr::from(10u64), b: Fr::from(3u64) }]); }
+#[test] fn gate_eq_yes() { run_gate_test(vec![CircuitOp::Eq { a: Fr::from(42u64), b: Fr::from(42u64) }]); }
+#[test] fn gate_eq_no() { run_gate_test(vec![CircuitOp::Eq { a: Fr::from(1u64), b: Fr::from(2u64) }]); }
+#[test] fn gate_iszero_yes() { run_gate_test(vec![CircuitOp::IsZero { a: Fr::ZERO }]); }
+#[test] fn gate_iszero_no() { run_gate_test(vec![CircuitOp::IsZero { a: Fr::from(99u64) }]); }
+#[test] fn gate_and_tt() { run_gate_test(vec![CircuitOp::And { a: Fr::from(1u64), b: Fr::from(1u64) }]); }
+#[test] fn gate_and_tf() { run_gate_test(vec![CircuitOp::And { a: Fr::from(1u64), b: Fr::ZERO }]); }
+#[test] fn gate_or_ft() { run_gate_test(vec![CircuitOp::Or { a: Fr::ZERO, b: Fr::from(1u64) }]); }
+#[test] fn gate_not_0() { run_gate_test(vec![CircuitOp::Not { a: Fr::ZERO }]); }
+#[test] fn gate_not_1() { run_gate_test(vec![CircuitOp::Not { a: Fr::from(1u64) }]); }
+#[test] fn gate_sload() { run_gate_test(vec![CircuitOp::Sload { slot: Fr::from(1u64), value: Fr::from(42u64) }]); }
+#[test] fn gate_sstore() { run_gate_test(vec![CircuitOp::Sstore { slot: Fr::from(1u64), old_value: Fr::ZERO, new_value: Fr::from(99u64) }]); }
+#[test] fn gate_sstore_id() { run_gate_test(vec![CircuitOp::Sstore { slot: Fr::from(1u64), old_value: Fr::from(5u64), new_value: Fr::from(5u64) }]); }
+#[test] fn gate_mload() { run_gate_test(vec![CircuitOp::Mload { address: Fr::from(0x20u64), value: Fr::from(0xffu64) }]); }
+#[test] fn gate_mstore() { run_gate_test(vec![CircuitOp::Mstore { address: Fr::from(0x40u64), value: Fr::from(123u64) }]); }
+#[test] fn gate_hash() { run_gate_test(vec![CircuitOp::Hash { left: Fr::from(2u64), right: Fr::from(3u64) }]); }
+#[test] fn gate_jump_t() { run_gate_test(vec![CircuitOp::Jump { destination: Fr::from(100u64), condition: Fr::from(1u64) }]); }
+#[test] fn gate_jump_f() { run_gate_test(vec![CircuitOp::Jump { destination: Fr::from(100u64), condition: Fr::ZERO }]); }
+#[test] fn gate_push() { run_gate_test(vec![CircuitOp::Push { value: Fr::from(0xdeadu64) }]); }
+#[test] fn gate_pop() { run_gate_test(vec![CircuitOp::Pop { value: Fr::from(42u64) }]); }
+#[test] fn gate_dup() { run_gate_test(vec![CircuitOp::Dup { value: Fr::from(77u64) }]); }
+#[test] fn gate_swap() { run_gate_test(vec![CircuitOp::Swap { first: Fr::from(1u64), second: Fr::from(2u64) }]); }
+#[test] fn gate_call_ok() { run_gate_test(vec![CircuitOp::Call { gas: Fr::from(21000u64), target: Fr::from(2u64), value: Fr::ZERO, success: true }]); }
+#[test] fn gate_call_fail() { run_gate_test(vec![CircuitOp::Call { gas: Fr::from(21000u64), target: Fr::from(2u64), value: Fr::ZERO, success: false }]); }
+#[test] fn gate_return() { run_gate_test(vec![CircuitOp::Return { offset: Fr::ZERO, size: Fr::from(32u64), is_revert: false }]); }
+#[test] fn gate_revert() { run_gate_test(vec![CircuitOp::Return { offset: Fr::ZERO, size: Fr::from(64u64), is_revert: true }]); }
+
+#[test]
+fn combined_evm_transaction() {
+    run_gate_test(vec![
+        CircuitOp::Push { value: Fr::from(10u64) },
+        CircuitOp::Push { value: Fr::from(3u64) },
+        CircuitOp::Add { a: Fr::from(10u64), b: Fr::from(3u64) },
+        CircuitOp::Sub { a: Fr::from(13u64), b: Fr::from(3u64) },
+        CircuitOp::Mul { a: Fr::from(10u64), b: Fr::from(2u64) },
+        CircuitOp::Eq { a: Fr::from(20u64), b: Fr::from(20u64) },
+        CircuitOp::Sstore { slot: Fr::from(1u64), old_value: Fr::ZERO, new_value: Fr::from(20u64) },
+        CircuitOp::Return { offset: Fr::ZERO, size: Fr::ZERO, is_revert: false },
+    ]);
+}
