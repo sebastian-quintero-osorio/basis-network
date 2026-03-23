@@ -159,7 +159,7 @@ func New(config Config, logger *slog.Logger) *Synchronizer {
 
 		// Precompute event topic hashes.
 		topicForcedInclusion:    crypto.Keccak256Hash([]byte("ForcedInclusion(address,bytes,uint256)")),
-		topicDeposit:            crypto.Keccak256Hash([]byte("Deposit(address,address,uint256,uint256)")),
+		topicDeposit:            crypto.Keccak256Hash([]byte("DepositInitiated(address,address,address,uint256,uint256,uint256)")),
 		topicDACAttestation:     crypto.Keccak256Hash([]byte("AttestationSubmitted(uint256,address,bytes32)")),
 		topicEnterpriseRegister: crypto.Keccak256Hash([]byte("EnterpriseRegistered(address,string,bytes)")),
 	}

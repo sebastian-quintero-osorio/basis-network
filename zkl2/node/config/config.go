@@ -177,6 +177,12 @@ func DefaultConfig() *Config {
 			GasLimit:      30_000_000,
 		},
 		Contracts: ContractAddresses{
+			BasisRollup:        "0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49",
+			BasisBridge:        "0x9Df0814CFBfE352C942bac682A378ff887486Dd8",
+			BasisDAC:           "0xa7D5771fA69404438d79a1F8C192F7257A514691",
+			BasisHub:           "0xBf997eFD945Fe99ECDD129C86De7f75355b1AC42",
+			BasisAggregator:    "0x98272431b8B270CABeE37A158e01bdC3412744E2",
+			BasisVerifier:      "0xFE9DF13c038414773Ac96189742b6c1f93999f29",
 			EnterpriseRegistry: "0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5",
 		},
 		Sequencer: SequencerConfig{
