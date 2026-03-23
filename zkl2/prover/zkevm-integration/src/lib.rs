@@ -27,11 +27,19 @@
 
 pub mod adapter;
 
-// PSE zkEVM circuit re-exports will be added when the dependency chain
-// is resolved. The adapter module provides the integration interface
-// between Basis witness format and PSE circuit input format.
+// STATUS: ADAPTER ONLY (NO PSE CIRCUIT DEPENDENCY YET)
 //
-// To complete the integration:
-// 1. Vendor poseidon-circuit crate (remove Scroll branch dependency)
-// 2. Add zkevm-circuits as git dependency
-// 3. Uncomment: pub use zkevm_circuits;
+// The adapter module provides trace analysis and row estimation functions.
+// It does NOT import or use PSE zkEVM circuits directly because the
+// dependency chain (zkevm-circuits v0.3.1 -> poseidon-circuit -> Scroll
+// branch scroll-dev-0215) is broken upstream.
+//
+// Current coverage without PSE: 37 custom gates covering all major EVM
+// opcode categories (arithmetic, comparison, bitwise, storage, memory,
+// control flow, crypto, environment, contract lifecycle).
+//
+// To complete PSE integration:
+// 1. Vendor poseidon-circuit crate locally (remove Scroll branch dependency)
+// 2. Add zkevm-circuits as workspace dependency
+// 3. Implement real trace conversion in adapter.rs (BatchTrace -> GethExecTrace)
+// 4. Wire PSE SuperCircuit alongside BasisCircuit in the prover pipeline
