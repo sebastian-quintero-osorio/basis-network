@@ -597,6 +597,30 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 				})
 			}
 
+			// Collect logs from adapter for eth_getLogs indexing.
+			adapterLogs := n.adapter.GetLogs()
+			if len(adapterLogs) > 0 {
+				var logEntries []map[string]interface{}
+				for i, l := range adapterLogs {
+					topics := make([]string, len(l.Topics))
+					for j, t := range l.Topics {
+						topics[j] = t.Hex()
+					}
+					logEntries = append(logEntries, map[string]interface{}{
+						"address":          l.Address.Hex(),
+						"topics":           topics,
+						"data":             fmt.Sprintf("0x%x", l.Data),
+						"blockNumber":      fmt.Sprintf("0x%x", blockNumber),
+						"transactionHash":  "0x0",
+						"transactionIndex": "0x0",
+						"blockHash":        common.Hash{}.Hex(),
+						"logIndex":         fmt.Sprintf("0x%x", i),
+						"removed":          false,
+					})
+				}
+				n.backend.StoreLogs(blockNumber, logEntries)
+			}
+
 			// Update backend block number for eth_blockNumber.
 			n.backend.SetBlockNumber(blockNumber)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -37,6 +38,9 @@ type NodeBackend struct {
 
 	txMu    sync.RWMutex
 	txIndex map[string]*StoredTx
+
+	logsMu     sync.RWMutex
+	logsByBlock map[uint64][]map[string]interface{}
 }
 
 // StoredBlock holds block data for eth_getBlockByNumber.
@@ -257,8 +261,47 @@ func (b *NodeBackend) GetTransactionByHash(txHash string) (map[string]interface{
 }
 
 func (b *NodeBackend) GetLogs(fromBlock, toBlock uint64, addresses []common.Address, topics [][]common.Hash) ([]map[string]interface{}, error) {
-	// For now, return empty logs. Full log indexing requires tracking logs per block.
-	return []map[string]interface{}{}, nil
+	b.logsMu.RLock()
+	defer b.logsMu.RUnlock()
+
+	var result []map[string]interface{}
+	for blockNum := fromBlock; blockNum <= toBlock; blockNum++ {
+		logs, ok := b.logsByBlock[blockNum]
+		if !ok {
+			continue
+		}
+		for _, log := range logs {
+			// Filter by address if specified.
+			if len(addresses) > 0 {
+				logAddr, _ := log["address"].(string)
+				match := false
+				for _, a := range addresses {
+					if strings.EqualFold(logAddr, a.Hex()) {
+						match = true
+						break
+					}
+				}
+				if !match {
+					continue
+				}
+			}
+			result = append(result, log)
+		}
+	}
+	if result == nil {
+		return []map[string]interface{}{}, nil
+	}
+	return result, nil
+}
+
+// StoreLogs indexes logs for a block for eth_getLogs.
+func (b *NodeBackend) StoreLogs(blockNumber uint64, logs []map[string]interface{}) {
+	b.logsMu.Lock()
+	defer b.logsMu.Unlock()
+	if b.logsByBlock == nil {
+		b.logsByBlock = make(map[uint64][]map[string]interface{})
+	}
+	b.logsByBlock[blockNumber] = append(b.logsByBlock[blockNumber], logs...)
 }
 
 func (b *NodeBackend) SubmitTransaction(from common.Address, tx *ethtypes.Transaction) error {
