@@ -1,6 +1,7 @@
 package statedb
 
 import (
+	"fmt"
 	"math/big"
 
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -28,6 +29,7 @@ type StateDB struct {
 	accounts         map[TreeKey]*Account          // Account data (balance, nonce, etc.)
 	storageDepth     int                           // Depth for new storage tries
 	emptyStorageRoot fr.Element                    // DefaultHash(storageDepth) -- cached
+	store            *PersistentStore              // Optional LevelDB persistence (nil = ephemeral)
 }
 
 // NewStateDB creates a new empty StateDB with the given configuration.
@@ -46,6 +48,91 @@ func NewStateDB(cfg Config) *StateDB {
 		storageDepth:     cfg.StorageDepth,
 		emptyStorageRoot: emptyStorageRoot,
 	}
+}
+
+// SetStore attaches a LevelDB persistent store for write-through persistence.
+// If the store contains existing data, it loads the state from disk.
+func (db *StateDB) SetStore(store *PersistentStore) error {
+	db.store = store
+	return db.LoadFromStore()
+}
+
+// LoadFromStore rebuilds the in-memory state from the LevelDB persistent store.
+// Returns nil if the store is empty (fresh database).
+func (db *StateDB) LoadFromStore() error {
+	if db.store == nil {
+		return nil
+	}
+
+	count := 0
+	err := db.store.IterateAccounts(func(addr TreeKey, acct *Account) error {
+		db.accounts[addr] = acct
+		// Rebuild account trie leaf.
+		val := db.accountValue(addr)
+		db.accountTrie.Insert(addr, val)
+
+		// Load storage for this account.
+		err := db.store.IterateStorageLeaves(addr, func(slot TreeKey, val fr.Element) error {
+			storageTrie := db.getOrCreateStorageTrie(addr)
+			storageTrie.Insert(slot, val)
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		// Update storage root on the account.
+		if trie, ok := db.storageTries[addr]; ok {
+			acct.StorageRoot = trie.Root()
+			// Re-insert to account trie with updated storage root.
+			v := db.accountValue(addr)
+			db.accountTrie.Insert(addr, v)
+		}
+		count++
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("statedb: load from store: %w", err)
+	}
+
+	if count > 0 {
+		// Verify root matches stored root.
+		storedRoot, err := db.store.GetAccountRoot()
+		if err != nil {
+			return fmt.Errorf("statedb: get stored root: %w", err)
+		}
+		computedRoot := db.accountTrie.Root()
+		if !storedRoot.IsZero() && storedRoot != computedRoot {
+			return fmt.Errorf("statedb: root mismatch after load: stored=%v computed=%v (possible corruption)", storedRoot.String(), computedRoot.String())
+		}
+	}
+
+	return nil
+}
+
+// PersistBlock flushes all current state to LevelDB in a single atomic batch.
+// Called after each block is processed (not per-transaction, for performance).
+func (db *StateDB) PersistBlock() error {
+	if db.store == nil {
+		return nil
+	}
+
+	batch := db.store.NewBatch()
+
+	for addr, acct := range db.accounts {
+		batch.PutAccount(addr, acct)
+	}
+
+	for contract, trie := range db.storageTries {
+		// Persist all storage leaves for this contract.
+		leaves := trie.AllLeaves()
+		for slot, val := range leaves {
+			batch.PutStorageLeaf(contract, slot, val)
+		}
+	}
+
+	batch.PutAccountRoot(db.accountTrie.Root())
+
+	return batch.Commit()
 }
 
 // getOrCreateStorageTrie returns the storage trie for an address, creating one if needed.

@@ -239,6 +239,16 @@ func (smt *SparseMerkleTree) DefaultHash(level int) fr.Element {
 	return smt.defaultHashes[level]
 }
 
+// AllLeaves returns a copy of all non-empty leaf entries in the tree.
+// Used for persistence: iterate and write each leaf to LevelDB.
+func (smt *SparseMerkleTree) AllLeaves() map[TreeKey]fr.Element {
+	result := make(map[TreeKey]fr.Element, len(smt.leaves))
+	for k, v := range smt.leaves {
+		result[k] = v
+	}
+	return result
+}
+
 // GetProof generates a Merkle proof for the given key.
 // The proof contains sibling hashes from leaf (level 0) to root (level depth-1).
 // Works for both existing keys (inclusion proof) and missing keys (non-membership proof).

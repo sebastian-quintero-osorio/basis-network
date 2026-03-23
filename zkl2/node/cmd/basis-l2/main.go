@@ -165,12 +165,21 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		if err != nil {
 			return nil, fmt.Errorf("open state store: %w", err)
 		}
-		logger.Info("state database initialized with LevelDB persistence",
-			"data_dir", cfg.L2.DataDir,
-		)
-		_ = store // Store is available for write-through persistence.
-		// Full write-through wiring is implemented in PersistentStore.
-		// The hot path remains in-memory for performance.
+		if err := sdb.SetStore(store); err != nil {
+			return nil, fmt.Errorf("load state from store: %w", err)
+		}
+		acctCount := sdb.AccountCount()
+		if acctCount > 0 {
+			logger.Info("state loaded from LevelDB",
+				"data_dir", cfg.L2.DataDir,
+				"accounts", acctCount,
+				"state_root", fmt.Sprintf("%v", sdb.StateRoot()),
+			)
+		} else {
+			logger.Info("state database initialized with LevelDB persistence (empty)",
+				"data_dir", cfg.L2.DataDir,
+			)
+		}
 	} else {
 		logger.Warn("state database initialized (ephemeral, no persistence)")
 	}
@@ -179,25 +188,35 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	adapter := statedb.NewAdapter(sdb)
 
 	// Genesis funding: pre-fund known accounts on L2 (like all L2s do).
-	// These accounts have funds on L1 and are pre-funded on L2 for testing.
-	genesisAccounts := []struct {
-		addr    string
-		balance string // in wei
-	}{
-		// ewoq test default account (1M LITHOS = 1M * 10^18 wei)
-		{"0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC", "1000000000000000000000000"},
-		// Deployer/admin account
-		{"0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", "1000000000000000000000000"},
-	}
-	for _, ga := range genesisAccounts {
-		addr := common.HexToAddress(ga.addr)
-		bal, _ := new(big.Int).SetString(ga.balance, 10)
-		adapter.CreateAccount(addr)
-		uint256Bal, _ := uint256.FromBig(bal)
-		adapter.AddBalance(addr, uint256Bal, tracing.BalanceChangeUnspecified)
-		logger.Info("genesis account funded",
-			"address", addr.Hex(),
-			"balance_eth", new(big.Int).Div(bal, big.NewInt(1e18)).String(),
+	// Only fund if state is empty (fresh database or no persistence).
+	if sdb.AccountCount() == 0 {
+		genesisAccounts := []struct {
+			addr    string
+			balance string // in wei
+		}{
+			// ewoq test default account (1M LITHOS = 1M * 10^18 wei)
+			{"0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC", "1000000000000000000000000"},
+			// Deployer/admin account
+			{"0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", "1000000000000000000000000"},
+		}
+		for _, ga := range genesisAccounts {
+			addr := common.HexToAddress(ga.addr)
+			bal, _ := new(big.Int).SetString(ga.balance, 10)
+			adapter.CreateAccount(addr)
+			uint256Bal, _ := uint256.FromBig(bal)
+			adapter.AddBalance(addr, uint256Bal, tracing.BalanceChangeUnspecified)
+			logger.Info("genesis account funded",
+				"address", addr.Hex(),
+				"balance_eth", new(big.Int).Div(bal, big.NewInt(1e18)).String(),
+			)
+		}
+		// Persist genesis state.
+		if err := sdb.PersistBlock(); err != nil {
+			logger.Error("failed to persist genesis state", "error", err)
+		}
+	} else {
+		logger.Info("skipping genesis funding (state loaded from disk)",
+			"accounts", sdb.AccountCount(),
 		)
 	}
 
@@ -533,6 +552,13 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 
 			// Update backend block number for eth_blockNumber.
 			n.backend.SetBlockNumber(blockNumber)
+
+			// Persist state to LevelDB after each block with transactions.
+			if len(block.Transactions) > 0 {
+				if err := n.adapter.DB().PersistBlock(); err != nil {
+					n.logger.Error("failed to persist block state", "block", blockNumber, "error", err)
+				}
+			}
 
 			// When batch is full, submit to proving pipeline.
 			if batchTxCount >= n.cfg.L2.BatchSize {

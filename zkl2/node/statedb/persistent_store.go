@@ -232,6 +232,54 @@ func (s *PersistentStore) AccountCount() (int, error) {
 	return count, iter.Error()
 }
 
+// IterateAccounts calls fn for each account in the database.
+func (s *PersistentStore) IterateAccounts(fn func(TreeKey, *Account) error) error {
+	iter := s.db.NewIterator(util.BytesPrefix(prefixAccount), nil)
+	defer iter.Release()
+	for iter.Next() {
+		keyBytes := iter.Key()[len(prefixAccount):]
+		var addr TreeKey
+		copy(addr[:], keyBytes)
+		acct, err := deserializeAccount(iter.Value())
+		if err != nil {
+			return fmt.Errorf("statedb: deserialize account %x: %w", addr[:4], err)
+		}
+		if err := fn(addr, acct); err != nil {
+			return err
+		}
+	}
+	return iter.Error()
+}
+
+// IterateStorageLeaves calls fn for each storage leaf of a given contract.
+func (s *PersistentStore) IterateStorageLeaves(contract TreeKey, fn func(TreeKey, fr.Element) error) error {
+	prefix := make([]byte, 0, len(prefixStorageLeaf)+32)
+	prefix = append(prefix, prefixStorageLeaf...)
+	prefix = append(prefix, contract[:]...)
+	iter := s.db.NewIterator(util.BytesPrefix(prefix), nil)
+	defer iter.Release()
+	for iter.Next() {
+		slotBytes := iter.Key()[len(prefix):]
+		var slot TreeKey
+		copy(slot[:], slotBytes)
+		var val fr.Element
+		val.SetBytes(iter.Value())
+		if err := fn(slot, val); err != nil {
+			return err
+		}
+	}
+	return iter.Error()
+}
+
+// PutStorageLeafDirect writes a single storage leaf (non-batch).
+func (s *PersistentStore) PutStorageLeafDirect(contract, slot TreeKey, val fr.Element) error {
+	key := make([]byte, 0, len(prefixStorageLeaf)+64)
+	key = append(key, prefixStorageLeaf...)
+	key = append(key, contract[:]...)
+	key = append(key, slot[:]...)
+	return s.db.Put(key, val.Marshal(), nil)
+}
+
 // ---------------------------------------------------------------------------
 // Serialization Helpers
 // ---------------------------------------------------------------------------
