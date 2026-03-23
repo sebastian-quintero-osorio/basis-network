@@ -301,7 +301,7 @@ func (s *Server) dispatch(req jsonrpcRequest) (interface{}, *jsonrpcError) {
 	case "eth_getBlockByNumber":
 		return s.ethGetBlockByNumber(req.Params)
 	case "eth_getBlockByHash":
-		return s.ethGetBlockByNumber(req.Params) // hash lookup falls back to number
+		return s.ethGetBlockByHash(req.Params)
 	case "eth_getTransactionByHash":
 		return s.ethGetTransactionByHash(req.Params)
 	case "eth_getLogs":
@@ -491,6 +491,13 @@ func (s *Server) ethCall(params []json.RawMessage) (interface{}, *jsonrpcError) 
 	}
 	result, err := s.backend.Call(callObj.From, callObj.To, data, value)
 	if err != nil {
+		// If we have revert data, return it in a structured error (ethers.js v6 expects this).
+		if len(result) > 0 {
+			return "0x" + hex.EncodeToString(result), &jsonrpcError{
+				Code:    3, // EVM revert error code
+				Message: "execution reverted",
+			}
+		}
 		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
 	}
 	if len(result) == 0 {
@@ -558,6 +565,29 @@ func (s *Server) ethGetBlockByNumber(params []json.RawMessage) (interface{}, *js
 		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
 	}
 	return block, nil
+}
+
+func (s *Server) ethGetBlockByHash(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing block hash parameter"}
+	}
+	var blockHash string
+	if err := json.Unmarshal(params[0], &blockHash); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid block hash"}
+	}
+	// Search blocks by hash. For a small L2, linear scan is fine.
+	// In production with many blocks, add a hash->number index.
+	latestBlock := s.backend.BlockNumber()
+	for num := latestBlock; num > 0; num-- {
+		block, err := s.backend.GetBlockByNumber(num, false)
+		if err != nil || block == nil {
+			continue
+		}
+		if h, ok := block["hash"].(string); ok && strings.EqualFold(h, blockHash) {
+			return block, nil
+		}
+	}
+	return nil, nil // not found
 }
 
 func (s *Server) ethGetTransactionByHash(params []json.RawMessage) (interface{}, *jsonrpcError) {

@@ -127,6 +127,11 @@ func (b *NodeBackend) Call(from, to string, data []byte, value *big.Int) ([]byte
 		return nil, fmt.Errorf("eth_call execution error: %w", err)
 	}
 	if result.VMError != nil {
+		// Return revert data if available (Hardhat/ethers.js need the raw bytes
+		// to decode Error("reason") or custom errors from the contract).
+		if len(result.ReturnData) > 0 {
+			return result.ReturnData, fmt.Errorf("execution reverted")
+		}
 		return nil, fmt.Errorf("execution reverted: %v", result.VMError)
 	}
 	return result.ReturnData, nil

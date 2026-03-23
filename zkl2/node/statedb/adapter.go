@@ -41,6 +41,11 @@ type Adapter struct {
 	// EIP-1153 transient storage (per-transaction, cleared after each tx).
 	transientStorage map[common.Address]map[common.Hash]common.Hash
 
+	// Committed storage: values at the start of the current transaction.
+	// Used by GetCommittedState to return the pre-tx value (EIP-2200 gas metering).
+	// Reset in Prepare() at the start of each transaction.
+	committedStorage map[common.Address]map[common.Hash]common.Hash
+
 	// Snapshot journal for REVERT support.
 	snapshots []snapshot
 	snapID    int
@@ -271,6 +276,15 @@ func (a *Adapter) SetState(addr common.Address, slot common.Hash, value common.H
 	a.journalStorage(k, slotKey)
 	prev := a.db.GetStorage(k, slotKey)
 	prevHash := common.Hash(FieldElementToHash(prev))
+	// Record committed (pre-tx) value on first write per slot per transaction.
+	if a.committedStorage != nil {
+		if _, exists := a.committedStorage[addr]; !exists {
+			a.committedStorage[addr] = make(map[common.Hash]common.Hash)
+		}
+		if _, recorded := a.committedStorage[addr][slot]; !recorded {
+			a.committedStorage[addr][slot] = prevHash
+		}
+	}
 	newElem := HashToFieldElement(value)
 	a.db.SetStorage(k, slotKey, newElem)
 	if a.hooks != nil && a.hooks.OnStorageChange != nil {
@@ -280,8 +294,16 @@ func (a *Adapter) SetState(addr common.Address, slot common.Hash, value common.H
 }
 
 func (a *Adapter) GetCommittedState(addr common.Address, slot common.Hash) common.Hash {
-	// In a journaled system, committed state is the state before the tx.
-	// For simplicity, return current state (correct for single-tx batches).
+	// Return the storage value at the start of the current transaction.
+	// This is used by EIP-2200 gas metering and SSTORE gas cost calculation.
+	if a.committedStorage != nil {
+		if slots, ok := a.committedStorage[addr]; ok {
+			if val, ok := slots[slot]; ok {
+				return val
+			}
+		}
+	}
+	// No write to this slot in this tx -- committed = current.
 	return a.GetState(addr, slot)
 }
 
@@ -576,6 +598,7 @@ func (a *Adapter) Prepare(rules params.Rules, sender, coinbase common.Address, d
 	a.accessListAddresses = make(map[common.Address]struct{})
 	a.accessListSlots = make(map[common.Address]map[common.Hash]struct{})
 	a.transientStorage = make(map[common.Address]map[common.Hash]common.Hash)
+	a.committedStorage = make(map[common.Address]map[common.Hash]common.Hash)
 
 	// Add sender and precompiles to access list (EIP-2929).
 	a.AddAddressToAccessList(sender)
