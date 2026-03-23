@@ -3,7 +3,8 @@
 //! These types exactly mirror the Go definitions in
 //! `zkl2/node/pipeline/types.go` for cross-language IPC via stdin/stdout.
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 
 /// Input to the witness generator: batch of execution traces.
 #[derive(Debug, Deserialize)]
@@ -67,13 +68,50 @@ pub struct WitnessResultJSON {
 }
 
 /// Output from the prover.
+/// Fields use a custom deserializer to handle both Go's base64 encoding of []byte
+/// and Rust's native JSON array encoding.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProofResultJSON {
+    #[serde(deserialize_with = "deserialize_bytes")]
     pub proof_bytes: Vec<u8>,
+    #[serde(deserialize_with = "deserialize_bytes")]
     pub public_inputs: Vec<u8>,
     pub proof_size_bytes: u64,
     pub constraint_count: u64,
     pub generation_time_ms: u64,
+}
+
+/// Deserialize bytes that may come as a base64 string (from Go's json.Marshal of []byte)
+/// or as a JSON array of numbers (from Rust's serde_json).
+fn deserialize_bytes<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de;
+
+    struct BytesVisitor;
+
+    impl<'de> de::Visitor<'de> for BytesVisitor {
+        type Value = Vec<u8>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a base64 string or a sequence of bytes")
+        }
+
+        fn visit_str<E: de::Error>(self, v: &str) -> Result<Vec<u8>, E> {
+            BASE64.decode(v).map_err(|e| de::Error::custom(format!("invalid base64: {}", e)))
+        }
+
+        fn visit_seq<A: de::SeqAccess<'de>>(self, mut seq: A) -> Result<Vec<u8>, A::Error> {
+            let mut bytes = Vec::new();
+            while let Some(b) = seq.next_element::<u8>()? {
+                bytes.push(b);
+            }
+            Ok(bytes)
+        }
+    }
+
+    deserializer.deserialize_any(BytesVisitor)
 }
 
 /// Input for proof aggregation: one entry per enterprise batch proof.
