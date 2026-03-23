@@ -75,6 +75,10 @@ export interface BatchBuildResult {
   readonly batchNum: number;
   /** Per-transition witness data. */
   readonly transitions: readonly StateTransitionWitness[];
+  /** Merkle siblings at key=0 after all transitions. Used for circuit padding. */
+  readonly paddingSiblings?: readonly string[];
+  /** Path bits at key=0 after all transitions. Used for circuit padding. */
+  readonly paddingPathBits?: readonly number[];
 }
 
 /**
