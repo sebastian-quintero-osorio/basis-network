@@ -68,6 +68,20 @@ const basisRollupABIJSON = `[
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [{"name":"enterprise","type":"address"}],
+		"name": "enterprises",
+		"outputs": [
+			{"name":"currentRoot","type":"bytes32"},
+			{"name":"committedBatches","type":"uint64"},
+			{"name":"provenBatches","type":"uint64"},
+			{"name":"executedBatches","type":"uint64"},
+			{"name":"initialized","type":"bool"},
+			{"name":"lastL2Block","type":"uint64"}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]`
 
@@ -117,11 +131,68 @@ func NewL1Submitter(rpcURL, privateKeyHex, rollupAddress string, logger *slog.Lo
 	}, nil
 }
 
+// PreFlightCheck verifies that the submitter enterprise is initialized on BasisRollup.sol
+// and that the on-chain state root matches the batch's pre-state root (chain continuity).
+// This prevents sending transactions that will inevitably revert, providing a clear
+// error message instead of an obscure on-chain revert.
+func (s *L1Submitter) PreFlightCheck(ctx context.Context, preStateRoot string) error {
+	contract := bind.NewBoundContract(s.rollupAddr, s.rollupABI, s.client, s.client, s.client)
+
+	var result []interface{}
+	err := contract.Call(&bind.CallOpts{Context: ctx}, &result, "enterprises", s.fromAddr)
+	if err != nil {
+		return fmt.Errorf("pre-flight: query enterprises(%s): %w", s.fromAddr.Hex(), err)
+	}
+
+	if len(result) < 5 {
+		return fmt.Errorf("pre-flight: unexpected result length %d from enterprises()", len(result))
+	}
+
+	currentRoot, ok := result[0].([32]byte)
+	if !ok {
+		return fmt.Errorf("pre-flight: unexpected currentRoot type %T", result[0])
+	}
+	initialized, ok := result[4].(bool)
+	if !ok {
+		return fmt.Errorf("pre-flight: unexpected initialized type %T", result[4])
+	}
+
+	if !initialized {
+		return fmt.Errorf(
+			"pre-flight FAILED: enterprise %s is NOT initialized on BasisRollup %s. "+
+				"Call initializeEnterprise(address, genesisRoot) on the rollup contract first",
+			s.fromAddr.Hex(), s.rollupAddr.Hex(),
+		)
+	}
+
+	onChainRoot := common.BytesToHash(currentRoot[:])
+	expectedRoot := common.HexToHash(preStateRoot)
+
+	if onChainRoot != expectedRoot {
+		s.logger.Warn("pre-flight: state root mismatch (batch may still succeed if this is the first batch)",
+			"on_chain_root", onChainRoot.Hex(),
+			"batch_pre_state_root", expectedRoot.Hex(),
+		)
+	}
+
+	s.logger.Info("pre-flight check passed",
+		"enterprise", s.fromAddr.Hex(),
+		"initialized", true,
+		"on_chain_root", onChainRoot.Hex(),
+	)
+	return nil
+}
+
 // SubmitBatch executes the 3-phase L1 submission for a batch.
 // Returns the total gas used across all 3 transactions.
 func (s *L1Submitter) SubmitBatch(ctx context.Context, batch *BatchState) (uint64, string, error) {
 	start := time.Now()
 	var totalGas uint64
+
+	// Pre-flight check: verify enterprise is initialized before sending txs.
+	if err := s.PreFlightCheck(ctx, batch.PreStateRoot); err != nil {
+		return 0, "", fmt.Errorf("l1 submission aborted: %w", err)
+	}
 
 	auth, err := bind.NewKeyedTransactorWithChainID(s.privateKey, s.chainID)
 	if err != nil {

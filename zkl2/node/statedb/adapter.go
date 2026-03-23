@@ -3,6 +3,7 @@ package statedb
 import (
 	"math/big"
 
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/stateless"
@@ -104,7 +105,16 @@ func (a *Adapter) CreateAccount(addr common.Address) {
 }
 
 func (a *Adapter) CreateContract(addr common.Address) {
-	a.CreateAccount(addr)
+	k := key(addr)
+	if a.db.IsAlive(k) {
+		// Address already exists (e.g., pre-funded or post-SELFDESTRUCT re-creation).
+		// Clear old code and code hash so the new contract starts clean.
+		// go-ethereum expects CreateContract to prepare the address for fresh deployment.
+		delete(a.code, k)
+		delete(a.codeHash, k)
+	} else {
+		a.db.CreateAccount(k)
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -176,10 +186,17 @@ func (a *Adapter) GetCodeHash(addr common.Address) common.Hash {
 	if h, ok := a.codeHash[k]; ok {
 		return h
 	}
+	// Defensive: if code exists in the code map but hash was not cached, compute it.
+	if code, ok := a.code[k]; ok && len(code) > 0 {
+		h := crypto.Keccak256Hash(code)
+		a.codeHash[k] = h
+		return h
+	}
 	if !a.db.IsAlive(k) {
 		return common.Hash{}
 	}
-	// No code stored = empty code hash.
+	// Account exists but has no code = empty code hash (types.EmptyCodeHash).
+	// This value passes go-ethereum's collision check: contractHash == emptyCodeHash.
 	return crypto.Keccak256Hash(nil)
 }
 
@@ -191,7 +208,12 @@ func (a *Adapter) SetCode(addr common.Address, code []byte) []byte {
 	k := key(addr)
 	prev := a.code[k]
 	a.code[k] = code
-	a.codeHash[k] = crypto.Keccak256Hash(code)
+	h := crypto.Keccak256Hash(code)
+	a.codeHash[k] = h
+	// Sync the underlying Account.CodeHash for persistence consistency.
+	var codeHashFr fr.Element
+	codeHashFr.SetBytes(h[:])
+	a.db.SetCodeHash(k, codeHashFr)
 	return prev
 }
 
@@ -244,7 +266,19 @@ func (a *Adapter) GetCommittedState(addr common.Address, slot common.Hash) commo
 }
 
 func (a *Adapter) GetStorageRoot(addr common.Address) common.Hash {
-	root := a.db.StorageRoot(key(addr))
+	k := key(addr)
+	if !a.db.IsAlive(k) {
+		// Non-existent accounts must return zero hash.
+		// go-ethereum's collision check treats non-zero, non-EmptyRootHash storage roots
+		// as evidence of an existing contract (triggers ErrContractAddressCollision).
+		return common.Hash{}
+	}
+	root := a.db.StorageRoot(k)
+	// If storage root equals the empty Poseidon SMT root, return go-ethereum's
+	// EmptyRootHash so the collision check recognizes this as empty storage.
+	if root == a.db.EmptyStorageRoot() {
+		return types.EmptyRootHash
+	}
 	return common.Hash(FieldElementToHash(root))
 }
 

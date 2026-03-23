@@ -282,6 +282,23 @@ func (db *StateDB) SetNonce(addr TreeKey, nonce uint64) error {
 	return nil
 }
 
+// SetCodeHash updates the code hash field on an alive account.
+// This is called by the adapter when SetCode is invoked so the underlying
+// Account struct stays consistent with the adapter's in-memory code map.
+func (db *StateDB) SetCodeHash(addr TreeKey, hash fr.Element) {
+	acct, ok := db.accounts[addr]
+	if !ok || !acct.Alive {
+		return
+	}
+	acct.CodeHash = hash
+}
+
+// EmptyStorageRoot returns the root hash of an empty storage trie.
+// This is the DefaultHash(storageDepth) from the Poseidon SMT.
+func (db *StateDB) EmptyStorageRoot() fr.Element {
+	return db.emptyStorageRoot
+}
+
 // GetStorage returns the value at an account's storage slot.
 // Returns zero for nonexistent accounts, dead accounts, or empty slots.
 //
