@@ -36,6 +36,8 @@ import (
 	"basis-network/zkl2/node/sequencer"
 	"basis-network/zkl2/node/statedb"
 	nodesync "basis-network/zkl2/node/sync"
+
+	"basis-network/zkl2/node/bridge"
 )
 
 var (
@@ -144,6 +146,7 @@ type Node struct {
 	rpcServer *rpc.Server
 	backend   *NodeBackend
 	l1Sync    *nodesync.Synchronizer
+	bridge    *bridge.Relayer
 	stopCh    chan struct{}
 }
 
@@ -269,20 +272,58 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	}
 	l1Sync := nodesync.New(syncCfg, logger.With("component", "l1-sync"))
 
-	// Register event handlers
+	// 6. Initialize Bridge Relayer for L1<->L2 deposits/withdrawals.
+	bridgeCfg := bridge.DefaultConfig()
+	bridgeCfg.L1RPCURL = cfg.L1.RPCURL
+	bridgeCfg.BridgeAddress = common.HexToAddress(cfg.Contracts.BasisBridge)
+	bridgeCfg.RollupAddress = common.HexToAddress(cfg.Contracts.BasisRollup)
+	bridgeCfg.Enterprise = common.HexToAddress(cfg.L1.PrivateKey) // Using deployer as enterprise for now
+	if cfg.Contracts.BasisBridge != "" {
+		bridgeCfg.Enterprise = common.HexToAddress(cfg.Contracts.BasisBridge)
+	}
+	bridgeRelay, err := bridge.New(bridgeCfg, logger.With("component", "bridge"))
+	if err != nil {
+		logger.Warn("bridge relayer not initialized (non-critical)", "error", err)
+		bridgeRelay = nil
+	} else {
+		logger.Info("bridge relayer initialized",
+			"bridge_contract", cfg.Contracts.BasisBridge,
+		)
+	}
+
+	// Register L1 synchronizer event handlers
 	l1Sync.OnEvent(nodesync.EventForcedInclusion, func(event nodesync.L1Event) {
 		logger.Info("forced inclusion received from L1",
 			"block", event.BlockNumber,
 			"tx", event.TxHash.Hex()[:10],
 		)
-		// Forward to sequencer forced inclusion queue (future: parse and enqueue)
+		// Forward to sequencer forced inclusion queue
+		if data, ok := event.Data.(nodesync.ForcedInclusionData); ok {
+			logger.Info("forced tx data",
+				"enterprise", data.Enterprise.Hex(),
+				"data_len", len(data.TxData),
+			)
+		}
 	})
 	l1Sync.OnEvent(nodesync.EventDeposit, func(event nodesync.L1Event) {
 		logger.Info("deposit detected on L1",
 			"block", event.BlockNumber,
 			"tx", event.TxHash.Hex()[:10],
 		)
-		// Forward to bridge relayer (future: credit on L2)
+		// Forward to bridge relayer to credit on L2
+		if bridgeRelay != nil {
+			if data, ok := event.Data.(nodesync.DepositData); ok {
+				_ = bridgeRelay.ProcessDeposit(bridge.DepositEvent{
+					Enterprise:  bridgeCfg.Enterprise,
+					Depositor:   data.From,
+					L2Recipient: data.To,
+					Amount:      data.Amount,
+					DepositID:   data.Nonce,
+					L1TxHash:    event.TxHash,
+					L1Block:     event.BlockNumber,
+				})
+			}
+		}
 	})
 	logger.Info("L1 synchronizer initialized",
 		"rpc", cfg.L1.RPCURL,
@@ -301,6 +342,7 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		rpcServer: rpcServer,
 		backend:   backend,
 		l1Sync:    l1Sync,
+		bridge:    bridgeRelay,
 		stopCh:    make(chan struct{}),
 	}, nil
 }
@@ -317,6 +359,13 @@ func (n *Node) Start(ctx context.Context) error {
 		return fmt.Errorf("start l1 sync: %w", err)
 	}
 
+	// Start the bridge relayer (processes deposits and withdrawals).
+	if n.bridge != nil {
+		if err := n.bridge.Start(); err != nil {
+			return fmt.Errorf("start bridge relayer: %w", err)
+		}
+	}
+
 	// Start the block production loop.
 	go n.blockProductionLoop(ctx)
 
@@ -328,6 +377,9 @@ func (n *Node) Stop(ctx context.Context) error {
 	n.logger.Info("shutting down node components")
 	close(n.stopCh)
 	n.l1Sync.Stop()
+	if n.bridge != nil {
+		n.bridge.Stop()
+	}
 	if err := n.rpcServer.Stop(ctx); err != nil {
 		n.logger.Error("rpc server shutdown error", "error", err)
 	}
