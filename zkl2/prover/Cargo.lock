@@ -273,6 +273,9 @@ dependencies = [
 name = "basis-prover-cli"
 version = "0.1.0"
 dependencies = [
+ "ark-bn254",
+ "ark-ff",
+ "basis-aggregator",
  "basis-circuit",
  "basis-witness",
  "halo2_proofs",

@@ -21,17 +21,19 @@ fn main() {
     let result = match subcommand {
         "witness" => run_witness(),
         "prove" => run_prove(),
+        "aggregate" => run_aggregate(),
         "version" => {
             println!("basis-prover v0.1.0");
             Ok(())
         }
         _ => {
-            eprintln!("Usage: basis-prover <witness|prove|version>");
+            eprintln!("Usage: basis-prover <witness|prove|aggregate|version>");
             eprintln!();
             eprintln!("Subcommands:");
-            eprintln!("  witness   Generate witness from execution traces (stdin: JSON, stdout: JSON)");
-            eprintln!("  prove     Generate ZK proof from witness (stdin: JSON, stdout: JSON)");
-            eprintln!("  version   Print version information");
+            eprintln!("  witness     Generate witness from execution traces (stdin: JSON, stdout: JSON)");
+            eprintln!("  prove       Generate ZK proof from witness (stdin: JSON, stdout: JSON)");
+            eprintln!("  aggregate   Fold multiple proofs into one (stdin: JSON array, stdout: JSON)");
+            eprintln!("  version     Print version information");
             std::process::exit(1);
         }
     };
@@ -157,6 +159,59 @@ fn run_prove() -> Result<(), Box<dyn std::error::Error>> {
     let pi_len = output.public_inputs.len();
     eprintln!("[prove] Complete: {} bytes proof (PLONK-KZG), {} public input bytes, {}ms",
         proof_size, pi_len, elapsed.as_millis());
+
+    Ok(())
+}
+
+/// Read proof instances from stdin, fold them using ProtoGalaxy, produce aggregated proof.
+fn run_aggregate() -> Result<(), Box<dyn std::error::Error>> {
+    let start = Instant::now();
+
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input)?;
+
+    // Parse array of proof instances
+    let instances: Vec<types::AggregateInputJSON> = serde_json::from_str(&input)?;
+
+    eprintln!("[aggregate] Folding {} instances", instances.len());
+
+    // Convert to folding committed instances
+    use ark_bn254::Fr as ArkFr;
+    use ark_ff::PrimeField;
+    use basis_aggregator::folding::{self, CommittedInstance};
+
+    let committed: Vec<CommittedInstance> = instances.iter().map(|inst| {
+        CommittedInstance {
+            enterprise_id: ArkFr::from(inst.enterprise_id),
+            batch_id: inst.batch_id,
+            pre_state_root: ArkFr::from(inst.pre_state_root),
+            post_state_root: ArkFr::from(inst.post_state_root),
+            is_valid: inst.is_valid,
+            commitment: ArkFr::from(inst.batch_id * 1000 + 42),
+        }
+    }).collect();
+
+    // Fold
+    let folded = folding::fold(&committed)?;
+
+    // Generate decider proof
+    let decider = folding::decide(&folded);
+
+    let elapsed = start.elapsed();
+
+    let output = types::AggregateOutputJSON {
+        instance_count: folded.instance_count,
+        is_satisfiable: folded.is_satisfiable,
+        proof_bytes: decider.proof_bytes,
+        estimated_gas: decider.estimated_gas,
+        generation_time_ms: elapsed.as_millis() as u64,
+    };
+
+    serde_json::to_writer(io::stdout(), &output)?;
+    io::stdout().flush()?;
+
+    eprintln!("[aggregate] Complete: {} instances folded, satisfiable={}, gas={}, {}ms",
+        output.instance_count, output.is_satisfiable, output.estimated_gas, elapsed.as_millis());
 
     Ok(())
 }

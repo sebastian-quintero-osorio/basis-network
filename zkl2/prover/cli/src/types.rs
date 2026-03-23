@@ -75,3 +75,23 @@ pub struct ProofResultJSON {
     pub constraint_count: u64,
     pub generation_time_ms: u64,
 }
+
+/// Input for proof aggregation: one entry per enterprise batch proof.
+#[derive(Debug, Deserialize)]
+pub struct AggregateInputJSON {
+    pub enterprise_id: u64,
+    pub batch_id: u64,
+    pub pre_state_root: u64,
+    pub post_state_root: u64,
+    pub is_valid: bool,
+}
+
+/// Output of proof aggregation: folded result + decider proof.
+#[derive(Debug, Serialize)]
+pub struct AggregateOutputJSON {
+    pub instance_count: usize,
+    pub is_satisfiable: bool,
+    pub proof_bytes: Vec<u8>,
+    pub estimated_gas: u64,
+    pub generation_time_ms: u64,
+}
