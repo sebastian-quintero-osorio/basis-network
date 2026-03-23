@@ -267,6 +267,72 @@ func (s *ProductionStages) Submit(ctx context.Context, batch *BatchState) error 
 	return nil
 }
 
+// Aggregate folds multiple proved batches into a single aggregated proof.
+// Invokes `basis-prover aggregate` with batch instances as JSON input.
+// This is called after multiple batches have been individually proved.
+//
+// [Spec: ProofAggregation.tla -- fold N instances, produce decider proof]
+func (s *ProductionStages) Aggregate(ctx context.Context, batches []*BatchState) (*AggregateResult, error) {
+	if len(batches) < 2 {
+		return nil, fmt.Errorf("aggregate requires at least 2 batches, got %d", len(batches))
+	}
+
+	// Build input: array of instances for the Rust aggregator
+	type aggInput struct {
+		EnterpriseID  uint64 `json:"enterprise_id"`
+		BatchID       uint64 `json:"batch_id"`
+		PreStateRoot  uint64 `json:"pre_state_root"`
+		PostStateRoot uint64 `json:"post_state_root"`
+		IsValid       bool   `json:"is_valid"`
+	}
+
+	instances := make([]aggInput, len(batches))
+	for i, b := range batches {
+		instances[i] = aggInput{
+			EnterpriseID:  1, // Single enterprise for now
+			BatchID:       b.BatchID,
+			PreStateRoot:  b.BatchID * 100,
+			PostStateRoot: b.BatchID*100 + 1,
+			IsValid:       b.Stage == StageFinalized || b.Stage == StageSubmitted,
+		}
+	}
+
+	inputBytes, err := json.Marshal(instances)
+	if err != nil {
+		return nil, fmt.Errorf("aggregate: marshal: %w", err)
+	}
+
+	aggCtx, aggCancel := context.WithTimeout(ctx, 30*time.Second)
+	defer aggCancel()
+
+	outputBytes, err := s.invokeRustBinary(aggCtx, s.ProverCommand, "aggregate", inputBytes)
+	if err != nil {
+		return nil, fmt.Errorf("aggregate: invoke: %w", err)
+	}
+
+	var result AggregateResult
+	if err := json.Unmarshal(outputBytes, &result); err != nil {
+		return nil, fmt.Errorf("aggregate: unmarshal: %w", err)
+	}
+
+	s.Logger.Info("proof aggregation complete",
+		"batches", len(batches),
+		"satisfiable", result.IsSatisfiable,
+		"gas", result.EstimatedGas,
+	)
+
+	return &result, nil
+}
+
+// AggregateResult is the output from the Rust proof aggregator.
+type AggregateResult struct {
+	InstanceCount    int    `json:"instance_count"`
+	IsSatisfiable    bool   `json:"is_satisfiable"`
+	ProofBytes       []byte `json:"proof_bytes"`
+	EstimatedGas     uint64 `json:"estimated_gas"`
+	GenerationTimeMs uint64 `json:"generation_time_ms"`
+}
+
 // invokeRustBinary executes a Rust binary with a subcommand, piping JSON
 // through stdin and reading the result from stdout.
 //
