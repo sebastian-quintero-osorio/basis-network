@@ -173,6 +173,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "basis-evm-verifier"
+version = "0.1.0"
+dependencies = [
+ "basis-circuit",
+ "halo2_proofs",
+ "rand",
+]
+
+[[package]]
 name = "basis-prover-cli"
 version = "0.1.0"
 dependencies = [

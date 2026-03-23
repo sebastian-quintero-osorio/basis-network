@@ -1,0 +1,11 @@
+[package]
+name = "basis-evm-verifier"
+version = "0.1.0"
+edition = "2021"
+description = "EVM verifier generator for Basis Network PLONK-KZG proofs"
+license = "BUSL-1.1"
+
+[dependencies]
+basis-circuit = { path = "../circuit" }
+halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
+rand = "0.8"
