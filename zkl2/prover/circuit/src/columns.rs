@@ -50,6 +50,27 @@ pub struct BasisCircuitConfig {
     /// Selector for StackGate: stack discipline (c_prev feeds a_cur).
     pub q_stack: Selector,
 
+    // -- EVM arithmetic selectors --
+
+    /// Selector for SubGate: a - b = c.
+    pub q_sub: Selector,
+    /// Selector for DivGate: a / b = c (b != 0), or c = 0 when b = 0 (EVM convention).
+    pub q_div: Selector,
+    /// Selector for ModGate: a mod b = c.
+    pub q_mod: Selector,
+    /// Selector for LtGate: (a < b) = c (0 or 1).
+    pub q_lt: Selector,
+    /// Selector for EqGate: (a == b) = c (0 or 1).
+    pub q_eq: Selector,
+    /// Selector for IsZeroGate: (a == 0) = c (0 or 1).
+    pub q_iszero: Selector,
+    /// Selector for AndGate: a AND b = c (bitwise, modeled as a * b for booleans).
+    pub q_and: Selector,
+    /// Selector for OrGate: a OR b = c (bitwise, modeled as a + b - a*b for booleans).
+    pub q_or: Selector,
+    /// Selector for NotGate: NOT a = c (modeled as 1 - a for booleans).
+    pub q_not: Selector,
+
     // -- Fixed column --
 
     /// Constants column for round constants and lookup values.
@@ -78,6 +99,17 @@ impl BasisCircuitConfig {
         let q_memory = meta.selector();
         let q_stack = meta.selector();
 
+        // EVM arithmetic selectors
+        let q_sub = meta.selector();
+        let q_div = meta.selector();
+        let q_mod = meta.selector();
+        let q_lt = meta.selector();
+        let q_eq = meta.selector();
+        let q_iszero = meta.selector();
+        let q_and = meta.selector();
+        let q_or = meta.selector();
+        let q_not = meta.selector();
+
         // Fixed column for constants
         let constant = meta.fixed_column();
 
@@ -102,6 +134,15 @@ impl BasisCircuitConfig {
             q_poseidon,
             q_memory,
             q_stack,
+            q_sub,
+            q_div,
+            q_mod,
+            q_lt,
+            q_eq,
+            q_iszero,
+            q_and,
+            q_or,
+            q_not,
             constant,
         }
     }

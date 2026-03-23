@@ -10,7 +10,7 @@
 use halo2_proofs::{
     arithmetic::Field,
     circuit::{AssignedCell, Layouter, SimpleFloorPlanner, Value},
-    halo2curves::bn256::Fr,
+    halo2curves::{bn256::Fr, ff::PrimeField},
     plonk::{Circuit, ConstraintSystem, Error},
 };
 
@@ -36,8 +36,28 @@ pub enum CircuitOp {
     /// Memory access: address=a, value=c. Selector: q_memory.
     Memory { address: Fr, value: Fr },
     /// Stack operation: a must equal previous c. Selector: q_stack.
-    /// The `input` value must match the previous operation's output.
     Stack { input: Fr, b: Fr },
+
+    // -- EVM arithmetic operations --
+
+    /// Subtraction: c = a - b. Selector: q_sub.
+    Sub { a: Fr, b: Fr },
+    /// Division: c = a / b (integer). Selector: q_div.
+    Div { a: Fr, b: Fr },
+    /// Modulo: c = a mod b, d = a / b (quotient). Selector: q_mod.
+    Mod { a: Fr, b: Fr },
+    /// Less-than: c = (a < b) ? 1 : 0. Selector: q_lt.
+    Lt { a: Fr, b: Fr },
+    /// Equality: c = (a == b) ? 1 : 0. Selector: q_eq.
+    Eq { a: Fr, b: Fr },
+    /// Is-zero: c = (a == 0) ? 1 : 0. Selector: q_iszero.
+    IsZero { a: Fr },
+    /// Boolean AND: c = a * b. Selector: q_and.
+    And { a: Fr, b: Fr },
+    /// Boolean OR: c = a + b - a*b. Selector: q_or.
+    Or { a: Fr, b: Fr },
+    /// Boolean NOT: c = 1 - a. Selector: q_not.
+    Not { a: Fr },
 }
 
 impl CircuitOp {
@@ -58,6 +78,32 @@ impl CircuitOp {
             }
             CircuitOp::Memory { value, .. } => *value,
             CircuitOp::Stack { input, b } => *input + *b,
+            CircuitOp::Sub { a, b } => *a - *b,
+            CircuitOp::Div { a, b } => {
+                if *b == Fr::from(0u64) { Fr::from(0u64) } else { *a * b.invert().unwrap() }
+            }
+            CircuitOp::Mod { a, b } => {
+                // In field arithmetic, mod is complex. For the circuit,
+                // the prover computes the result off-chain.
+                // c = a - b * (a / b)
+                if *b == Fr::from(0u64) { Fr::from(0u64) } else {
+                    let q = *a * b.invert().unwrap();
+                    *a - *b * q
+                }
+            }
+            CircuitOp::Lt { a, b } => {
+                // Field comparison: use Montgomery representation ordering
+                if a.to_repr() < b.to_repr() { Fr::from(1u64) } else { Fr::from(0u64) }
+            }
+            CircuitOp::Eq { a, b } => {
+                if *a == *b { Fr::from(1u64) } else { Fr::from(0u64) }
+            }
+            CircuitOp::IsZero { a } => {
+                if *a == Fr::from(0u64) { Fr::from(1u64) } else { Fr::from(0u64) }
+            }
+            CircuitOp::And { a, b } => *a * *b,
+            CircuitOp::Or { a, b } => *a + *b - *a * *b,
+            CircuitOp::Not { a } => Fr::from(1u64) - *a,
         }
     }
 }
@@ -283,35 +329,109 @@ impl Circuit<Fr> for BasisCircuit {
                         }
 
                         CircuitOp::Stack { input, b } => {
-                            // Stack gate uses Rotation::prev, so skip row 0.
                             if row > 0 {
                                 config.q_stack.enable(&mut region, row)?;
                             }
-                            region.assign_advice(
-                                || format!("stack_a_{}", row),
-                                config.a,
-                                row,
-                                || Value::known(*input),
-                            )?;
-                            region.assign_advice(
-                                || format!("stack_b_{}", row),
-                                config.b,
-                                row,
-                                || Value::known(*b),
-                            )?;
+                            region.assign_advice(|| format!("stack_a_{}", row), config.a, row, || Value::known(*input))?;
+                            region.assign_advice(|| format!("stack_b_{}", row), config.b, row, || Value::known(*b))?;
                             let output = *input + *b;
-                            let c_cell = region.assign_advice(
-                                || format!("stack_c_{}", row),
-                                config.c,
-                                row,
-                                || Value::known(output),
-                            )?;
-                            region.assign_advice(
-                                || format!("stack_d_{}", row),
-                                config.d,
-                                row,
-                                || Value::known(Fr::ZERO),
-                            )?;
+                            let c_cell = region.assign_advice(|| format!("stack_c_{}", row), config.c, row, || Value::known(output))?;
+                            region.assign_advice(|| format!("stack_d_{}", row), config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        // -- EVM arithmetic ops (all follow same pattern: enable selector, assign a/b/c/d) --
+
+                        CircuitOp::Sub { a, b } => {
+                            config.q_sub.enable(&mut region, row)?;
+                            region.assign_advice(|| "sub_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "sub_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "sub_c", config.c, row, || Value::known(*a - *b))?;
+                            region.assign_advice(|| "sub_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Div { a, b } => {
+                            config.q_div.enable(&mut region, row)?;
+                            let c_val = if *b == Fr::ZERO { Fr::ZERO } else { *a * b.invert().unwrap() };
+                            region.assign_advice(|| "div_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "div_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "div_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "div_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Mod { a, b } => {
+                            config.q_mod.enable(&mut region, row)?;
+                            let (q_val, c_val) = if *b == Fr::ZERO {
+                                (Fr::ZERO, Fr::ZERO)
+                            } else {
+                                let q_val = *a * b.invert().unwrap();
+                                (q_val, *a - *b * q_val)
+                            };
+                            region.assign_advice(|| "mod_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "mod_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "mod_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "mod_d", config.d, row, || Value::known(q_val))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Lt { a, b } => {
+                            config.q_lt.enable(&mut region, row)?;
+                            let c_val = if a.to_repr() < b.to_repr() { Fr::from(1u64) } else { Fr::from(0u64) };
+                            region.assign_advice(|| "lt_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "lt_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "lt_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "lt_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Eq { a, b } => {
+                            config.q_eq.enable(&mut region, row)?;
+                            let c_val = if *a == *b { Fr::from(1u64) } else { Fr::from(0u64) };
+                            region.assign_advice(|| "eq_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "eq_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "eq_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "eq_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::IsZero { a } => {
+                            config.q_iszero.enable(&mut region, row)?;
+                            let c_val = if *a == Fr::ZERO { Fr::from(1u64) } else { Fr::from(0u64) };
+                            region.assign_advice(|| "iz_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "iz_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "iz_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "iz_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::And { a, b } => {
+                            config.q_and.enable(&mut region, row)?;
+                            region.assign_advice(|| "and_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "and_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "and_c", config.c, row, || Value::known(*a * *b))?;
+                            region.assign_advice(|| "and_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Or { a, b } => {
+                            config.q_or.enable(&mut region, row)?;
+                            let c_val = *a + *b - *a * *b;
+                            region.assign_advice(|| "or_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "or_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "or_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "or_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+
+                        CircuitOp::Not { a } => {
+                            config.q_not.enable(&mut region, row)?;
+                            let c_val = Fr::from(1u64) - *a;
+                            region.assign_advice(|| "not_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "not_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "not_c", config.c, row, || Value::known(c_val))?;
+                            region.assign_advice(|| "not_d", config.d, row, || Value::known(Fr::ZERO))?;
                             assigned_cells.push(c_cell);
                         }
                     }
