@@ -1,0 +1,36 @@
+groups:
+  - name: validium
+    rules:
+      - alert: HighQueueDepth
+        expr: validium_queue_depth > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Validium queue depth exceeds 100"
+          description: "Queue has {{ $value }} pending transactions"
+
+      - alert: NodeInErrorState
+        expr: validium_node_state == 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Validium node is in Error state"
+          description: "Node has been in error state for over 1 minute"
+
+      - alert: SlowProofGeneration
+        expr: histogram_quantile(0.99, rate(validium_proof_duration_seconds_bucket[5m])) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P99 proof generation time exceeds 20 seconds"
+
+      - alert: L1SubmissionFailures
+        expr: rate(validium_l1_submissions_total{status="failure"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "L1 batch submissions are failing"
