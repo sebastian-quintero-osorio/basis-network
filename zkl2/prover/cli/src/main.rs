@@ -14,6 +14,41 @@ use std::env;
 use std::io::{self, Read, Write};
 use std::time::Instant;
 
+use halo2_proofs::poly::kzg::commitment::ParamsKZG;
+use halo2_proofs::halo2curves::bn256::Bn256;
+
+/// Load SRS from cached file, or generate and save if not found.
+/// This ensures prove and verify use the same SRS parameters.
+fn load_or_generate_srs(k: u32) -> Result<ParamsKZG<Bn256>, Box<dyn std::error::Error>> {
+    let srs_path = format!("srs_k{}.bin", k);
+
+    // Try loading from file
+    if let Ok(bytes) = std::fs::read(&srs_path) {
+        eprintln!("[srs] Loading cached SRS from {} ({} bytes)", srs_path, bytes.len());
+        return basis_circuit::srs::load_srs(&bytes)
+            .map_err(|e| format!("SRS load failed: {}", e).into());
+    }
+
+    // Generate new SRS
+    eprintln!("[srs] Generating SRS (k={})...", k);
+    let params = basis_circuit::srs::generate_srs(k)
+        .map_err(|e| format!("SRS generation failed: {}", e))?;
+
+    // Save to file for future use
+    match basis_circuit::srs::serialize_srs(&params) {
+        Ok(bytes) => {
+            if let Err(e) = std::fs::write(&srs_path, &bytes) {
+                eprintln!("[srs] Warning: could not cache SRS to {}: {}", srs_path, e);
+            } else {
+                eprintln!("[srs] Cached SRS to {} ({} bytes)", srs_path, bytes.len());
+            }
+        }
+        Err(e) => eprintln!("[srs] Warning: could not serialize SRS: {}", e),
+    }
+
+    Ok(params)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let subcommand = args.get(1).map(|s| s.as_str()).unwrap_or("help");
@@ -124,9 +159,7 @@ fn run_prove() -> Result<(), Box<dyn std::error::Error>> {
     // 2. Generate verification key + proving key
     // 3. Create real PLONK proof with SHPLONK multiopen
     let k = 8; // 2^8 = 256 rows (sufficient for current circuit)
-    eprintln!("[prove] Generating SRS (k={})...", k);
-    let params = basis_circuit::srs::generate_srs(k)
-        .map_err(|e| format!("SRS generation failed: {}", e))?;
+    let params = load_or_generate_srs(k)?;
 
     eprintln!("[prove] Generating proving key...");
     let proof_data = basis_circuit::prover::prove(&params, circuit)
@@ -229,10 +262,9 @@ fn run_verify() -> Result<(), Box<dyn std::error::Error>> {
 
     use halo2_proofs::halo2curves::bn256::Fr;
 
-    // Generate same SRS and VK as the prover
+    // Load same SRS as the prover (from cached file)
     let k = 8;
-    let params = basis_circuit::srs::generate_srs(k)
-        .map_err(|e| format!("SRS: {}", e))?;
+    let params = load_or_generate_srs(k)?;
 
     // Create a template circuit for VK generation (same structure as prover)
     let vk_circuit = basis_circuit::circuit::BasisCircuit::new(
