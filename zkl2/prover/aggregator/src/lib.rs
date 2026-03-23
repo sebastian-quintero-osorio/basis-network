@@ -46,6 +46,7 @@
 /// [Source: lab/3-architect/implementation-history/prover-aggregation/research/findings.md]
 
 pub mod aggregator;
+pub mod folding;
 pub mod pool;
 pub mod tree;
 pub mod types;
