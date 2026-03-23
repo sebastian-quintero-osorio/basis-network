@@ -34,7 +34,7 @@ func newMockBackend() *mockBackend {
 			"0x1111111111111111111111111111111111111111": big.NewInt(1000000),
 		},
 		txHashes: map[string]*TransactionReceipt{
-			"0xabc123": {TxHash: "0xabc123", BlockNumber: 10, GasUsed: 21000, Status: 1},
+			"0xabc123": {TxHash: "0xabc123", BlockNumber: "0xa", GasUsed: "0x5208", Status: "0x1", From: "0x0000000000000000000000000000000000000000", Logs: []map[string]interface{}{}, LogsBloom: "0x", Type: "0x0", EffectiveGasPrice: "0x0", TransactionIndex: "0x0", BlockHash: "0x0000000000000000000000000000000000000000000000000000000000000000", CumulativeGasUsed: "0x5208"},
 		},
 	}
 }
@@ -254,8 +254,8 @@ func TestEthGetTransactionReceipt(t *testing.T) {
 	if receipt.TxHash != "0xabc123" {
 		t.Errorf("expected tx hash 0xabc123, got %s", receipt.TxHash)
 	}
-	if receipt.Status != 1 {
-		t.Errorf("expected status 1, got %d", receipt.Status)
+	if receipt.Status != "0x1" {
+		t.Errorf("expected status 0x1, got %s", receipt.Status)
 	}
 }
 

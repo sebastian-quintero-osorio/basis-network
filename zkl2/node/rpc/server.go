@@ -102,12 +102,22 @@ type Backend interface {
 	GetBatchStatus(batchID uint64) (*BatchStatus, error)
 }
 
-// TransactionReceipt is a simplified receipt for L2 transactions.
+// TransactionReceipt is an Ethereum-compatible receipt for L2 transactions.
 type TransactionReceipt struct {
-	TxHash      string `json:"transactionHash"`
-	BlockNumber uint64 `json:"blockNumber"`
-	GasUsed     uint64 `json:"gasUsed"`
-	Status      uint64 `json:"status"` // 1 = success, 0 = revert
+	TxHash            string                   `json:"transactionHash"`
+	BlockNumber       string                   `json:"blockNumber"`
+	BlockHash         string                   `json:"blockHash"`
+	TransactionIndex  string                   `json:"transactionIndex"`
+	From              string                   `json:"from"`
+	To                *string                  `json:"to"`
+	ContractAddress   *string                  `json:"contractAddress"`
+	GasUsed           string                   `json:"gasUsed"`
+	CumulativeGasUsed string                   `json:"cumulativeGasUsed"`
+	Status            string                   `json:"status"` // "0x1" = success, "0x0" = revert
+	Logs              []map[string]interface{}  `json:"logs"`
+	LogsBloom         string                   `json:"logsBloom"`
+	Type              string                   `json:"type"`
+	EffectiveGasPrice string                   `json:"effectiveGasPrice"`
 }
 
 // BatchStatus reports the proving pipeline status for a batch.
@@ -304,6 +314,15 @@ func (s *Server) dispatch(req jsonrpcRequest) (interface{}, *jsonrpcError) {
 		return false, nil
 	case "eth_syncing":
 		return false, nil
+	case "eth_feeHistory":
+		return map[string]interface{}{
+			"oldestBlock":   "0x0",
+			"baseFeePerGas": []string{"0x0", "0x0"},
+			"gasUsedRatio":  []float64{0},
+			"reward":        [][]string{{"0x0"}},
+		}, nil
+	case "eth_maxPriorityFeePerGas":
+		return "0x0", nil
 	case "net_version":
 		return s.netVersion()
 	case "web3_clientVersion":

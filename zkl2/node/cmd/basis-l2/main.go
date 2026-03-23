@@ -29,6 +29,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
 
 	"basis-network/zkl2/node/config"
@@ -519,6 +520,8 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 			}
 
 			// Execute each transaction through the EVM via the Adapter.
+			// Lock adapter to prevent concurrent access from eth_call/eth_estimateGas.
+			n.backend.AdapterMu.Lock()
 			for _, tx := range block.Transactions {
 				msg := executor.Message{
 					From:     tx.From.ToCommon(),
@@ -569,9 +572,29 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 				}
 
 				// Store receipt in backend for eth_getTransactionReceipt.
-				n.backend.StoreReceipt(tx.Hash, blockNumber, result)
+				n.backend.StoreReceipt(tx.Hash, blockNumber, tx.From.ToCommon(), sequencer.ToCommonAddressPtr(tx.To), result)
 
 				batchTxCount++
+			}
+
+			n.backend.AdapterMu.Unlock()
+
+			// Store block data for eth_getBlockByNumber.
+			if len(block.Transactions) > 0 {
+				txHashes := make([]string, len(block.Transactions))
+				for i, tx := range block.Transactions {
+					txHashes[i] = fmt.Sprintf("0x%x", tx.Hash)
+				}
+				blockHash := crypto.Keccak256Hash(
+					[]byte(fmt.Sprintf("%d:%d", blockNumber, time.Now().UnixNano())),
+				)
+				n.backend.StoreBlock(&StoredBlock{
+					Number:    blockNumber,
+					Hash:      blockHash,
+					Timestamp: uint64(time.Now().Unix()),
+					GasUsed:   0, // Individual tx gas tracked in receipts
+					TxHashes:  txHashes,
+				})
 			}
 
 			// Update backend block number for eth_blockNumber.

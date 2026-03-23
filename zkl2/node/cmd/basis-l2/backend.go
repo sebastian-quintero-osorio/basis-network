@@ -25,6 +25,10 @@ type NodeBackend struct {
 	l2ChainID uint64
 	blockNum  atomic.Uint64
 
+	// adapterMu protects the adapter during eth_call/eth_estimateGas read-only execution.
+	// The block production loop must also hold this lock during transaction execution.
+	AdapterMu sync.Mutex
+
 	receiptsMu sync.RWMutex
 	receipts   map[string]*rpc.TransactionReceipt
 
@@ -90,6 +94,10 @@ func (b *NodeBackend) Call(from, to string, data []byte, value *big.Int) ([]byte
 	fromAddr := common.HexToAddress(from)
 	toAddr := common.HexToAddress(to)
 
+	// Lock adapter to prevent concurrent access with block production.
+	b.AdapterMu.Lock()
+	defer b.AdapterMu.Unlock()
+
 	// Snapshot state for read-only execution.
 	snapID := b.adapter.Snapshot()
 	defer b.adapter.RevertToSnapshot(snapID)
@@ -126,6 +134,9 @@ func (b *NodeBackend) EstimateGas(from, to string, data []byte, value *big.Int) 
 	}
 	fromAddr := common.HexToAddress(from)
 	toAddr := common.HexToAddress(to)
+
+	b.AdapterMu.Lock()
+	defer b.AdapterMu.Unlock()
 
 	snapID := b.adapter.Snapshot()
 	defer b.adapter.RevertToSnapshot(snapID)
@@ -281,22 +292,71 @@ func (b *NodeBackend) SetBlockNumber(num uint64) {
 }
 
 // StoreReceipt indexes a transaction receipt after EVM execution.
-func (b *NodeBackend) StoreReceipt(txHash sequencer.TxHash, blockNumber uint64, result *executor.TransactionResult) {
+func (b *NodeBackend) StoreReceipt(txHash sequencer.TxHash, blockNumber uint64, from common.Address, to *common.Address, result *executor.TransactionResult) {
 	b.receiptsMu.Lock()
 	defer b.receiptsMu.Unlock()
 	if b.receipts == nil {
 		b.receipts = make(map[string]*rpc.TransactionReceipt)
 	}
-	status := uint64(1)
+	status := "0x1"
 	if result.VMError != nil {
-		status = 0
+		status = "0x0"
 	}
 	hashHex := fmt.Sprintf("0x%x", txHash)
+	fromHex := from.Hex()
+
+	var toPtr *string
+	if to != nil {
+		s := to.Hex()
+		toPtr = &s
+	}
+
+	var contractPtr *string
+	if result.ContractAddress != nil {
+		s := result.ContractAddress.Hex()
+		contractPtr = &s
+	}
+
+	// Collect logs from trace if available.
+	var logs []map[string]interface{}
+	if result.Trace != nil && result.Trace.Logs != nil {
+		for i, l := range result.Trace.Logs {
+			topics := make([]string, len(l.Topics))
+			for j, t := range l.Topics {
+				topics[j] = t.Hex()
+			}
+			logs = append(logs, map[string]interface{}{
+				"address":          l.Address.Hex(),
+				"topics":           topics,
+				"data":             fmt.Sprintf("0x%x", l.Data),
+				"blockNumber":      fmt.Sprintf("0x%x", blockNumber),
+				"transactionHash":  hashHex,
+				"transactionIndex": "0x0",
+				"blockHash":        common.Hash{}.Hex(),
+				"logIndex":         fmt.Sprintf("0x%x", i),
+				"removed":          false,
+			})
+		}
+	}
+	if logs == nil {
+		logs = []map[string]interface{}{}
+	}
+
 	b.receipts[hashHex] = &rpc.TransactionReceipt{
-		TxHash:      hashHex,
-		BlockNumber: blockNumber,
-		GasUsed:     result.GasUsed,
-		Status:      status,
+		TxHash:            hashHex,
+		BlockNumber:       fmt.Sprintf("0x%x", blockNumber),
+		BlockHash:         common.Hash{}.Hex(),
+		TransactionIndex:  "0x0",
+		From:              fromHex,
+		To:                toPtr,
+		ContractAddress:   contractPtr,
+		GasUsed:           fmt.Sprintf("0x%x", result.GasUsed),
+		CumulativeGasUsed: fmt.Sprintf("0x%x", result.GasUsed),
+		Status:            status,
+		Logs:              logs,
+		LogsBloom:         "0x" + fmt.Sprintf("%0512x", 0),
+		Type:              "0x0",
+		EffectiveGasPrice: "0x0",
 	}
 }
 

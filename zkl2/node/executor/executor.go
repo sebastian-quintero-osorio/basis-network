@@ -158,30 +158,32 @@ func (e *Executor) ExecuteTransaction(
 	// go-ethereum's EVM.Call handles value transfer internally via CanTransfer/Transfer.
 	// go-ethereum v1.15+ uses *uint256.Int for value parameters and common.Address for callers.
 	var (
-		ret     []byte
-		gasLeft uint64
-		execErr error
+		ret          []byte
+		gasLeft      uint64
+		execErr      error
+		contractAddr *common.Address
 	)
 
 	value256 := uint256.MustFromBig(msg.Value)
 
 	if msg.To == nil {
 		// Contract creation
-		// [Spec: Not modeled in current TLA+ -- future extension]
-		var contractAddr common.Address
-		ret, contractAddr, gasLeft, execErr = evm.Create(
+		var addr common.Address
+		ret, addr, gasLeft, execErr = evm.Create(
 			msg.From,
 			msg.Data,
 			msg.Gas,
 			value256,
 		)
+		if execErr == nil {
+			contractAddr = &addr
+		}
 		e.logger.DebugContext(ctx, "contract created",
-			"address", contractAddr.Hex(),
+			"address", addr.Hex(),
 			"gas_left", gasLeft,
 		)
 	} else {
 		// Regular call or value transfer
-		// [Spec: SubmitTx + opcode execution + FinishTx]
 		ret, gasLeft, execErr = evm.Call(
 			msg.From,
 			*msg.To,
@@ -194,7 +196,6 @@ func (e *Executor) ExecuteTransaction(
 	gasUsed := msg.Gas - gasLeft
 
 	// --- Collect trace ---
-	// [Spec: FinishTx -- record {tx, preState, postState, executionTrace}]
 	trace := tracer.GetTrace()
 	trace.From = msg.From
 	trace.To = msg.To
@@ -203,10 +204,11 @@ func (e *Executor) ExecuteTransaction(
 	trace.Success = execErr == nil
 
 	result := &TransactionResult{
-		GasUsed:    gasUsed,
-		ReturnData: ret,
-		VMError:    execErr,
-		Trace:      trace,
+		GasUsed:         gasUsed,
+		ReturnData:      ret,
+		VMError:         execErr,
+		Trace:           trace,
+		ContractAddress: contractAddr,
 	}
 
 	if execErr != nil {
