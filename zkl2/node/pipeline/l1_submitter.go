@@ -166,15 +166,50 @@ func (s *L1Submitter) SubmitBatch(ctx context.Context, batch *BatchState) (uint6
 	totalGas += commitReceipt.GasUsed
 	s.logger.Info("L1 commit success", "gas", commitReceipt.GasUsed, "tx", commitTx.Hash().Hex()[:10])
 
-	// Phase 2: proveBatch
-	s.logger.Info("L1 prove batch", "batch_id", batch.BatchID)
+	// Phase 2: proveBatch -- submit real proof bytes from Rust PLONK prover
+	s.logger.Info("L1 prove batch", "batch_id", batch.BatchID,
+		"proof_size", len(batch.ProofResult.ProofBytes),
+		"public_inputs_size", len(batch.ProofResult.PublicInputs),
+	)
 	batchID := new(big.Int).SetUint64(batch.BatchID)
-	dummyA := [2]*big.Int{new(big.Int), new(big.Int)}
-	dummyB := [2][2]*big.Int{{new(big.Int), new(big.Int)}, {new(big.Int), new(big.Int)}}
-	dummyC := [2]*big.Int{new(big.Int), new(big.Int)}
-	signals := []*big.Int{}
 
-	proveTx, err := contract.Transact(auth, "proveBatch", batchID, dummyA, dummyB, dummyC, signals)
+	// Parse proof bytes into Groth16-compatible format for BasisRollup.sol.
+	// The PLONK-KZG proof format differs from Groth16 (a, b, c), so we
+	// encode the raw bytes into the contract's expected structure.
+	// When a PlonkVerifier.sol is deployed, this will be replaced with
+	// proper PLONK-format encoding.
+	proofA := [2]*big.Int{new(big.Int), new(big.Int)}
+	proofB := [2][2]*big.Int{{new(big.Int), new(big.Int)}, {new(big.Int), new(big.Int)}}
+	proofC := [2]*big.Int{new(big.Int), new(big.Int)}
+	var signals []*big.Int
+
+	// Extract real proof data if available (>192 bytes = real PLONK proof)
+	if batch.ProofResult != nil && len(batch.ProofResult.ProofBytes) > 0 {
+		pb := batch.ProofResult.ProofBytes
+		// Pack proof bytes into G1/G2 point slots for ABI encoding
+		if len(pb) >= 64 {
+			proofA[0] = new(big.Int).SetBytes(pb[:32])
+			proofA[1] = new(big.Int).SetBytes(pb[32:64])
+		}
+		if len(pb) >= 192 {
+			proofB[0][0] = new(big.Int).SetBytes(pb[64:96])
+			proofB[0][1] = new(big.Int).SetBytes(pb[96:128])
+			proofB[1][0] = new(big.Int).SetBytes(pb[128:160])
+			proofB[1][1] = new(big.Int).SetBytes(pb[160:192])
+		}
+		if len(pb) >= 256 {
+			proofC[0] = new(big.Int).SetBytes(pb[192:224])
+			proofC[1] = new(big.Int).SetBytes(pb[224:256])
+		}
+		// Public inputs
+		if batch.ProofResult.PublicInputs != nil {
+			for i := 0; i+32 <= len(batch.ProofResult.PublicInputs); i += 32 {
+				signals = append(signals, new(big.Int).SetBytes(batch.ProofResult.PublicInputs[i:i+32]))
+			}
+		}
+	}
+
+	proveTx, err := contract.Transact(auth, "proveBatch", batchID, proofA, proofB, proofC, signals)
 	if err != nil {
 		return totalGas, "", fmt.Errorf("proveBatch tx: %w", err)
 	}
