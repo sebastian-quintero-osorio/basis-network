@@ -16,6 +16,7 @@ use halo2_proofs::{
 
 use crate::columns::BasisCircuitConfig;
 use crate::gates::configure_gates;
+use crate::evm_gates::configure_evm_gates;
 
 // ---------------------------------------------------------------------------
 // Operation types for circuit witness
@@ -231,6 +232,7 @@ impl Circuit<Fr> for BasisCircuit {
     fn configure(meta: &mut ConstraintSystem<Fr>) -> Self::Config {
         let config = BasisCircuitConfig::allocate(meta);
         configure_gates(meta, &config);
+        configure_evm_gates(meta, &config);
         config
     }
 

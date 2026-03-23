@@ -101,6 +101,29 @@ pub struct BasisCircuitConfig {
     /// Selector for ReturnGate: RETURN/REVERT execution termination.
     pub q_return: Selector,
 
+    // -- Extended EVM selectors --
+
+    /// Selector for SHL (shift left).
+    pub q_shl: Selector,
+    /// Selector for SHR (shift right).
+    pub q_shr: Selector,
+    /// Selector for BYTE (extract byte).
+    pub q_byte: Selector,
+    /// Selector for EXP (exponentiation).
+    pub q_exp: Selector,
+    /// Selector for SHA3 (keccak256).
+    pub q_sha3: Selector,
+    /// Selector for CALLDATALOAD.
+    pub q_calldataload: Selector,
+    /// Selector for environment opcodes (ADDRESS, BALANCE, ORIGIN, etc).
+    pub q_env: Selector,
+    /// Selector for block context opcodes (BLOCKHASH, TIMESTAMP, etc).
+    pub q_block: Selector,
+    /// Selector for LOG0-LOG4.
+    pub q_log: Selector,
+    /// Selector for CREATE/CREATE2.
+    pub q_create: Selector,
+
     // -- Fixed column --
 
     /// Constants column for round constants and lookup values.
@@ -156,6 +179,18 @@ impl BasisCircuitConfig {
         let q_call = meta.selector();
         let q_return = meta.selector();
 
+        // Extended EVM selectors
+        let q_shl = meta.selector();
+        let q_shr = meta.selector();
+        let q_byte = meta.selector();
+        let q_exp = meta.selector();
+        let q_sha3 = meta.selector();
+        let q_calldataload = meta.selector();
+        let q_env = meta.selector();
+        let q_block = meta.selector();
+        let q_log = meta.selector();
+        let q_create = meta.selector();
+
         // Fixed column for constants
         let constant = meta.fixed_column();
 
@@ -201,6 +236,16 @@ impl BasisCircuitConfig {
             q_swap,
             q_call,
             q_return,
+            q_shl,
+            q_shr,
+            q_byte,
+            q_exp,
+            q_sha3,
+            q_calldataload,
+            q_env,
+            q_block,
+            q_log,
+            q_create,
             constant,
         }
     }
