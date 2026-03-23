@@ -134,6 +134,21 @@ async function main(): Promise<void> {
     });
   }
 
+  // Initialize DAC L1 attestation submitter if DACAttestation contract is configured.
+  const dacAttestationAddress = process.env["DAC_ATTESTATION_ADDRESS"];
+  let dacL1Submitter: import("./da/dac-l1-submitter").DACL1Submitter | undefined;
+  if (dacAttestationAddress && config.l1RpcUrl && config.l1PrivateKey) {
+    const { DACL1Submitter } = await import("./da/dac-l1-submitter");
+    dacL1Submitter = new DACL1Submitter({
+      rpcUrl: config.l1RpcUrl,
+      privateKey: config.l1PrivateKey,
+      contractAddress: dacAttestationAddress,
+    });
+    log.info("DAC L1 attestation submitter initialized", {
+      contract: dacAttestationAddress,
+    });
+  }
+
   // -----------------------------------------------------------------------
   // Create Orchestrator
   // [Spec: Init -- all variables initialized]
@@ -147,6 +162,7 @@ async function main(): Promise<void> {
     dac,
     config,
     dacClients,
+    dacL1Submitter,
   });
 
   // -----------------------------------------------------------------------

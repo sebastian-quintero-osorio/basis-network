@@ -147,14 +147,25 @@ export function createServer(
   // TLS configuration: if API_TLS_CERT and API_TLS_KEY are set, enable HTTPS.
   const tlsCert = process.env["API_TLS_CERT"];
   const tlsKey = process.env["API_TLS_KEY"];
-  const httpsOptions = tlsCert && tlsKey
-    ? {
+  let httpsOptions: Record<string, unknown> = {};
+  if (tlsCert && tlsKey) {
+    try {
+      const fs = require("fs") as typeof import("fs");
+      httpsOptions = {
         https: {
-          cert: require("fs").readFileSync(tlsCert),
-          key: require("fs").readFileSync(tlsKey),
+          cert: fs.readFileSync(tlsCert),
+          key: fs.readFileSync(tlsKey),
         },
-      }
-    : {};
+      };
+      log.info("TLS enabled", { cert: tlsCert, key: tlsKey });
+    } catch (tlsError: unknown) {
+      log.warn("TLS certificate loading failed, falling back to HTTP", {
+        cert: tlsCert,
+        key: tlsKey,
+        error: String(tlsError),
+      });
+    }
+  }
 
   const server = Fastify({
     logger: false, // We use our own structured logger

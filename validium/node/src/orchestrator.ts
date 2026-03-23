@@ -32,6 +32,7 @@ import { ZKProver } from "./prover";
 import { L1Submitter } from "./submitter";
 import { DACProtocol } from "./da";
 import { DACNodeClient } from "./da/dac-client";
+import type { DACL1Submitter } from "./da/dac-l1-submitter";
 import {
   NodeState,
   RECEIVING_STATES,
@@ -77,6 +78,8 @@ export interface OrchestratorDeps {
   readonly config: NodeConfig;
   /** Optional distributed DAC clients (gRPC). When provided, used instead of in-process DACProtocol. */
   readonly dacClients?: readonly DACNodeClient[];
+  /** Optional DAC L1 attestation submitter. When provided, attestations are posted to DACAttestation.sol. */
+  readonly dacL1Submitter?: DACL1Submitter;
 }
 
 // ---------------------------------------------------------------------------
@@ -102,6 +105,7 @@ export class EnterpriseNodeOrchestrator {
   private readonly submitter: L1Submitter;
   private readonly dac: DACProtocol;
   private readonly dacClients: readonly DACNodeClient[];
+  private readonly dacL1Submitter?: DACL1Submitter;
   private readonly config: NodeConfig;
 
   // -- Tracking --
@@ -136,6 +140,7 @@ export class EnterpriseNodeOrchestrator {
     this.submitter = deps.submitter;
     this.dac = deps.dac;
     this.dacClients = deps.dacClients ?? [];
+    this.dacL1Submitter = deps.dacL1Submitter;
     this.config = deps.config;
 
     log.info("Orchestrator created", {
@@ -699,6 +704,34 @@ export class EnterpriseNodeOrchestrator {
         certState: attestation.certificate.state,
         signatureCount: attestation.certificate.signatureCount,
       });
+
+      // Submit attestation to DACAttestation.sol on L1 (if submitter configured).
+      // In-process DAC doesn't have Ethereum addresses; L1 submission requires
+      // the remote gRPC path which returns real signer addresses.
+      // For in-process: use nodeId as placeholder address.
+      if (this.dacL1Submitter && attestation.certificate.state === "valid") {
+        const signers = attestation.certificate.attestations.map(
+          (a) => "0x" + a.nodeId.toString(16).padStart(40, "0")
+        );
+        const signatures = attestation.certificate.attestations.map(
+          (a) => a.signature
+        );
+        this.dacL1Submitter.submit({
+          batchId: batch.batchId,
+          commitment: distribution.commitment,
+          signers,
+          signatures,
+        }).then(() => {
+          log.info("DAC attestation submitted to L1", {
+            batchId: batch.batchId.slice(0, 16) + "...",
+          });
+        }).catch((l1Error: unknown) => {
+          log.warn("DAC L1 attestation submission failed (non-critical)", {
+            batchId: batch.batchId.slice(0, 16) + "...",
+            error: String(l1Error),
+          });
+        });
+      }
     } catch (error: unknown) {
       log.warn("DAC distribution/attestation failed (non-critical)", {
         batchId: batch.batchId.slice(0, 16) + "...",
