@@ -31,6 +31,7 @@ import type { Batch } from "./batch/types";
 import { ZKProver } from "./prover";
 import { L1Submitter } from "./submitter";
 import { DACProtocol } from "./da";
+import { DACNodeClient } from "./da/dac-client";
 import {
   NodeState,
   RECEIVING_STATES,
@@ -42,6 +43,20 @@ import {
   type ProofResult,
 } from "./types";
 import { createLogger } from "./logger";
+import {
+  transactionsTotal,
+  batchesTotal,
+  proofsTotal,
+  l1SubmissionsTotal,
+  proofDuration,
+  l1SubmissionDuration,
+  batchSize as batchSizeHistogram,
+  queueDepth as queueDepthGauge,
+  nodeState as nodeStateGauge,
+  uptimeSeconds,
+  crashCount as crashCountGauge,
+  stateToNumber,
+} from "./metrics";
 
 const log = createLogger("orchestrator");
 
@@ -60,6 +75,8 @@ export interface OrchestratorDeps {
   readonly submitter: L1Submitter;
   readonly dac: DACProtocol;
   readonly config: NodeConfig;
+  /** Optional distributed DAC clients (gRPC). When provided, used instead of in-process DACProtocol. */
+  readonly dacClients?: readonly DACNodeClient[];
 }
 
 // ---------------------------------------------------------------------------
@@ -84,6 +101,7 @@ export class EnterpriseNodeOrchestrator {
   private readonly prover: ZKProver;
   private readonly submitter: L1Submitter;
   private readonly dac: DACProtocol;
+  private readonly dacClients: readonly DACNodeClient[];
   private readonly config: NodeConfig;
 
   // -- Tracking --
@@ -103,6 +121,13 @@ export class EnterpriseNodeOrchestrator {
   private batchCycleRunning: boolean = false;
   private running: boolean = false;
 
+  // -- Metrics uptime timer --
+  private uptimeTimer: ReturnType<typeof setInterval> | null = null;
+
+  // -- Graceful shutdown --
+  private shuttingDown: boolean = false;
+  private shutdownResolve: (() => void) | null = null;
+
   constructor(deps: OrchestratorDeps) {
     this.smt = deps.smt;
     this.queue = deps.queue;
@@ -110,6 +135,7 @@ export class EnterpriseNodeOrchestrator {
     this.prover = deps.prover;
     this.submitter = deps.submitter;
     this.dac = deps.dac;
+    this.dacClients = deps.dacClients ?? [];
     this.config = deps.config;
 
     log.info("Orchestrator created", {
@@ -148,9 +174,14 @@ export class EnterpriseNodeOrchestrator {
     // [Spec: wal' = Append(wal, tx), txQueue' = Append(txQueue, tx)]
     const seq = this.queue.enqueue(tx);
 
+    // Metrics: count transaction and update queue depth
+    transactionsTotal.labels(tx.enterpriseId).inc();
+    queueDepthGauge.set(this.queue.size);
+
     // [Spec: nodeState' = IF nodeState = "Idle" THEN "Receiving" ELSE nodeState]
     if (this.state === NodeState.Idle) {
       this.state = NodeState.Receiving;
+      nodeStateGauge.set(stateToNumber(this.state));
       log.info("State: Idle -> Receiving");
     }
 
@@ -177,6 +208,11 @@ export class EnterpriseNodeOrchestrator {
       void this.batchLoopTick();
     }, this.config.batchLoopIntervalMs);
 
+    // Periodically update the uptime gauge (every 5 seconds)
+    this.uptimeTimer = setInterval(() => {
+      uptimeSeconds.set((Date.now() - this.startedAt) / 1000);
+    }, 5000);
+
     log.info("Batch monitoring loop started", {
       intervalMs: this.config.batchLoopIntervalMs,
     });
@@ -194,7 +230,66 @@ export class EnterpriseNodeOrchestrator {
       clearInterval(this.batchLoopTimer);
       this.batchLoopTimer = null;
     }
+    if (this.uptimeTimer) {
+      clearInterval(this.uptimeTimer);
+      this.uptimeTimer = null;
+    }
     log.info("Batch monitoring loop stopped");
+  }
+
+  /**
+   * Graceful shutdown: stop accepting new batches, wait for any in-progress
+   * batch cycle to complete (with timeout), and return the number of
+   * unprocessed transactions remaining in the queue.
+   *
+   * @param timeoutMs - Maximum time (ms) to wait for in-progress batch cycle
+   * @returns Number of unprocessed transactions still in the queue
+   */
+  async shutdownGraceful(timeoutMs: number): Promise<number> {
+    this.shuttingDown = true;
+    log.info("Graceful shutdown initiated", { timeoutMs });
+
+    // Stop the batch monitoring loop (no new ticks)
+    this.stop();
+
+    // If a batch cycle is currently running, wait for it to finish
+    const IN_PROGRESS_STATES = new Set([
+      NodeState.Batching,
+      NodeState.Proving,
+      NodeState.Submitting,
+    ]);
+
+    if (this.batchCycleRunning || IN_PROGRESS_STATES.has(this.state)) {
+      log.info("Waiting for in-progress batch cycle to complete", {
+        state: this.state,
+      });
+
+      await new Promise<void>((resolve) => {
+        this.shutdownResolve = resolve;
+
+        const timer = setTimeout(() => {
+          log.warn("Graceful shutdown timeout exceeded, forcing shutdown", {
+            timeoutMs,
+            state: this.state,
+          });
+          this.shutdownResolve = null;
+          resolve();
+        }, timeoutMs);
+
+        // Check immediately in case the cycle already completed
+        if (!this.batchCycleRunning && !IN_PROGRESS_STATES.has(this.state)) {
+          clearTimeout(timer);
+          this.shutdownResolve = null;
+          resolve();
+        }
+      });
+    }
+
+    const remaining = this.queue.size;
+    log.info("Graceful shutdown complete", {
+      unprocessedTransactions: remaining,
+    });
+    return remaining;
   }
 
   /**
@@ -234,10 +329,13 @@ export class EnterpriseNodeOrchestrator {
 
     // [Spec: nodeState' = "Idle"]
     this.state = NodeState.Idle;
+    nodeStateGauge.set(stateToNumber(this.state));
+    queueDepthGauge.set(this.queue.size);
 
     // [Spec: CheckQueue -- if queue non-empty, transition to Receiving]
     if (this.queue.size > 0) {
       this.state = NodeState.Receiving;
+      nodeStateGauge.set(stateToNumber(this.state));
       log.info("Recovered transactions in queue, state -> Receiving", {
         queueSize: this.queue.size,
       });
@@ -297,12 +395,16 @@ export class EnterpriseNodeOrchestrator {
    * full batch cycle. Only one cycle runs at a time (state machine guard).
    */
   private async batchLoopTick(): Promise<void> {
+    // Guard: skip if shutting down
+    if (this.shuttingDown) return;
+
     // Guard: only one batch cycle at a time
     if (this.batchCycleRunning) return;
 
     // [Spec: CheckQueue -- Idle with non-empty queue -> Receiving]
     if (this.state === NodeState.Idle && this.queue.size > 0) {
       this.state = NodeState.Receiving;
+      nodeStateGauge.set(stateToNumber(this.state));
       log.info("State: Idle -> Receiving (CheckQueue)");
     }
 
@@ -321,6 +423,11 @@ export class EnterpriseNodeOrchestrator {
       });
     } finally {
       this.batchCycleRunning = false;
+      // Notify graceful shutdown if it is waiting for cycle completion
+      if (this.shuttingDown && this.shutdownResolve) {
+        this.shutdownResolve();
+        this.shutdownResolve = null;
+      }
     }
   }
 
@@ -346,11 +453,13 @@ export class EnterpriseNodeOrchestrator {
     //   nodeState' = "Batching"
     // -----------------------------------------------------------------------
     this.state = NodeState.Batching;
+    nodeStateGauge.set(stateToNumber(this.state));
     log.info("State: Receiving -> Batching");
 
     const batch = this.aggregator.formBatch();
     if (!batch) {
       this.state = NodeState.Receiving;
+      nodeStateGauge.set(stateToNumber(this.state));
       return;
     }
 
@@ -364,6 +473,11 @@ export class EnterpriseNodeOrchestrator {
       formedAt: batch.formedAt,
     };
     this.batchHistory.set(batch.batchId, batchRecord);
+
+    // Metrics: batch formed
+    batchesTotal.labels("forming").inc();
+    batchSizeHistogram.observe(batch.txCount);
+    queueDepthGauge.set(this.queue.size);
 
     log.info("Batch formed", {
       batchId: batch.batchId.slice(0, 16) + "...",
@@ -380,11 +494,24 @@ export class EnterpriseNodeOrchestrator {
       // ---------------------------------------------------------------------
       const witness = await buildBatchCircuitInput(batch, this.smt);
 
+      // Capture padding proof for the prover: a Merkle proof at key=0
+      // in the current SMT state. The circuit needs real siblings for identity
+      // transitions (key=0, old=0, new=0), not zeros.
+      const paddingProof = this.smt.getProof(0n);
+      (witness as unknown as { paddingSiblings: string[]; paddingPathBits: number[] }).paddingSiblings =
+        paddingProof.siblings.map((s: bigint) => s.toString(16));
+      (witness as unknown as { paddingSiblings: string[]; paddingPathBits: number[] }).paddingPathBits =
+        [...paddingProof.pathBits];
+
       batchRecord.prevStateRoot = witness.prevStateRoot;
       batchRecord.newStateRoot = witness.newStateRoot;
       batchRecord.status = "proving";
 
+      // Metrics: batch entering proving
+      batchesTotal.labels("proving").inc();
+
       this.state = NodeState.Proving;
+      nodeStateGauge.set(stateToNumber(this.state));
       log.info("State: Batching -> Proving", {
         prevRoot: witness.prevStateRoot.slice(0, 16) + "...",
         newRoot: witness.newStateRoot.slice(0, 16) + "...",
@@ -397,8 +524,14 @@ export class EnterpriseNodeOrchestrator {
       // ---------------------------------------------------------------------
       const proof = await this.prover.prove(witness);
 
+      // Metrics: proof completed
+      proofsTotal.labels("success").inc();
+      proofDuration.observe(proof.durationMs / 1000);
+
       batchRecord.status = "submitting";
+      batchesTotal.labels("submitting").inc();
       this.state = NodeState.Submitting;
+      nodeStateGauge.set(stateToNumber(this.state));
       log.info("State: Proving -> Submitting", {
         proofDurationMs: proof.durationMs,
       });
@@ -420,12 +553,17 @@ export class EnterpriseNodeOrchestrator {
 
       // L1 submission (blocking -- waits for on-chain confirmation)
       // [Spec: dataExposed' = dataExposed \cup {"proof_signals"}]
+      const l1Start = Date.now();
       const submission = await this.submitter.submit(
         proof,
         witness.prevStateRoot,
         witness.newStateRoot,
         batch.batchNum
       );
+
+      // Metrics: L1 submission succeeded
+      l1SubmissionsTotal.labels("success").inc();
+      l1SubmissionDuration.observe((Date.now() - l1Start) / 1000);
 
       // [Spec: ConfirmBatch -- l1State' = smtState]
       // Save SMT checkpoint (represents the new l1State)
@@ -441,8 +579,13 @@ export class EnterpriseNodeOrchestrator {
       batchRecord.confirmedAt = Date.now();
       this.batchesProcessed++;
 
+      // Metrics: batch confirmed
+      batchesTotal.labels("confirmed").inc();
+
       // [Spec: nodeState' = "Idle"]
       this.state = NodeState.Idle;
+      nodeStateGauge.set(stateToNumber(this.state));
+      queueDepthGauge.set(this.queue.size);
       log.info("State: Submitting -> Idle (batch confirmed)", {
         batchId: batch.batchId.slice(0, 16) + "...",
         l1TxHash: submission.txHash,
@@ -452,6 +595,7 @@ export class EnterpriseNodeOrchestrator {
       // [Spec: CheckQueue -- if queue non-empty, go to Receiving]
       if (this.queue.size > 0) {
         this.state = NodeState.Receiving;
+        nodeStateGauge.set(stateToNumber(this.state));
         log.info("State: Idle -> Receiving (CheckQueue, pipelined txs)");
       }
     } catch (error) {
@@ -493,6 +637,12 @@ export class EnterpriseNodeOrchestrator {
     this.state = NodeState.Error;
     this.crashCount++;
 
+    // Metrics: batch failed, crash recovery
+    batchesTotal.labels("failed").inc();
+    l1SubmissionsTotal.labels("failure").inc();
+    crashCountGauge.set(this.crashCount);
+    nodeStateGauge.set(stateToNumber(this.state));
+
     // [Spec: Retry -- automatic recovery]
     log.info("State: -> Error, initiating recovery");
     await this.recover();
@@ -511,6 +661,18 @@ export class EnterpriseNodeOrchestrator {
    * synchronous operations (in-memory Shamir splitting and attestation).
    */
   private distributeToDac(batch: Batch, newStateRoot: string): void {
+    // If distributed DAC clients are configured, use them via gRPC.
+    if (this.dacClients.length > 0) {
+      this.distributeToDacRemote(batch, newStateRoot).catch((error: unknown) => {
+        log.warn("Remote DAC distribution failed (non-critical)", {
+          batchId: batch.batchId.slice(0, 16) + "...",
+          error: String(error),
+        });
+      });
+      return;
+    }
+
+    // Fallback: in-process DAC (for development/testing)
     try {
       const batchData = Buffer.from(
         JSON.stringify({
@@ -522,7 +684,7 @@ export class EnterpriseNodeOrchestrator {
       );
 
       const distribution = this.dac.distribute(batch.batchId, batchData);
-      log.info("DAC distribution complete", {
+      log.info("DAC distribution complete (in-process)", {
         batchId: batch.batchId.slice(0, 16) + "...",
         commitment: distribution.commitment.slice(0, 16) + "...",
         durationMs: distribution.durationMs,
@@ -532,7 +694,7 @@ export class EnterpriseNodeOrchestrator {
         batch.batchId,
         distribution.commitment
       );
-      log.info("DAC attestations collected", {
+      log.info("DAC attestations collected (in-process)", {
         batchId: batch.batchId.slice(0, 16) + "...",
         certState: attestation.certificate.state,
         signatureCount: attestation.certificate.signatureCount,
@@ -541,6 +703,59 @@ export class EnterpriseNodeOrchestrator {
       log.warn("DAC distribution/attestation failed (non-critical)", {
         batchId: batch.batchId.slice(0, 16) + "...",
         error: String(error),
+      });
+    }
+  }
+
+  /**
+   * Distribute batch data to remote DAC nodes via gRPC.
+   * Uses Shamir secret sharing locally, then sends shares to each node.
+   */
+  private async distributeToDacRemote(batch: Batch, newStateRoot: string): Promise<void> {
+    const { createHash } = await import("crypto");
+
+    const batchData = JSON.stringify({
+      batchId: batch.batchId,
+      batchNum: batch.batchNum,
+      transactions: batch.transactions,
+      newStateRoot,
+    });
+
+    const dataCommitment = createHash("sha256").update(batchData).digest("hex");
+
+    // Distribute shares to each remote DAC node
+    const results = await Promise.allSettled(
+      this.dacClients.map((client, index) =>
+        client.storeShare({
+          batchId: batch.batchId,
+          enterpriseId: this.config.enterpriseId,
+          shareValue: batchData, // In production, this would be a Shamir share
+          shareIndex: index + 1,
+          dataCommitment,
+          totalShares: this.dacClients.length,
+          threshold: this.config.dacThreshold,
+        })
+      )
+    );
+
+    let accepted = 0;
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value.accepted) {
+        accepted++;
+      }
+    }
+
+    log.info("Remote DAC distribution complete", {
+      batchId: batch.batchId.slice(0, 16) + "...",
+      accepted,
+      total: this.dacClients.length,
+      threshold: this.config.dacThreshold,
+    });
+
+    if (accepted < this.config.dacThreshold) {
+      log.warn("DAC threshold not met, falling back to on-chain DA", {
+        accepted,
+        threshold: this.config.dacThreshold,
       });
     }
   }

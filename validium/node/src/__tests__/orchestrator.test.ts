@@ -159,6 +159,7 @@ function testConfig(walDir: string): NodeConfig {
     maxRetries: 3,
     retryBaseDelayMs: 10,
     batchLoopIntervalMs: 50,
+    txConfirmTimeoutMs: 120000,
   };
 }
 

@@ -57,10 +57,14 @@ async function main(): Promise<void> {
   const queue = new TransactionQueue({
     walDir: config.walDir,
     fsyncOnWrite: config.walFsync,
+    hmacKey: config.walHmacKey,
+    encryptionKey: config.walEncryptionKey,
   });
   log.info("Transaction queue initialized", {
     walDir: config.walDir,
     fsync: config.walFsync,
+    hmacEnabled: !!config.walHmacKey,
+    encryptionEnabled: !!config.walEncryptionKey,
   });
 
   // -----------------------------------------------------------------------
@@ -98,6 +102,7 @@ async function main(): Promise<void> {
     contractAddress: config.stateCommitmentAddress,
     maxRetries: config.maxRetries,
     retryBaseDelayMs: config.retryBaseDelayMs,
+    txConfirmTimeoutMs: config.txConfirmTimeoutMs,
   });
 
   // -----------------------------------------------------------------------
@@ -114,6 +119,21 @@ async function main(): Promise<void> {
     threshold: config.dacThreshold,
   });
 
+  // Initialize distributed DAC clients if DAC_ENDPOINTS is set.
+  // Format: "host1:port1,host2:port2,host3:port3"
+  const dacEndpoints = process.env["DAC_ENDPOINTS"];
+  let dacClients: import("./da/dac-client").DACNodeClient[] | undefined;
+  if (dacEndpoints) {
+    const { DACNodeClient } = await import("./da/dac-client");
+    dacClients = dacEndpoints.split(",").map(
+      (endpoint) => new DACNodeClient({ endpoint: endpoint.trim(), timeoutMs: 10000 })
+    );
+    log.info("Distributed DAC clients initialized", {
+      endpoints: dacEndpoints,
+      count: dacClients.length,
+    });
+  }
+
   // -----------------------------------------------------------------------
   // Create Orchestrator
   // [Spec: Init -- all variables initialized]
@@ -126,6 +146,7 @@ async function main(): Promise<void> {
     submitter,
     dac,
     config,
+    dacClients,
   });
 
   // -----------------------------------------------------------------------
@@ -167,8 +188,30 @@ async function main(): Promise<void> {
 
     log.info("Shutdown signal received", { signal });
 
-    // Stop accepting new batches
-    orchestrator.stop();
+    // Safety timeout: if shutdown takes longer than 60s, force exit
+    const safetyTimer = setTimeout(() => {
+      log.error("Shutdown safety timeout exceeded (60s), forcing exit");
+      process.exit(1);
+    }, 60000);
+    // Prevent the safety timer from keeping the process alive if
+    // everything else completes first
+    safetyTimer.unref();
+
+    // Graceful shutdown: stop batch loop and wait for in-progress cycle
+    try {
+      const remaining = await orchestrator.shutdownGraceful(30000);
+      if (remaining > 0) {
+        log.warn("Unprocessed transactions remain in queue", {
+          count: remaining,
+        });
+      } else {
+        log.info("All transactions processed before shutdown");
+      }
+    } catch (error) {
+      log.error("Error during orchestrator graceful shutdown", {
+        error: String(error),
+      });
+    }
 
     // Close API server (stop accepting connections, finish in-flight)
     try {
