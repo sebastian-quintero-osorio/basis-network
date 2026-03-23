@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // ---------------------------------------------------------------------------
@@ -182,8 +181,8 @@ func TestEthSendRawTransaction(t *testing.T) {
 		Value:     big.NewInt(1000),
 	})
 
-	// RLP encode and hex the transaction.
-	rawBytes, _ := rlp.EncodeToBytes(tx)
+	// Serialize the transaction (supports both legacy and typed EIP-2718).
+	rawBytes, _ := tx.MarshalBinary()
 	rawHex := "0x" + hex.EncodeToString(rawBytes)
 
 	w := makeRequest(t, s, "eth_sendRawTransaction", rawHex)

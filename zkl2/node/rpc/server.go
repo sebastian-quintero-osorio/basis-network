@@ -24,7 +24,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // Server is the JSON-RPC 2.0 HTTP server for the Basis L2 node.
@@ -317,10 +316,11 @@ func (s *Server) ethSendRawTransaction(params []json.RawMessage) (interface{}, *
 		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid hex encoding"}
 	}
 
-	// Step 2: RLP decode to *types.Transaction.
+	// Step 2: Decode transaction (supports both legacy RLP and EIP-2718 typed transactions).
+	// go-ethereum's UnmarshalBinary handles: legacy (RLP), EIP-2930 (0x01), EIP-1559 (0x02).
 	var tx types.Transaction
-	if err := rlp.DecodeBytes(rawBytes, &tx); err != nil {
-		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: fmt.Sprintf("invalid RLP: %v", err)}
+	if err := tx.UnmarshalBinary(rawBytes); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: fmt.Sprintf("invalid transaction: %v", err)}
 	}
 
 	// Step 3: Recover sender address from ECDSA signature.
