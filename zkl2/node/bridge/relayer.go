@@ -19,9 +19,11 @@ import (
 // [Spec: zkl2/specs/units/2026-03-bridge/1-formalization/v0-analysis/specs/BasisBridge/BasisBridge.tla]
 // [Spec: BasisBridge.tla, FinalizeBatch -- relayer submits withdraw trie roots]
 type Relayer struct {
-	config         Config
-	logger         *slog.Logger
-	depositHandler DepositHandler
+	config              Config
+	logger              *slog.Logger
+	depositHandler      DepositHandler
+	withdrawalHandler   WithdrawalHandler
+	withdrawRootSubmit  WithdrawRootSubmitter
 
 	// Withdraw trie for the current batch.
 	// [Spec: BasisBridge.tla, finalizedWithdrawals -- finalized set mapped to trie]
@@ -65,9 +67,18 @@ func New(config Config, logger *slog.Logger) (*Relayer, error) {
 }
 
 // OnDeposit registers a callback for processing deposits on L2.
-// The node uses this to connect the relayer to the L2 StateDB.
 func (r *Relayer) OnDeposit(handler DepositHandler) {
 	r.depositHandler = handler
+}
+
+// OnWithdrawal registers a callback for burning balance on L2.
+func (r *Relayer) OnWithdrawal(handler WithdrawalHandler) {
+	r.withdrawalHandler = handler
+}
+
+// OnWithdrawRootSubmit registers a callback for posting withdraw roots to L1.
+func (r *Relayer) OnWithdrawRootSubmit(handler WithdrawRootSubmitter) {
+	r.withdrawRootSubmit = handler
 }
 
 // Start begins the relayer event loops.
@@ -148,6 +159,24 @@ func (r *Relayer) ProcessWithdrawal(withdrawal WithdrawalEvent) error {
 		"l2_block", withdrawal.L2Block,
 	)
 
+	// Step 1: Burn balance on L2 (debit sender).
+	if r.withdrawalHandler != nil {
+		if err := r.withdrawalHandler(withdrawal.Recipient, withdrawal.Amount); err != nil {
+			r.errorsEncountered.Add(1)
+			r.logger.Error("withdrawal L2 burn failed",
+				"recipient", withdrawal.Recipient.Hex(),
+				"amount", withdrawal.Amount.String(),
+				"error", err,
+			)
+			return err
+		}
+		r.logger.Info("withdrawal burned on L2",
+			"recipient", withdrawal.Recipient.Hex(),
+			"amount", withdrawal.Amount.String(),
+		)
+	}
+
+	// Step 2: Add to withdraw trie for L1 claim.
 	r.trieMu.Lock()
 	defer r.trieMu.Unlock()
 
@@ -252,16 +281,29 @@ func (r *Relayer) submitWithdrawRoots() {
 			leafCount := r.withdrawTrie.LeafCount()
 			if leafCount > 0 {
 				root := r.withdrawTrie.Root()
+				leaves := uint64(leafCount)
 				r.logger.Info("withdraw trie root computed",
 					"root", root.Hex(),
-					"leaves", leafCount,
+					"leaves", leaves,
 				)
-				// Production implementation:
-				// 1. Determine the batchId from the latest executed batch on BasisRollup
-				// 2. Submit root via BasisBridge.submitWithdrawRoot(enterprise, batchId, root)
-				// 3. Wait for L1 transaction confirmation
-				// 4. On success, reset the trie for the next batch
-				// 5. On failure, retry with exponential backoff
+
+				// Submit root to BasisBridge.sol on L1.
+				if r.withdrawRootSubmit != nil {
+					if err := r.withdrawRootSubmit(root, leaves); err != nil {
+						r.errorsEncountered.Add(1)
+						r.logger.Error("withdraw root L1 submission failed",
+							"root", root.Hex(),
+							"error", err,
+						)
+						// Don't reset trie -- will retry next cycle.
+						r.trieMu.Unlock()
+						continue
+					}
+					r.logger.Info("withdraw root submitted to L1",
+						"root", root.Hex(),
+						"leaves", leaves,
+					)
+				}
 
 				r.withdrawTrie.Reset()
 				r.withdrawRootsPosted.Add(1)

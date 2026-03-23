@@ -131,6 +131,14 @@ type Metrics struct {
 // The node provides this callback to connect the relayer to the L2 StateDB.
 type DepositHandler func(recipient common.Address, amount *big.Int, depositID uint64) error
 
+// WithdrawalHandler is called when a withdrawal needs to burn balance on L2.
+// Returns error if the user has insufficient balance.
+type WithdrawalHandler func(sender common.Address, amount *big.Int) error
+
+// WithdrawRootSubmitter submits a withdraw trie root to BasisBridge.sol on L1.
+// Called after a batch is executed on BasisRollup.
+type WithdrawRootSubmitter func(root common.Hash, leafCount uint64) error
+
 // Sentinel errors for relayer operations.
 var (
 	ErrMissingEnterprise   = errors.New("enterprise address is required")

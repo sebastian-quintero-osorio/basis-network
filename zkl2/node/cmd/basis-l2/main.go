@@ -287,13 +287,33 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		bridgeRelay = nil
 	} else {
 		// Register deposit handler: credit balance on L2 StateDB
+		// Deposit: credit balance on L2
 		bridgeRelay.OnDeposit(func(recipient common.Address, amount *big.Int, depositID uint64) error {
 			key := statedb.AddressToKey(recipient)
 			current := sdb.GetBalance(key)
 			newBalance := new(big.Int).Add(current, amount)
 			return sdb.SetBalance(key, newBalance)
 		})
-		logger.Info("bridge relayer initialized with L2 credit handler",
+		// Withdrawal: debit balance on L2
+		bridgeRelay.OnWithdrawal(func(sender common.Address, amount *big.Int) error {
+			key := statedb.AddressToKey(sender)
+			current := sdb.GetBalance(key)
+			if current.Cmp(amount) < 0 {
+				return fmt.Errorf("insufficient balance: have %s, want %s", current, amount)
+			}
+			newBalance := new(big.Int).Sub(current, amount)
+			return sdb.SetBalance(key, newBalance)
+		})
+		// Withdraw root: submit to L1 (logged only for now; real submission needs L1 tx)
+		bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+			logger.Info("withdraw root ready for L1 submission",
+				"root", root.Hex(),
+				"leaves", leafCount,
+			)
+			// Real implementation: call BasisBridge.submitWithdrawRoot on L1
+			return nil
+		})
+		logger.Info("bridge relayer initialized with deposit/withdrawal handlers",
 			"bridge_contract", cfg.Contracts.BasisBridge,
 		)
 	}
