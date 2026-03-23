@@ -350,15 +350,32 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 			newBalance := new(big.Int).Sub(current, amount)
 			return sdb.SetBalance(key, newBalance)
 		})
-		// Withdraw root: submit to L1 (logged only for now; real submission needs L1 tx)
-		bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
-			logger.Info("withdraw root ready for L1 submission",
-				"root", root.Hex(),
-				"leaves", leafCount,
+		// Withdraw root: submit to BasisBridge.sol on L1.
+		if cfg.L1.PrivateKey != "" && cfg.Contracts.BasisBridge != "" {
+			l1Bridge, err := bridge.NewL1BridgeClient(
+				cfg.L1.RPCURL, cfg.L1.PrivateKey, cfg.Contracts.BasisBridge,
+				logger.With("component", "bridge-l1"),
 			)
-			// Real implementation: call BasisBridge.submitWithdrawRoot on L1
-			return nil
-		})
+			if err != nil {
+				logger.Warn("L1 bridge client not initialized (withdraw roots will be logged only)",
+					"error", err,
+				)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+					logger.Info("withdraw root ready (no L1 client)", "root", root.Hex(), "leaves", leafCount)
+					return nil
+				})
+			} else {
+				enterprise := common.HexToAddress(cfg.Contracts.BasisBridge)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+					return l1Bridge.SubmitWithdrawRoot(context.Background(), enterprise, leafCount, root)
+				})
+			}
+		} else {
+			bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+				logger.Info("withdraw root ready (no L1 config)", "root", root.Hex(), "leaves", leafCount)
+				return nil
+			})
+		}
 		logger.Info("bridge relayer initialized with deposit/withdrawal handlers",
 			"bridge_contract", cfg.Contracts.BasisBridge,
 		)

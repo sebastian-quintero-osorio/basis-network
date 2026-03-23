@@ -223,6 +223,9 @@ func (r *Relayer) GetMetrics() Metrics {
 // --- Internal event watchers ---
 
 func (r *Relayer) watchL1Deposits() {
+	// L1 deposit events are handled by the L1 Synchronizer (sync/synchronizer.go),
+	// which calls ProcessDeposit via the event handler registered in main.go.
+	// This goroutine is kept for future direct polling if the synchronizer is disabled.
 	ticker := time.NewTicker(r.config.L1PollInterval)
 	defer ticker.Stop()
 
@@ -231,14 +234,9 @@ func (r *Relayer) watchL1Deposits() {
 		case <-r.ctx.Done():
 			return
 		case <-ticker.C:
-			// Production implementation:
-			// 1. Query L1 for DepositInitiated events from lastL1Block+1 to latest
-			// 2. Filter by enterprise address
-			// 3. For each event, call ProcessDeposit
-			// 4. Update lastL1Block cursor
-			// 5. On error, increment errorsEncountered and retry with backoff
-			r.logger.Debug("polling L1 for deposit events",
-				"from_block", r.lastL1Block.Load(),
+			r.logger.Debug("bridge relayer heartbeat",
+				"deposits_processed", r.depositsProcessed.Load(),
+				"last_l1_block", r.lastL1Block.Load(),
 			)
 		}
 	}
