@@ -86,22 +86,31 @@ func TestScanNewBlocks(t *testing.T) {
 		t.Fatalf("expected initial lastBlock 0, got %d", s.lastBlock)
 	}
 
-	// Each scan should increment lastBlock.
+	// Scan should advance lastBlock to the current L1 block number.
+	// This connects to the real Basis Network L1 (Fuji).
 	ctx := context.Background()
-	for i := 0; i < 5; i++ {
-		if err := s.scanNewBlocks(ctx); err != nil {
-			t.Fatalf("scan failed: %v", err)
-		}
+	if err := s.scanNewBlocks(ctx); err != nil {
+		t.Fatalf("scan failed: %v", err)
 	}
 
-	if s.lastBlock != 5 {
-		t.Errorf("expected lastBlock 5 after 5 scans, got %d", s.lastBlock)
+	if s.lastBlock == 0 {
+		t.Error("expected lastBlock > 0 after scan")
+	}
+	t.Logf("lastBlock after scan: %d", s.lastBlock)
+
+	// Second scan should not regress
+	prevBlock := s.lastBlock
+	if err := s.scanNewBlocks(ctx); err != nil {
+		t.Fatalf("second scan failed: %v", err)
+	}
+	if s.lastBlock < prevBlock {
+		t.Errorf("lastBlock regressed: %d -> %d", prevBlock, s.lastBlock)
 	}
 }
 
 func TestStartStop(t *testing.T) {
 	cfg := DefaultConfig()
-	cfg.PollInterval = 10 * time.Millisecond
+	cfg.PollInterval = 2 * time.Second
 	s := New(cfg, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -110,8 +119,8 @@ func TestStartStop(t *testing.T) {
 		t.Fatalf("start failed: %v", err)
 	}
 
-	// Let it scan a few blocks.
-	time.Sleep(50 * time.Millisecond)
+	// Let it complete at least one scan (real L1 call takes ~1s).
+	time.Sleep(5 * time.Second)
 
 	cancel()
 	s.Stop()

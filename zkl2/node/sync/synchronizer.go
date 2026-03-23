@@ -21,8 +21,10 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // Config holds the L1 synchronizer configuration.
@@ -215,26 +217,146 @@ func (s *Synchronizer) pollLoop(ctx context.Context) {
 
 // scanNewBlocks queries L1 for new blocks since lastBlock and processes events.
 //
-// In production, this would use eth_getLogs with a block range and topic filters
-// to efficiently retrieve events from the monitored contracts. The current
-// implementation increments the block counter and logs the scan attempt.
-//
-// Full implementation requires:
-//   - ethclient.Dial to connect to L1
-//   - ethereum.FilterQuery with contract addresses and topics
-//   - Log parsing for each event type
-//   - Dispatching parsed events to registered handlers
+// Connects to L1 via ethclient, queries eth_blockNumber for the latest block,
+// then uses eth_getLogs with topic filters to retrieve events from monitored
+// contracts in the range [lastBlock+1, latestBlock].
 func (s *Synchronizer) scanNewBlocks(ctx context.Context) error {
-	// Increment scan position.
-	// In production, query eth_blockNumber to get the latest L1 block,
-	// then eth_getLogs for the range [lastBlock+1, latestBlock].
-	s.lastBlock++
+	// Connect to L1
+	client, err := ethclient.DialContext(ctx, s.config.L1RPCURL)
+	if err != nil {
+		return fmt.Errorf("L1 dial: %w", err)
+	}
+	defer client.Close()
 
-	s.logger.Debug("scanned L1 block",
-		"block", s.lastBlock,
-		"handlers", len(s.handlers),
+	// Get latest L1 block number
+	latestBlock, err := client.BlockNumber(ctx)
+	if err != nil {
+		return fmt.Errorf("eth_blockNumber: %w", err)
+	}
+
+	// No new blocks since last scan
+	if latestBlock <= s.lastBlock {
+		return nil
+	}
+
+	fromBlock := s.lastBlock + 1
+	toBlock := latestBlock
+
+	// Cap scan range to prevent oversized queries
+	const maxBlockRange = 1000
+	if toBlock-fromBlock > maxBlockRange {
+		toBlock = fromBlock + maxBlockRange
+	}
+
+	// Build filter query for all monitored contract addresses and topics
+	addresses := []common.Address{}
+	if s.config.Contracts.BasisRollup != (common.Address{}) {
+		addresses = append(addresses, s.config.Contracts.BasisRollup)
+	}
+	if s.config.Contracts.BasisBridge != (common.Address{}) {
+		addresses = append(addresses, s.config.Contracts.BasisBridge)
+	}
+	if s.config.Contracts.BasisDAC != (common.Address{}) {
+		addresses = append(addresses, s.config.Contracts.BasisDAC)
+	}
+	if s.config.Contracts.EnterpriseRegistry != (common.Address{}) {
+		addresses = append(addresses, s.config.Contracts.EnterpriseRegistry)
+	}
+
+	if len(addresses) == 0 {
+		s.lastBlock = toBlock
+		return nil
+	}
+
+	query := ethereum.FilterQuery{
+		FromBlock: new(big.Int).SetUint64(fromBlock),
+		ToBlock:   new(big.Int).SetUint64(toBlock),
+		Addresses: addresses,
+		Topics: [][]common.Hash{{
+			s.topicForcedInclusion,
+			s.topicDeposit,
+			s.topicDACAttestation,
+			s.topicEnterpriseRegister,
+		}},
+	}
+
+	logs, err := client.FilterLogs(ctx, query)
+	if err != nil {
+		return fmt.Errorf("eth_getLogs [%d, %d]: %w", fromBlock, toBlock, err)
+	}
+
+	s.logger.Debug("scanned L1 blocks",
+		"from", fromBlock,
+		"to", toBlock,
+		"logs", len(logs),
 	)
 
+	// Parse and dispatch each log
+	for _, log := range logs {
+		if len(log.Topics) == 0 {
+			continue
+		}
+
+		topic := log.Topics[0]
+
+		switch topic {
+		case s.topicForcedInclusion:
+			event := L1Event{
+				Type:        EventForcedInclusion,
+				BlockNumber: log.BlockNumber,
+				TxHash:      log.TxHash,
+				Contract:    log.Address,
+			}
+			// Parse forced inclusion data from log
+			if len(log.Topics) >= 2 {
+				event.Data = ForcedInclusionData{
+					Enterprise: common.BytesToAddress(log.Topics[1].Bytes()),
+					TxData:     log.Data,
+				}
+			}
+			s.dispatchEvent(event)
+
+		case s.topicDeposit:
+			event := L1Event{
+				Type:        EventDeposit,
+				BlockNumber: log.BlockNumber,
+				TxHash:      log.TxHash,
+				Contract:    log.Address,
+			}
+			// Parse deposit data from indexed topics
+			if len(log.Topics) >= 3 && len(log.Data) >= 64 {
+				amount := new(big.Int).SetBytes(log.Data[:32])
+				nonce := new(big.Int).SetBytes(log.Data[32:64]).Uint64()
+				event.Data = DepositData{
+					From:   common.BytesToAddress(log.Topics[1].Bytes()),
+					To:     common.BytesToAddress(log.Topics[2].Bytes()),
+					Amount: amount,
+					Nonce:  nonce,
+				}
+			}
+			s.dispatchEvent(event)
+
+		case s.topicDACAttestation:
+			event := L1Event{
+				Type:        EventDACAttestation,
+				BlockNumber: log.BlockNumber,
+				TxHash:      log.TxHash,
+				Contract:    log.Address,
+			}
+			s.dispatchEvent(event)
+
+		case s.topicEnterpriseRegister:
+			event := L1Event{
+				Type:        EventEnterpriseRegistered,
+				BlockNumber: log.BlockNumber,
+				TxHash:      log.TxHash,
+				Contract:    log.Address,
+			}
+			s.dispatchEvent(event)
+		}
+	}
+
+	s.lastBlock = toBlock
 	return nil
 }
 
