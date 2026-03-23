@@ -22,12 +22,13 @@ fn main() {
         "witness" => run_witness(),
         "prove" => run_prove(),
         "aggregate" => run_aggregate(),
+        "verify" => run_verify(),
         "version" => {
             println!("basis-prover v0.1.0");
             Ok(())
         }
         _ => {
-            eprintln!("Usage: basis-prover <witness|prove|aggregate|version>");
+            eprintln!("Usage: basis-prover <witness|prove|verify|aggregate|version>");
             eprintln!();
             eprintln!("Subcommands:");
             eprintln!("  witness     Generate witness from execution traces (stdin: JSON, stdout: JSON)");
@@ -212,6 +213,83 @@ fn run_aggregate() -> Result<(), Box<dyn std::error::Error>> {
 
     eprintln!("[aggregate] Complete: {} instances folded, satisfiable={}, gas={}, {}ms",
         output.instance_count, output.is_satisfiable, output.estimated_gas, elapsed.as_millis());
+
+    Ok(())
+}
+
+/// Read a ProofResult JSON from stdin, verify the proof off-chain, output verification result.
+fn run_verify() -> Result<(), Box<dyn std::error::Error>> {
+    let start = Instant::now();
+
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input)?;
+    let proof_input: types::ProofResultJSON = serde_json::from_str(&input)?;
+
+    eprintln!("[verify] Verifying proof: {} bytes", proof_input.proof_bytes.len());
+
+    use halo2_proofs::halo2curves::bn256::Fr;
+
+    // Generate same SRS and VK as the prover
+    let k = 8;
+    let params = basis_circuit::srs::generate_srs(k)
+        .map_err(|e| format!("SRS: {}", e))?;
+
+    // Create a template circuit for VK generation (same structure as prover)
+    let vk_circuit = basis_circuit::circuit::BasisCircuit::new(
+        vec![basis_circuit::circuit::CircuitOp::Poseidon {
+            input: Fr::from(0u64),
+            round_constant: Fr::from(0u64),
+        }],
+        Fr::from(0u64),
+        Fr::from(0u64),
+        Fr::from(0u64),
+    );
+
+    let vk = basis_circuit::prover::generate_vk(&params, &vk_circuit)
+        .map_err(|e| format!("VK: {}", e))?;
+
+    // Reconstruct public inputs from proof bytes
+    use halo2_proofs::halo2curves::ff::PrimeField;
+    let mut public_inputs = Vec::new();
+    let pi_bytes = &proof_input.public_inputs;
+    let mut i = 0;
+    while i + 32 <= pi_bytes.len() {
+        let chunk: [u8; 32] = pi_bytes[i..i+32].try_into().unwrap();
+        if let Some(fr) = Fr::from_repr(chunk).into() {
+            public_inputs.push(fr);
+        }
+        i += 32;
+    }
+
+    let proof_data = basis_circuit::types::ProofData {
+        proof: proof_input.proof_bytes.clone(),
+        public_inputs,
+        proof_system: basis_circuit::types::ProofSystem::Plonk,
+    };
+
+    // Verify
+    let valid = basis_circuit::verifier::verify(&params, &vk, &proof_data)
+        .map_err(|e| format!("verify: {}", e))?;
+
+    let elapsed = start.elapsed();
+
+    #[derive(serde::Serialize)]
+    struct VerifyResult {
+        valid: bool,
+        proof_size_bytes: usize,
+        verification_time_ms: u64,
+    }
+
+    let result = VerifyResult {
+        valid,
+        proof_size_bytes: proof_input.proof_bytes.len(),
+        verification_time_ms: elapsed.as_millis() as u64,
+    };
+
+    serde_json::to_writer(io::stdout(), &result)?;
+    io::stdout().flush()?;
+
+    eprintln!("[verify] Result: valid={}, {}ms", valid, elapsed.as_millis());
 
     Ok(())
 }

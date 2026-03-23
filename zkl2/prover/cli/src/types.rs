@@ -67,7 +67,7 @@ pub struct WitnessResultJSON {
 }
 
 /// Output from the prover.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ProofResultJSON {
     pub proof_bytes: Vec<u8>,
     pub public_inputs: Vec<u8>,
