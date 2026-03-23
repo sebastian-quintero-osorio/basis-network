@@ -35,6 +35,7 @@ import (
 	"basis-network/zkl2/node/rpc"
 	"basis-network/zkl2/node/sequencer"
 	"basis-network/zkl2/node/statedb"
+	nodesync "basis-network/zkl2/node/sync"
 )
 
 var (
@@ -142,6 +143,7 @@ type Node struct {
 	pipeline  *pipeline.Orchestrator
 	rpcServer *rpc.Server
 	backend   *NodeBackend
+	l1Sync    *nodesync.Synchronizer
 	stopCh    chan struct{}
 }
 
@@ -256,6 +258,38 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		"port", cfg.RPC.Port,
 	)
 
+	// 5. Initialize L1 Synchronizer for forced inclusion and deposit detection.
+	syncCfg := nodesync.DefaultConfig()
+	syncCfg.L1RPCURL = cfg.L1.RPCURL
+	syncCfg.Contracts = nodesync.ContractAddresses{
+		BasisRollup:        common.HexToAddress(cfg.Contracts.BasisRollup),
+		BasisBridge:        common.HexToAddress(cfg.Contracts.BasisBridge),
+		BasisDAC:           common.HexToAddress(cfg.Contracts.BasisDAC),
+		EnterpriseRegistry: common.HexToAddress(cfg.Contracts.EnterpriseRegistry),
+	}
+	l1Sync := nodesync.New(syncCfg, logger.With("component", "l1-sync"))
+
+	// Register event handlers
+	l1Sync.OnEvent(nodesync.EventForcedInclusion, func(event nodesync.L1Event) {
+		logger.Info("forced inclusion received from L1",
+			"block", event.BlockNumber,
+			"tx", event.TxHash.Hex()[:10],
+		)
+		// Forward to sequencer forced inclusion queue (future: parse and enqueue)
+	})
+	l1Sync.OnEvent(nodesync.EventDeposit, func(event nodesync.L1Event) {
+		logger.Info("deposit detected on L1",
+			"block", event.BlockNumber,
+			"tx", event.TxHash.Hex()[:10],
+		)
+		// Forward to bridge relayer (future: credit on L2)
+	})
+	logger.Info("L1 synchronizer initialized",
+		"rpc", cfg.L1.RPCURL,
+		"rollup", cfg.Contracts.BasisRollup,
+		"bridge", cfg.Contracts.BasisBridge,
+	)
+
 	return &Node{
 		cfg:       cfg,
 		logger:    logger,
@@ -266,6 +300,7 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		pipeline:  orch,
 		rpcServer: rpcServer,
 		backend:   backend,
+		l1Sync:    l1Sync,
 		stopCh:    make(chan struct{}),
 	}, nil
 }
@@ -275,6 +310,11 @@ func (n *Node) Start(ctx context.Context) error {
 	// Start the JSON-RPC server.
 	if err := n.rpcServer.Start(); err != nil {
 		return fmt.Errorf("start rpc server: %w", err)
+	}
+
+	// Start the L1 synchronizer (polls for forced inclusion and deposits).
+	if err := n.l1Sync.Start(ctx); err != nil {
+		return fmt.Errorf("start l1 sync: %w", err)
 	}
 
 	// Start the block production loop.
@@ -287,6 +327,7 @@ func (n *Node) Start(ctx context.Context) error {
 func (n *Node) Stop(ctx context.Context) error {
 	n.logger.Info("shutting down node components")
 	close(n.stopCh)
+	n.l1Sync.Stop()
 	if err := n.rpcServer.Stop(ctx); err != nil {
 		n.logger.Error("rpc server shutdown error", "error", err)
 	}
