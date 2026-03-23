@@ -54,7 +54,9 @@ export class DACNodeClient {
   constructor(config: DACClientConfig) {
     this.config = config;
 
-    const PROTO_PATH = path.resolve(__dirname, "../../dac-node/proto/dac.proto");
+    // Proto file is at validium/dac-node/proto/dac.proto.
+    // When running from validium/node/ (dev or production), resolve relative to cwd.
+    const PROTO_PATH = path.resolve(process.cwd(), "../dac-node/proto/dac.proto");
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
       keepCase: true,
       longs: String,
