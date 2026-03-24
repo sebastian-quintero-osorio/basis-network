@@ -924,7 +924,7 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "ecs_d", config.d, row, || Value::known(*size))?;
                             assigned_cells.push(c_cell);
                         }
-                        CircuitOp::ExtCodeCopy { address, dest, offset, size } => {
+                        CircuitOp::ExtCodeCopy { address, dest, offset: _, size } => {
                             config.q_extcodecopy.enable(&mut region, row)?;
                             region.assign_advice(|| "ecc_a", config.a, row, || Value::known(*address))?;
                             region.assign_advice(|| "ecc_b", config.b, row, || Value::known(*dest))?;

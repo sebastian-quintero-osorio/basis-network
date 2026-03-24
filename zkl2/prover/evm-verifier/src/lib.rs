@@ -66,7 +66,7 @@ pub fn decompress_proof_for_evm(
     }
 
     // 2. Convert scalar evaluations from little-endian to big-endian
-    for i in 0..num_evaluations {
+    for _i in 0..num_evaluations {
         let chunk = &proof[offset..offset + scalar_size];
         let mut be_scalar = [0u8; 32];
         for j in 0..32 {
@@ -511,6 +511,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore] // Requires solc in PATH -- run manually with: cargo test -- --ignored
     fn e2e_prove_and_verify_on_evm() {
         use halo2_solidity_verifier::{encode_calldata, Evm};
 
