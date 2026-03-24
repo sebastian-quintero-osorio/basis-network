@@ -456,6 +456,51 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		}
 	}
 
+	// 9. Initialize L1 DAC client (optional, when BasisDAC contract is configured).
+	if cfg.Contracts.BasisDAC != "" {
+		dacL1, err := da.NewL1DACClient(
+			cfg.L1.RPCURL, cfg.L1.PrivateKey, cfg.Contracts.BasisDAC,
+			logger.With("component", "dac-l1"),
+		)
+		if err != nil {
+			logger.Warn("DAC L1 client not initialized (non-critical)", "error", err)
+		} else {
+			orch.OnBatchFinalized(func(batchID uint64, dataHash common.Hash, sigs [][]byte, signers []common.Address) {
+				go func() {
+					if err := dacL1.SubmitCertificate(context.Background(), batchID, dataHash, sigs, signers); err != nil {
+						logger.Warn("DAC L1 certificate submission failed (non-critical)", "batch_id", batchID, "error", err)
+					}
+				}()
+			})
+		}
+	}
+
+	// 10. Initialize L1 Hub client (optional, when BasisHub contract is configured).
+	if cfg.Contracts.BasisHub != "" && crossHub != nil {
+		hubL1, err := cross.NewL1HubClient(
+			cfg.L1.RPCURL, cfg.L1.PrivateKey, cfg.Contracts.BasisHub,
+			logger.With("component", "hub-l1"),
+		)
+		if err != nil {
+			logger.Warn("Hub L1 client not initialized (non-critical)", "error", err)
+		} else {
+			crossHub.SetL1Client(hubL1)
+		}
+	}
+
+	// 11. Initialize L1 Aggregator client (optional, when BasisAggregator contract is configured).
+	if cfg.Contracts.BasisAggregator != "" {
+		aggL1, err := pipeline.NewL1AggregatorClient(
+			cfg.L1.RPCURL, cfg.L1.PrivateKey, cfg.Contracts.BasisAggregator,
+			logger.With("component", "aggregator-l1"),
+		)
+		if err != nil {
+			logger.Warn("Aggregator L1 client not initialized (non-critical)", "error", err)
+		} else {
+			orch.SetAggregatorL1Client(aggL1)
+		}
+	}
+
 	// Register L1 synchronizer event handlers
 	l1Sync.OnEvent(nodesync.EventForcedInclusion, func(event nodesync.L1Event) {
 		logger.Info("forced inclusion received from L1",
