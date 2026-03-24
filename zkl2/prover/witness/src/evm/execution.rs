@@ -13,7 +13,6 @@
 //! EVM opcode was executed correctly given the input state.
 
 use ark_bn254::Fr;
-use ark_ff::PrimeField;
 
 use crate::error::WitnessResult;
 use crate::types::{TraceEntry, TraceOp, WitnessRow};

@@ -42,7 +42,7 @@ pub fn verify(
     vk: &VerifyingKey<G1Affine>,
     proof_data: &ProofData,
 ) -> CircuitResult<bool> {
-    let instances = vec![proof_data.public_inputs.clone()];
+    let instances = [proof_data.public_inputs.clone()];
     let instance_refs: Vec<&[Fr]> = instances.iter().map(|v| v.as_slice()).collect();
 
     let mut transcript =
