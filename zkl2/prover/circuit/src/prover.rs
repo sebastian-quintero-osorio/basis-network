@@ -15,6 +15,7 @@ use halo2_proofs::{
     poly::kzg::{commitment::ParamsKZG, multiopen::ProverSHPLONK},
     transcript::{Blake2bWrite, Challenge255, TranscriptWriterBuffer},
 };
+use halo2_solidity_verifier::Keccak256Transcript;
 use rand::rngs::OsRng;
 
 use crate::circuit::BasisCircuit;
@@ -104,6 +105,54 @@ pub fn create_proof(
         public_inputs,
         proof_system: ProofSystem::Plonk,
     })
+}
+
+/// Generate a PLONK proof using Keccak256 transcript for EVM verification.
+///
+/// This produces a proof compatible with the generated Halo2Verifier.sol contract,
+/// which uses Keccak256 for Fiat-Shamir challenge derivation (not Blake2b).
+/// The EVM does not have a Blake2b precompile, so on-chain verifiers must use Keccak256.
+pub fn create_proof_evm(
+    params: &ParamsKZG<Bn256>,
+    pk: &ProvingKey<G1Affine>,
+    circuit: BasisCircuit,
+) -> CircuitResult<ProofData> {
+    let public_inputs = vec![
+        circuit.pre_state_root,
+        circuit.post_state_root,
+        circuit.batch_hash,
+    ];
+
+    let instances = [public_inputs.clone()];
+    let instance_refs: Vec<&[Fr]> = instances.iter().map(|v| v.as_slice()).collect();
+
+    // Use Keccak256 transcript for EVM compatibility
+    let mut transcript = Keccak256Transcript::new(vec![]);
+
+    plonk::create_proof::<_, ProverSHPLONK<Bn256>, _, _, _, _>(
+        params,
+        pk,
+        &[circuit],
+        &[instance_refs.as_slice()],
+        OsRng,
+        &mut transcript,
+    )
+    .map_err(|e| CircuitError::ProofGenerationFailed(format!("PLONK-Keccak proof failed: {}", e)))?;
+
+    let proof_bytes = transcript.finalize();
+
+    Ok(ProofData {
+        proof: proof_bytes,
+        public_inputs,
+        proof_system: ProofSystem::Plonk,
+    })
+}
+
+/// Convenience function: keygen + prove in one step (Keccak256 transcript, EVM-compatible).
+pub fn prove_evm(params: &ParamsKZG<Bn256>, circuit: BasisCircuit) -> CircuitResult<ProofData> {
+    let vk = generate_vk(params, &circuit)?;
+    let pk = generate_pk(params, vk, &circuit)?;
+    create_proof_evm(params, &pk, circuit)
 }
 
 /// Convenience function: keygen + prove in one step.

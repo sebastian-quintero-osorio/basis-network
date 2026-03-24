@@ -80,6 +80,11 @@ pub struct ProofResultJSON {
     pub proof_bytes: Vec<u8>,
     #[serde(deserialize_with = "deserialize_bytes")]
     pub public_inputs: Vec<u8>,
+    /// EVM-formatted proof with decompressed G1 points (64 bytes each instead of 32).
+    /// Use this for on-chain submission to the Halo2Verifier contract.
+    /// If empty, proof_bytes should be decompressed before on-chain use.
+    #[serde(default, deserialize_with = "deserialize_bytes")]
+    pub evm_proof_bytes: Vec<u8>,
     pub proof_size_bytes: u64,
     pub constraint_count: u64,
     pub generation_time_ms: u64,

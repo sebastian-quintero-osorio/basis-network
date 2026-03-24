@@ -164,7 +164,9 @@ fn run_prove() -> Result<(), Box<dyn std::error::Error>> {
     let params = load_or_generate_srs(k)?;
 
     eprintln!("[prove] Generating proving key...");
-    let proof_data = basis_circuit::prover::prove(&params, circuit)
+    // Use Keccak256 transcript for EVM-compatible proofs.
+    // The generated Halo2Verifier.sol uses Keccak256 for Fiat-Shamir challenges.
+    let proof_data = basis_circuit::prover::prove_evm(&params, circuit)
         .map_err(|e| format!("Proof generation failed: {}", e))?;
 
     let elapsed = start.elapsed();
@@ -181,9 +183,23 @@ fn run_prove() -> Result<(), Box<dyn std::error::Error>> {
     // The real proof is already generated above.
     let constraint_count = witness_input.total_rows * 100;
 
+    // Decompress proof for EVM: convert compressed G1 points (32 bytes) to
+    // uncompressed (64 bytes) as required by the generated Halo2Verifier.sol.
+    // Circuit layout: 12 G1 commitments + 35 scalar evaluations + 2 SHPLONK openings
+    let evm_proof = basis_evm_verifier::decompress_proof_for_evm(
+        &proof_data.proof, 12, 35, 2
+    ).unwrap_or_else(|e| {
+        eprintln!("[prove] Warning: EVM proof decompression failed: {}. On-chain verification may fail.", e);
+        Vec::new()
+    });
+    if !evm_proof.is_empty() {
+        eprintln!("[prove] EVM proof: {} bytes (decompressed from {})", evm_proof.len(), proof_size);
+    }
+
     let output = types::ProofResultJSON {
         proof_bytes: proof_data.proof,
         public_inputs: public_input_bytes,
+        evm_proof_bytes: evm_proof,
         proof_size_bytes: proof_size,
         constraint_count,
         generation_time_ms: elapsed.as_millis() as u64,
@@ -300,8 +316,8 @@ fn run_verify() -> Result<(), Box<dyn std::error::Error>> {
         proof_system: basis_circuit::types::ProofSystem::Plonk,
     };
 
-    // Verify
-    let valid = basis_circuit::verifier::verify(&params, &vk, &proof_data)
+    // Verify using Keccak256 transcript (matches EVM verifier)
+    let valid = basis_circuit::verifier::verify_evm(&params, &vk, &proof_data)
         .map_err(|e| format!("verify: {}", e))?;
 
     let elapsed = start.elapsed();

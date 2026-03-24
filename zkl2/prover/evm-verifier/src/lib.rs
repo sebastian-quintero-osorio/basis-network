@@ -11,9 +11,151 @@
 use basis_circuit::circuit::{BasisCircuit, CircuitOp};
 use basis_circuit::srs::generate_srs;
 use basis_circuit::prover::generate_vk;
-use halo2_proofs::halo2curves::bn256::Fr;
+use halo2_proofs::halo2curves::bn256::{Fr, G1Affine};
+use halo2_proofs::halo2curves::ff::PrimeField;
+use halo2_proofs::halo2curves::group::GroupEncoding;
+use halo2_proofs::halo2curves::CurveAffine;
 use halo2_proofs::SerdeFormat;
-use halo2_solidity_verifier::{BatchOpenScheme::Bdfg21, SolidityGenerator};
+use halo2_solidity_verifier::{BatchOpenScheme::Bdfg21, SolidityGenerator, encode_calldata};
+
+/// Decompress a halo2 proof from compressed G1 points (32 bytes each) to
+/// uncompressed format (64 bytes: x + y coordinates) required by the
+/// EVM pairing precompile and the generated Halo2Verifier.sol contract.
+///
+/// The halo2 transcript writes G1 points as `to_bytes()` (32-byte compressed)
+/// and scalars as `to_repr()` (32-byte little-endian). The generated Solidity
+/// verifier reads G1 points as (x, y) pairs (64 bytes) from calldata.
+///
+/// Layout of halo2 SHPLONK proof: [G1 commitments...] [scalar evaluations...] [G1 SHPLONK W, W']
+/// This function detects which 32-byte chunks are G1 points (by attempting
+/// decompression) and expands them to 64 bytes.
+///
+/// # Arguments
+/// * `proof` - Raw proof bytes from halo2's `create_proof()`
+/// * `num_g1_commitments` - Number of G1 points before the evaluations section
+/// * `num_evaluations` - Number of scalar field evaluations
+/// * `num_g1_opening` - Number of G1 opening proof points (typically 2 for SHPLONK)
+pub fn decompress_proof_for_evm(
+    proof: &[u8],
+    num_g1_commitments: usize,
+    num_evaluations: usize,
+    num_g1_opening: usize,
+) -> Result<Vec<u8>, String> {
+    let compressed_point_size = 32; // G1Affine::to_bytes() = 32 bytes compressed
+    let scalar_size = 32;           // Fr::to_repr() = 32 bytes
+    let expected_len = (num_g1_commitments + num_g1_opening) * compressed_point_size
+        + num_evaluations * scalar_size;
+
+    if proof.len() != expected_len {
+        return Err(format!(
+            "proof size mismatch: got {} bytes, expected {} ({} G1 + {} evals + {} opening)",
+            proof.len(), expected_len, num_g1_commitments, num_evaluations, num_g1_opening
+        ));
+    }
+
+    let mut result = Vec::new();
+    let mut offset = 0;
+
+    // 1. Decompress G1 commitment points
+    for i in 0..num_g1_commitments {
+        let chunk = &proof[offset..offset + compressed_point_size];
+        let point = decompress_g1(chunk)
+            .map_err(|e| format!("G1 commitment #{}: {}", i, e))?;
+        result.extend_from_slice(&point);
+        offset += compressed_point_size;
+    }
+
+    // 2. Convert scalar evaluations from little-endian to big-endian
+    for i in 0..num_evaluations {
+        let chunk = &proof[offset..offset + scalar_size];
+        let mut be_scalar = [0u8; 32];
+        for j in 0..32 {
+            be_scalar[j] = chunk[31 - j];
+        }
+        result.extend_from_slice(&be_scalar);
+        offset += scalar_size;
+    }
+
+    // 3. Decompress G1 opening proof points (W, W')
+    for i in 0..num_g1_opening {
+        let chunk = &proof[offset..offset + compressed_point_size];
+        let point = decompress_g1(chunk)
+            .map_err(|e| format!("G1 opening #{}: {}", i, e))?;
+        result.extend_from_slice(&point);
+        offset += compressed_point_size;
+    }
+
+    Ok(result)
+}
+
+/// Convert a G1 point from halo2's transcript format to the 64-byte uncompressed
+/// format expected by EVM precompiles (big-endian x, big-endian y).
+///
+/// In halo2curves for BN254, G1Affine::to_bytes() produces a 32-byte compressed
+/// representation. However, the transcript write_point calls to_bytes() which uses
+/// the GroupEncoding trait. We need to check the actual byte count.
+fn decompress_g1(chunk: &[u8]) -> Result<[u8; 64], String> {
+    if chunk.iter().all(|&b| b == 0) {
+        return Ok([0u8; 64]);
+    }
+
+    // In PSE halo2curves for BN254, G1Affine::to_bytes() returns the compressed
+    // representation. The size depends on the curve implementation.
+    // For BN254 G1: compressed = 32 bytes (x + sign in high bit)
+    //
+    // We use from_bytes to decompress, but need the correct Repr type.
+    // Instead, we use the to_bytes/from_bytes roundtrip via the GroupEncoding trait.
+    let mut repr = <G1Affine as GroupEncoding>::Repr::default();
+    let repr_bytes = repr.as_mut();
+    if chunk.len() != repr_bytes.len() {
+        return Err(format!(
+            "chunk size {} != G1 repr size {}", chunk.len(), repr_bytes.len()
+        ));
+    }
+    repr_bytes.copy_from_slice(chunk);
+
+    let point = G1Affine::from_bytes(&repr);
+    if bool::from(point.is_none()) {
+        return Err("failed to decompress G1 point from bytes".to_string());
+    }
+    let point = point.unwrap();
+
+    let coords = point.coordinates();
+    if bool::from(coords.is_none()) {
+        return Err("point at infinity (unexpected)".to_string());
+    }
+    let coords = coords.unwrap();
+
+    let x_repr = coords.x().to_repr();
+    let y_repr = coords.y().to_repr();
+
+    let mut result = [0u8; 64];
+    // halo2curves stores field elements in little-endian; EVM expects big-endian
+    for i in 0..32 {
+        result[i] = x_repr[31 - i];
+        result[32 + i] = y_repr[31 - i];
+    }
+    Ok(result)
+}
+
+/// Encode proof and instances into the exact calldata format expected by the
+/// generated Halo2Verifier.sol contract. This uses halo2-solidity-verifier's
+/// own `encode_calldata()` to guarantee format compatibility.
+///
+/// # Arguments
+/// * `vk_address` - Address of the deployed Halo2VerifyingKey contract (20 bytes)
+/// * `proof` - Raw proof bytes from halo2's `create_proof()`
+/// * `instances` - Public inputs as Fr field elements
+///
+/// # Returns
+/// Complete ABI-encoded calldata for `verifyProof(address vk, bytes proof, uint256[] instances)`
+pub fn encode_proof_calldata(
+    vk_address: [u8; 20],
+    proof: &[u8],
+    instances: &[Fr],
+) -> Vec<u8> {
+    encode_calldata(Some(vk_address), proof, instances)
+}
 
 /// VK export data for configuring the on-chain PlonkVerifier.sol.
 pub struct VKExport {
@@ -205,6 +347,89 @@ mod tests {
     use super::*;
 
     #[test]
+    fn verify_g1_decompression_correctness() {
+        // Use the BN254 G1 generator as test vector
+        let generator = G1Affine::generator();
+        let compressed = generator.to_bytes();
+        println!("G1 generator compressed ({} bytes): {:?}", compressed.as_ref().len(), &compressed.as_ref()[..8]);
+
+        // Known G1 generator coordinates (big-endian)
+        // x = 1, y = 2
+        let result = decompress_g1(compressed.as_ref()).expect("decompress");
+        println!("Decompressed x (first 4 bytes BE): {:02x}{:02x}{:02x}{:02x}", result[28], result[29], result[30], result[31]);
+        println!("Decompressed y (first 4 bytes BE): {:02x}{:02x}{:02x}{:02x}", result[60], result[61], result[62], result[63]);
+
+        // G1 generator: x=1, y=2
+        // In big-endian 32 bytes: x should end with 01, y should end with 02
+        assert_eq!(result[31], 0x01, "x should be 1");
+        assert_eq!(result[63], 0x02, "y should be 2");
+        println!("G1 generator decompression verified: x=1, y=2");
+    }
+
+    #[test]
+    fn encode_calldata_test() {
+        let k = 8u32;
+        let srs_path = "../node/srs_k8.bin";
+        let params = if let Ok(bytes) = std::fs::read(srs_path) {
+            basis_circuit::srs::load_srs(&bytes).expect("load SRS")
+        } else {
+            basis_circuit::srs::generate_srs(k).expect("SRS")
+        };
+        let circuit = BasisCircuit::new(
+            vec![CircuitOp::Poseidon { input: Fr::from(42u64), round_constant: Fr::from(43u64) }],
+            Fr::from(42u64), Fr::from(43u64), Fr::from(100u64),
+        );
+        let proof = basis_circuit::prover::prove(&params, circuit).expect("prove");
+        println!("Proof size: {} bytes", proof.proof.len());
+
+        let vk_addr = [0u8; 20]; // dummy VK address
+        let calldata = encode_proof_calldata(vk_addr, &proof.proof, &proof.public_inputs);
+        println!("Calldata size: {} bytes", calldata.len());
+
+        // The calldata should be: 4 (fn_sig) + 32 (vk_addr) + 32 (proof_offset) + 32 (instances_offset)
+        //   + 32 (proof_len) + proof.len() + 32 (num_instances) + 3*32 (instances)
+        let expected = 4 + 32 + 32 + 32 + 32 + proof.proof.len() + 32 + 3*32;
+        println!("Expected calldata: {} bytes", expected);
+        println!("Proof in calldata = proof.len() = {} (not decompressed)", proof.proof.len());
+
+        // The calldata contains the compressed proof as-is
+        // But the verifier expects 2016 bytes of proof. Let's check what proof_len
+        // the calldata encodes.
+        // The proof_len is at offset 4+32+32+32 = 100 = 0x64
+        if calldata.len() >= 132 {
+            let proof_len_in_calldata = u32::from_be_bytes([
+                calldata[100], calldata[101], calldata[102], calldata[103],
+            ]);
+            println!("proof_len in calldata: {} (verifier expects: 2016)", proof_len_in_calldata);
+        }
+    }
+
+    #[test]
+    fn decompress_proof_produces_correct_size() {
+        let k = 8u32;
+        let srs_path = "../node/srs_k8.bin";
+        let params = if let Ok(bytes) = std::fs::read(srs_path) {
+            basis_circuit::srs::load_srs(&bytes).expect("load SRS")
+        } else {
+            basis_circuit::srs::generate_srs(k).expect("SRS")
+        };
+        let circuit = BasisCircuit::new(
+            vec![CircuitOp::Poseidon { input: Fr::from(42u64), round_constant: Fr::from(43u64) }],
+            Fr::from(42u64), Fr::from(43u64), Fr::from(100u64),
+        );
+        let proof = basis_circuit::prover::prove(&params, circuit).expect("prove");
+        println!("Compressed proof: {} bytes", proof.proof.len());
+
+        // Circuit has: 4 advice + 2 perm_z + 1 random + 5 quotient = 12 commitment G1
+        // Plus 2 SHPLONK opening G1 = 14 total G1, 35 evals
+        // Compressed: 14*32 + 35*32 = 1568
+        // Decompressed: 14*64 + 35*32 = 2016
+        let decompressed = decompress_proof_for_evm(&proof.proof, 12, 35, 2).expect("decompress");
+        println!("Decompressed proof: {} bytes", decompressed.len());
+        assert_eq!(decompressed.len(), 2016, "decompressed proof should be 2016 bytes");
+    }
+
+    #[test]
     fn diagnose_circuit_proof_size() {
         let k = 8u32;
         let srs_path = "../node/srs_k8.bin";
@@ -287,7 +512,7 @@ mod tests {
 
     #[test]
     fn e2e_prove_and_verify_on_evm() {
-        use halo2_solidity_verifier::{compile_solidity, encode_calldata, Evm};
+        use halo2_solidity_verifier::{encode_calldata, Evm};
 
         let k = 8u32;
 
@@ -310,8 +535,9 @@ mod tests {
             }],
             pre, post, batch,
         );
-        let proof_data = basis_circuit::prover::prove(&params, circuit).expect("prove");
-        println!("Proof size: {} bytes", proof_data.proof.len());
+        // Use Keccak256 transcript (matches the generated Solidity verifier)
+        let proof_data = basis_circuit::prover::prove_evm(&params, circuit).expect("prove");
+        println!("Proof size: {} bytes (Keccak256 transcript)", proof_data.proof.len());
 
         // 3. Generate verifier from same params + VK
         let vk_circuit = BasisCircuit::new(
@@ -323,11 +549,44 @@ mod tests {
         );
         let vk = basis_circuit::prover::generate_vk(&params, &vk_circuit).expect("VK");
         let generator = SolidityGenerator::new(&params, &vk, Bdfg21, proof_data.public_inputs.len());
-        let (verifier_sol, vk_sol) = generator.render_separately().expect("render");
+        let (verifier_sol, _vk_sol) = generator.render_separately().expect("render");
 
-        // 4. Compile Solidity
-        let vk_bytecode = compile_solidity(&vk_sol);
-        let verifier_bytecode = compile_solidity(&verifier_sol);
+        // 4. Compile Solidity using solc on PATH
+        // Windows fix: strip \r from solc output
+        use std::io::Write as IoWrite;
+        use std::process::Command;
+        let mut solc = Command::new("solc")
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .arg("--bin").arg("--optimize").arg("-")
+            .spawn().expect("spawn solc");
+        solc.stdin.take().unwrap().write_all(verifier_sol.as_bytes()).unwrap();
+        let out = solc.wait_with_output().unwrap();
+        let stdout = String::from_utf8(out.stdout).unwrap().replace('\r', "");
+        let vk_circuit2 = BasisCircuit::new(
+            vec![CircuitOp::Poseidon { input: Fr::from(0u64), round_constant: Fr::from(0u64) }],
+            Fr::from(0u64), Fr::from(0u64), Fr::from(0u64),
+        );
+        // Re-render VK separately for compilation
+        let generator2 = SolidityGenerator::new(&params, &vk, Bdfg21, 3);
+        let (_, vk_sol2) = generator2.render_separately().expect("render vk");
+        let mut solc2 = Command::new("solc")
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .arg("--bin").arg("--optimize").arg("-")
+            .spawn().expect("spawn solc");
+        solc2.stdin.take().unwrap().write_all(vk_sol2.as_bytes()).unwrap();
+        let out2 = solc2.wait_with_output().unwrap();
+        let stdout2 = String::from_utf8(out2.stdout).unwrap().replace('\r', "");
+
+        fn find_binary(stdout: &str) -> Vec<u8> {
+            let start = stdout.find("Binary:").expect("find Binary:") + 8;
+            hex::decode(stdout[start..].trim()).expect("decode hex")
+        }
+        let verifier_bytecode = find_binary(&stdout);
+        let vk_bytecode = find_binary(&stdout2);
         println!("VK bytecode: {} bytes, Verifier bytecode: {} bytes", vk_bytecode.len(), verifier_bytecode.len());
 
         // 5. Deploy and verify on EVM

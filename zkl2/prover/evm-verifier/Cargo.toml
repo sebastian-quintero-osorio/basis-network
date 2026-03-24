@@ -10,3 +10,7 @@ basis-circuit = { path = "../circuit" }
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
 halo2_solidity_verifier = { git = "https://github.com/privacy-scaling-explorations/halo2-solidity-verifier", features = ["evm"] }
 rand = "0.8"
+
+[dev-dependencies]
+hex = "0.4"
+serde_json = "1"
