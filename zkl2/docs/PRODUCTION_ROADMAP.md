@@ -1,6 +1,6 @@
 # zkL2: Complete Production Roadmap
 
-## Current State: ~93% (Updated 2026-03-24)
+## Current State: ~95% (Updated 2026-03-24)
 
 The full E2E pipeline has been **verified on Basis Network L1 (Fuji)** on 2026-03-23:
 tx -> EVM execute -> witness (9ms, 2 rows) -> PLONK-KZG prove (86ms, 1376 bytes) ->
@@ -13,20 +13,21 @@ Contract deployment E2E also verified.
 G2 points extracted from prover's srs_k8.bin. L1 commitBatch succeeds (149K gas) via
 the real pipeline. L1 submitter has idempotent retry logic.
 
-**REMAINING ISSUE:** proveBatchV2 reverts because PlonkVerifier.sol implements a
-simplified KZG opening check (`e(-W,[s]_2)*e(C+zW,-[1]_2)==1`) that does not match
-the full Halo2 PLONK proof format (which includes multiple polynomial commitments,
-linearization, and multi-opening arguments). The Rust prover generates valid proofs
-(off-chain verification passes), but the on-chain verifier needs to be regenerated
-using `snark-verifier` or `halo2-solidity-verifier` to produce a Halo2-compatible
-Solidity verifier contract. This is a well-known step in Halo2-based zkEVM projects
-(Scroll, PSE zkEVM use generated Solidity verifiers, not hand-written ones).
+**RESOLVED (2026-03-24):** Full E2E ZK proof verification on-chain COMPLETE.
+  committedBatches=1, provenBatches=1, executedBatches=1
+  Total gas: 735K (commit 149K + prove 515K + execute 70K), 5.99s
+  State root advanced from genesis to post-batch root.
+  REAL Halo2 PLONK-KZG proof verified via EIP-197 pairing precompile.
+
+Root causes fixed:
+1. Transcript: Blake2b -> Keccak256 (EVM compatibility)
+2. Verifier: halo2-solidity-verifier (PSE) generates self-contained Solidity verifier
+3. Wrapper: fixed to 2-param interface matching self-contained verifier
 
 Deployed contracts (2026-03-24) -- Halo2 Generated Verifier Stack:
-- Halo2VerifyingKey: 0x5a04689914cf2288e80d6829eb2Ee303E5361BB5
-- Halo2Verifier: 0x49a2Ad282b541BC20DFF616551F2104141D91936
-- Halo2PlonkVerifier (wrapper): 0x1EdeB00f1420a6589Feb72d1CB1134D1d1A02FB8
-- BasisRollupV2: 0xc028f04f477A53d64C181e3d9CC79A1e1b4Bd562
+- Halo2Verifier (self-contained, Keccak256): 0x53C42dC2E9459CE21A1A321cC51ba92D28E4FAE7
+- Halo2PlonkVerifier (2-param wrapper): 0x361CBD8714180acF6d2230837893CED779045Db6
+- BasisRollupV2 (E2E verified): 0xE5D257e10616B30282b67e0D2367216aC89623B4
 
 **Recent changes (2026-03-23/24):**
 - PlonkVerifier.sol upgraded to real KZG pairing verification (EIP-197 precompiles)
@@ -450,8 +451,8 @@ via `prepareMessage()` and `settleMessage()`. Wired into main.go via
 
 The zkL2 is 100% production-ready when:
 1. Full EVM circuit covers all Cancun opcodes (or adopted from PSE/Scroll)
-2. Real KZG proofs generated and verified on-chain (BasisRollupV2 + PlonkVerifier, not harness) -- PENDING DEPLOYMENT
-3. PLONK verifier deployed and functional on L1 -- CODE EXISTS (48 tests), NOT YET DEPLOYED
+2. Real KZG proofs generated and verified on-chain -- COMPLETED (2026-03-24, 515K gas via Halo2Verifier)
+3. PLONK verifier deployed and functional on L1 -- COMPLETED (Halo2Verifier + Halo2PlonkVerifier + BasisRollupV2)
 4. Proof aggregation with real ProtoGalaxy folding
 5. Distributed DAC with 3+ nodes on separate machines
 6. L1 Synchronizer processes forced inclusion and deposits
@@ -469,7 +470,7 @@ The zkL2 is 100% production-ready when:
 
 | Phase | Duration | Status |
 |-------|----------|--------|
-| 1. Real KZG Proofs | 1-2 weeks | **PIPELINE COMPLETED** (real proof generation works; deployed contract uses mock verification -- deploy BasisRollupV2+PlonkVerifier to close gap) |
+| 1. Real KZG Proofs | 1-2 weeks | **COMPLETED** (full E2E: commit 149K + prove 515K + execute 70K = 735K gas, Halo2 PLONK-KZG via EIP-197) |
 | 2. Complete EVM Circuit | 2-6 months (or 2-6 weeks with PSE adoption) | **SUBSTANTIALLY COMPLETED** (28 new opcodes: SDIV/SMOD/XOR/SAR/SLT/SGT/ADDMOD/MULMOD/etc) |
 | 3. Real Proof Aggregation | 3-4 weeks | **ProtoGalaxy COMPLETED**, aggregated on-chain verification open |
 | 4. Distributed DAC | 2-3 weeks | **COMPLETED** (DAC wired into node, real gRPC service + client, L1 certificate submission, Docker compose with 7 nodes) |
@@ -480,7 +481,7 @@ The zkL2 is 100% production-ready when:
 | 9. Production Deployment | 2-4 weeks | **Health/metrics/graceful shutdown COMPLETED**, deployment open |
 | 10. Scale/Optimization | Ongoing | Open |
 
-**Critical path:** Deploy BasisRollupV2+PlonkVerifier -> Phase 8 -> Phase 9
+**Critical path:** Phase 8 (security audit) -> Phase 9 (production deployment)
 **Parallel tracks:** Phase 7 L1 integration can run alongside Phase 8
 
 **Total remaining to production: 2-3 months** (real verifier deployment + security audit + production deployment)
