@@ -80,10 +80,7 @@ The orchestrator runs a pipelined state machine: `Idle -> Receiving -> Batching 
 
 ## References
 
-- [R&D Pipeline Report](../docs/R&D_PIPELINE_REPORT.md) -- Full pipeline execution summary
-- [Post-Roadmap TODO](../docs/POST_ROADMAP_TODO.md) -- Integration status (all complete)
-- [Validium Roadmap](../docs/ROADMAP.md) -- Research units and execution plan
-- [Execution Checklist](../docs/ROADMAP_CHECKLIST.md) -- 28/28 complete
+- [Production Roadmap](../docs/PRODUCTION_ROADMAP.md) -- Current status (~96%) and path to production
 
 ## R&D Artifacts
 

@@ -2,7 +2,7 @@
 
 The long-term evolution of Basis Network -- a full zero-knowledge EVM-compatible Layer 2 where each enterprise operates their own chain with dedicated sequencer, EVM executor, ZK prover, and data availability layer. Settles on the Basis Network L1 (Avalanche).
 
-**Status:** Full E2E pipeline **verified on Basis Network L1 (Fuji)** on 2026-03-23. R&D pipeline complete (44/44 agents, 11 research units). Node binary operational with real EVM execution, PLONK-KZG proofs verified on-chain (291K gas, 5.8s), LevelDB state persistence, L1 synchronizer, and ProtoGalaxy aggregation. See [POST_ROADMAP_TODO.md](./docs/POST_ROADMAP_TODO.md) for detailed status.
+**Status:** Full E2E pipeline **verified on Basis Network L1 (Fuji)** on 2026-03-23. R&D pipeline complete (44/44 agents, 11 research units). Node binary operational with real EVM execution, PLONK-KZG proofs verified on-chain (291K gas, 5.8s), LevelDB state persistence, L1 synchronizer, and ProtoGalaxy aggregation. See [PRODUCTION_ROADMAP.md](./docs/PRODUCTION_ROADMAP.md) for detailed status.
 
 ## Quick Start
 
@@ -133,7 +133,7 @@ All contracts deployed on Basis Network L1 (Chain ID 43199):
 | [Startup Guide](./node/STARTUP.md) | How to build, configure, and run the node |
 | [API Reference](./docs/API.md) | JSON-RPC endpoint documentation |
 | [Deployment Guide](./docs/DEPLOYMENT.md) | Step-by-step deployment procedure |
-| [Status Tracker](./docs/POST_ROADMAP_TODO.md) | Detailed completion status |
+| [Production Roadmap](./docs/PRODUCTION_ROADMAP.md) | Current status and path to production |
 
 ## Relationship to Validium MVP
 

@@ -410,8 +410,8 @@ Tests include unit tests, integration tests, adversarial scenarios, and model-ch
 | [MoSCoW](./docs/MOSCOW.md) | Feature prioritization framework |
 | [User Journey](./docs/USER_JOURNEY.md) | End-to-end user flows |
 | [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) | Step-by-step setup instructions |
-| [R&D Pipeline Report](./validium/docs/R&D_PIPELINE_REPORT.md) | Full AI pipeline execution summary |
-| [Validium Roadmap](./validium/docs/ROADMAP.md) | MVP research units and execution plan |
+| [Validium Roadmap](./validium/docs/PRODUCTION_ROADMAP.md) | Production status (~96% complete) |
+| [zkL2 Roadmap](./zkl2/docs/PRODUCTION_ROADMAP.md) | Production status (~95% complete) |
 
 ---
 

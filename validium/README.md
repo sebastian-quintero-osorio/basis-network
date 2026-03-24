@@ -82,9 +82,6 @@ cd circuits && npm install && npm run setup && npm run prove && npm run verify
 
 | Document | Description |
 |----------|-------------|
-| [R&D Pipeline Report](./docs/R&D_PIPELINE_REPORT.md) | 17-hour autonomous pipeline execution summary |
-| [Roadmap](./docs/ROADMAP.md) | Research units and execution plan |
-| [Checklist](./docs/ROADMAP_CHECKLIST.md) | 28/28 agent executions complete |
-| [Post-Roadmap](./docs/POST_ROADMAP_TODO.md) | Integration status (all complete) |
+| [Production Roadmap](./docs/PRODUCTION_ROADMAP.md) | Current status (~96% complete) and path to production |
 | [Objectives & Invariants](./research/foundations/zk-01-objectives-and-invariants.md) | System safety and liveness properties |
 | [Threat Model](./research/foundations/zk-02-threat-model.md) | 60+ attack vectors catalogued |
