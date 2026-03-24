@@ -110,10 +110,18 @@ See [Startup Guide](./node/STARTUP.md) for full instructions and [Deployment Gui
 
 All contracts deployed on Basis Network L1 (Chain ID 43199):
 
-| Contract | Address |
-|----------|---------|
-| EnterpriseRegistry | 0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5 |
-| BasisRollupHarness | 0x79279EDe17c8026412cD093876e8871352f18546 |
+| Contract | Address | Status |
+|----------|---------|--------|
+| EnterpriseRegistry | 0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5 | Active (L1) |
+| Halo2VerifyingKey | 0x5a04689914cf2288e80d6829eb2Ee303E5361BB5 | Active |
+| Halo2Verifier | 0x49a2Ad282b541BC20DFF616551F2104141D91936 | Active |
+| Halo2PlonkVerifier | 0x1EdeB00f1420a6589Feb72d1CB1134D1d1A02FB8 | Active |
+| BasisRollupV2 | 0xc028f04f477A53d64C181e3d9CC79A1e1b4Bd562 | Active |
+| BasisBridge | 0xd0B4BeB95De33d6F49Bcc08fE5ce3b923e263a5b | Active |
+| BasisDAC | 0x1E0c7C220c75E530E22BC066F8B5a98DeB6dfe9B | Active |
+| BasisAggregator | 0xddfe844E347470F45D53bA6FFBA95034F45670a2 | Active |
+| BasisHub | 0x6Faf689a6Dcb67a633b437774388F0358D882f0B | Active |
+| BasisRollupHarness | 0x79279EDe17c8026412cD093876e8871352f18546 | Deprecated |
 
 ## Documentation
 
