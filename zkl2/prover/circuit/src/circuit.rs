@@ -96,14 +96,70 @@ pub enum CircuitOp {
     Shl { a: Fr, shift_pow: Fr },
     /// Shift right: c = a >> b. d = 2^b (precomputed). Selector: q_shr.
     Shr { a: Fr, shift_pow: Fr },
+    /// Arithmetic shift right: c = a >> b (signed). d = 2^b. Selector: q_sar.
+    Sar { a: Fr, shift_pow: Fr, result: Fr },
     /// Extract byte: a=word, b=index, c=byte. Selector: q_byte.
     Byte { word: Fr, index: Fr, result: Fr },
+    /// Sign extend: a=value, b=byte_pos, c=result. Selector: q_signextend.
+    SignExtend { value: Fr, byte_pos: Fr, result: Fr },
     /// Exponentiation: c = a^b (single step, d=1). Selector: q_exp.
     Exp { base: Fr, result: Fr },
     /// SHA3/Keccak256: a=offset, b=size, c=hash. Selector: q_sha3.
     Sha3 { offset: Fr, size: Fr, hash: Fr },
+    /// Bitwise XOR: c = a XOR b. Selector: q_xor.
+    Xor { a: Fr, b: Fr, result: Fr },
+    /// Signed less-than: c = (a <_signed b) ? 1 : 0. Selector: q_slt.
+    Slt { a: Fr, b: Fr, result: Fr },
+    /// Signed greater-than: c = (a >_signed b) ? 1 : 0. Selector: q_sgt.
+    Sgt { a: Fr, b: Fr, result: Fr },
+    /// Signed division: c = a /_ b (signed). Selector: q_sdiv.
+    Sdiv { a: Fr, b: Fr, result: Fr },
+    /// Signed modulo: c = a %_signed b. Selector: q_smod.
+    Smod { a: Fr, b: Fr, result: Fr },
+    /// Modular addition: c = (a + b) mod N. d = N. Selector: q_addmod.
+    Addmod { a: Fr, b: Fr, n: Fr, result: Fr },
+    /// Modular multiplication: c = (a * b) mod N. d = N. Selector: q_mulmod.
+    Mulmod { a: Fr, b: Fr, n: Fr, result: Fr },
     /// Calldata load: a=offset, c=value. Selector: q_calldataload.
     CalldataLoad { offset: Fr, value: Fr },
+    /// Calldata size: c=size. Selector: q_calldatasize.
+    CalldataSize { size: Fr },
+    /// Calldata copy: a=dest, b=offset, c=size. Selector: q_calldatacopy.
+    CalldataCopy { dest: Fr, offset: Fr, size: Fr },
+    /// Code size: c=size. Selector: q_codesize.
+    CodeSize { size: Fr },
+    /// Code copy: a=dest, b=offset, c=size. Selector: q_codecopy.
+    CodeCopy { dest: Fr, offset: Fr, size: Fr },
+    /// Memory store 8-bit: a=offset, c=value. Selector: q_mstore8.
+    Mstore8 { address: Fr, value: Fr },
+    /// Memory size: c=size. Selector: q_msize.
+    Msize { size: Fr },
+    /// Program counter: c=pc. Selector: q_pc.
+    Pc { pc: Fr },
+    /// Remaining gas: c=gas. Selector: q_gas.
+    Gas { gas: Fr },
+    /// External code size: a=address, c=size. Selector: q_extcodesize.
+    ExtCodeSize { address: Fr, size: Fr },
+    /// External code copy: a=address, b=dest. Selector: q_extcodecopy.
+    ExtCodeCopy { address: Fr, dest: Fr, offset: Fr, size: Fr },
+    /// External code hash: a=address, c=hash. Selector: q_extcodehash.
+    ExtCodeHash { address: Fr, hash: Fr },
+    /// Return data size: c=size. Selector: q_returndatasize.
+    ReturnDataSize { size: Fr },
+    /// Return data copy: a=dest, b=offset, c=size. Selector: q_returndatacopy.
+    ReturnDataCopy { dest: Fr, offset: Fr, size: Fr },
+    /// Transient storage load: a=slot, c=value. Selector: q_tload.
+    Tload { slot: Fr, value: Fr },
+    /// Transient storage store: a=slot, c=value. Selector: q_tstore.
+    Tstore { slot: Fr, value: Fr },
+    /// Memory copy: a=dest, b=src, c=size. Selector: q_mcopy.
+    Mcopy { dest: Fr, src: Fr, size: Fr },
+    /// Push zero: c=0. Selector: q_push0.
+    Push0,
+    /// Stop execution. Selector: q_stop.
+    Stop,
+    /// Jump destination marker. Selector: q_jumpdest.
+    JumpDest,
     /// Environment opcode: c=value, d=expected. Selector: q_env.
     Env { value: Fr },
     /// Block context opcode: c=value, d=expected. Selector: q_block.
@@ -182,10 +238,38 @@ impl CircuitOp {
             CircuitOp::Shr { a, shift_pow } => {
                 if *shift_pow == Fr::ZERO { *a } else { *a * shift_pow.invert().unwrap() }
             }
+            CircuitOp::Sar { result, .. } => *result,
             CircuitOp::Byte { result, .. } => *result,
+            CircuitOp::SignExtend { result, .. } => *result,
             CircuitOp::Exp { result, .. } => *result,
             CircuitOp::Sha3 { hash, .. } => *hash,
+            CircuitOp::Xor { result, .. } => *result,
+            CircuitOp::Slt { result, .. } => *result,
+            CircuitOp::Sgt { result, .. } => *result,
+            CircuitOp::Sdiv { result, .. } => *result,
+            CircuitOp::Smod { result, .. } => *result,
+            CircuitOp::Addmod { result, .. } => *result,
+            CircuitOp::Mulmod { result, .. } => *result,
             CircuitOp::CalldataLoad { value, .. } => *value,
+            CircuitOp::CalldataSize { size } => *size,
+            CircuitOp::CalldataCopy { size, .. } => *size,
+            CircuitOp::CodeSize { size } => *size,
+            CircuitOp::CodeCopy { size, .. } => *size,
+            CircuitOp::Mstore8 { value, .. } => *value,
+            CircuitOp::Msize { size } => *size,
+            CircuitOp::Pc { pc } => *pc,
+            CircuitOp::Gas { gas } => *gas,
+            CircuitOp::ExtCodeSize { size, .. } => *size,
+            CircuitOp::ExtCodeCopy { size, .. } => *size,
+            CircuitOp::ExtCodeHash { hash, .. } => *hash,
+            CircuitOp::ReturnDataSize { size } => *size,
+            CircuitOp::ReturnDataCopy { size, .. } => *size,
+            CircuitOp::Tload { value, .. } => *value,
+            CircuitOp::Tstore { value, .. } => *value,
+            CircuitOp::Mcopy { size, .. } => *size,
+            CircuitOp::Push0 => Fr::ZERO,
+            CircuitOp::Stop => Fr::ZERO,
+            CircuitOp::JumpDest => Fr::ZERO,
             CircuitOp::Env { value } => *value,
             CircuitOp::Block { value } => *value,
             CircuitOp::Log { offset, .. } => *offset,
@@ -663,12 +747,28 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "shr_d", config.d, row, || Value::known(*shift_pow))?;
                             assigned_cells.push(c_cell);
                         }
+                        CircuitOp::Sar { a, shift_pow, result } => {
+                            config.q_sar.enable(&mut region, row)?;
+                            region.assign_advice(|| "sar_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "sar_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "sar_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "sar_d", config.d, row, || Value::known(*shift_pow))?;
+                            assigned_cells.push(c_cell);
+                        }
                         CircuitOp::Byte { word, index, result } => {
                             config.q_byte.enable(&mut region, row)?;
                             region.assign_advice(|| "byte_a", config.a, row, || Value::known(*word))?;
                             region.assign_advice(|| "byte_b", config.b, row, || Value::known(*index))?;
                             let c_cell = region.assign_advice(|| "byte_c", config.c, row, || Value::known(*result))?;
                             region.assign_advice(|| "byte_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::SignExtend { value, byte_pos, result } => {
+                            config.q_signextend.enable(&mut region, row)?;
+                            region.assign_advice(|| "sext_a", config.a, row, || Value::known(*value))?;
+                            region.assign_advice(|| "sext_b", config.b, row, || Value::known(*byte_pos))?;
+                            let c_cell = region.assign_advice(|| "sext_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "sext_d", config.d, row, || Value::known(Fr::ZERO))?;
                             assigned_cells.push(c_cell);
                         }
                         CircuitOp::Exp { base, result } => {
@@ -687,12 +787,221 @@ impl Circuit<Fr> for BasisCircuit {
                             region.assign_advice(|| "sha3_d", config.d, row, || Value::known(Fr::ZERO))?;
                             assigned_cells.push(c_cell);
                         }
+                        CircuitOp::Xor { a, b, result } => {
+                            config.q_xor.enable(&mut region, row)?;
+                            region.assign_advice(|| "xor_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "xor_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "xor_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "xor_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Slt { a, b, result } => {
+                            config.q_slt.enable(&mut region, row)?;
+                            region.assign_advice(|| "slt_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "slt_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "slt_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "slt_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Sgt { a, b, result } => {
+                            config.q_sgt.enable(&mut region, row)?;
+                            region.assign_advice(|| "sgt_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "sgt_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "sgt_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "sgt_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Sdiv { a, b, result } => {
+                            config.q_sdiv.enable(&mut region, row)?;
+                            region.assign_advice(|| "sdiv_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "sdiv_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "sdiv_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "sdiv_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Smod { a, b, result } => {
+                            config.q_smod.enable(&mut region, row)?;
+                            let q_val = if *b == Fr::ZERO { Fr::ZERO } else { *a * b.invert().unwrap() };
+                            region.assign_advice(|| "smod_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "smod_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "smod_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "smod_d", config.d, row, || Value::known(q_val))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Addmod { a, b, n, result } => {
+                            config.q_addmod.enable(&mut region, row)?;
+                            region.assign_advice(|| "amod_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "amod_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "amod_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "amod_d", config.d, row, || Value::known(*n))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Mulmod { a, b, n, result } => {
+                            config.q_mulmod.enable(&mut region, row)?;
+                            region.assign_advice(|| "mmod_a", config.a, row, || Value::known(*a))?;
+                            region.assign_advice(|| "mmod_b", config.b, row, || Value::known(*b))?;
+                            let c_cell = region.assign_advice(|| "mmod_c", config.c, row, || Value::known(*result))?;
+                            region.assign_advice(|| "mmod_d", config.d, row, || Value::known(*n))?;
+                            assigned_cells.push(c_cell);
+                        }
                         CircuitOp::CalldataLoad { offset, value } => {
                             config.q_calldataload.enable(&mut region, row)?;
                             region.assign_advice(|| "cdl_a", config.a, row, || Value::known(*offset))?;
                             region.assign_advice(|| "cdl_b", config.b, row, || Value::known(Fr::ZERO))?;
                             let c_cell = region.assign_advice(|| "cdl_c", config.c, row, || Value::known(*value))?;
                             region.assign_advice(|| "cdl_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::CalldataSize { size } => {
+                            config.q_calldatasize.enable(&mut region, row)?;
+                            region.assign_advice(|| "cds_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "cds_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "cds_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "cds_d", config.d, row, || Value::known(*size))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::CalldataCopy { dest, offset, size } => {
+                            config.q_calldatacopy.enable(&mut region, row)?;
+                            region.assign_advice(|| "cdc_a", config.a, row, || Value::known(*dest))?;
+                            region.assign_advice(|| "cdc_b", config.b, row, || Value::known(*offset))?;
+                            let c_cell = region.assign_advice(|| "cdc_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "cdc_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::CodeSize { size } => {
+                            config.q_codesize.enable(&mut region, row)?;
+                            region.assign_advice(|| "csz_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "csz_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "csz_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "csz_d", config.d, row, || Value::known(*size))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::CodeCopy { dest, offset, size } => {
+                            config.q_codecopy.enable(&mut region, row)?;
+                            region.assign_advice(|| "cc_a", config.a, row, || Value::known(*dest))?;
+                            region.assign_advice(|| "cc_b", config.b, row, || Value::known(*offset))?;
+                            let c_cell = region.assign_advice(|| "cc_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "cc_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Mstore8 { address, value } => {
+                            config.q_mstore8.enable(&mut region, row)?;
+                            region.assign_advice(|| "ms8_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "ms8_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "ms8_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "ms8_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Msize { size } => {
+                            config.q_msize.enable(&mut region, row)?;
+                            region.assign_advice(|| "msz_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "msz_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "msz_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "msz_d", config.d, row, || Value::known(*size))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Pc { pc } => {
+                            config.q_pc.enable(&mut region, row)?;
+                            region.assign_advice(|| "pc_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "pc_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "pc_c", config.c, row, || Value::known(*pc))?;
+                            region.assign_advice(|| "pc_d", config.d, row, || Value::known(*pc))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Gas { gas } => {
+                            config.q_gas.enable(&mut region, row)?;
+                            region.assign_advice(|| "gas_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "gas_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "gas_c", config.c, row, || Value::known(*gas))?;
+                            region.assign_advice(|| "gas_d", config.d, row, || Value::known(*gas))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::ExtCodeSize { address, size } => {
+                            config.q_extcodesize.enable(&mut region, row)?;
+                            region.assign_advice(|| "ecs_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "ecs_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "ecs_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "ecs_d", config.d, row, || Value::known(*size))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::ExtCodeCopy { address, dest, offset, size } => {
+                            config.q_extcodecopy.enable(&mut region, row)?;
+                            region.assign_advice(|| "ecc_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "ecc_b", config.b, row, || Value::known(*dest))?;
+                            let c_cell = region.assign_advice(|| "ecc_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "ecc_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::ExtCodeHash { address, hash } => {
+                            config.q_extcodehash.enable(&mut region, row)?;
+                            region.assign_advice(|| "ech_a", config.a, row, || Value::known(*address))?;
+                            region.assign_advice(|| "ech_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "ech_c", config.c, row, || Value::known(*hash))?;
+                            region.assign_advice(|| "ech_d", config.d, row, || Value::known(*hash))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::ReturnDataSize { size } => {
+                            config.q_returndatasize.enable(&mut region, row)?;
+                            region.assign_advice(|| "rds_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "rds_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "rds_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "rds_d", config.d, row, || Value::known(*size))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::ReturnDataCopy { dest, offset, size } => {
+                            config.q_returndatacopy.enable(&mut region, row)?;
+                            region.assign_advice(|| "rdc_a", config.a, row, || Value::known(*dest))?;
+                            region.assign_advice(|| "rdc_b", config.b, row, || Value::known(*offset))?;
+                            let c_cell = region.assign_advice(|| "rdc_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "rdc_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Tload { slot, value } => {
+                            config.q_tload.enable(&mut region, row)?;
+                            region.assign_advice(|| "tl_a", config.a, row, || Value::known(*slot))?;
+                            region.assign_advice(|| "tl_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "tl_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "tl_d", config.d, row, || Value::known(*value))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Tstore { slot, value } => {
+                            config.q_tstore.enable(&mut region, row)?;
+                            region.assign_advice(|| "ts_a", config.a, row, || Value::known(*slot))?;
+                            region.assign_advice(|| "ts_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "ts_c", config.c, row, || Value::known(*value))?;
+                            region.assign_advice(|| "ts_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Mcopy { dest, src, size } => {
+                            config.q_mcopy.enable(&mut region, row)?;
+                            region.assign_advice(|| "mc_a", config.a, row, || Value::known(*dest))?;
+                            region.assign_advice(|| "mc_b", config.b, row, || Value::known(*src))?;
+                            let c_cell = region.assign_advice(|| "mc_c", config.c, row, || Value::known(*size))?;
+                            region.assign_advice(|| "mc_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Push0 => {
+                            config.q_push0.enable(&mut region, row)?;
+                            region.assign_advice(|| "p0_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "p0_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "p0_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "p0_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::Stop => {
+                            config.q_stop.enable(&mut region, row)?;
+                            region.assign_advice(|| "stop_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "stop_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "stop_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "stop_d", config.d, row, || Value::known(Fr::ZERO))?;
+                            assigned_cells.push(c_cell);
+                        }
+                        CircuitOp::JumpDest => {
+                            config.q_jumpdest.enable(&mut region, row)?;
+                            region.assign_advice(|| "jd_a", config.a, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "jd_b", config.b, row, || Value::known(Fr::ZERO))?;
+                            let c_cell = region.assign_advice(|| "jd_c", config.c, row, || Value::known(Fr::ZERO))?;
+                            region.assign_advice(|| "jd_d", config.d, row, || Value::known(Fr::ZERO))?;
                             assigned_cells.push(c_cell);
                         }
                         CircuitOp::Env { value } => {

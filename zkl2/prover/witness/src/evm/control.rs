@@ -1,4 +1,4 @@
-//! Control flow witness generator for JUMP, JUMPI, RETURN, REVERT.
+//! Control flow witness generator for JUMP, JUMPI, RETURN, REVERT, STOP, JUMPDEST, PC, GAS.
 
 use ark_bn254::Fr;
 use crate::error::WitnessResult;
@@ -39,6 +39,55 @@ pub fn process_entry(
                 Fr::from(0u64),
             ]])
         }
+        TraceOp::STOP => {
+            Ok(vec![vec![
+                Fr::from(global_counter),
+                Fr::from(0x00u64), // STOP opcode
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+            ]])
+        }
+        TraceOp::JUMPDEST => {
+            Ok(vec![vec![
+                Fr::from(global_counter),
+                Fr::from(0x5Bu64), // JUMPDEST opcode
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+            ]])
+        }
+        TraceOp::PC => {
+            let pc_val = Fr::from(entry.destination); // Reuse destination field for PC value
+            Ok(vec![vec![
+                Fr::from(global_counter),
+                Fr::from(0x58u64), // PC opcode
+                pc_val,
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+            ]])
+        }
+        TraceOp::GAS => {
+            Ok(vec![vec![
+                Fr::from(global_counter),
+                Fr::from(0x5Au64), // GAS opcode
+                Fr::from(0u64), // Gas remaining (zero-fee L2)
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+            ]])
+        }
         _ => Ok(vec![]),
     }
 }
@@ -60,6 +109,35 @@ mod tests {
         let mut entry = TraceEntry::default_with_op(TraceOp::RETURN);
         entry.mem_offset = 0;
         entry.sha3_size = 32;
+        let rows = process_entry(&entry, 1).unwrap();
+        assert_eq!(rows.len(), 1);
+    }
+
+    #[test]
+    fn stop_produces_row() {
+        let entry = TraceEntry::default_with_op(TraceOp::STOP);
+        let rows = process_entry(&entry, 1).unwrap();
+        assert_eq!(rows.len(), 1);
+    }
+
+    #[test]
+    fn jumpdest_produces_row() {
+        let entry = TraceEntry::default_with_op(TraceOp::JUMPDEST);
+        let rows = process_entry(&entry, 1).unwrap();
+        assert_eq!(rows.len(), 1);
+    }
+
+    #[test]
+    fn pc_produces_row() {
+        let mut entry = TraceEntry::default_with_op(TraceOp::PC);
+        entry.destination = 42;
+        let rows = process_entry(&entry, 1).unwrap();
+        assert_eq!(rows.len(), 1);
+    }
+
+    #[test]
+    fn gas_produces_row() {
+        let entry = TraceEntry::default_with_op(TraceOp::GAS);
         let rows = process_entry(&entry, 1).unwrap();
         assert_eq!(rows.len(), 1);
     }

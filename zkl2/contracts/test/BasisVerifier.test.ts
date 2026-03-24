@@ -69,7 +69,7 @@ describe("BasisVerifier", function () {
       dummyG2,
       dummyIC
     );
-    await verifier.setPlonkVerifyingKey(dummyG1, dummyG1, dummyG1, 1n, 14n);
+    await verifier.setPlonkVerifyingKey(dummyG2, dummyG2, dummyG1, 1n, 14n);
   });
 
   // =================================================================
@@ -827,12 +827,4 @@ describe("BasisVerifier", function () {
     });
   });
 
-  // =================================================================
-  // Helper
-  // =================================================================
-
-  async function getTimestamp(): Promise<number> {
-    const block = await ethers.provider.getBlock("latest");
-    return block!.timestamp;
-  }
 });

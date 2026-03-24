@@ -52,29 +52,75 @@ pub fn process_entry(
         TraceOp::SSTORE => super::OP_SSTORE,
         TraceOp::CALL => super::OP_CALL,
         TraceOp::LOG => return Ok(vec![]),
-        // Extended opcodes -- handled by specialized modules, skip here
+        // Arithmetic opcodes
         TraceOp::ADD => super::OP_ADD,
         TraceOp::SUB => super::OP_SUB,
         TraceOp::MUL => super::OP_MUL,
         TraceOp::DIV => super::OP_DIV,
         TraceOp::MOD => super::OP_MOD,
         TraceOp::EXP => super::OP_EXP,
+        TraceOp::SDIV => super::OP_SDIV,
+        TraceOp::SMOD => super::OP_SMOD,
+        TraceOp::ADDMOD => super::OP_ADDMOD,
+        TraceOp::MULMOD => super::OP_MULMOD,
+        TraceOp::SIGNEXTEND => super::OP_SIGNEXTEND,
+        // Comparison opcodes
+        TraceOp::LT => super::OP_LT,
+        TraceOp::GT => super::OP_GT,
+        TraceOp::SLT => super::OP_SLT,
+        TraceOp::SGT => super::OP_SGT,
+        TraceOp::EQ => super::OP_EQ,
+        TraceOp::ISZERO => super::OP_ISZERO,
+        // Bitwise opcodes
+        TraceOp::AND => super::OP_AND,
+        TraceOp::OR => super::OP_OR,
+        TraceOp::XOR => super::OP_XOR,
+        TraceOp::NOT => super::OP_NOT,
         TraceOp::SHL => super::OP_SHL,
         TraceOp::SHR => super::OP_SHR,
+        TraceOp::SAR => super::OP_SAR,
         TraceOp::BYTE => super::OP_BYTE,
+        // Crypto
         TraceOp::SHA3 => super::OP_SHA3,
+        // Memory opcodes
         TraceOp::MLOAD => super::OP_MLOAD,
         TraceOp::MSTORE => super::OP_MSTORE,
-        TraceOp::PUSH => super::OP_PUSH0,
+        TraceOp::MSTORE8 => super::OP_MSTORE8,
+        TraceOp::MSIZE => super::OP_MSIZE,
+        TraceOp::MCOPY => super::OP_MCOPY,
+        // Stack opcodes
+        TraceOp::PUSH => super::OP_PUSH0, // Generic PUSH
         TraceOp::POP => super::OP_POP,
-        TraceOp::DUP => super::OP_PUSH0, // Generic DUP
-        TraceOp::SWAP => super::OP_PUSH0, // Generic SWAP
+        TraceOp::DUP => super::OP_PUSH0,  // Generic DUP
+        TraceOp::SWAP => super::OP_PUSH0,  // Generic SWAP
+        TraceOp::PUSH0 => super::OP_PUSH0,
+        // Control flow opcodes
         TraceOp::JUMP => super::OP_JUMP,
         TraceOp::JUMPI => super::OP_JUMPI,
         TraceOp::RETURN => super::OP_RETURN,
         TraceOp::REVERT => super::OP_REVERT,
-        TraceOp::CREATE => super::OP_CALL, // Mapped to CALL for now
-        TraceOp::CREATE2 => super::OP_CALL,
+        TraceOp::STOP => super::OP_STOP,
+        TraceOp::JUMPDEST => super::OP_JUMPDEST,
+        TraceOp::PC => super::OP_PC,
+        TraceOp::GAS => super::OP_GAS,
+        // Data access opcodes
+        TraceOp::CALLDATALOAD => super::OP_CALLDATALOAD,
+        TraceOp::CALLDATASIZE => super::OP_CALLDATASIZE,
+        TraceOp::CALLDATACOPY => super::OP_CALLDATACOPY,
+        TraceOp::CODESIZE => super::OP_CODESIZE,
+        TraceOp::CODECOPY => super::OP_CODECOPY,
+        TraceOp::RETURNDATASIZE => super::OP_RETURNDATASIZE,
+        TraceOp::RETURNDATACOPY => super::OP_RETURNDATACOPY,
+        // External code opcodes
+        TraceOp::EXTCODESIZE => super::OP_EXTCODESIZE,
+        TraceOp::EXTCODECOPY => super::OP_EXTCODECOPY,
+        TraceOp::EXTCODEHASH => super::OP_EXTCODEHASH,
+        // Transient storage opcodes (EIP-1153)
+        TraceOp::TLOAD => super::OP_TLOAD,
+        TraceOp::TSTORE => super::OP_TSTORE,
+        // Lifecycle opcodes
+        TraceOp::CREATE => super::OP_CREATE,
+        TraceOp::CREATE2 => super::OP_CREATE2,
     };
 
     let mut row = vec![Fr::from(0u64); EXECUTION_TABLE_COLUMNS];

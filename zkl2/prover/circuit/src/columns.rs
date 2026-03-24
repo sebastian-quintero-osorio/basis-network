@@ -107,14 +107,70 @@ pub struct BasisCircuitConfig {
     pub q_shl: Selector,
     /// Selector for SHR (shift right).
     pub q_shr: Selector,
+    /// Selector for SAR (arithmetic shift right).
+    pub q_sar: Selector,
     /// Selector for BYTE (extract byte).
     pub q_byte: Selector,
+    /// Selector for SIGNEXTEND (sign extension).
+    pub q_signextend: Selector,
     /// Selector for EXP (exponentiation).
     pub q_exp: Selector,
     /// Selector for SHA3 (keccak256).
     pub q_sha3: Selector,
+    /// Selector for XOR (bitwise exclusive or).
+    pub q_xor: Selector,
+    /// Selector for SLT (signed less-than).
+    pub q_slt: Selector,
+    /// Selector for SGT (signed greater-than).
+    pub q_sgt: Selector,
+    /// Selector for SDIV (signed division).
+    pub q_sdiv: Selector,
+    /// Selector for SMOD (signed modulo).
+    pub q_smod: Selector,
+    /// Selector for ADDMOD (modular addition).
+    pub q_addmod: Selector,
+    /// Selector for MULMOD (modular multiplication).
+    pub q_mulmod: Selector,
     /// Selector for CALLDATALOAD.
     pub q_calldataload: Selector,
+    /// Selector for CALLDATASIZE.
+    pub q_calldatasize: Selector,
+    /// Selector for CALLDATACOPY.
+    pub q_calldatacopy: Selector,
+    /// Selector for CODESIZE.
+    pub q_codesize: Selector,
+    /// Selector for CODECOPY.
+    pub q_codecopy: Selector,
+    /// Selector for MSTORE8 (memory store single byte).
+    pub q_mstore8: Selector,
+    /// Selector for MSIZE (memory size).
+    pub q_msize: Selector,
+    /// Selector for PC (program counter).
+    pub q_pc: Selector,
+    /// Selector for GAS (remaining gas).
+    pub q_gas: Selector,
+    /// Selector for EXTCODESIZE (external code size).
+    pub q_extcodesize: Selector,
+    /// Selector for EXTCODECOPY (external code copy).
+    pub q_extcodecopy: Selector,
+    /// Selector for EXTCODEHASH (external code hash).
+    pub q_extcodehash: Selector,
+    /// Selector for RETURNDATASIZE.
+    pub q_returndatasize: Selector,
+    /// Selector for RETURNDATACOPY.
+    pub q_returndatacopy: Selector,
+    /// Selector for TLOAD (transient storage load, EIP-1153).
+    pub q_tload: Selector,
+    /// Selector for TSTORE (transient storage store, EIP-1153).
+    pub q_tstore: Selector,
+    /// Selector for MCOPY (memory copy, EIP-5656).
+    pub q_mcopy: Selector,
+    /// Selector for PUSH0 (push zero, EIP-3855).
+    pub q_push0: Selector,
+    /// Selector for STOP (halt execution).
+    pub q_stop: Selector,
+    /// Selector for JUMPDEST (jump destination marker).
+    pub q_jumpdest: Selector,
     /// Selector for environment opcodes (ADDRESS, BALANCE, ORIGIN, etc).
     pub q_env: Selector,
     /// Selector for block context opcodes (BLOCKHASH, TIMESTAMP, etc).
@@ -182,10 +238,38 @@ impl BasisCircuitConfig {
         // Extended EVM selectors
         let q_shl = meta.selector();
         let q_shr = meta.selector();
+        let q_sar = meta.selector();
         let q_byte = meta.selector();
+        let q_signextend = meta.selector();
         let q_exp = meta.selector();
         let q_sha3 = meta.selector();
+        let q_xor = meta.selector();
+        let q_slt = meta.selector();
+        let q_sgt = meta.selector();
+        let q_sdiv = meta.selector();
+        let q_smod = meta.selector();
+        let q_addmod = meta.selector();
+        let q_mulmod = meta.selector();
         let q_calldataload = meta.selector();
+        let q_calldatasize = meta.selector();
+        let q_calldatacopy = meta.selector();
+        let q_codesize = meta.selector();
+        let q_codecopy = meta.selector();
+        let q_mstore8 = meta.selector();
+        let q_msize = meta.selector();
+        let q_pc = meta.selector();
+        let q_gas = meta.selector();
+        let q_extcodesize = meta.selector();
+        let q_extcodecopy = meta.selector();
+        let q_extcodehash = meta.selector();
+        let q_returndatasize = meta.selector();
+        let q_returndatacopy = meta.selector();
+        let q_tload = meta.selector();
+        let q_tstore = meta.selector();
+        let q_mcopy = meta.selector();
+        let q_push0 = meta.selector();
+        let q_stop = meta.selector();
+        let q_jumpdest = meta.selector();
         let q_env = meta.selector();
         let q_block = meta.selector();
         let q_log = meta.selector();
@@ -238,10 +322,38 @@ impl BasisCircuitConfig {
             q_return,
             q_shl,
             q_shr,
+            q_sar,
             q_byte,
+            q_signextend,
             q_exp,
             q_sha3,
+            q_xor,
+            q_slt,
+            q_sgt,
+            q_sdiv,
+            q_smod,
+            q_addmod,
+            q_mulmod,
             q_calldataload,
+            q_calldatasize,
+            q_calldatacopy,
+            q_codesize,
+            q_codecopy,
+            q_mstore8,
+            q_msize,
+            q_pc,
+            q_gas,
+            q_extcodesize,
+            q_extcodecopy,
+            q_extcodehash,
+            q_returndatasize,
+            q_returndatacopy,
+            q_tload,
+            q_tstore,
+            q_mcopy,
+            q_push0,
+            q_stop,
+            q_jumpdest,
             q_env,
             q_block,
             q_log,

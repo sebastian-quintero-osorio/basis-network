@@ -137,7 +137,16 @@ type WithdrawalHandler func(sender common.Address, amount *big.Int) error
 
 // WithdrawRootSubmitter submits a withdraw trie root to BasisBridge.sol on L1.
 // Called after a batch is executed on BasisRollup.
-type WithdrawRootSubmitter func(root common.Hash, leafCount uint64) error
+// The batchID parameter identifies the L2 batch this root corresponds to.
+type WithdrawRootSubmitter func(root common.Hash, batchID uint64) error
+
+// WithdrawalSource provides withdrawal events from L2.
+// The relayer polls this interface instead of connecting to L2 RPC directly,
+// allowing in-process event delivery when running as part of the node.
+type WithdrawalSource interface {
+	// PendingWithdrawals returns all unprocessed withdrawal events and marks them consumed.
+	PendingWithdrawals() []WithdrawalEvent
+}
 
 // Sentinel errors for relayer operations.
 var (

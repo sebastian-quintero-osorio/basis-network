@@ -33,6 +33,8 @@ type Server struct {
 	httpServer *http.Server
 	backend    Backend
 	limiter    *IPRateLimiter
+	startedAt  time.Time
+	health     *HealthProvider
 }
 
 // ServerConfig holds the JSON-RPC server configuration.
@@ -100,6 +102,12 @@ type Backend interface {
 
 	// GetBatchStatus returns the proving pipeline status for a batch.
 	GetBatchStatus(batchID uint64) (*BatchStatus, error)
+
+	// InitiateWithdrawal burns balance on L2 and enqueues a withdrawal for L1 claim.
+	InitiateWithdrawal(sender common.Address, recipient common.Address, amount *big.Int) (uint64, error)
+
+	// GetWithdrawalProof returns the Merkle proof for a withdrawal by index.
+	GetWithdrawalProof(index uint64) (root common.Hash, proof []common.Hash, err error)
 }
 
 // TransactionReceipt is an Ethereum-compatible receipt for L2 transactions.
@@ -128,16 +136,53 @@ type BatchStatus struct {
 	ProofOnL1 bool   `json:"proofOnL1"`
 }
 
+// HealthProvider supplies health and metrics data from node components.
+type HealthProvider struct {
+	mu              sync.RWMutex
+	version         string
+	pipelineStats   func() (active int, completed int, failed int)
+	l1SyncConnected func() bool
+	bridgeEnabled   bool
+}
+
+// NewHealthProvider creates a health provider with the given version.
+func NewHealthProvider(version string) *HealthProvider {
+	return &HealthProvider{version: version}
+}
+
+// SetPipelineStats sets the pipeline stats function.
+func (hp *HealthProvider) SetPipelineStats(fn func() (int, int, int)) {
+	hp.mu.Lock()
+	defer hp.mu.Unlock()
+	hp.pipelineStats = fn
+}
+
+// SetL1SyncCheck sets the L1 sync check function.
+func (hp *HealthProvider) SetL1SyncCheck(fn func() bool) {
+	hp.mu.Lock()
+	defer hp.mu.Unlock()
+	hp.l1SyncConnected = fn
+}
+
+// SetBridgeEnabled sets whether bridge is enabled.
+func (hp *HealthProvider) SetBridgeEnabled(enabled bool) {
+	hp.mu.Lock()
+	defer hp.mu.Unlock()
+	hp.bridgeEnabled = enabled
+}
+
 // NewServer creates a new JSON-RPC server.
 func NewServer(config ServerConfig, backend Backend, logger *slog.Logger) *Server {
 	if logger == nil {
 		logger = slog.Default()
 	}
 	return &Server{
-		config:  config,
-		logger:  logger,
-		backend: backend,
-		limiter: NewIPRateLimiter(config.RateLimitPerSec, config.RateLimitBurst),
+		config:    config,
+		logger:    logger,
+		backend:   backend,
+		limiter:   NewIPRateLimiter(config.RateLimitPerSec, config.RateLimitBurst),
+		startedAt: time.Now(),
+		health:    NewHealthProvider("0.1.0"),
 	}
 }
 
@@ -146,6 +191,8 @@ func (s *Server) Start() error {
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health", s.handleHealth)
+	mux.HandleFunc("/metrics", s.handleMetrics)
 	mux.HandleFunc("/", s.handleRequest)
 
 	s.httpServer = &http.Server{
@@ -330,6 +377,10 @@ func (s *Server) dispatch(req jsonrpcRequest) (interface{}, *jsonrpcError) {
 		return s.web3ClientVersion()
 	case "basis_getBatchStatus":
 		return s.basisGetBatchStatus(req.Params)
+	case "basis_initiateWithdrawal":
+		return s.basisInitiateWithdrawal(req.Params)
+	case "basis_getWithdrawalProof":
+		return s.basisGetWithdrawalProof(req.Params)
 	default:
 		return nil, &jsonrpcError{Code: errCodeMethodNotFound, Message: fmt.Sprintf("method %q not found", req.Method)}
 	}
@@ -670,6 +721,68 @@ func (s *Server) basisGetBatchStatus(params []json.RawMessage) (interface{}, *js
 	return status, nil
 }
 
+func (s *Server) basisInitiateWithdrawal(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing withdrawal parameters"}
+	}
+	var req struct {
+		Sender    string `json:"sender"`
+		Recipient string `json:"recipient"`
+		Amount    string `json:"amount"`
+	}
+	if err := json.Unmarshal(params[0], &req); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid withdrawal parameters"}
+	}
+
+	sender := common.HexToAddress(req.Sender)
+	recipient := common.HexToAddress(req.Recipient)
+	amount := new(big.Int)
+	if _, ok := amount.SetString(strings.TrimPrefix(req.Amount, "0x"), 16); !ok {
+		amount.SetString(req.Amount, 10)
+	}
+
+	if amount.Sign() <= 0 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "amount must be positive"}
+	}
+
+	index, err := s.backend.InitiateWithdrawal(sender, recipient, amount)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+
+	return map[string]interface{}{
+		"withdrawalIndex": fmt.Sprintf("0x%x", index),
+		"sender":          sender.Hex(),
+		"recipient":       recipient.Hex(),
+		"amount":          fmt.Sprintf("0x%x", amount),
+	}, nil
+}
+
+func (s *Server) basisGetWithdrawalProof(params []json.RawMessage) (interface{}, *jsonrpcError) {
+	if len(params) < 1 {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "missing withdrawal index"}
+	}
+	var index uint64
+	if err := json.Unmarshal(params[0], &index); err != nil {
+		return nil, &jsonrpcError{Code: errCodeInvalidParams, Message: "invalid withdrawal index"}
+	}
+
+	root, proof, err := s.backend.GetWithdrawalProof(index)
+	if err != nil {
+		return nil, &jsonrpcError{Code: errCodeInternal, Message: err.Error()}
+	}
+
+	proofHex := make([]string, len(proof))
+	for i, p := range proof {
+		proofHex[i] = p.Hex()
+	}
+
+	return map[string]interface{}{
+		"root":  root.Hex(),
+		"proof": proofHex,
+	}, nil
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -724,6 +837,103 @@ func NewIPRateLimiter(rate, burst int) *IPRateLimiter {
 		burst:   burst,
 		buckets: make(map[string]*tokenBucket),
 	}
+}
+
+// Health returns the health provider for external configuration.
+func (s *Server) Health() *HealthProvider {
+	return s.health
+}
+
+// handleHealth serves GET /health with node status.
+func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	status := "healthy"
+	blockNum := s.backend.BlockNumber()
+
+	pipelineActive, pipelineCompleted, pipelineFailed := 0, 0, 0
+	s.health.mu.RLock()
+	if s.health.pipelineStats != nil {
+		pipelineActive, pipelineCompleted, pipelineFailed = s.health.pipelineStats()
+	}
+	l1Connected := true
+	if s.health.l1SyncConnected != nil {
+		l1Connected = s.health.l1SyncConnected()
+	}
+	bridgeEnabled := s.health.bridgeEnabled
+	ver := s.health.version
+	s.health.mu.RUnlock()
+
+	if !l1Connected {
+		status = "degraded"
+	}
+
+	resp := map[string]interface{}{
+		"status":         status,
+		"version":        ver,
+		"uptime_seconds": int64(time.Since(s.startedAt).Seconds()),
+		"block_number":   blockNum,
+		"pipeline": map[string]interface{}{
+			"active_batches": pipelineActive,
+			"completed":      pipelineCompleted,
+			"failed":         pipelineFailed,
+		},
+		"l1_sync": map[string]interface{}{
+			"connected": l1Connected,
+		},
+		"bridge": map[string]interface{}{
+			"enabled": bridgeEnabled,
+		},
+	}
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+// handleMetrics serves GET /metrics in Prometheus text exposition format.
+func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	blockNum := s.backend.BlockNumber()
+	chainID := s.backend.ChainID()
+	uptime := time.Since(s.startedAt).Seconds()
+
+	pipelineActive, pipelineCompleted, pipelineFailed := 0, 0, 0
+	s.health.mu.RLock()
+	if s.health.pipelineStats != nil {
+		pipelineActive, pipelineCompleted, pipelineFailed = s.health.pipelineStats()
+	}
+	s.health.mu.RUnlock()
+
+	fmt.Fprintf(w, "# HELP basis_l2_block_number Current L2 block number\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_block_number gauge\n")
+	fmt.Fprintf(w, "basis_l2_block_number %d\n", blockNum)
+	fmt.Fprintf(w, "# HELP basis_l2_chain_id L2 chain identifier\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_chain_id gauge\n")
+	fmt.Fprintf(w, "basis_l2_chain_id %d\n", chainID)
+	fmt.Fprintf(w, "# HELP basis_l2_uptime_seconds Node uptime in seconds\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_uptime_seconds gauge\n")
+	fmt.Fprintf(w, "basis_l2_uptime_seconds %.0f\n", uptime)
+	fmt.Fprintf(w, "# HELP basis_l2_pipeline_active_batches Number of batches currently in the pipeline\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_pipeline_active_batches gauge\n")
+	fmt.Fprintf(w, "basis_l2_pipeline_active_batches %d\n", pipelineActive)
+	fmt.Fprintf(w, "# HELP basis_l2_pipeline_completed_total Total batches completed successfully\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_pipeline_completed_total counter\n")
+	fmt.Fprintf(w, "basis_l2_pipeline_completed_total %d\n", pipelineCompleted)
+	fmt.Fprintf(w, "# HELP basis_l2_pipeline_failed_total Total batches that failed\n")
+	fmt.Fprintf(w, "# TYPE basis_l2_pipeline_failed_total counter\n")
+	fmt.Fprintf(w, "basis_l2_pipeline_failed_total %d\n", pipelineFailed)
 }
 
 // Allow returns true if the request from the given IP is within rate limits.
