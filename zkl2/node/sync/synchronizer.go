@@ -196,6 +196,16 @@ func (s *Synchronizer) LastBlock() uint64 {
 	return s.lastBlock
 }
 
+// IsRunning returns true if the synchronizer has not been stopped.
+func (s *Synchronizer) IsRunning() bool {
+	select {
+	case <-s.stopCh:
+		return false
+	default:
+		return true
+	}
+}
+
 // pollLoop runs the periodic L1 block scanning.
 func (s *Synchronizer) pollLoop(ctx context.Context) {
 	ticker := time.NewTicker(s.config.PollInterval)

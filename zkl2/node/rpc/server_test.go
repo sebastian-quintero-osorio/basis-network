@@ -85,6 +85,12 @@ func (m *mockBackend) GetBatchStatus(batchID uint64) (*BatchStatus, error) {
 		ProofOnL1: true,
 	}, nil
 }
+func (m *mockBackend) InitiateWithdrawal(sender common.Address, recipient common.Address, amount *big.Int) (uint64, error) {
+	return 0, nil
+}
+func (m *mockBackend) GetWithdrawalProof(index uint64) (common.Hash, []common.Hash, error) {
+	return common.Hash{}, nil, nil
+}
 
 // ---------------------------------------------------------------------------
 // Test Helpers
