@@ -2,7 +2,7 @@
 
 The long-term evolution of Basis Network -- a full zero-knowledge EVM-compatible Layer 2 where each enterprise operates their own chain with dedicated sequencer, EVM executor, ZK prover, and data availability layer. Settles on the Basis Network L1 (Avalanche).
 
-**Status:** R&D pipeline complete (44/44 agents, 11 research units). Node binary operational. Integration in progress. See [POST_ROADMAP_TODO.md](./docs/POST_ROADMAP_TODO.md) for detailed completion plan.
+**Status:** Full E2E pipeline **verified on Basis Network L1 (Fuji)** on 2026-03-23. R&D pipeline complete (44/44 agents, 11 research units). Node binary operational with real EVM execution, PLONK-KZG proofs verified on-chain (291K gas, 5.8s), LevelDB state persistence, L1 synchronizer, and ProtoGalaxy aggregation. See [POST_ROADMAP_TODO.md](./docs/POST_ROADMAP_TODO.md) for detailed status.
 
 ## Quick Start
 
@@ -40,10 +40,10 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 
 | Directory | Technology | Description | Tests | Status |
 |-----------|-----------|-------------|-------|--------|
-| [node/](./node/) | Go 1.24 | L2 node (binary, sequencer, executor, state DB, pipeline, DAC, cross-enterprise) | ~180 Go | Operational |
-| [prover/](./prover/) | Rust 1.83 | ZK prover (witness generation, PLONK circuit, aggregation) | 142 Rust | Tested |
-| [contracts/](./contracts/) | Solidity 0.8.24 | L1 settlement contracts (6 contracts) | 322 TS | Tested |
-| [bridge/](./bridge/) | Go 1.24 | Cross-layer message relay with Merkle proofs | 33 Go | Tested |
+| [node/](./node/) | Go 1.24 | L2 node (binary, sequencer, executor, state DB, pipeline, DAC, cross-enterprise) | 246 Go | E2E verified on L1 |
+| [prover/](./prover/) | Rust 1.83 | ZK prover (witness generation, PLONK circuit, aggregation) | 142 Rust | Real KZG proofs |
+| [contracts/](./contracts/) | Solidity 0.8.24 | L1 settlement contracts (6+1 contracts) | 322 TS | Deployed on Fuji |
+| [bridge/](./bridge/) | Go 1.24 | Cross-layer message relay with Merkle proofs | 33 Go | L1 client wired |
 | [specs/](./specs/) | TLA+ | 11 formal specifications (all TLC-verified) | -- | Complete |
 | [proofs/](./proofs/) | Coq | 107 formal verification files (0 Admitted) | -- | Complete |
 | [tests/](./tests/) | -- | 11 adversarial reports (0 violations) | -- | Complete |
@@ -64,7 +64,7 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 
 | Component | Tests | Status |
 |-----------|-------|--------|
-| Go node (7 packages) | ~180 | All passing |
+| Go node (7 packages) | 246 | All passing |
 | Go bridge | 33 | All passing |
 | Rust prover (3 crates) | 142 | All passing |
 | Solidity contracts (6) | 322 | All passing |
@@ -84,6 +84,37 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 | State Tree | Poseidon SMT | 500x constraint reduction vs Keccak |
 | Architecture | Per-enterprise chains | Maximum data sovereignty |
 
+## Getting Started
+
+```bash
+# 1. Build Go node + Rust prover
+cd node && go build -o basis-l2 ./cmd/basis-l2/
+cd ../prover && cargo build --release
+
+# 2. Configure
+cd ../node && cp .env.example .env
+# Edit .env: set L1_PRIVATE_KEY, contract addresses, PROVER_BINARY_PATH
+
+# 3. Run with persistent state
+./basis-l2 --log-level info --data-dir ./data
+
+# 4. Verify
+curl -X POST http://localhost:8545 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+```
+
+See [Startup Guide](./node/STARTUP.md) for full instructions and [Deployment Guide](./docs/DEPLOYMENT.md) for production deployment.
+
+## Deployed Contracts (Fuji Testnet)
+
+All contracts deployed on Basis Network L1 (Chain ID 43199):
+
+| Contract | Address |
+|----------|---------|
+| EnterpriseRegistry | 0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5 |
+| BasisRollupHarness | 0x79279EDe17c8026412cD093876e8871352f18546 |
+
 ## Documentation
 
 | Document | Description |
@@ -93,7 +124,9 @@ Enterprise DApp --> Sequencer --> EVM Executor --> State DB (Poseidon SMT)
 | [Technical Decisions](./docs/TECHNICAL_DECISIONS.md) | 9 justified ADRs |
 | [Roadmap](./docs/ROADMAP.md) | 11 research units across 5 phases |
 | [Startup Guide](./node/STARTUP.md) | How to build, configure, and run the node |
-| [Integration Plan](./docs/POST_ROADMAP_TODO.md) | Detailed plan for 100% completion |
+| [API Reference](./docs/API.md) | JSON-RPC endpoint documentation |
+| [Deployment Guide](./docs/DEPLOYMENT.md) | Step-by-step deployment procedure |
+| [Status Tracker](./docs/POST_ROADMAP_TODO.md) | Detailed completion status |
 
 ## Relationship to Validium MVP
 

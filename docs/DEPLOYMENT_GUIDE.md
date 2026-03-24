@@ -62,7 +62,7 @@ When prompted:
 - **Token Symbol:** `LITHOS`
 - **Gas configuration:** Choose custom and set:
   - Gas limit: `15000000`
-  - Min base fee: `0`
+  - Min base fee: `1` (CRITICAL: never use 0 -- causes chain stall on Subnet-EVM v0.8.0+)
   - Target gas: `15000000`
   - Base fee change denominator: `48`
   - Min block gas cost: `0`
