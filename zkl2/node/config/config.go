@@ -137,6 +137,9 @@ type DACConfig struct {
 
 	// NodeURLs is the list of DAC node endpoints.
 	NodeURLs []string `json:"node_urls"`
+
+	// ListenAddr is the gRPC server address for this DAC node.
+	ListenAddr string `json:"listen_addr"`
 }
 
 // RPCConfig holds JSON-RPC server parameters.
@@ -272,6 +275,28 @@ func ApplyEnvOverrides(cfg *Config) {
 	}
 	if v := os.Getenv("PROVER_BINARY_PATH"); v != "" {
 		cfg.Prover.BinaryPath = v
+	}
+	// DAC environment overrides
+	if v := os.Getenv("DAC_ENABLED"); v == "true" || v == "1" {
+		cfg.DAC.Enabled = true
+	}
+	if v := os.Getenv("DAC_LISTEN_ADDR"); v != "" {
+		cfg.DAC.ListenAddr = v
+	}
+	if v := os.Getenv("DAC_THRESHOLD"); v != "" {
+		if t, err := strconv.Atoi(v); err == nil && t > 0 {
+			cfg.DAC.Threshold = t
+		}
+	}
+	// Cross-enterprise hub contract address
+	if v := os.Getenv("BASIS_HUB_ADDRESS"); v != "" {
+		cfg.Contracts.BasisHub = v
+	}
+	if v := os.Getenv("BASIS_AGGREGATOR_ADDRESS"); v != "" {
+		cfg.Contracts.BasisAggregator = v
+	}
+	if v := os.Getenv("BASIS_VERIFIER_ADDRESS"); v != "" {
+		cfg.Contracts.BasisVerifier = v
 	}
 }
 
