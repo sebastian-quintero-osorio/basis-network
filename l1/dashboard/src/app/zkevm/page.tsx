@@ -3,7 +3,7 @@
 import StatCard from "@/components/StatCard";
 
 const CONTRACTS = {
-  rollup: "0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49",
+  rollup: "0x79279EDe17c8026412cD093876e8871352f18546",
   verifier: "0xFE9DF13c038414773Ac96189742b6c1f93999f29",
   bridge: "0x9Df0814CFBfE352C942bac682A378ff887486Dd8",
   dac: "0xa7D5771fA69404438d79a1F8C192F7257A514691",
@@ -16,10 +16,19 @@ function truncateAddress(addr: string): string {
 }
 
 const PIPELINE_STEPS = [
-  { label: "Commit", desc: "Batch submitted with state root, L2 block range, and priority ops hash", color: "from-amber-400 to-orange-500" },
-  { label: "Prove", desc: "ZK validity proof generated and verified on-chain (Groth16/PLONK)", color: "from-cyan-400 to-blue-500" },
-  { label: "Execute", desc: "State root finalized, batch permanently anchored on L1", color: "from-emerald-400 to-green-500" },
+  { label: "Commit", desc: "Batch submitted with state root, L2 block range, and priority ops hash", color: "from-amber-400 to-orange-500", gas: "149K" },
+  { label: "Prove", desc: "PLONK-KZG validity proof generated (86ms) and verified on-chain", color: "from-cyan-400 to-blue-500", gas: "71K" },
+  { label: "Execute", desc: "State root finalized, batch permanently anchored on L1", color: "from-emerald-400 to-green-500", gas: "71K" },
 ];
+
+const E2E_METRICS = {
+  totalGas: "291K",
+  totalTime: "5.8s",
+  proofSize: "1,376 bytes",
+  witnessTime: "9ms",
+  proveTime: "86ms",
+  batchesVerified: 1,
+};
 
 export default function ZkevmPage() {
   return (
@@ -34,12 +43,29 @@ export default function ZkevmPage() {
         </p>
       </div>
 
+      {/* E2E Verification Badge */}
+      <div className="animate-in delay-1">
+        <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-800">
+                E2E Pipeline Verified on Basis Network L1 (Fuji)
+              </p>
+              <p className="text-xs text-emerald-600 mt-0.5">
+                tx &#8594; EVM execute &#8594; witness ({E2E_METRICS.witnessTime}) &#8594; PLONK-KZG prove ({E2E_METRICS.proveTime}) &#8594; L1 commit &#8594; L1 prove &#8594; L1 execute &#8594; finalized ({E2E_METRICS.totalGas} gas, {E2E_METRICS.totalTime})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Proof System"
-          value="Groth16"
-          subtitle="PLONK migration ready"
+          value="PLONK-KZG"
+          subtitle="Real proofs verified on-chain"
           accent
           className="animate-in delay-1"
         />
@@ -50,15 +76,15 @@ export default function ZkevmPage() {
           className="animate-in delay-2"
         />
         <StatCard
-          title="L2 Contracts"
-          value="6"
-          subtitle="Deployed on L1"
+          title="L1 Gas Cost"
+          value={E2E_METRICS.totalGas}
+          subtitle="Per batch (zero-fee)"
           className="animate-in delay-3"
         />
         <StatCard
-          title="Test Coverage"
-          value="322"
-          subtitle="Solidity tests passing"
+          title="Proof Time"
+          value={E2E_METRICS.proveTime}
+          subtitle={`${E2E_METRICS.proofSize} proof`}
           className="animate-in delay-4"
         />
       </div>
@@ -77,6 +103,9 @@ export default function ZkevmPage() {
                     {i + 1}
                   </span>
                   <span className="font-bold text-sm">{step.label}</span>
+                  <span className="ml-auto text-xs bg-white/20 rounded px-1.5 py-0.5">
+                    {step.gas} gas
+                  </span>
                 </div>
                 <p className="text-xs text-white/80 leading-relaxed">{step.desc}</p>
               </div>
@@ -132,7 +161,7 @@ export default function ZkevmPage() {
                 <tr>
                   <td className="py-2.5 font-medium text-zinc-800">BasisAggregator</td>
                   <td className="py-2.5 font-mono text-xs text-cyan-600">{truncateAddress(CONTRACTS.aggregator)}</td>
-                  <td className="py-2.5 text-zinc-500">Multi-enterprise proof aggregation</td>
+                  <td className="py-2.5 text-zinc-500">ProtoGalaxy multi-enterprise proof aggregation</td>
                 </tr>
                 <tr>
                   <td className="py-2.5 font-medium text-zinc-800">BasisHub</td>
@@ -152,7 +181,7 @@ export default function ZkevmPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Scheme</dt>
-                <dd className="font-medium text-zinc-800">Groth16 (PLONK target)</dd>
+                <dd className="font-medium text-zinc-800">PLONK-KZG</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Curve</dt>
@@ -160,15 +189,19 @@ export default function ZkevmPage() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Prover</dt>
-                <dd className="font-medium text-zinc-800">Rust (halo2)</dd>
+                <dd className="font-medium text-zinc-800">Rust (halo2-KZG)</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">State Tree</dt>
-                <dd className="font-medium text-zinc-800">Poseidon2 SMT</dd>
+                <dd className="font-medium text-zinc-800">Poseidon SMT (depth 32)</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Verification Gas</dt>
-                <dd className="font-medium text-zinc-800">~300K</dd>
+                <dd className="font-medium text-zinc-800">~291K total</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-zinc-500">Aggregation</dt>
+                <dd className="font-medium text-zinc-800">ProtoGalaxy folding</dd>
               </div>
             </dl>
           </div>
@@ -179,7 +212,7 @@ export default function ZkevmPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Node</dt>
-                <dd className="font-medium text-zinc-800">Go (Geth fork)</dd>
+                <dd className="font-medium text-zinc-800">Go (Geth EVM)</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">DA Mode</dt>
@@ -194,12 +227,12 @@ export default function ZkevmPage() {
                 <dd className="font-medium text-zinc-800">Hub-and-spoke</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-zinc-500">Formal Specs</dt>
-                <dd className="font-medium text-zinc-800">11 TLA+ verified</dd>
+                <dt className="text-zinc-500">Persistence</dt>
+                <dd className="font-medium text-zinc-800">LevelDB</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-zinc-500">Formal Proofs</dt>
-                <dd className="font-medium text-zinc-800">107 Coq files</dd>
+                <dt className="text-zinc-500">RPC</dt>
+                <dd className="font-medium text-zinc-800">21 eth_* methods</dd>
               </div>
             </dl>
           </div>
@@ -210,7 +243,7 @@ export default function ZkevmPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Go (11 packages)</dt>
-                <dd className="font-medium text-emerald-600">~210 passing</dd>
+                <dd className="font-medium text-emerald-600">246 passing</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Rust (3 crates)</dt>
@@ -221,12 +254,16 @@ export default function ZkevmPage() {
                 <dd className="font-medium text-emerald-600">322 passing</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-zinc-500">E2E (live chain)</dt>
-                <dd className="font-medium text-emerald-600">Verified</dd>
+                <dt className="text-zinc-500">TLA+ specs</dt>
+                <dd className="font-medium text-emerald-600">11 verified</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-zinc-500">Adversarial</dt>
-                <dd className="font-medium text-emerald-600">0 violations</dd>
+                <dt className="text-zinc-500">Coq proofs</dt>
+                <dd className="font-medium text-emerald-600">107 files (0 Admitted)</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-zinc-500">E2E Pipeline</dt>
+                <dd className="font-medium text-emerald-600">Verified on L1</dd>
               </div>
             </dl>
           </div>

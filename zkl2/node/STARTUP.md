@@ -71,6 +71,7 @@ Press Ctrl+C. The node handles SIGINT/SIGTERM gracefully:
 | `--config` | (none) | Path to JSON configuration file |
 | `--version` | - | Print version and exit |
 | `--log-level` | info | Override log level (debug, info, warn, error) |
+| `--data-dir` | (none) | Directory for LevelDB state persistence |
 
 ### Configuration File (JSON)
 
@@ -167,17 +168,18 @@ cd zkl2/prover && cargo test
 cd zkl2/contracts && npx hardhat test
 ```
 
-## Current Limitations
+## Current Status (Updated 2026-03-23)
 
-The node binary is a working scaffold. The following features are pending
-(see `docs/POST_ROADMAP_TODO.md` for the complete plan):
+The node is fully operational with E2E pipeline verified on Basis Network L1 (Fuji):
 
-- **JSON-RPC API**: Not yet implemented. Transactions cannot be submitted via RPC.
-- **Production pipeline stages**: The proving pipeline uses simulated stages.
-  Real EVM execution, Rust prover IPC, and L1 submission are pending.
-- **State persistence**: StateDB is in-memory only. Restarts lose all state.
-- **L1 synchronizer**: The node does not read L1 events (deposits, forced inclusion).
-- **Contract deployment**: zkl2 contracts are not yet deployed to Fuji testnet.
+- **JSON-RPC API**: 12+ eth_* methods implemented (MetaMask/Hardhat compatible)
+- **Production pipeline**: Real EVM execution traces -> Rust prover IPC -> L1 submission
+- **State persistence**: LevelDB backend (use `--data-dir ./data`). Restart recovery verified.
+- **L1 synchronizer**: Polls for forced inclusion, deposit events, DAC attestations
+- **Contracts**: All 6 contracts + PlonkVerifier deployed on Fuji testnet
+- **ZK proofs**: Real PLONK-KZG proofs (86ms, 1376 bytes) verified on-chain (291K gas)
+
+See `docs/POST_ROADMAP_TODO.md` for remaining work (bridge E2E, DAC E2E, security hardening).
 
 ## Monitoring
 

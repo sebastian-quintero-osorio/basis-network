@@ -349,14 +349,7 @@ func (s *ProductionStages) Aggregate(ctx context.Context, batches []*BatchState)
 	return &result, nil
 }
 
-// AggregateResult is the output from the Rust proof aggregator.
-type AggregateResult struct {
-	InstanceCount    int    `json:"instance_count"`
-	IsSatisfiable    bool   `json:"is_satisfiable"`
-	ProofBytes       []byte `json:"proof_bytes"`
-	EstimatedGas     uint64 `json:"estimated_gas"`
-	GenerationTimeMs uint64 `json:"generation_time_ms"`
-}
+// AggregateResult is defined in stages.go (shared by all implementations).
 
 // invokeRustBinary executes a Rust binary with a subcommand, piping JSON
 // through stdin and reading the result from stdout.

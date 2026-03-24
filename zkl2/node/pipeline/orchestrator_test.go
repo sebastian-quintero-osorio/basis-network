@@ -91,6 +91,9 @@ func (f *failingStages) Submit(ctx context.Context, batch *BatchState) error {
 	}
 	return f.base.Submit(ctx, batch)
 }
+func (f *failingStages) Aggregate(ctx context.Context, batches []*BatchState) (*AggregateResult, error) {
+	return &AggregateResult{InstanceCount: len(batches), IsSatisfiable: true}, nil
+}
 
 // ---------------------------------------------------------------------------
 // E2E Tests
@@ -775,4 +778,7 @@ func (c *customStages) Submit(ctx context.Context, batch *BatchState) error {
 		return c.submitFunc(ctx, batch)
 	}
 	return c.base.Submit(ctx, batch)
+}
+func (c *customStages) Aggregate(ctx context.Context, batches []*BatchState) (*AggregateResult, error) {
+	return &AggregateResult{InstanceCount: len(batches), IsSatisfiable: true}, nil
 }

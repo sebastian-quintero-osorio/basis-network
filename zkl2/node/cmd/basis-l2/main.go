@@ -21,6 +21,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
 
 	"basis-network/zkl2/node/config"
@@ -165,12 +167,21 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		if err != nil {
 			return nil, fmt.Errorf("open state store: %w", err)
 		}
-		logger.Info("state database initialized with LevelDB persistence",
-			"data_dir", cfg.L2.DataDir,
-		)
-		_ = store // Store is available for write-through persistence.
-		// Full write-through wiring is implemented in PersistentStore.
-		// The hot path remains in-memory for performance.
+		if err := sdb.SetStore(store); err != nil {
+			return nil, fmt.Errorf("load state from store: %w", err)
+		}
+		acctCount := sdb.AccountCount()
+		if acctCount > 0 {
+			logger.Info("state loaded from LevelDB",
+				"data_dir", cfg.L2.DataDir,
+				"accounts", acctCount,
+				"state_root", fmt.Sprintf("%v", sdb.StateRoot()),
+			)
+		} else {
+			logger.Info("state database initialized with LevelDB persistence (empty)",
+				"data_dir", cfg.L2.DataDir,
+			)
+		}
 	} else {
 		logger.Warn("state database initialized (ephemeral, no persistence)")
 	}
@@ -179,25 +190,35 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	adapter := statedb.NewAdapter(sdb)
 
 	// Genesis funding: pre-fund known accounts on L2 (like all L2s do).
-	// These accounts have funds on L1 and are pre-funded on L2 for testing.
-	genesisAccounts := []struct {
-		addr    string
-		balance string // in wei
-	}{
-		// ewoq test default account (1M LITHOS = 1M * 10^18 wei)
-		{"0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC", "1000000000000000000000000"},
-		// Deployer/admin account
-		{"0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", "1000000000000000000000000"},
-	}
-	for _, ga := range genesisAccounts {
-		addr := common.HexToAddress(ga.addr)
-		bal, _ := new(big.Int).SetString(ga.balance, 10)
-		adapter.CreateAccount(addr)
-		uint256Bal, _ := uint256.FromBig(bal)
-		adapter.AddBalance(addr, uint256Bal, tracing.BalanceChangeUnspecified)
-		logger.Info("genesis account funded",
-			"address", addr.Hex(),
-			"balance_eth", new(big.Int).Div(bal, big.NewInt(1e18)).String(),
+	// Only fund if state is empty (fresh database or no persistence).
+	if sdb.AccountCount() == 0 {
+		genesisAccounts := []struct {
+			addr    string
+			balance string // in wei
+		}{
+			// ewoq test default account (1M LITHOS = 1M * 10^18 wei)
+			{"0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC", "1000000000000000000000000"},
+			// Deployer/admin account
+			{"0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD", "1000000000000000000000000"},
+		}
+		for _, ga := range genesisAccounts {
+			addr := common.HexToAddress(ga.addr)
+			bal, _ := new(big.Int).SetString(ga.balance, 10)
+			adapter.CreateAccount(addr)
+			uint256Bal, _ := uint256.FromBig(bal)
+			adapter.AddBalance(addr, uint256Bal, tracing.BalanceChangeUnspecified)
+			logger.Info("genesis account funded",
+				"address", addr.Hex(),
+				"balance_eth", new(big.Int).Div(bal, big.NewInt(1e18)).String(),
+			)
+		}
+		// Persist genesis state.
+		if err := sdb.PersistBlock(); err != nil {
+			logger.Error("failed to persist genesis state", "error", err)
+		}
+	} else {
+		logger.Info("skipping genesis funding (state loaded from disk)",
+			"accounts", sdb.AccountCount(),
 		)
 	}
 
@@ -267,6 +288,8 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	// 4. Initialize RPC Server with real backend.
 	backend := &NodeBackend{
 		stateDB:   sdb,
+		adapter:   adapter,
+		exec:      exec,
 		seq:       seq,
 		l2ChainID: cfg.L2.ChainID,
 	}
@@ -328,15 +351,32 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 			newBalance := new(big.Int).Sub(current, amount)
 			return sdb.SetBalance(key, newBalance)
 		})
-		// Withdraw root: submit to L1 (logged only for now; real submission needs L1 tx)
-		bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
-			logger.Info("withdraw root ready for L1 submission",
-				"root", root.Hex(),
-				"leaves", leafCount,
+		// Withdraw root: submit to BasisBridge.sol on L1.
+		if cfg.L1.PrivateKey != "" && cfg.Contracts.BasisBridge != "" {
+			l1Bridge, err := bridge.NewL1BridgeClient(
+				cfg.L1.RPCURL, cfg.L1.PrivateKey, cfg.Contracts.BasisBridge,
+				logger.With("component", "bridge-l1"),
 			)
-			// Real implementation: call BasisBridge.submitWithdrawRoot on L1
-			return nil
-		})
+			if err != nil {
+				logger.Warn("L1 bridge client not initialized (withdraw roots will be logged only)",
+					"error", err,
+				)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+					logger.Info("withdraw root ready (no L1 client)", "root", root.Hex(), "leaves", leafCount)
+					return nil
+				})
+			} else {
+				enterprise := common.HexToAddress(cfg.Contracts.BasisBridge)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+					return l1Bridge.SubmitWithdrawRoot(context.Background(), enterprise, leafCount, root)
+				})
+			}
+		} else {
+			bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
+				logger.Info("withdraw root ready (no L1 config)", "root", root.Hex(), "leaves", leafCount)
+				return nil
+			})
+		}
 		logger.Info("bridge relayer initialized with deposit/withdrawal handlers",
 			"bridge_contract", cfg.Contracts.BasisBridge,
 		)
@@ -450,6 +490,10 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 	var batchTraces []*executor.ExecutionTrace
 	var batchPreStateRoot string
 
+	// Aggregation tracking: collect finalized batches for ProtoGalaxy folding.
+	var finalizedBatches []*pipeline.BatchState
+	var finalizedBatchesMu sync.Mutex
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -476,6 +520,8 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 			}
 
 			// Execute each transaction through the EVM via the Adapter.
+			// Lock adapter to prevent concurrent access from eth_call/eth_estimateGas.
+			n.backend.AdapterMu.Lock()
 			for _, tx := range block.Transactions {
 				msg := executor.Message{
 					From:     tx.From.ToCommon(),
@@ -526,13 +572,64 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 				}
 
 				// Store receipt in backend for eth_getTransactionReceipt.
-				n.backend.StoreReceipt(tx.Hash, blockNumber, result)
+				n.backend.StoreReceipt(tx.Hash, blockNumber, tx.From.ToCommon(), sequencer.ToCommonAddressPtr(tx.To), result)
 
 				batchTxCount++
 			}
 
+			n.backend.AdapterMu.Unlock()
+
+			// Store block data for eth_getBlockByNumber.
+			if len(block.Transactions) > 0 {
+				txHashes := make([]string, len(block.Transactions))
+				for i, tx := range block.Transactions {
+					txHashes[i] = fmt.Sprintf("0x%x", tx.Hash)
+				}
+				blockHash := crypto.Keccak256Hash(
+					[]byte(fmt.Sprintf("%d:%d", blockNumber, time.Now().UnixNano())),
+				)
+				n.backend.StoreBlock(&StoredBlock{
+					Number:    blockNumber,
+					Hash:      blockHash,
+					Timestamp: uint64(time.Now().Unix()),
+					GasUsed:   0, // Individual tx gas tracked in receipts
+					TxHashes:  txHashes,
+				})
+			}
+
+			// Collect logs from adapter for eth_getLogs indexing.
+			adapterLogs := n.adapter.GetLogs()
+			if len(adapterLogs) > 0 {
+				var logEntries []map[string]interface{}
+				for i, l := range adapterLogs {
+					topics := make([]string, len(l.Topics))
+					for j, t := range l.Topics {
+						topics[j] = t.Hex()
+					}
+					logEntries = append(logEntries, map[string]interface{}{
+						"address":          l.Address.Hex(),
+						"topics":           topics,
+						"data":             fmt.Sprintf("0x%x", l.Data),
+						"blockNumber":      fmt.Sprintf("0x%x", blockNumber),
+						"transactionHash":  "0x0",
+						"transactionIndex": "0x0",
+						"blockHash":        common.Hash{}.Hex(),
+						"logIndex":         fmt.Sprintf("0x%x", i),
+						"removed":          false,
+					})
+				}
+				n.backend.StoreLogs(blockNumber, logEntries)
+			}
+
 			// Update backend block number for eth_blockNumber.
 			n.backend.SetBlockNumber(blockNumber)
+
+			// Persist state to LevelDB after each block with transactions.
+			if len(block.Transactions) > 0 {
+				if err := n.adapter.DB().PersistBlock(); err != nil {
+					n.logger.Error("failed to persist block state", "block", blockNumber, "error", err)
+				}
+			}
 
 			// When batch is full, submit to proving pipeline.
 			if batchTxCount >= n.cfg.L2.BatchSize {
@@ -561,6 +658,32 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 							"batch_id", b.BatchID,
 							"stage", b.Stage,
 						)
+						// Track finalized batch for aggregation.
+						finalizedBatchesMu.Lock()
+						finalizedBatches = append(finalizedBatches, b)
+						count := len(finalizedBatches)
+						finalizedBatchesMu.Unlock()
+
+						// Trigger aggregation after every 4 finalized batches.
+						if count >= 4 && count%4 == 0 {
+							finalizedBatchesMu.Lock()
+							toAggregate := make([]*pipeline.BatchState, len(finalizedBatches))
+							copy(toAggregate, finalizedBatches)
+							finalizedBatchesMu.Unlock()
+
+							go func() {
+								result, err := n.pipeline.Stages().Aggregate(ctx, toAggregate)
+								if err != nil {
+									n.logger.Warn("aggregation failed (non-critical)", "error", err)
+								} else {
+									n.logger.Info("proof aggregation complete",
+										"instances", result.InstanceCount,
+										"satisfiable", result.IsSatisfiable,
+										"gas_estimate", result.EstimatedGas,
+									)
+								}
+							}()
+						}
 					}
 				}(batch)
 

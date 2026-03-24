@@ -178,7 +178,7 @@ func DefaultConfig() *Config {
 			GasLimit:      30_000_000,
 		},
 		Contracts: ContractAddresses{
-			BasisRollup:        "0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49",
+			BasisRollup:        "0x18194dfD8008F6a6Fd8BC7446139668dcA176B51",
 			BasisBridge:        "0x9Df0814CFBfE352C942bac682A378ff887486Dd8",
 			BasisDAC:           "0xa7D5771fA69404438d79a1F8C192F7257A514691",
 			BasisHub:           "0xBf997eFD945Fe99ECDD129C86De7f75355b1AC42",

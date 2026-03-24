@@ -237,6 +237,10 @@ type TransactionResult struct {
 
 	// Trace is the execution trace for ZK witness generation.
 	Trace *ExecutionTrace
+
+	// ContractAddress is set for contract creation transactions (msg.To == nil).
+	// It contains the address of the newly deployed contract.
+	ContractAddress *common.Address
 }
 
 // BlockInfo holds block-level context for transaction execution.

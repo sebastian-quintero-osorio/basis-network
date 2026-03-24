@@ -1,16 +1,22 @@
 # Validium: Complete Production Roadmap
 
-## Current State: ~90%
+## Current State: ~95% (Updated 2026-03-23)
 
-The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L1 verification -> state root updated. What follows is every remaining item to reach 100% production readiness for critical enterprise operations.
+The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L1
+verification -> state root updated. Phases 1-4 are substantially completed (BN128
+validation, circuit v2 reconciliation, distributed DAC with gRPC, security hardening,
+Prometheus metrics, TLS, WAL encryption). Remaining work: mainnet preparation (Phase 5)
+and scale optimizations (Phase 6).
 
 ---
 
-## Phase 1: Immediate Fixes (1-2 days)
+## Phase 1: Immediate Fixes -- COMPLETED (2026-03-21)
 
-### 1.1 BN128 Field Validation on API Input
+### 1.1 BN128 Field Validation on API Input -- COMPLETED
 
-**Problem:** The REST API accepts transaction keys outside the BN128 scalar field (> 21888242871839275222246405745257275088548364400416034343698204186575808495617). This causes the SMT to crash during batch processing.
+**Problem (resolved):** The REST API previously accepted transaction keys outside the BN128
+scalar field. Fixed in commit f047e77 (security hardening -- BN128 validation, HMAC,
+WAL encryption, TLS).
 
 **Solution:**
 - File: `validium/node/src/api/server.ts`
@@ -21,9 +27,10 @@ The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L
 
 **Verification:** Send key = BN128_FIELD_PRIME + 1, expect HTTP 400. Send key = BN128_FIELD_PRIME - 1, expect HTTP 202.
 
-### 1.2 Reconcile Circuit v1/v2
+### 1.2 Reconcile Circuit v1/v2 -- COMPLETED
 
-**Problem:** Two circuit versions coexist. Production artifacts use v2 (with EMPTY leaf handling) but the canonical file (`circuits/circuits/state_transition.circom`) is still v1.
+**Problem (resolved):** Two circuit versions coexisted. Fixed in commit a3a609f
+(reconcile circuit v2 with EMPTY leaf handling).
 
 **Solution:**
 - Replace `state_transition.circom` content with `state_transition_v2.circom` content
@@ -51,11 +58,13 @@ The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L
 
 ---
 
-## Phase 2: Distributed DAC (2-4 weeks)
+## Phase 2: Distributed DAC -- COMPLETED (2026-03-21)
 
-### 2.1 DAC Node as Standalone Service
+### 2.1 DAC Node as Standalone Service -- COMPLETED
 
-**Problem:** DAC nodes are in-process JavaScript objects. No network communication.
+**Problem (resolved):** DAC nodes were in-process JavaScript objects. Now standalone
+gRPC services. Commit 245db45 (distributed DAC service with gRPC + L1 attestation).
+Commit 31bbce4 verified distributed DAC with 3 Docker nodes.
 
 **Solution:**
 - Create `validium/dac-node/` -- standalone Node.js service
@@ -103,11 +112,11 @@ The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L
 
 ---
 
-## Phase 3: Security Hardening (1-2 weeks)
+## Phase 3: Security Hardening -- MOSTLY COMPLETED (2026-03-21)
 
 ### 3.1 Rate Limiting per Enterprise
 
-**Problem:** Current rate limiting is per-IP. Should be per enterprise API key.
+**Problem:** Current rate limiting is per-IP. Per-enterprise rate limiting still open.
 
 **Solution:**
 - Modify `api/rate-limiter.ts` to key on enterprise ID (from API key lookup)
@@ -120,29 +129,25 @@ The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L
 - Generate new API key, invalidate old one after grace period
 - Audit log of key rotations
 
-### 3.3 WAL Encryption at Rest
+### 3.3 WAL Encryption at Rest -- COMPLETED
 
-**Problem:** WAL stores enterprise transaction data in plaintext JSON.
+**Problem (resolved):** WAL stored enterprise transaction data in plaintext JSON.
+AES-256-GCM encryption implemented in commit f047e77 (WAL encryption support via
+`WAL_ENCRYPTION_KEY` env var).
 
-**Solution:**
-- Add AES-256-GCM encryption for WAL entries
-- Key derived from `WAL_ENCRYPTION_KEY` env var
-- Transparent encryption/decryption in WAL read/write paths
+### 3.4 TLS for API Server -- COMPLETED
 
-### 3.4 TLS for API Server
-
-**Solution:**
-- Add TLS certificate configuration to Fastify
-- Environment variables: `API_TLS_CERT`, `API_TLS_KEY`
-- Redirect HTTP to HTTPS
+**Result:** TLS support implemented in commit f047e77. Environment variables
+`API_TLS_CERT` and `API_TLS_KEY` configure HTTPS. Error handling improved in
+commit 885b8b4.
 
 ---
 
-## Phase 4: Operational Readiness (1-2 weeks)
+## Phase 4: Operational Readiness -- PARTIALLY COMPLETED (2026-03-21)
 
 ### 4.1 Execute Load Test
 
-- Run `scripts/load-test.ts` against running node
+- [ ] Run `scripts/load-test.ts` against running node (not yet automated)
 - Scenarios: sustained 10 tx/s for 5 min, burst 100 tx/1s
 - Document results: throughput, latency, memory
 
@@ -158,11 +163,12 @@ The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L
 - Exchange cross-references via CrossEnterpriseVerifier contract
 - Verify isolation: enterprise A cannot read enterprise B data
 
-### 4.4 Monitoring Stack
+### 4.4 Monitoring Stack -- PARTIALLY COMPLETED
 
-- Docker Compose: Prometheus + Grafana
-- Pre-built dashboard for validium metrics
-- Alert rules for: queue depth > 100, error state, proof duration > 20s, L1 submission failures
+- [x] Prometheus metrics export (commit 16ea445)
+- [x] Graceful shutdown hardening (commit 16ea445)
+- [ ] Docker Compose: Prometheus + Grafana dashboards
+- [ ] Alert rules for: queue depth > 100, error state, proof duration > 20s, L1 submission failures
 
 ### 4.5 Backup and Restore Procedure
 

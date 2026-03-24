@@ -436,6 +436,424 @@ func TestAdapter_EVMExecution_ContractSSTORE(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// Contract deployment tests
+// ---------------------------------------------------------------------------
+
+func TestAdapter_ContractDeploymentViaCreate(t *testing.T) {
+	a, db := testAdapter()
+	deployer := common.HexToAddress("0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+	// Fund deployer.
+	a.CreateAccount(deployer)
+	a.AddBalance(deployer, uint256.NewInt(10_000_000), tracing.BalanceChangeUnspecified)
+
+	// Simulate what go-ethereum's evm.Create does:
+	// 1. Compute contract address (keccak256(rlp(sender, nonce)))
+	contractAddr := common.HexToAddress("0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+
+	// 2. Collision check: GetCodeHash must return zero hash for non-existent address
+	codeHash := a.GetCodeHash(contractAddr)
+	if codeHash != (common.Hash{}) {
+		t.Fatalf("expected zero hash for non-existent address, got %s", codeHash.Hex())
+	}
+	if a.GetNonce(contractAddr) != 0 {
+		t.Fatalf("expected nonce 0 for non-existent address")
+	}
+
+	// 3. CreateContract
+	a.CreateContract(contractAddr)
+	if !a.Exist(contractAddr) {
+		t.Fatal("contract address should exist after CreateContract")
+	}
+
+	// 4. Set nonce to 1 (go-ethereum sets nonce=1 for new contracts)
+	a.SetNonce(contractAddr, 1, tracing.NonceChangeUnspecified)
+
+	// 5. Simulate init code execution: store value at slot 0
+	slot := common.HexToHash("0x00")
+	value := common.HexToHash("0x42")
+	a.SetState(contractAddr, slot, value)
+
+	// 6. SetCode with deployed bytecode
+	bytecode := []byte{0x60, 0x42, 0x60, 0x00, 0x55, 0x00} // PUSH 0x42, PUSH 0, SSTORE, STOP
+	a.SetCode(contractAddr, bytecode)
+
+	// Verify everything is consistent
+	if a.GetCodeSize(contractAddr) != len(bytecode) {
+		t.Errorf("code size mismatch: expected %d, got %d", len(bytecode), a.GetCodeSize(contractAddr))
+	}
+	gotHash := a.GetCodeHash(contractAddr)
+	if gotHash == (common.Hash{}) {
+		t.Error("code hash should not be zero after SetCode")
+	}
+	gotState := a.GetState(contractAddr, slot)
+	if gotState != value {
+		t.Errorf("storage mismatch: expected %s, got %s", value.Hex(), gotState.Hex())
+	}
+	if a.GetNonce(contractAddr) != 1 {
+		t.Errorf("nonce should be 1, got %d", a.GetNonce(contractAddr))
+	}
+
+	// Verify the Poseidon SMT was updated
+	smtKey := AddressToKey(contractAddr)
+	if !db.IsAlive(smtKey) {
+		t.Error("contract should be alive in Poseidon SMT")
+	}
+	smtSlot := SlotToKey(slot)
+	smtVal := db.GetStorage(smtKey, smtSlot)
+	if smtVal.IsZero() {
+		t.Error("expected non-zero storage in Poseidon SMT")
+	}
+}
+
+func TestAdapter_GetCodeHash_PreFundedAddress(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0xEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+
+	// Pre-fund the address (alive, no code).
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(1_000_000), tracing.BalanceChangeUnspecified)
+
+	// GetCodeHash for alive account with no code = emptyCodeHash.
+	// This must NOT trigger go-ethereum's collision check.
+	emptyCodeHash := common.HexToHash("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")
+	gotHash := a.GetCodeHash(addr)
+	if gotHash != emptyCodeHash {
+		t.Errorf("expected emptyCodeHash for alive account with no code, got %s", gotHash.Hex())
+	}
+
+	// Collision check simulation: nonce==0 && (hash==zero || hash==emptyCodeHash) => no collision
+	nonce := a.GetNonce(addr)
+	isCollision := nonce != 0 || (gotHash != (common.Hash{}) && gotHash != emptyCodeHash)
+	if isCollision {
+		t.Error("pre-funded address should NOT trigger collision check")
+	}
+
+	// Deploy contract at this pre-funded address
+	a.CreateContract(addr)
+	a.SetNonce(addr, 1, tracing.NonceChangeUnspecified)
+	a.SetCode(addr, []byte{0x60, 0x00, 0x55, 0x00})
+
+	// Now GetCodeHash should return the real hash
+	gotHash = a.GetCodeHash(addr)
+	if gotHash == emptyCodeHash || gotHash == (common.Hash{}) {
+		t.Error("code hash should be real hash after SetCode, not empty")
+	}
+}
+
+func TestAdapter_CreateContract_ClearsOldCode(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+
+	// Deploy first contract
+	a.CreateAccount(addr)
+	a.SetCode(addr, []byte{0x60, 0x42, 0x00}) // PUSH 0x42, STOP
+	a.SetNonce(addr, 1, tracing.NonceChangeUnspecified)
+
+	// Verify code exists
+	if a.GetCodeSize(addr) != 3 {
+		t.Fatalf("expected code size 3, got %d", a.GetCodeSize(addr))
+	}
+
+	// Simulate self-destruct + re-creation (e.g., via CREATE2)
+	// CreateContract should clear old code
+	a.CreateContract(addr)
+	if a.GetCodeSize(addr) != 0 {
+		t.Error("CreateContract should clear old code")
+	}
+	// GetCodeHash after clear should return emptyCodeHash (account is alive, no code)
+	emptyCodeHash := common.HexToHash("0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")
+	if a.GetCodeHash(addr) != emptyCodeHash {
+		t.Errorf("expected emptyCodeHash after CreateContract clear, got %s", a.GetCodeHash(addr).Hex())
+	}
+
+	// Deploy new code
+	a.SetCode(addr, []byte{0x60, 0xFF, 0x00}) // PUSH 0xFF, STOP
+	if a.GetCodeSize(addr) != 3 {
+		t.Error("new code should be set after re-creation")
+	}
+}
+
+func TestAdapter_EVMExecution_ContractCreation(t *testing.T) {
+	a, db := testAdapter()
+	deployer := common.HexToAddress("0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+	// Fund deployer.
+	a.CreateAccount(deployer)
+	a.AddBalance(deployer, uint256.NewInt(10_000_000), tracing.BalanceChangeUnspecified)
+
+	rootBefore := db.StateRoot()
+
+	// Build EVM.
+	blockCtx := vm.BlockContext{
+		CanTransfer: func(db vm.StateDB, addr common.Address, amount *uint256.Int) bool {
+			return db.GetBalance(addr).Cmp(amount) >= 0
+		},
+		Transfer: func(db vm.StateDB, sender, recipient common.Address, amount *uint256.Int) {
+			db.SubBalance(sender, amount, tracing.BalanceChangeTransfer)
+			db.AddBalance(recipient, amount, tracing.BalanceChangeTransfer)
+		},
+		GetHash:     func(n uint64) common.Hash { return common.Hash{} },
+		BlockNumber: new(big.Int).SetUint64(1),
+		Time:        1700000000,
+		GasLimit:    30_000_000,
+		BaseFee:     new(big.Int),
+	}
+
+	chainConfig := &params.ChainConfig{
+		ChainID:             big.NewInt(431990),
+		HomesteadBlock:      big.NewInt(0),
+		EIP150Block:         big.NewInt(0),
+		EIP155Block:         big.NewInt(0),
+		EIP158Block:         big.NewInt(0),
+		ByzantiumBlock:      big.NewInt(0),
+		ConstantinopleBlock: big.NewInt(0),
+		PetersburgBlock:     big.NewInt(0),
+		IstanbulBlock:       big.NewInt(0),
+		BerlinBlock:         big.NewInt(0),
+		LondonBlock:         big.NewInt(0),
+		ShanghaiTime:        uint64Ptr(0),
+		CancunTime:          uint64Ptr(0),
+	}
+
+	evm := vm.NewEVM(blockCtx, a, chainConfig, vm.Config{})
+	evm.SetTxContext(vm.TxContext{
+		Origin:   deployer,
+		GasPrice: new(big.Int),
+	})
+
+	// Init code: PUSH1 0x42, PUSH1 0x00, SSTORE, PUSH1 0x01, PUSH1 0x00, RETURN
+	// This stores 0x42 at slot 0 during init, then returns 1-byte runtime code (0x01).
+	// Actually, we need to return bytecode. Let's use a simpler init code:
+	// Runtime code: 0x00 (STOP) -- 1 byte
+	// Init code: PUSH1 0x01 (runtime size), PUSH1 0x0c (runtime offset), PUSH1 0x00, CODECOPY, PUSH1 0x01, PUSH1 0x00, RETURN
+	// But simpler: just return a single STOP byte.
+	// PUSH1 0x00 PUSH1 0x00 SSTORE  -- store 0 at slot 0 (just to test SSTORE)
+	// PUSH1 0x01 PUSH1 0x00 MSTORE8 -- store 0x01 at memory[0]
+	// PUSH1 0x01 PUSH1 0x00 RETURN  -- return 1 byte from memory[0]
+	initCode := []byte{
+		0x60, 0x42, // PUSH1 0x42
+		0x60, 0x00, // PUSH1 0x00
+		0x55,       // SSTORE (store 0x42 at slot 0)
+		0x60, 0x00, // PUSH1 0x00 (runtime code = STOP)
+		0x60, 0x00, // PUSH1 0x00
+		0x53,       // MSTORE8
+		0x60, 0x01, // PUSH1 0x01
+		0x60, 0x00, // PUSH1 0x00
+		0xf3,       // RETURN
+	}
+
+	ret, contractAddr, gasLeft, err := evm.Create(deployer, initCode, 1_000_000, uint256.NewInt(0))
+	if err != nil {
+		t.Fatalf("EVM Create failed: %v", err)
+	}
+	_ = gasLeft
+
+	// Verify contract was deployed
+	if contractAddr == (common.Address{}) {
+		t.Fatal("contract address should not be zero")
+	}
+	t.Logf("Contract deployed at: %s", contractAddr.Hex())
+	t.Logf("Runtime code: %x (len=%d)", ret, len(ret))
+
+	// Verify deployed runtime code
+	code := a.GetCode(contractAddr)
+	if len(code) == 0 {
+		t.Error("deployed contract should have code")
+	}
+
+	// Verify code hash is set
+	codeHash := a.GetCodeHash(contractAddr)
+	if codeHash == (common.Hash{}) {
+		t.Error("deployed contract should have non-zero code hash")
+	}
+
+	// Verify storage was set by init code
+	slot := common.HexToHash("0x00")
+	storageVal := a.GetState(contractAddr, slot)
+	expected := common.HexToHash("0x42")
+	if storageVal != expected {
+		t.Errorf("storage slot 0: expected 0x42, got %s", storageVal.Hex())
+	}
+
+	// Verify state root changed
+	rootAfter := db.StateRoot()
+	if rootBefore == rootAfter {
+		t.Error("state root should change after contract deployment")
+	}
+
+	t.Logf("State root changed: %v -> %v", rootBefore.String(), rootAfter.String())
+}
+
+// ---------------------------------------------------------------------------
+// Snapshot/Revert Journaling Tests (production journaling, not structural)
+// ---------------------------------------------------------------------------
+
+func TestAdapter_SnapshotRevertBalance(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x1111111111111111111111111111111111111111")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(1000), tracing.BalanceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(5000), tracing.BalanceChangeUnspecified)
+	if a.GetBalance(addr).Uint64() != 6000 {
+		t.Fatalf("expected 6000 after add, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetBalance(addr).Uint64() != 1000 {
+		t.Errorf("expected 1000 after revert, got %d", a.GetBalance(addr).Uint64())
+	}
+}
+
+func TestAdapter_SnapshotRevertNonce(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x2222222222222222222222222222222222222222")
+	a.CreateAccount(addr)
+	a.SetNonce(addr, 5, tracing.NonceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.SetNonce(addr, 42, tracing.NonceChangeUnspecified)
+	if a.GetNonce(addr) != 42 {
+		t.Fatalf("expected nonce 42, got %d", a.GetNonce(addr))
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetNonce(addr) != 5 {
+		t.Errorf("expected nonce 5 after revert, got %d", a.GetNonce(addr))
+	}
+}
+
+func TestAdapter_SnapshotRevertStorage(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x3333333333333333333333333333333333333333")
+	a.CreateAccount(addr)
+	slot := common.HexToHash("0x01")
+	origVal := common.HexToHash("0xAA")
+	a.SetState(addr, slot, origVal)
+
+	snapID := a.Snapshot()
+	newVal := common.HexToHash("0xBB")
+	a.SetState(addr, slot, newVal)
+	if a.GetState(addr, slot) != newVal {
+		t.Fatalf("expected 0xBB, got %s", a.GetState(addr, slot).Hex())
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.GetState(addr, slot) != origVal {
+		t.Errorf("expected 0xAA after revert, got %s", a.GetState(addr, slot).Hex())
+	}
+}
+
+func TestAdapter_SnapshotRevertCode(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x4444444444444444444444444444444444444444")
+	a.CreateAccount(addr)
+	origCode := []byte{0x60, 0x42, 0x00}
+	a.SetCode(addr, origCode)
+
+	snapID := a.Snapshot()
+	a.SetCode(addr, []byte{0x60, 0xFF, 0x00})
+	if a.GetCodeSize(addr) != 3 {
+		t.Fatal("code should be set")
+	}
+
+	a.RevertToSnapshot(snapID)
+	code := a.GetCode(addr)
+	if !bytesEqual(code, origCode) {
+		t.Errorf("expected original code after revert, got %x", code)
+	}
+}
+
+func TestAdapter_SnapshotRevertSelfDestruct(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x5555555555555555555555555555555555555555")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(9000), tracing.BalanceChangeUnspecified)
+
+	snapID := a.Snapshot()
+	a.SelfDestruct(addr)
+	if !a.HasSelfDestructed(addr) {
+		t.Fatal("should be self-destructed")
+	}
+	if a.GetBalance(addr).Uint64() != 0 {
+		t.Fatal("balance should be zero after self-destruct")
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.HasSelfDestructed(addr) {
+		t.Error("should NOT be self-destructed after revert")
+	}
+	if a.GetBalance(addr).Uint64() != 9000 {
+		t.Errorf("expected balance 9000 after revert, got %d", a.GetBalance(addr).Uint64())
+	}
+}
+
+func TestAdapter_SnapshotNestedReverts(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x6666666666666666666666666666666666666666")
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(100), tracing.BalanceChangeUnspecified)
+
+	snapA := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(200), tracing.BalanceChangeUnspecified) // 300
+
+	snapB := a.Snapshot()
+	a.AddBalance(addr, uint256.NewInt(400), tracing.BalanceChangeUnspecified) // 700
+
+	if a.GetBalance(addr).Uint64() != 700 {
+		t.Fatalf("expected 700, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	// Revert to A (skipping B) -- should undo both B's and A's mutations
+	a.RevertToSnapshot(snapA)
+	if a.GetBalance(addr).Uint64() != 100 {
+		t.Errorf("expected 100 after revert to A, got %d", a.GetBalance(addr).Uint64())
+	}
+
+	_ = snapB // used above
+}
+
+func TestAdapter_SnapshotRevertLogs(t *testing.T) {
+	a, _ := testAdapter()
+	log1 := &types.Log{Address: common.HexToAddress("0x01"), Data: []byte{1}}
+	a.AddLog(log1)
+
+	snapID := a.Snapshot()
+	log2 := &types.Log{Address: common.HexToAddress("0x02"), Data: []byte{2}}
+	log3 := &types.Log{Address: common.HexToAddress("0x03"), Data: []byte{3}}
+	a.AddLog(log2)
+	a.AddLog(log3)
+
+	if len(a.GetLogs()) != 3 {
+		t.Fatalf("expected 3 logs, got %d", len(a.GetLogs()))
+	}
+
+	a.RevertToSnapshot(snapID)
+	if len(a.GetLogs()) != 1 {
+		t.Errorf("expected 1 log after revert, got %d", len(a.GetLogs()))
+	}
+}
+
+func TestAdapter_SnapshotRevertAccountCreation(t *testing.T) {
+	a, _ := testAdapter()
+	addr := common.HexToAddress("0x7777777777777777777777777777777777777777")
+
+	snapID := a.Snapshot()
+	a.CreateAccount(addr)
+	a.AddBalance(addr, uint256.NewInt(500), tracing.BalanceChangeUnspecified)
+	if !a.Exist(addr) {
+		t.Fatal("account should exist after creation")
+	}
+
+	a.RevertToSnapshot(snapID)
+	if a.Exist(addr) {
+		t.Error("account should NOT exist after reverting creation")
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

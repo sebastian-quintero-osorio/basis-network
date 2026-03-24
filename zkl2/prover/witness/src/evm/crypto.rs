@@ -18,6 +18,9 @@ pub fn process_entry(
                 offset,
                 size,
                 Fr::from(0u64), // hash result (computed off-chain)
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         _ => Ok(vec![]),

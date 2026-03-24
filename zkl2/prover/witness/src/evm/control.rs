@@ -18,17 +18,25 @@ pub fn process_entry(
                 Fr::from(op_id),
                 dest,
                 cond,
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         TraceOp::RETURN | TraceOp::REVERT => {
             let offset = Fr::from(entry.mem_offset);
-            let size = Fr::from(entry.sha3_size); // Reused as generic size
+            let size = Fr::from(entry.sha3_size);
             let op_id = if entry.op == TraceOp::RETURN { 0xF3u64 } else { 0xFDu64 };
             Ok(vec![vec![
                 Fr::from(global_counter),
                 Fr::from(op_id),
                 offset,
                 size,
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
             ]])
         }
         _ => Ok(vec![]),

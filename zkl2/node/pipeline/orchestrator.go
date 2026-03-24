@@ -44,6 +44,11 @@ type Orchestrator struct {
 	failedCount    int
 }
 
+// Stages returns the underlying pipeline stages for direct access (e.g., aggregation).
+func (o *Orchestrator) Stages() Stages {
+	return o.stages
+}
+
 // NewOrchestrator creates a new pipeline orchestrator with the given configuration.
 func NewOrchestrator(config PipelineConfig, logger *slog.Logger, stages Stages) *Orchestrator {
 	if logger == nil {
