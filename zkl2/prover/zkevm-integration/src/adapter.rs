@@ -15,7 +15,7 @@
 //!
 //! This adapter bridges the two formats.
 
-use basis_witness::types::{BatchTrace, ExecutionTrace, TraceEntry, TraceOp};
+use basis_witness::types::{BatchTrace, TraceOp};
 
 /// Convert a Basis ExecutionTrace to a simplified PSE-compatible format.
 ///
@@ -120,6 +120,7 @@ impl TraceCoverage {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use basis_witness::types::{ExecutionTrace, TraceEntry};
 
     #[test]
     fn analyze_empty_batch() {

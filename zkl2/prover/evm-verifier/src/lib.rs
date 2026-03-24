@@ -10,10 +10,7 @@
 use basis_circuit::circuit::{BasisCircuit, CircuitOp};
 use basis_circuit::srs::generate_srs;
 use basis_circuit::prover::generate_vk;
-use halo2_proofs::halo2curves::bn256::{Fr, G1Affine};
-use halo2_proofs::plonk::VerifyingKey;
-use halo2_proofs::poly::kzg::commitment::ParamsKZG;
-use halo2_proofs::halo2curves::bn256::Bn256;
+use halo2_proofs::halo2curves::bn256::Fr;
 use halo2_proofs::SerdeFormat;
 
 /// VK export data for configuring the on-chain PlonkVerifier.sol.
