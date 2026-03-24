@@ -79,6 +79,8 @@ coverage/
 # Internal development files (not part of public deliverables)
 .internal/
 CLAUDE.md
+l1/contracts/scripts/setup-plasma-enterprise.ts
+l1/contracts/scripts/upgrade-groth16-verifier.ts
 
 # Agent pipeline proprietary configuration (skills and operating manuals)
 .claude/
