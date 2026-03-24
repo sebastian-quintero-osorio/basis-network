@@ -22,16 +22,17 @@
 - CORS: `Access-Control-Allow-Origin: *`
 - SSL via Let's Encrypt
 
-### Deployed Contracts
+### Deployed L1 Contracts (v3 -- Active)
 
 | Contract | Address | Category |
 |---|---|---|
-| EnterpriseRegistry | 0xd0D04E29F6E3219fD7169e6aF65c1eeaf287ecd0 | Core |
-| TraceabilityRegistry | 0x1FD683eb4661A9828aa205E250FC1528dF45e037 | Core |
-| ZKVerifier | 0xAa4A7231c94D66FD338b96192556Cd454Cf015D4 | Verification |
-| StateCommitment | 0xe10CCf26c7Cb6CB81b47C8Da72E427628c8a5E09 | Core |
-| DACAttestation | 0xAC00F4920665b1eA43F4F7Da7ef3714DE7acf6Fc | Verification |
-| CrossEnterpriseVerifier | 0xF486547C8bF764eA4E53a05D745543f8a6973133 | Verification |
+| EnterpriseRegistry | 0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5 | Core |
+| TraceabilityRegistry | 0x0a84C68Fe45d3036Fe66ad219f37963c79140fcb | Core |
+| ZKVerifier | 0x51B072d47f40ab7aaeD2D7744a17Bf5b53fC916D | Verification |
+| Groth16Verifier | 0xEe0149b9E547cfD7e31274EE3DA25DCEd48703a6 | Verification |
+| StateCommitment | 0x0FD3874008ed7C1184798Dd555B3D9695771fb5b | Core |
+| DACAttestation | 0xBa485D9b8b8b132E5eC4d7Bcf5F0B18aD10fCB22 | Verification |
+| CrossEnterpriseVerifier | 0x188125658E9Bd8D7a026A52052dB9B970d6441A9 | Verification |
 
 ### ValidatorManager (Pre-deployed in Genesis)
 - Proxy: 0x0Feedc0de0000000000000000000000000000000
@@ -42,16 +43,34 @@
 - Address: 0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD
 - Initial Balance: 1,000,000 LITHOS
 
-### zkEVM L2 Settlement Contracts (Deployed 2026-03-21)
+### zkEVM L2 Settlement Contracts
+
+#### Active (BasisRollupV2 + PlonkVerifier -- Deployed 2026-03-24)
 
 | Contract | Address | Purpose |
 |---|---|---|
-| BasisVerifier | 0xFE9DF13c038414773Ac96189742b6c1f93999f29 | PLONK/Groth16 proof verification + migration |
-| BasisRollup | 0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49 | State root management + ZK batch lifecycle |
-| BasisBridge | 0x9Df0814CFBfE352C942bac682A378ff887486Dd8 | L1-L2 asset transfers + escape hatch |
-| BasisDAC | 0xa7D5771fA69404438d79a1F8C192F7257A514691 | Data availability committee attestations |
-| BasisAggregator | 0x98272431b8B270CABeE37A158e01bdC3412744E2 | Multi-enterprise proof aggregation |
-| BasisHub | 0xBf997eFD945Fe99ECDD129C86De7f75355b1AC42 | Cross-enterprise hub-and-spoke settlement |
+| PlonkVerifier | 0xD2F07E9bC02d96C53Da47D166eEAa0d850212F23 | PLONK-KZG proof verification (real SRS from srs_k8.bin) |
+| BasisRollupV2 | 0x9DDE6f93182d660c9f18734De29254D811ae859f | State root management + PlonkVerifier integration |
+
+commitBatch verified on-chain (149K gas). proveBatchV2 requires Halo2-generated
+Solidity verifier (snark-verifier) to match full PLONK proof format.
+
+#### Supporting Contracts (Deployed 2026-03-24)
+
+| Contract | Address | Purpose |
+|---|---|---|
+| BasisVerifier | 0x9393099EbCA963388B73b34f71DAB31fec7E8e49 | PLONK/Groth16 dual verification + migration |
+| BasisRollup | 0xEb2dc9D540eE016CBF85d3D84b97B756d7a86850 | Groth16 state root management (legacy) |
+| BasisBridge | 0xd0B4BeB95De33d6F49Bcc08fE5ce3b923e263a5b | L1-L2 asset transfers + escape hatch |
+| BasisDAC | 0x1E0c7C220c75E530E22BC066F8B5a98DeB6dfe9B | Data availability committee attestations |
+| BasisAggregator | 0xddfe844E347470F45D53bA6FFBA95034F45670a2 | Multi-enterprise proof aggregation |
+| BasisHub | 0x6Faf689a6Dcb67a633b437774388F0358D882f0B | Cross-enterprise hub-and-spoke settlement |
+
+#### Previous (Deprecated)
+
+| Contract | Address | Purpose |
+|---|---|---|
+| BasisRollupHarness | 0x79279EDe17c8026412cD093876e8871352f18546 | Test harness with mock _verifyProof (2026-03-23) |
 
 ### Architecture Notes
 - L1 is a generic settlement layer (no application-specific logic)

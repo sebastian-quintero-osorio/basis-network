@@ -12,6 +12,7 @@ path = "src/main.rs"
 basis-witness = { path = "../witness" }
 basis-circuit = { path = "../circuit" }
 basis-aggregator = { path = "../aggregator" }
+basis-evm-verifier = { path = "../evm-verifier" }
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
 ark-bn254 = "0.4"
 ark-ff = "0.4"

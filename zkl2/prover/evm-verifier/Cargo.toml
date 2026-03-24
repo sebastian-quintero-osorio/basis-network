@@ -8,4 +8,5 @@ license = "BUSL-1.1"
 [dependencies]
 basis-circuit = { path = "../circuit" }
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
+halo2_solidity_verifier = { git = "https://github.com/privacy-scaling-explorations/halo2-solidity-verifier" }
 rand = "0.8"

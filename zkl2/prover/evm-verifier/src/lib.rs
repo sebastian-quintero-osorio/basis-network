@@ -4,14 +4,16 @@
 //! basis-circuit crate. Uses the halo2 verification key to embed the
 //! circuit-specific constants into the generated verifier.
 //!
-//! For testnet: exports VK parameters for the PlonkVerifier.sol contract.
-//! For production: will generate a complete on-chain verifier via snark-verifier.
+//! Uses halo2-solidity-verifier (by PSE) to auto-generate a complete Solidity
+//! verifier from the circuit's VK. This is the industry-standard approach used
+//! by Scroll, PSE zkEVM, and other Halo2-based L2s.
 
 use basis_circuit::circuit::{BasisCircuit, CircuitOp};
 use basis_circuit::srs::generate_srs;
 use basis_circuit::prover::generate_vk;
 use halo2_proofs::halo2curves::bn256::Fr;
 use halo2_proofs::SerdeFormat;
+use halo2_solidity_verifier::{BatchOpenScheme::Bdfg21, SolidityGenerator};
 
 /// VK export data for configuring the on-chain PlonkVerifier.sol.
 pub struct VKExport {
@@ -122,6 +124,39 @@ pub fn generate_and_export_proof(
     })
 }
 
+/// Generate a complete Solidity verifier contract for the Basis Network circuit.
+///
+/// Uses halo2-solidity-verifier to produce a contract that correctly verifies
+/// Halo2 PLONK-KZG proofs with SHPLONK multi-opening, Blake2b transcript, and
+/// all polynomial commitments. The generated verifier is self-contained and
+/// embeds the VK constants.
+///
+/// Returns (verifier_solidity, vk_solidity) -- two Solidity source strings.
+/// Deploy both contracts: the VK contract first, then the verifier pointing to it.
+pub fn generate_solidity_verifier(k: u32) -> Result<(String, String), String> {
+    let params = generate_srs(k).map_err(|e| format!("SRS: {}", e))?;
+
+    let circuit = BasisCircuit::new(
+        vec![CircuitOp::Poseidon {
+            input: Fr::from(0u64),
+            round_constant: Fr::from(0u64),
+        }],
+        Fr::from(0u64),
+        Fr::from(0u64),
+        Fr::from(0u64),
+    );
+
+    let vk = generate_vk(&params, &circuit).map_err(|e| format!("VK: {}", e))?;
+
+    // num_instances = 3 (pre_state_root, post_state_root, batch_hash)
+    let generator = SolidityGenerator::new(&params, &vk, Bdfg21, 3);
+    let (verifier_sol, vk_sol) = generator
+        .render_separately()
+        .map_err(|e| format!("render verifier: {}", e))?;
+
+    Ok((verifier_sol, vk_sol))
+}
+
 /// Exported proof data for on-chain submission.
 pub struct ProofExport {
     pub proof_bytes: Vec<u8>,
@@ -140,6 +175,14 @@ mod tests {
         assert_eq!(export.num_public_inputs, 3);
         assert!(!export.vk_bytes.is_empty());
         println!("VK size: {} bytes, digest: {:?}", export.vk_bytes.len(), &export.vk_digest[..8]);
+    }
+
+    #[test]
+    fn generate_solidity_verifier_works() {
+        let (verifier, vk) = generate_solidity_verifier(8).expect("verifier generation");
+        assert!(verifier.contains("pragma solidity"), "should contain Solidity pragma");
+        assert!(!vk.is_empty(), "VK contract should not be empty");
+        println!("Verifier: {} bytes, VK: {} bytes", verifier.len(), vk.len());
     }
 
     #[test]
