@@ -1,13 +1,16 @@
 # Basis Network zkEVM L2 -- Docker Compose
 #
 # Services:
-#   - l2-node: Basis L2 node (sequencer + proving pipeline)
+#   - l2-node: Basis L2 node (sequencer + proving pipeline + RPC)
+#   - dac-node-1..7: DAC committee members (gRPC, threshold 5-of-7)
 #   - hardhat: Local L1 (for development/testing only)
 #
 # Usage:
-#   docker compose up -d         # Start all services
-#   docker compose logs -f       # Follow logs
-#   docker compose down          # Stop all services
+#   docker compose up -d                     # Start L2 node only
+#   docker compose --profile dac up -d       # Start L2 + DAC committee
+#   docker compose --profile dev up -d       # Start L2 + local L1
+#   docker compose logs -f                   # Follow logs
+#   docker compose down                      # Stop all services
 
 services:
   l2-node:
@@ -20,8 +23,12 @@ services:
       - "8545:8545"
     env_file:
       - zkl2/node/.env
+    environment:
+      - DAC_ENABLED=${DAC_ENABLED:-false}
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_THRESHOLD=5
     healthcheck:
-      test: ["CMD", "basis-l2", "--version"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8545/health"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -31,6 +38,148 @@ services:
       options:
         max-size: "50m"
         max-file: "5"
+
+  # DAC Committee Nodes (5-of-7 threshold)
+  # Each node runs a gRPC server for share storage and attestation.
+  dac-node-1:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-1
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=1"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=1
+    ports:
+      - "50051:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-2:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-2
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=2"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=2
+    ports:
+      - "50052:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-3:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-3
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=3"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=3
+    ports:
+      - "50053:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-4:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-4
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=4"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=4
+    ports:
+      - "50054:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-5:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-5
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=5"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=5
+    ports:
+      - "50055:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-6:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-6
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=6"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=6
+    ports:
+      - "50056:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dac-node-7:
+    build:
+      context: .
+      dockerfile: zkl2/node/Dockerfile
+    container_name: basis-dac-7
+    restart: unless-stopped
+    command: ["basis-l2", "--dac-only", "--dac-id=7"]
+    environment:
+      - DAC_LISTEN_ADDR=0.0.0.0:50051
+      - DAC_NODE_ID=7
+    ports:
+      - "50057:50051"
+    profiles:
+      - dac
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Local L1 for development and testing.
   # Replace with the real Fuji RPC endpoint for production.
