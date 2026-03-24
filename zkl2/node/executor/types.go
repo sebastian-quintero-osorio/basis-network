@@ -52,36 +52,80 @@ const (
 	// -- Extended EVM opcodes for full witness generation --
 
 	// Arithmetic
-	TraceOpADD TraceOp = "ADD"
-	TraceOpSUB TraceOp = "SUB"
-	TraceOpMUL TraceOp = "MUL"
-	TraceOpDIV TraceOp = "DIV"
-	TraceOpMOD TraceOp = "MOD"
-	TraceOpEXP TraceOp = "EXP"
+	TraceOpADD        TraceOp = "ADD"
+	TraceOpSUB        TraceOp = "SUB"
+	TraceOpMUL        TraceOp = "MUL"
+	TraceOpDIV        TraceOp = "DIV"
+	TraceOpMOD        TraceOp = "MOD"
+	TraceOpEXP        TraceOp = "EXP"
+	TraceOpSDIV       TraceOp = "SDIV"
+	TraceOpSMOD       TraceOp = "SMOD"
+	TraceOpADDMOD     TraceOp = "ADDMOD"
+	TraceOpMULMOD     TraceOp = "MULMOD"
+	TraceOpSIGNEXTEND TraceOp = "SIGNEXTEND"
+
+	// Comparison
+	TraceOpLT     TraceOp = "LT"
+	TraceOpGT     TraceOp = "GT"
+	TraceOpSLT    TraceOp = "SLT"
+	TraceOpSGT    TraceOp = "SGT"
+	TraceOpEQ     TraceOp = "EQ"
+	TraceOpISZERO TraceOp = "ISZERO"
 
 	// Bitwise
+	TraceOpAND  TraceOp = "AND"
+	TraceOpOR   TraceOp = "OR"
+	TraceOpXOR  TraceOp = "XOR"
+	TraceOpNOT  TraceOp = "NOT"
 	TraceOpSHL  TraceOp = "SHL"
 	TraceOpSHR  TraceOp = "SHR"
+	TraceOpSAR  TraceOp = "SAR"
 	TraceOpBYTE TraceOp = "BYTE"
 
 	// Memory
-	TraceOpMLOAD  TraceOp = "MLOAD"
-	TraceOpMSTORE TraceOp = "MSTORE"
+	TraceOpMLOAD   TraceOp = "MLOAD"
+	TraceOpMSTORE  TraceOp = "MSTORE"
+	TraceOpMSTORE8 TraceOp = "MSTORE8"
+	TraceOpMSIZE   TraceOp = "MSIZE"
+	TraceOpMCOPY   TraceOp = "MCOPY"
 
 	// Stack
-	TraceOpPUSH TraceOp = "PUSH"
-	TraceOpPOP  TraceOp = "POP"
-	TraceOpDUP  TraceOp = "DUP"
-	TraceOpSWAP TraceOp = "SWAP"
+	TraceOpPUSH  TraceOp = "PUSH"
+	TraceOpPOP   TraceOp = "POP"
+	TraceOpDUP   TraceOp = "DUP"
+	TraceOpSWAP  TraceOp = "SWAP"
+	TraceOpPUSH0 TraceOp = "PUSH0"
 
 	// Control
-	TraceOpJUMP   TraceOp = "JUMP"
-	TraceOpJUMPI  TraceOp = "JUMPI"
-	TraceOpRETURN TraceOp = "RETURN"
-	TraceOpREVERT TraceOp = "REVERT"
+	TraceOpJUMP     TraceOp = "JUMP"
+	TraceOpJUMPI    TraceOp = "JUMPI"
+	TraceOpRETURN   TraceOp = "RETURN"
+	TraceOpREVERT   TraceOp = "REVERT"
+	TraceOpSTOP     TraceOp = "STOP"
+	TraceOpJUMPDEST TraceOp = "JUMPDEST"
+	TraceOpPC       TraceOp = "PC"
+	TraceOpGAS      TraceOp = "GAS"
 
 	// Crypto
 	TraceOpSHA3 TraceOp = "SHA3"
+
+	// Data access
+	TraceOpCALLDATALOAD   TraceOp = "CALLDATALOAD"
+	TraceOpCALLDATASIZE   TraceOp = "CALLDATASIZE"
+	TraceOpCALLDATACOPY   TraceOp = "CALLDATACOPY"
+	TraceOpCODESIZE       TraceOp = "CODESIZE"
+	TraceOpCODECOPY       TraceOp = "CODECOPY"
+	TraceOpRETURNDATASIZE TraceOp = "RETURNDATASIZE"
+	TraceOpRETURNDATACOPY TraceOp = "RETURNDATACOPY"
+
+	// External code
+	TraceOpEXTCODESIZE TraceOp = "EXTCODESIZE"
+	TraceOpEXTCODECOPY TraceOp = "EXTCODECOPY"
+	TraceOpEXTCODEHASH TraceOp = "EXTCODEHASH"
+
+	// Transient storage (EIP-1153)
+	TraceOpTLOAD  TraceOp = "TLOAD"
+	TraceOpTSTORE TraceOp = "TSTORE"
 
 	// Lifecycle
 	TraceOpCREATE  TraceOp = "CREATE"

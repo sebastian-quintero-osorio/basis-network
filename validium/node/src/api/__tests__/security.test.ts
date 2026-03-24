@@ -36,15 +36,20 @@ describe("RateLimiter", () => {
     expect(limiter.allow("client-2")).toBe(false);
   });
 
-  it("should refill tokens over time", async () => {
-    const limiter = new RateLimiter({ maxTokens: 2, refillRate: 100 });
-    expect(limiter.allow("client-1")).toBe(true);
-    expect(limiter.allow("client-1")).toBe(true);
-    expect(limiter.allow("client-1")).toBe(false);
+  it("should refill tokens over time", () => {
+    jest.useFakeTimers();
+    try {
+      const limiter = new RateLimiter({ maxTokens: 2, refillRate: 100 });
+      expect(limiter.allow("client-1")).toBe(true);
+      expect(limiter.allow("client-1")).toBe(true);
+      expect(limiter.allow("client-1")).toBe(false);
 
-    // Wait for refill (100 tokens/sec -> 10 in 100ms)
-    await new Promise((r) => setTimeout(r, 110));
-    expect(limiter.allow("client-1")).toBe(true);
+      // Advance fake clock by 110ms (100 tokens/sec -> 11 tokens refilled)
+      jest.advanceTimersByTime(110);
+      expect(limiter.allow("client-1")).toBe(true);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("should report remaining tokens", () => {

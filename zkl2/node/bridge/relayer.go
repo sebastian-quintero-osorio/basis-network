@@ -30,9 +30,19 @@ type Relayer struct {
 	trieMu       sync.Mutex
 	withdrawTrie *WithdrawTrie
 
+	// Current batch ID for withdraw root submission.
+	// Updated by SetBatchID when the pipeline finalizes a batch.
+	batchIDMu sync.Mutex
+	batchID   uint64
+
 	// Block cursors for event polling.
 	lastL1Block atomic.Uint64
 	lastL2Block atomic.Uint64
+
+	// Pending withdrawal queue (populated by RPC, drained by poller).
+	pendingMu          sync.Mutex
+	pendingWithdrawals []WithdrawalEvent
+	nextWithdrawalIdx  atomic.Uint64
 
 	// Metrics (atomic for concurrent access).
 	depositsProcessed    atomic.Uint64
@@ -203,6 +213,26 @@ func (r *Relayer) GetWithdrawalProof(index uint64) (root common.Hash, proof []co
 	return
 }
 
+// NextWithdrawalIndex returns and increments the withdrawal counter.
+func (r *Relayer) NextWithdrawalIndex() uint64 {
+	return r.nextWithdrawalIdx.Add(1) - 1
+}
+
+// SetBatchID updates the current batch ID for withdraw root submission.
+// Called by the pipeline after a batch is finalized on L1.
+func (r *Relayer) SetBatchID(id uint64) {
+	r.batchIDMu.Lock()
+	defer r.batchIDMu.Unlock()
+	r.batchID = id
+}
+
+// GetBatchID returns the current batch ID.
+func (r *Relayer) GetBatchID() uint64 {
+	r.batchIDMu.Lock()
+	defer r.batchIDMu.Unlock()
+	return r.batchID
+}
+
 // GetMetrics returns a snapshot of current relayer metrics.
 func (r *Relayer) GetMetrics() Metrics {
 	r.trieMu.Lock()
@@ -251,16 +281,48 @@ func (r *Relayer) watchL2Withdrawals() {
 		case <-r.ctx.Done():
 			return
 		case <-ticker.C:
-			// Production implementation:
-			// 1. Query L2 for WithdrawalInitiated events from lastL2Block+1 to latest
-			// 2. For each event, call ProcessWithdrawal
-			// 3. Update lastL2Block cursor
-			// 4. On error, increment errorsEncountered and retry with backoff
-			r.logger.Debug("polling L2 for withdrawal events",
-				"from_block", r.lastL2Block.Load(),
+			r.pollL2Withdrawals()
+		}
+	}
+}
+
+// pollL2Withdrawals queries the pending withdrawal queue and processes new entries.
+// Withdrawals are submitted via the basis_initiateWithdrawal RPC method, which
+// enqueues them in the Relayer's pending queue. This poller drains that queue.
+func (r *Relayer) pollL2Withdrawals() {
+	r.pendingMu.Lock()
+	if len(r.pendingWithdrawals) == 0 {
+		r.pendingMu.Unlock()
+		return
+	}
+	// Drain the entire pending queue.
+	batch := make([]WithdrawalEvent, len(r.pendingWithdrawals))
+	copy(batch, r.pendingWithdrawals)
+	r.pendingWithdrawals = r.pendingWithdrawals[:0]
+	r.pendingMu.Unlock()
+
+	for _, w := range batch {
+		if err := r.ProcessWithdrawal(w); err != nil {
+			r.logger.Error("failed to process withdrawal",
+				"index", w.WithdrawalIndex,
+				"recipient", w.Recipient.Hex(),
+				"error", err,
 			)
 		}
 	}
+}
+
+// EnqueueWithdrawal adds a withdrawal to the pending queue for processing.
+// Called by the RPC server when basis_initiateWithdrawal is invoked.
+func (r *Relayer) EnqueueWithdrawal(w WithdrawalEvent) {
+	r.pendingMu.Lock()
+	defer r.pendingMu.Unlock()
+	r.pendingWithdrawals = append(r.pendingWithdrawals, w)
+	r.logger.Info("withdrawal enqueued",
+		"recipient", w.Recipient.Hex(),
+		"amount", w.Amount.String(),
+		"index", w.WithdrawalIndex,
+	)
 }
 
 // submitWithdrawRoots periodically checks if the withdraw trie has new leaves
@@ -280,17 +342,25 @@ func (r *Relayer) submitWithdrawRoots() {
 			if leafCount > 0 {
 				root := r.withdrawTrie.Root()
 				leaves := uint64(leafCount)
+
+				// Read the current batch ID for L1 submission.
+				r.batchIDMu.Lock()
+				currentBatchID := r.batchID
+				r.batchIDMu.Unlock()
+
 				r.logger.Info("withdraw trie root computed",
 					"root", root.Hex(),
 					"leaves", leaves,
+					"batch_id", currentBatchID,
 				)
 
 				// Submit root to BasisBridge.sol on L1.
 				if r.withdrawRootSubmit != nil {
-					if err := r.withdrawRootSubmit(root, leaves); err != nil {
+					if err := r.withdrawRootSubmit(root, currentBatchID); err != nil {
 						r.errorsEncountered.Add(1)
 						r.logger.Error("withdraw root L1 submission failed",
 							"root", root.Hex(),
+							"batch_id", currentBatchID,
 							"error", err,
 						)
 						// Don't reset trie -- will retry next cycle.
@@ -300,6 +370,7 @@ func (r *Relayer) submitWithdrawRoots() {
 					r.logger.Info("withdraw root submitted to L1",
 						"root", root.Hex(),
 						"leaves", leaves,
+						"batch_id", currentBatchID,
 					)
 				}
 

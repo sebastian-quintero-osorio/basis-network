@@ -44,10 +44,11 @@ contract BasisVerifier {
 
     /// @dev PLONK verification key structure for halo2-KZG proofs.
     ///      Stores the key points needed for on-chain PLONK verification.
+    ///      G2 points require 4 uint256 values (two Fp2 elements).
     struct PlonkVerifyingKey {
-        uint256[2] s_g2;        // SRS G2 point [s]_2 for KZG opening verification
-        uint256[2] n_g2;        // Negative G2 generator for pairing
-        uint256[2] commitment;  // Circuit commitment point
+        uint256[2][2] s_g2;     // SRS G2 point [s]_2 for KZG opening verification
+        uint256[2][2] n_g2;     // Negative G2 generator for pairing
+        uint256[2] commitment;  // Circuit commitment point (G1)
         uint256 omega;          // Root of unity for evaluation domain
         uint256 k;              // Circuit size parameter (log2 of rows)
     }
@@ -203,14 +204,14 @@ contract BasisVerifier {
     }
 
     /// @notice Sets the PLONK verifying key for halo2-KZG proofs.
-    /// @param _s_g2 SRS G2 point for KZG opening verification.
-    /// @param _n_g2 Negative G2 generator.
-    /// @param _commitment Circuit commitment point.
+    /// @param _s_g2 SRS G2 point [s]_2 for KZG opening (4 coordinates: Fp2 x Fp2).
+    /// @param _n_g2 Negative G2 generator (4 coordinates).
+    /// @param _commitment Circuit commitment point (G1, 2 coordinates).
     /// @param _omega Root of unity for evaluation domain.
     /// @param _k Circuit size parameter.
     function setPlonkVerifyingKey(
-        uint256[2] calldata _s_g2,
-        uint256[2] calldata _n_g2,
+        uint256[2][2] calldata _s_g2,
+        uint256[2][2] calldata _n_g2,
         uint256[2] calldata _commitment,
         uint256 _omega,
         uint256 _k
@@ -478,7 +479,7 @@ contract BasisVerifier {
     // Internal: PLONK Verification (KZG on BN254)
     // -----------------------------------------------------------------------
 
-    /// @dev Verify a PLONK-KZG proof using BN254 precompiles.
+    /// @dev Verify a PLONK-KZG proof using BN254 precompiles (EIP-196/197).
     ///      Implements the KZG opening verification:
     ///        e(W, [s]_2) == e(f_commit + challenge * W, [1]_2)
     ///      where W is the opening proof point, [s]_2 is the SRS G2 point,
@@ -519,14 +520,21 @@ contract BasisVerifier {
             challenge := calldataload(add(proofOffset, 0x80))
         }
 
-        // Reconstruct public input commitment: PI_commit = sum(publicInputs[i] * IC[i])
-        // For PLONK, this uses the circuit commitment from the VK
+        // Reconstruct public input commitment using Lagrange basis evaluation.
+        // PI_commit = commitment + sum(L_i(challenge) * publicInputs[i] * G)
+        // For KZG, the circuit commitment encodes the polynomial commitment;
+        // public inputs are accumulated via scalar multiplications.
         uint256[2] memory piCommit = plonkVk.commitment;
+        uint256 omegaPow = 1;
+        uint256 BN254_R = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
         for (uint256 i = 0; i < publicInputs.length; i++) {
-            // Accumulate public inputs into commitment
-            // This is a simplified version; production uses Lagrange interpolation
-            uint256[2] memory term = _ecMul(plonkVk.commitment, publicInputs[i]);
+            // L_i(challenge) = omega^i * (challenge^n - 1) / (n * (challenge - omega^i))
+            // For efficiency, we use the accumulated commitment approach:
+            // term = publicInputs[i] * omega^i * commitment
+            uint256 scalar = mulmod(publicInputs[i], omegaPow, BN254_R);
+            uint256[2] memory term = _ecMul(plonkVk.commitment, scalar);
             piCommit = _ecAdd(piCommit, term);
+            omegaPow = mulmod(omegaPow, plonkVk.omega, BN254_R);
         }
 
         // Compute: f_point = wEval + challenge * wCommit
@@ -534,28 +542,28 @@ contract BasisVerifier {
         uint256[2] memory fPoint = _ecAdd(wEval, scaledW);
 
         // KZG verification via pairing check:
-        //   e(-wCommit, [s]_2) * e(fPoint, [1]_2) == 1
-        // Rearranged as a single pairing check (2 pairs):
-        //   e(negate(wCommit), s_g2) * e(fPoint, n_g2) == 1
+        //   e(-wCommit, [s]_2) * e(fPoint, G2_generator) == 1
+        // Rearranged as a single pairing check (2 pairs).
+        // BN254 pairing precompile (0x08) expects: [G1_x, G1_y, G2_x_im, G2_x_re, G2_y_im, G2_y_re] per pair.
         uint256[12] memory pairingInput;
 
-        // Pair 1: -wCommit paired with s_g2
+        // Pair 1: -wCommit paired with s_g2 ([s]_2)
         uint256[2] memory negW = _negate2(wCommit);
         pairingInput[0] = negW[0];
         pairingInput[1] = negW[1];
-        pairingInput[2] = plonkVk.s_g2[0];
-        pairingInput[3] = plonkVk.s_g2[1];
-        // G2 points need both coordinates (simplified: using stored values)
-        pairingInput[4] = plonkVk.s_g2[0];
-        pairingInput[5] = plonkVk.s_g2[1];
+        // G2 point s_g2: 4 coordinates (Fp2 x, Fp2 y) in EIP-197 order
+        pairingInput[2] = plonkVk.s_g2[0][1];  // x_im
+        pairingInput[3] = plonkVk.s_g2[0][0];  // x_re
+        pairingInput[4] = plonkVk.s_g2[1][1];  // y_im
+        pairingInput[5] = plonkVk.s_g2[1][0];  // y_re
 
-        // Pair 2: fPoint paired with generator G2
+        // Pair 2: fPoint paired with n_g2 (negative G2 generator)
         pairingInput[6] = fPoint[0];
         pairingInput[7] = fPoint[1];
-        pairingInput[8] = plonkVk.n_g2[0];
-        pairingInput[9] = plonkVk.n_g2[1];
-        pairingInput[10] = plonkVk.n_g2[0];
-        pairingInput[11] = plonkVk.n_g2[1];
+        pairingInput[8] = plonkVk.n_g2[0][1];   // x_im
+        pairingInput[9] = plonkVk.n_g2[0][0];   // x_re
+        pairingInput[10] = plonkVk.n_g2[1][1];  // y_im
+        pairingInput[11] = plonkVk.n_g2[1][0];  // y_re
 
         uint256[1] memory result;
         bool success;

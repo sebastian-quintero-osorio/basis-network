@@ -43,30 +43,74 @@ pub enum TraceOp {
     DIV,
     MOD,
     EXP,
+    SDIV,
+    SMOD,
+    ADDMOD,
+    MULMOD,
+    SIGNEXTEND,
+
+    // Comparison
+    LT,
+    GT,
+    SLT,
+    SGT,
+    EQ,
+    ISZERO,
 
     // Bitwise
+    AND,
+    OR,
+    XOR,
+    NOT,
     SHL,
     SHR,
+    SAR,
     BYTE,
 
     // Memory
     MLOAD,
     MSTORE,
+    MSTORE8,
+    MSIZE,
+    MCOPY,
 
     // Stack
     PUSH,
     POP,
     DUP,
     SWAP,
+    PUSH0,
 
     // Control flow
     JUMP,
     JUMPI,
     RETURN,
     REVERT,
+    STOP,
+    JUMPDEST,
+    PC,
+    GAS,
 
     // Crypto
     SHA3,
+
+    // Data access
+    CALLDATALOAD,
+    CALLDATASIZE,
+    CALLDATACOPY,
+    CODESIZE,
+    CODECOPY,
+    RETURNDATASIZE,
+    RETURNDATACOPY,
+
+    // External code
+    EXTCODESIZE,
+    EXTCODECOPY,
+    EXTCODEHASH,
+
+    // Transient storage (EIP-1153)
+    TLOAD,
+    TSTORE,
 
     // Lifecycle
     CREATE,

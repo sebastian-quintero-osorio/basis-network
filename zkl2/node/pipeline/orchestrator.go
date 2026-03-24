@@ -306,3 +306,39 @@ func (o *Orchestrator) Stats() string {
 	return fmt.Sprintf("completed=%d failed=%d active=%d",
 		o.completedCount, o.failedCount, len(o.activeBatches))
 }
+
+// PipelineStats returns active, completed, and failed counts for health reporting.
+func (o *Orchestrator) PipelineStats() (active int, completed int, failed int) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return len(o.activeBatches), o.completedCount, o.failedCount
+}
+
+// DrainAndWait stops accepting new batches and waits for all active batches
+// to complete. Returns a list of batch IDs still in-flight if the context
+// expires before all batches complete.
+func (o *Orchestrator) DrainAndWait(ctx context.Context) []uint64 {
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			o.mu.Lock()
+			remaining := make([]uint64, 0, len(o.activeBatches))
+			for id := range o.activeBatches {
+				remaining = append(remaining, id)
+			}
+			o.mu.Unlock()
+			return remaining
+		case <-ticker.C:
+			o.mu.Lock()
+			active := len(o.activeBatches)
+			o.mu.Unlock()
+			if active == 0 {
+				return nil
+			}
+			o.logger.Info("pipeline: draining", "active_batches", active)
+		}
+	}
+}

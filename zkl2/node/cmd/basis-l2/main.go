@@ -41,6 +41,8 @@ import (
 	nodesync "basis-network/zkl2/node/sync"
 
 	"basis-network/zkl2/node/bridge"
+	"basis-network/zkl2/node/cross"
+	"basis-network/zkl2/node/da"
 )
 
 var (
@@ -153,6 +155,8 @@ type Node struct {
 	backend   *NodeBackend
 	l1Sync    *nodesync.Synchronizer
 	bridge    *bridge.Relayer
+	dacServer *da.GRPCServer
+	crossHub  *cross.Hub
 	stopCh    chan struct{}
 }
 
@@ -286,12 +290,19 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	)
 
 	// 4. Initialize RPC Server with real backend.
+	// Enterprise address is derived from EnterpriseRegistry config.
+	// Fallback to deployer address if not set.
+	enterpriseAddr := common.HexToAddress(cfg.Contracts.EnterpriseRegistry)
+	if enterpriseAddr == (common.Address{}) {
+		enterpriseAddr = common.HexToAddress(cfg.Contracts.BasisBridge)
+	}
 	backend := &NodeBackend{
-		stateDB:   sdb,
-		adapter:   adapter,
-		exec:      exec,
-		seq:       seq,
-		l2ChainID: cfg.L2.ChainID,
+		stateDB:    sdb,
+		adapter:    adapter,
+		exec:       exec,
+		seq:        seq,
+		l2ChainID:  cfg.L2.ChainID,
+		enterprise: enterpriseAddr,
 	}
 	rpcCfg := rpc.ServerConfig{
 		Host:            cfg.RPC.Host,
@@ -303,9 +314,15 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		MaxBodySize:     1 << 20,
 	}
 	rpcServer := rpc.NewServer(rpcCfg, backend, logger.With("component", "rpc"))
+
+	// Wire health provider with pipeline stats (L1 sync check wired after l1Sync creation).
+	rpcServer.Health().SetPipelineStats(orch.PipelineStats)
+
 	logger.Info("JSON-RPC server configured",
 		"host", cfg.RPC.Host,
 		"port", cfg.RPC.Port,
+		"health_endpoint", "/health",
+		"metrics_endpoint", "/metrics",
 	)
 
 	// 5. Initialize L1 Synchronizer for forced inclusion and deposit detection.
@@ -319,15 +336,16 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 	}
 	l1Sync := nodesync.New(syncCfg, logger.With("component", "l1-sync"))
 
+	// Wire L1 sync health check now that l1Sync is created.
+	rpcServer.Health().SetL1SyncCheck(func() bool { return l1Sync.IsRunning() })
+
 	// 6. Initialize Bridge Relayer for L1<->L2 deposits/withdrawals.
 	bridgeCfg := bridge.DefaultConfig()
 	bridgeCfg.L1RPCURL = cfg.L1.RPCURL
+	bridgeCfg.L2RPCURL = fmt.Sprintf("http://%s:%d", cfg.RPC.Host, cfg.RPC.Port)
 	bridgeCfg.BridgeAddress = common.HexToAddress(cfg.Contracts.BasisBridge)
 	bridgeCfg.RollupAddress = common.HexToAddress(cfg.Contracts.BasisRollup)
-	bridgeCfg.Enterprise = common.HexToAddress(cfg.L1.PrivateKey) // Using deployer as enterprise for now
-	if cfg.Contracts.BasisBridge != "" {
-		bridgeCfg.Enterprise = common.HexToAddress(cfg.Contracts.BasisBridge)
-	}
+	bridgeCfg.Enterprise = enterpriseAddr
 	bridgeRelay, err := bridge.New(bridgeCfg, logger.With("component", "bridge"))
 	if err != nil {
 		logger.Warn("bridge relayer not initialized (non-critical)", "error", err)
@@ -361,25 +379,81 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 				logger.Warn("L1 bridge client not initialized (withdraw roots will be logged only)",
 					"error", err,
 				)
-				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
-					logger.Info("withdraw root ready (no L1 client)", "root", root.Hex(), "leaves", leafCount)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, batchID uint64) error {
+					logger.Info("withdraw root ready (no L1 client)", "root", root.Hex(), "batch_id", batchID)
 					return nil
 				})
 			} else {
-				enterprise := common.HexToAddress(cfg.Contracts.BasisBridge)
-				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
-					return l1Bridge.SubmitWithdrawRoot(context.Background(), enterprise, leafCount, root)
+				bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, batchID uint64) error {
+					return l1Bridge.SubmitWithdrawRoot(context.Background(), enterpriseAddr, batchID, root)
 				})
 			}
 		} else {
-			bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, leafCount uint64) error {
-				logger.Info("withdraw root ready (no L1 config)", "root", root.Hex(), "leaves", leafCount)
+			bridgeRelay.OnWithdrawRootSubmit(func(root common.Hash, batchID uint64) error {
+				logger.Info("withdraw root ready (no L1 config)", "root", root.Hex(), "batch_id", batchID)
 				return nil
 			})
 		}
 		logger.Info("bridge relayer initialized with deposit/withdrawal handlers",
 			"bridge_contract", cfg.Contracts.BasisBridge,
 		)
+		rpcServer.Health().SetBridgeEnabled(true)
+		// Wire bridge to RPC backend for basis_initiateWithdrawal.
+		backend.bridge = bridgeRelay
+	}
+
+	// 7. Initialize DAC server (optional, when DAC_ENABLED=true).
+	var dacServer *da.GRPCServer
+	if cfg.DAC.Enabled {
+		dacListenAddr := cfg.DAC.ListenAddr
+		if dacListenAddr == "" {
+			dacListenAddr = "0.0.0.0:50051"
+		}
+		// Generate an ECDSA key for DAC attestation signing.
+		dacKey, err := crypto.GenerateKey()
+		if err != nil {
+			return nil, fmt.Errorf("generate DAC key: %w", err)
+		}
+		dacGRPCConfig := da.GRPCServerConfig{
+			ListenAddr: dacListenAddr,
+			NodeID:     da.NodeID(0),
+			PrivateKey: dacKey,
+		}
+		dacServer, err = da.NewGRPCServer(dacGRPCConfig, logger.With("component", "dac"))
+		if err != nil {
+			logger.Warn("DAC gRPC server not initialized (non-critical)", "error", err)
+			dacServer = nil
+		} else {
+			logger.Info("DAC gRPC server initialized",
+				"listen_addr", dacListenAddr,
+				"threshold", cfg.DAC.Threshold,
+				"committee_size", cfg.DAC.CommitteeSize,
+			)
+		}
+	} else {
+		logger.Info("DAC disabled (set DAC_ENABLED=true to enable)")
+	}
+
+	// 8. Initialize Cross-Enterprise Hub (optional, when hub contract is configured).
+	var crossHub *cross.Hub
+	if cfg.Contracts.BasisHub != "" {
+		crossCfg := cross.DefaultConfig()
+		// Simple in-memory enterprise registry that accepts all registered enterprises.
+		registry := &localEnterpriseRegistry{
+			registered: map[common.Address]bool{
+				common.HexToAddress(cfg.Contracts.EnterpriseRegistry): true,
+			},
+		}
+		crossHub, err = cross.NewHub(crossCfg, registry, logger.With("component", "cross-hub"))
+		if err != nil {
+			logger.Warn("cross-enterprise hub not initialized (non-critical)", "error", err)
+			crossHub = nil
+		} else {
+			logger.Info("cross-enterprise hub initialized",
+				"hub_contract", cfg.Contracts.BasisHub,
+				"timeout_blocks", crossCfg.TimeoutBlocks,
+			)
+		}
 	}
 
 	// Register L1 synchronizer event handlers
@@ -434,6 +508,8 @@ func initNode(cfg *config.Config, logger *slog.Logger) (*Node, error) {
 		backend:   backend,
 		l1Sync:    l1Sync,
 		bridge:    bridgeRelay,
+		dacServer: dacServer,
+		crossHub:  crossHub,
 		stopCh:    make(chan struct{}),
 	}, nil
 }
@@ -457,6 +533,13 @@ func (n *Node) Start(ctx context.Context) error {
 		}
 	}
 
+	// Start the DAC gRPC server.
+	if n.dacServer != nil {
+		if err := n.dacServer.Start(); err != nil {
+			return fmt.Errorf("start DAC server: %w", err)
+		}
+	}
+
 	// Start the block production loop.
 	go n.blockProductionLoop(ctx)
 
@@ -464,12 +547,32 @@ func (n *Node) Start(ctx context.Context) error {
 }
 
 // Stop gracefully shuts down all node components.
+// It first signals the block production loop to stop, then waits for in-flight
+// pipeline batches to complete before shutting down other components.
 func (n *Node) Stop(ctx context.Context) error {
 	n.logger.Info("shutting down node components")
+
+	// Signal block production to stop (no new batches).
 	close(n.stopCh)
+
+	// Wait for in-flight pipeline batches to drain (up to 60s).
+	drainCtx, drainCancel := context.WithTimeout(ctx, 60*time.Second)
+	defer drainCancel()
+	remaining := n.pipeline.DrainAndWait(drainCtx)
+	if len(remaining) > 0 {
+		n.logger.Warn("pipeline drain timeout, batches still in-flight",
+			"remaining_batches", len(remaining),
+		)
+	} else {
+		n.logger.Info("pipeline drained successfully")
+	}
+
 	n.l1Sync.Stop()
 	if n.bridge != nil {
 		n.bridge.Stop()
+	}
+	if n.dacServer != nil {
+		n.dacServer.Stop()
 	}
 	if err := n.rpcServer.Stop(ctx); err != nil {
 		n.logger.Error("rpc server shutdown error", "error", err)
@@ -658,6 +761,20 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 							"batch_id", b.BatchID,
 							"stage", b.Stage,
 						)
+
+						// Update bridge relayer batch ID for withdraw root submission.
+						if n.bridge != nil {
+							n.bridge.SetBatchID(b.BatchID)
+						}
+
+						// Update cross-enterprise hub with new state root after finalization.
+						if n.crossHub != nil && b.PostStateRoot != "" {
+							var root [32]byte
+							rootBytes, _ := hex.DecodeString(b.PostStateRoot[2:])
+							copy(root[:], rootBytes)
+							enterprise := common.HexToAddress(n.cfg.Contracts.EnterpriseRegistry)
+							n.crossHub.SetStateRoot(enterprise, root)
+						}
 						// Track finalized batch for aggregation.
 						finalizedBatchesMu.Lock()
 						finalizedBatches = append(finalizedBatches, b)
@@ -693,6 +810,16 @@ func (n *Node) blockProductionLoop(ctx context.Context) {
 			}
 		}
 	}
+}
+
+// localEnterpriseRegistry is a simple in-memory enterprise registry.
+// In production, this reads from L1's IEnterpriseRegistry.isAuthorized().
+type localEnterpriseRegistry struct {
+	registered map[common.Address]bool
+}
+
+func (r *localEnterpriseRegistry) IsRegistered(enterprise common.Address) bool {
+	return r.registered[enterprise]
 }
 
 // initLogger creates a structured logger from configuration.

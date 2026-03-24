@@ -25,7 +25,27 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
 )
+
+// jsonCodec implements grpc encoding.Codec for JSON serialization.
+// This allows gRPC communication without protobuf generated code.
+type jsonCodec struct{}
+
+func (jsonCodec) Marshal(v any) ([]byte, error) {
+	return json.Marshal(v)
+}
+
+func (jsonCodec) Unmarshal(data []byte, v any) error {
+	return json.Unmarshal(data, v)
+}
+
+func (jsonCodec) Name() string {
+	return "json"
+}
+
+// Ensure jsonCodec implements encoding.Codec at compile time.
+var _ encoding.Codec = jsonCodec{}
 
 // GRPCServer wraps a DACNode with a gRPC network interface.
 type GRPCServer struct {
@@ -61,7 +81,7 @@ func NewGRPCServer(config GRPCServerConfig, logger *slog.Logger) (*GRPCServer, e
 		return nil, fmt.Errorf("listen %s: %w", config.ListenAddr, err)
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.ForceServerCodec(jsonCodec{}))
 
 	srv := &GRPCServer{
 		node:      node,
@@ -132,6 +152,9 @@ type AttestResponse struct {
 	Error          string `json:"error,omitempty"`
 }
 
+// HealthRequest is the JSON health check request (empty, used for gRPC unary pattern).
+type HealthRequest struct{}
+
 // HealthResponse is the JSON health check response.
 type HealthResponse struct {
 	Healthy   bool   `json:"healthy"`
@@ -200,17 +223,65 @@ func (s *GRPCServer) HandleHealth(ctx context.Context) (*HealthResponse, error) 
 	}, nil
 }
 
+// dacServiceDesc is the gRPC service descriptor for the DAC service.
+// It uses JSON serialization instead of protobuf, registered via jsonCodec.
+var dacServiceDesc = grpc.ServiceDesc{
+	ServiceName: "dac.DACService",
+	HandlerType: (*dacServiceHandler)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "StorePackage",
+			Handler:    storePackageHandler,
+		},
+		{
+			MethodName: "Attest",
+			Handler:    attestHandler,
+		},
+		{
+			MethodName: "Health",
+			Handler:    healthHandler,
+		},
+	},
+	Streams: []grpc.StreamDesc{},
+}
+
+// dacServiceHandler is the interface that the service implementation must satisfy.
+// Used as the HandlerType in the ServiceDesc for type safety.
+type dacServiceHandler interface {
+	HandleStorePackage(ctx context.Context, req *StorePackageRequest) (*StorePackageResponse, error)
+	HandleAttest(ctx context.Context, req *AttestRequest) (*AttestResponse, error)
+	HandleHealth(ctx context.Context) (*HealthResponse, error)
+}
+
+func storePackageHandler(srv any, ctx context.Context, dec func(any) error, _ grpc.UnaryServerInterceptor) (any, error) {
+	req := new(StorePackageRequest)
+	if err := dec(req); err != nil {
+		return nil, fmt.Errorf("decode StorePackageRequest: %w", err)
+	}
+	return srv.(*GRPCServer).HandleStorePackage(ctx, req)
+}
+
+func attestHandler(srv any, ctx context.Context, dec func(any) error, _ grpc.UnaryServerInterceptor) (any, error) {
+	req := new(AttestRequest)
+	if err := dec(req); err != nil {
+		return nil, fmt.Errorf("decode AttestRequest: %w", err)
+	}
+	return srv.(*GRPCServer).HandleAttest(ctx, req)
+}
+
+func healthHandler(srv any, ctx context.Context, dec func(any) error, _ grpc.UnaryServerInterceptor) (any, error) {
+	req := new(HealthRequest)
+	if err := dec(req); err != nil {
+		return nil, fmt.Errorf("decode HealthRequest: %w", err)
+	}
+	return srv.(*GRPCServer).HandleHealth(ctx)
+}
+
 // RegisterDACService registers the DAC service methods on a gRPC server.
-// Uses a simple JSON-over-gRPC pattern for flexibility.
+// Uses a JSON-over-gRPC pattern with grpc.ServiceDesc for service registration,
+// allowing full gRPC functionality without protobuf generated code.
 func RegisterDACService(server *grpc.Server, srv *GRPCServer) {
-	// In production, this would use protobuf-generated service descriptors.
-	// For now, the service is registered as a generic handler that the
-	// Go node's DAC client can call directly.
-	//
-	// The GRPCServer struct itself serves as the service implementation,
-	// callable via HandleStorePackage, HandleAttest, HandleHealth.
-	_ = server
-	_ = srv
+	server.RegisterService(&dacServiceDesc, srv)
 }
 
 // --- JSON-based client for calling remote DAC nodes ---
@@ -222,8 +293,12 @@ type DACClient struct {
 }
 
 // NewDACClient creates a client connected to a remote DAC node.
+// Uses JSON codec to match the server's serialization format.
 func NewDACClient(addr string, logger *slog.Logger) (*DACClient, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr,
+		grpc.WithInsecure(),
+		grpc.WithDefaultCallOptions(grpc.ForceCodec(jsonCodec{})),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("dial %s: %w", addr, err)
 	}
@@ -235,19 +310,25 @@ func (c *DACClient) Close() error {
 	return c.conn.Close()
 }
 
-// StorePackage sends a package to the remote DAC node.
+// StorePackage sends a package to the remote DAC node via gRPC.
 func (c *DACClient) StorePackage(ctx context.Context, req *StorePackageRequest) (*StorePackageResponse, error) {
-	// In production with protobuf: use generated client stub.
-	// For JSON-RPC style: marshal req, send via unary RPC, unmarshal response.
-	_ = ctx
-	data, _ := json.Marshal(req)
-	c.logger.Debug("store_package", "size", len(data))
-	return &StorePackageResponse{Accepted: true}, nil
+	resp := new(StorePackageResponse)
+	err := c.conn.Invoke(ctx, "/dac.DACService/StorePackage", req, resp)
+	if err != nil {
+		return nil, fmt.Errorf("invoke StorePackage: %w", err)
+	}
+	c.logger.Debug("store_package", "batch_id", req.BatchID, "accepted", resp.Accepted)
+	return resp, nil
 }
 
-// Attest requests an attestation from the remote DAC node.
+// Attest requests an attestation from the remote DAC node via gRPC.
 func (c *DACClient) Attest(ctx context.Context, batchID uint64) (*AttestResponse, error) {
-	_ = ctx
-	c.logger.Debug("attest", "batch_id", batchID)
-	return &AttestResponse{HasAttestation: true}, nil
+	req := &AttestRequest{BatchID: batchID}
+	resp := new(AttestResponse)
+	err := c.conn.Invoke(ctx, "/dac.DACService/Attest", req, resp)
+	if err != nil {
+		return nil, fmt.Errorf("invoke Attest: %w", err)
+	}
+	c.logger.Debug("attest", "batch_id", batchID, "has_attestation", resp.HasAttestation)
+	return resp, nil
 }

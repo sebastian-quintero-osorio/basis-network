@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	"basis-network/zkl2/node/bridge"
 	"basis-network/zkl2/node/executor"
 	"basis-network/zkl2/node/rpc"
 	"basis-network/zkl2/node/sequencer"
@@ -19,12 +20,14 @@ import (
 
 // NodeBackend implements rpc.Backend by delegating to real node components.
 type NodeBackend struct {
-	stateDB   *statedb.StateDB
-	adapter   *statedb.Adapter
-	exec      *executor.Executor
-	seq       *sequencer.Sequencer
-	l2ChainID uint64
-	blockNum  atomic.Uint64
+	stateDB    *statedb.StateDB
+	adapter    *statedb.Adapter
+	exec       *executor.Executor
+	seq        *sequencer.Sequencer
+	l2ChainID  uint64
+	blockNum   atomic.Uint64
+	bridge     *bridge.Relayer  // Bridge relayer for withdrawal processing
+	enterprise common.Address   // Enterprise address for withdrawal events
 
 	// adapterMu protects the adapter during eth_call/eth_estimateGas read-only execution.
 	// The block production loop must also hold this lock during transaction execution.
@@ -332,6 +335,47 @@ func (b *NodeBackend) GetBatchStatus(batchID uint64) (*rpc.BatchStatus, error) {
 		BatchID: batchID,
 		Stage:   "unknown",
 	}, nil
+}
+
+// InitiateWithdrawal debits the sender's L2 balance and enqueues a withdrawal
+// for inclusion in the next withdraw trie root submitted to L1.
+func (b *NodeBackend) InitiateWithdrawal(sender common.Address, recipient common.Address, amount *big.Int) (uint64, error) {
+	if b.bridge == nil {
+		return 0, fmt.Errorf("bridge relayer not initialized")
+	}
+
+	// Check sender balance.
+	key := statedb.AddressToKey(sender)
+	balance := b.stateDB.GetBalance(key)
+	if balance.Cmp(amount) < 0 {
+		return 0, fmt.Errorf("insufficient balance: have %s, want %s", balance, amount)
+	}
+
+	// Debit sender balance.
+	newBalance := new(big.Int).Sub(balance, amount)
+	if err := b.stateDB.SetBalance(key, newBalance); err != nil {
+		return 0, fmt.Errorf("debit balance: %w", err)
+	}
+
+	// Allocate withdrawal index and enqueue for relayer processing.
+	index := b.bridge.NextWithdrawalIndex()
+	b.bridge.EnqueueWithdrawal(bridge.WithdrawalEvent{
+		Enterprise:      b.enterprise,
+		Recipient:       recipient,
+		Amount:          new(big.Int).Set(amount),
+		WithdrawalIndex: index,
+		L2Block:         b.blockNum.Load(),
+	})
+
+	return index, nil
+}
+
+// GetWithdrawalProof returns the Merkle proof for a withdrawal by trie index.
+func (b *NodeBackend) GetWithdrawalProof(index uint64) (common.Hash, []common.Hash, error) {
+	if b.bridge == nil {
+		return common.Hash{}, nil, fmt.Errorf("bridge relayer not initialized")
+	}
+	return b.bridge.GetWithdrawalProof(index)
 }
 
 // SetBlockNumber updates the current block number (called by block production loop).
