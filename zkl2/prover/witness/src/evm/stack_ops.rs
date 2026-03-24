@@ -1,4 +1,4 @@
-//! Stack operation witness generator for PUSH, POP, DUP, SWAP.
+//! Stack operation witness generator for PUSH, PUSH0, POP, DUP, SWAP.
 
 use ark_bn254::Fr;
 use crate::error::WitnessResult;
@@ -36,6 +36,18 @@ pub fn process_entry(
                 Fr::from(0u64),
             ]])
         }
+        TraceOp::PUSH0 => {
+            Ok(vec![vec![
+                Fr::from(global_counter),
+                Fr::from(0x5Fu64), // PUSH0 opcode
+                Fr::from(0u64),    // Value is always zero
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+                Fr::from(0u64),
+            ]])
+        }
         _ => Ok(vec![]),
     }
 }
@@ -57,5 +69,14 @@ mod tests {
         let entry = TraceEntry::default_with_op(TraceOp::POP);
         let rows = process_entry(&entry, 1).unwrap();
         assert_eq!(rows.len(), 1);
+    }
+
+    #[test]
+    fn push0_produces_row() {
+        let entry = TraceEntry::default_with_op(TraceOp::PUSH0);
+        let rows = process_entry(&entry, 1).unwrap();
+        assert_eq!(rows.len(), 1);
+        // Verify the value is zero (field element at index 2)
+        assert_eq!(rows[0][2], Fr::from(0u64));
     }
 }
