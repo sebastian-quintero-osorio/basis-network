@@ -1,6 +1,6 @@
 # Validium: Complete Production Roadmap
 
-## Current State: ~95% (Updated 2026-03-23)
+## Current State: ~97% (Updated 2026-03-24)
 
 The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L1
 verification -> state root updated. Phases 1-4 are substantially completed (BN128
@@ -112,7 +112,7 @@ Commit 31bbce4 verified distributed DAC with 3 Docker nodes.
 
 ---
 
-## Phase 3: Security Hardening -- MOSTLY COMPLETED (2026-03-21)
+## Phase 3: Security Hardening -- COMPLETED (2026-03-23)
 
 ### 3.1 Rate Limiting per Enterprise
 
@@ -129,7 +129,15 @@ Commit 31bbce4 verified distributed DAC with 3 Docker nodes.
 - Generate new API key, invalidate old one after grace period
 - Audit log of key rotations
 
-### 3.3 WAL Encryption at Rest -- COMPLETED
+### 3.3 Rate Limiter Test Reliability -- COMPLETED (2026-03-23)
+
+**Problem (resolved):** Rate limiter refill test (`security.test.ts`) was timing-dependent
+and flaky on CI. Used real `setTimeout(110)` which could fire early on slow machines.
+
+**Solution:** Replaced with `jest.useFakeTimers()` + `jest.advanceTimersByTime(110)` for
+deterministic timer control. All 14 security tests now pass reliably.
+
+### 3.4 WAL Encryption at Rest -- COMPLETED
 
 **Problem (resolved):** WAL stored enterprise transaction data in plaintext JSON.
 AES-256-GCM encryption implemented in commit f047e77 (WAL encryption support via
