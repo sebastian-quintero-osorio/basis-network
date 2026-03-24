@@ -24,6 +24,13 @@ type Hub struct {
 	state    *HubState
 	registry EnterpriseRegistry
 	logger   *slog.Logger
+	l1Client *L1HubClient
+}
+
+// SetL1Client sets the L1 hub client for submitting cross-enterprise settlements on-chain.
+func (h *Hub) SetL1Client(client *L1HubClient) {
+	h.l1Client = client
+	h.logger.Info("L1 hub client set for on-chain settlement submission")
 }
 
 // NewHub creates a new Hub with the given configuration and dependencies.

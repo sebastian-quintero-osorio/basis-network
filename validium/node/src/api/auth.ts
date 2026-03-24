@@ -11,7 +11,7 @@
  * @module api/auth
  */
 
-import { createHash, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
 import { createLogger } from "../logger";
 
 const log = createLogger("auth");
@@ -40,6 +40,15 @@ export interface AuthConfig {
  */
 export function hashApiKey(apiKey: string): string {
   return createHash("sha256").update(apiKey).digest("hex");
+}
+
+export interface RotateKeyResult {
+  /** The new plaintext API key. Only returned once -- store it securely. */
+  readonly newKey: string;
+  /** SHA-256 hash of the new key. */
+  readonly newKeyHash: string;
+  /** Timestamp of rotation. */
+  readonly rotatedAt: string;
 }
 
 export class ApiKeyAuthenticator {
@@ -123,5 +132,39 @@ export class ApiKeyAuthenticator {
     }
 
     return undefined;
+  }
+
+  /**
+   * Rotate an API key for an enterprise.
+   * Generates a new key, deactivates the old one, and returns the new plaintext key.
+   */
+  rotateKey(enterpriseId: string): RotateKeyResult | null {
+    if (!this.enabled) {
+      return null;
+    }
+
+    // Find and deactivate existing keys for this enterprise.
+    for (const [hash, entry] of this.keyMap) {
+      if (entry.enterpriseId === enterpriseId) {
+        this.keyMap.delete(hash);
+        log.info("API key deactivated", { enterpriseId, label: entry.label });
+      }
+    }
+
+    // Generate new key (32 bytes = 64 hex chars).
+    const newKey = randomBytes(32).toString("hex");
+    const newKeyHash = hashApiKey(newKey);
+
+    this.keyMap.set(newKeyHash, {
+      keyHash: newKeyHash,
+      enterpriseId,
+      label: "rotated",
+      active: true,
+    });
+
+    const rotatedAt = new Date().toISOString();
+    log.info("API key rotated", { enterpriseId, rotatedAt });
+
+    return { newKey, newKeyHash, rotatedAt };
   }
 }

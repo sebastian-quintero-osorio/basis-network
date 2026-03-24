@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // ---------------------------------------------------------------------------
@@ -42,11 +44,26 @@ type Orchestrator struct {
 	activeBatches  map[uint64]*BatchState
 	completedCount int
 	failedCount    int
+
+	// L1 integration callbacks (optional, set via On*/Set* methods)
+	onBatchFinalized func(batchID uint64, dataHash common.Hash, sigs [][]byte, signers []common.Address)
+	aggregatorL1     *L1AggregatorClient
 }
 
 // Stages returns the underlying pipeline stages for direct access (e.g., aggregation).
 func (o *Orchestrator) Stages() Stages {
 	return o.stages
+}
+
+// OnBatchFinalized registers a callback invoked when a batch is finalized.
+// Used by the DAC L1 client to submit certificates after batch completion.
+func (o *Orchestrator) OnBatchFinalized(fn func(batchID uint64, dataHash common.Hash, sigs [][]byte, signers []common.Address)) {
+	o.onBatchFinalized = fn
+}
+
+// SetAggregatorL1Client sets the L1 aggregator client for submitting aggregated proofs.
+func (o *Orchestrator) SetAggregatorL1Client(client *L1AggregatorClient) {
+	o.aggregatorL1 = client
 }
 
 // NewOrchestrator creates a new pipeline orchestrator with the given configuration.

@@ -389,6 +389,43 @@ export function createServer(
   // -----------------------------------------------------------------------
   // GET /metrics  -- Prometheus metrics export
   // -----------------------------------------------------------------------
+  // -----------------------------------------------------------------------
+  // Admin: API key rotation
+  // -----------------------------------------------------------------------
+  server.post(
+    "/v1/admin/rotate-key",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      // Admin-only: require valid API key to rotate.
+      const authResult = auth.validate(
+        request.headers.authorization,
+        request.headers["x-api-key"] as string | undefined,
+      );
+      if (!authResult.valid) {
+        return reply.status(401).send({ error: authResult.reason });
+      }
+
+      const body = request.body as { enterpriseId?: string } | undefined;
+      const enterpriseId = body?.enterpriseId ?? authResult.enterpriseId;
+
+      if (!enterpriseId) {
+        return reply.status(400).send({ error: "enterpriseId required" });
+      }
+
+      const result = auth.rotateKey(enterpriseId);
+      if (!result) {
+        return reply.status(500).send({ error: "key rotation failed" });
+      }
+
+      log.info("API key rotated via admin endpoint", { enterpriseId });
+      return reply.status(200).send({
+        enterpriseId,
+        newKey: result.newKey,
+        newKeyHash: result.newKeyHash,
+        rotatedAt: result.rotatedAt,
+      });
+    },
+  );
+
   server.get("/metrics", async (_request: FastifyRequest, reply: FastifyReply) => {
     const metricsOutput = await registry.metrics();
     return reply
@@ -416,6 +453,7 @@ export function createServer(
       "GET /v1/status",
       "GET /v1/batches/:id",
       "GET /v1/batches",
+      "POST /v1/admin/rotate-key",
       "GET /health",
       "GET /metrics",
     ],
