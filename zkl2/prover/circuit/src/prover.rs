@@ -80,7 +80,7 @@ pub fn create_proof(
     ];
 
     // Instance: vector of vectors (one per instance column)
-    let instances = vec![public_inputs.clone()];
+    let instances = [public_inputs.clone()];
     let instance_refs: Vec<&[Fr]> = instances.iter().map(|v| v.as_slice()).collect();
 
     // Create transcript for Fiat-Shamir
