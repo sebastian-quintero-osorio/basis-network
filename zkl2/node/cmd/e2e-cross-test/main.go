@@ -19,8 +19,10 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -80,7 +82,7 @@ func main() {
 
 	// prepareMessage(address dest, bytes32 commitment, bytes proof)
 	// Selector: first 4 bytes of keccak256("prepareMessage(address,bytes32,bytes)")
-	destEnterprise := common.HexToAddress("0x0000000000000000000000000000000000000002")
+	destEnterprise := common.HexToAddress("0x1111111111111111111111111111111111111111")
 	prepareData := buildPrepareCalldata(destEnterprise, commitment)
 
 	nonce, err := l1Client.PendingNonceAt(ctx, from)
@@ -93,7 +95,7 @@ func main() {
 		Nonce:     nonce,
 		GasFeeCap: big.NewInt(1),
 		GasTipCap: big.NewInt(0),
-		Gas:       300000,
+		Gas:       600000,
 		To:        &hub,
 		Data:      prepareData,
 	})
@@ -170,21 +172,34 @@ func main() {
 // buildPrepareCalldata encodes prepareMessage(address dest, bytes32 commitment, bytes proof).
 // Uses ABI encoding with empty proof bytes.
 func buildPrepareCalldata(dest common.Address, commitment [32]byte) []byte {
-	// Function selector for prepareMessage(address,bytes32,bytes)
-	selector := crypto.Keccak256([]byte("prepareMessage(address,bytes32,bytes)"))[:4]
+	// Use go-ethereum ABI encoder for correct encoding of complex types.
+	// prepareMessage(address,bytes32,bytes32,uint256[2],uint256[2][2],uint256[2],uint256[])
+	abiJSON := `[{"inputs":[
+		{"name":"dest","type":"address"},
+		{"name":"commitment","type":"bytes32"},
+		{"name":"sourceStateRoot","type":"bytes32"},
+		{"name":"a","type":"uint256[2]"},
+		{"name":"b","type":"uint256[2][2]"},
+		{"name":"c","type":"uint256[2]"},
+		{"name":"publicSignals","type":"uint256[]"}
+	],"name":"prepareMessage","outputs":[{"type":"bytes32"}],"type":"function"}]`
 
-	// ABI encode: address (32 bytes) + bytes32 (32 bytes) + offset to bytes (32 bytes) + length (32 bytes)
-	data := make([]byte, 4+32+32+32+32)
-	copy(data[0:4], selector)
-	// address (right-padded in 32 bytes)
-	copy(data[4+12:4+32], dest.Bytes())
-	// bytes32
-	copy(data[4+32:4+64], commitment[:])
-	// offset to dynamic bytes (3 * 32 = 96)
-	big.NewInt(96).FillBytes(data[4+64 : 4+96])
-	// length of bytes (0 = empty proof)
-	// Already zero-filled.
+	parsed, err := abi.JSON(strings.NewReader(abiJSON))
+	if err != nil {
+		panic("abi parse: " + err.Error())
+	}
 
+	a := [2]*big.Int{big.NewInt(0), big.NewInt(0)}
+	b := [2][2]*big.Int{{big.NewInt(0), big.NewInt(0)}, {big.NewInt(0), big.NewInt(0)}}
+	c := [2]*big.Int{big.NewInt(0), big.NewInt(0)}
+	publicSignals := []*big.Int{big.NewInt(0)}
+
+	var sourceRoot [32]byte // zero
+
+	data, err := parsed.Pack("prepareMessage", dest, commitment, sourceRoot, a, b, c, publicSignals)
+	if err != nil {
+		panic("abi pack: " + err.Error())
+	}
 	return data
 }
 

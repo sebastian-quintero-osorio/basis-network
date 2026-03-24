@@ -27,9 +27,9 @@ import (
 
 func main() {
 	l1RPC := envOrDefault("L1_RPC_URL", "https://rpc.basisnetwork.com.co")
-	l2RPC := envOrDefault("L2_RPC_URL", "http://localhost:8545")
+	l2RPC := envOrDefault("RPC_URL", envOrDefault("L2_RPC_URL", "http://localhost:8545"))
 	bridgeAddr := envOrDefault("BASIS_BRIDGE_ADDRESS", "")
-	pkHex := envOrDefault("L1_PRIVATE_KEY", "56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027")
+	pkHex := envOrDefault("L1_PRIVATE_KEY", envOrDefault("RPC_PRIVATE_KEY", "56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027"))
 
 	if bridgeAddr == "" {
 		fatal("BASIS_BRIDGE_ADDRESS not set")
@@ -87,11 +87,12 @@ func main() {
 		fatal("L1 nonce error: %v", err)
 	}
 
-	// deposit(address l2Recipient) payable
-	// Function selector: 0xf340fa01 (deposit(address))
-	depositData := make([]byte, 36)
-	copy(depositData[0:4], []byte{0xf3, 0x40, 0xfa, 0x01})
-	copy(depositData[16:36], from.Bytes())
+	// deposit(address enterprise, address l2Recipient) payable
+	// Function selector: 0xf9609f08
+	depositData := make([]byte, 68) // 4 + 32 + 32
+	copy(depositData[0:4], []byte{0xf9, 0x60, 0x9f, 0x08})
+	copy(depositData[16:36], from.Bytes()) // enterprise = sender (registered enterprise)
+	copy(depositData[48:68], from.Bytes()) // l2Recipient = sender (receive on L2)
 
 	tx := types.NewTx(&types.DynamicFeeTx{
 		ChainID:   l1ChainID,
