@@ -1,22 +1,21 @@
-/// Comprehensive test suite for the proof aggregation pipeline.
-///
-/// Tests organized by TLA+ safety property and aggregation scenario:
-///   1. Basic aggregation (2, 4, 8 proofs)
-///   2. S1: AggregationSoundness (invalid proof detection)
-///   3. S2: IndependencePreservation (recovery after rejection)
-///   4. S3: OrderIndependence (deterministic results)
-///   5. S4: GasMonotonicity (cost reduction verification)
-///   6. S5: SingleLocation (no double-counting)
-///   7. Pool management (duplicate rejection, sequence validation)
-///   8. Tree structure (topology, depth, pairing)
-///   9. E2E pipeline (generate -> aggregate -> verify -> recover)
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! Comprehensive test suite for the proof aggregation pipeline.
+//!
+//! Tests organized by TLA+ safety property and aggregation scenario:
+//!   1. Basic aggregation (2, 4, 8 proofs)
+//!   2. S1: AggregationSoundness (invalid proof detection)
+//!   3. S2: IndependencePreservation (recovery after rejection)
+//!   4. S3: OrderIndependence (deterministic results)
+//!   5. S4: GasMonotonicity (cost reduction verification)
+//!   6. S5: SingleLocation (no double-counting)
+//!   7. Pool management (duplicate rejection, sequence validation)
+//!   8. Tree structure (topology, depth, pairing)
+//!   9. E2E pipeline (generate -> aggregate -> verify -> recover)
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
 
 use std::collections::BTreeSet;
 
 use crate::aggregator::Aggregator;
-use crate::pool::ProofPool;
 use crate::tree::ProofTree;
 use crate::types::*;
 use crate::verifier_circuit::RecursiveVerifier;

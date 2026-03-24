@@ -1,20 +1,20 @@
-/// Recursive verifier circuit interface for proof aggregation.
-///
-/// Models the ProtoGalaxy folding + Groth16 decider pipeline from the research:
-///   1. ProtoGalaxy folds N halo2-KZG instances into 1 accumulated instance
-///   2. Groth16 decider proves the accumulated instance, producing ~128-byte proof
-///   3. L1 verifies the Groth16 proof at ~220K gas (constant, independent of N)
-///
-/// The current implementation provides a faithful simulation that preserves
-/// the cryptographic axioms from the TLA+ specification:
-///   - Proof Soundness: validity is intrinsic and immutable
-///   - Aggregation Soundness: folded instance satisfiable iff ALL components satisfiable
-///   - Folding Commutativity: result depends only on the SET of inputs
-///
-/// Production path: replace simulation with Sonobe ProtoGalaxy + CycleFold on BN254.
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
-/// [Source: implementation-history/prover-aggregation/research/findings.md, Section 3.3]
+//! Recursive verifier circuit interface for proof aggregation.
+//!
+//! Models the ProtoGalaxy folding + Groth16 decider pipeline from the research:
+//!   1. ProtoGalaxy folds N halo2-KZG instances into 1 accumulated instance
+//!   2. Groth16 decider proves the accumulated instance, producing ~128-byte proof
+//!   3. L1 verifies the Groth16 proof at ~220K gas (constant, independent of N)
+//!
+//! The current implementation provides a faithful simulation that preserves
+//! the cryptographic axioms from the TLA+ specification:
+//!   - Proof Soundness: validity is intrinsic and immutable
+//!   - Aggregation Soundness: folded instance satisfiable iff ALL components satisfiable
+//!   - Folding Commutativity: result depends only on the SET of inputs
+//!
+//! Production path: replace simulation with Sonobe ProtoGalaxy + CycleFold on BN254.
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! [Source: implementation-history/prover-aggregation/research/findings.md, Section 3.3]
 
 use sha2::{Digest, Sha256};
 

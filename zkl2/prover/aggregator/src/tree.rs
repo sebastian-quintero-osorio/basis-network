@@ -1,18 +1,18 @@
-/// Binary tree structure for N-proof aggregation.
-///
-/// Organizes proofs into a binary tree where:
-///   - Leaves are individual enterprise proofs (halo2-KZG)
-///   - Internal nodes represent folded instances (ProtoGalaxy accumulation)
-///   - Root represents the final folded instance (input to Groth16 decider)
-///
-/// The tree is balanced: for N proofs, depth = ceil(log2(N)).
-/// Odd-count levels promote the unpaired element to the next level.
-///
-/// This models the "Binary tree accumulation pipeline" from the research findings
-/// (Section 3.4) and the ProtoGalaxy folding hierarchy.
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
-/// [Source: implementation-history/prover-aggregation/research/findings.md, Section 3.4]
+//! Binary tree structure for N-proof aggregation.
+//!
+//! Organizes proofs into a binary tree where:
+//!   - Leaves are individual enterprise proofs (halo2-KZG)
+//!   - Internal nodes represent folded instances (ProtoGalaxy accumulation)
+//!   - Root represents the final folded instance (input to Groth16 decider)
+//!
+//! The tree is balanced: for N proofs, depth = ceil(log2(N)).
+//! Odd-count levels promote the unpaired element to the next level.
+//!
+//! This models the "Binary tree accumulation pipeline" from the research findings
+//! (Section 3.4) and the ProtoGalaxy folding hierarchy.
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! [Source: implementation-history/prover-aggregation/research/findings.md, Section 3.4]
 
 use std::collections::BTreeSet;
 
@@ -189,7 +189,7 @@ impl ProofTree {
     /// This is the tree-level enforcement of AggregationSoundness (S1):
     /// the root is valid iff ALL leaf proofs are valid.
     pub fn is_valid(&self) -> bool {
-        self.root().map_or(false, |n| n.is_valid())
+        self.root().is_some_and(|n| n.is_valid())
     }
 
     /// Get the depth of the tree (number of folding levels).

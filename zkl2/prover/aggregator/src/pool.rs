@@ -1,18 +1,18 @@
-/// Proof pool management for the aggregation pipeline.
-///
-/// Maps TLA+ variables to Rust state:
-///   aggregationPool  ->  ProofPool.pool (HashMap<ProofId, ProofEntry>)
-///   everSubmitted     ->  ProofPool.ever_submitted (HashSet<ProofId>)
-///   proofCounter      ->  ProofPool.proof_counters (HashMap<EnterpriseId, u64>)
-///
-/// Enforces TLA+ guards:
-///   SubmitToPool(e, n):
-///     - n >= 1 (sequence starts at 1)
-///     - n <= proofCounter[e] (proof must be generated)
-///     - <<e, n>> not in aggregationPool (duplicate rejection)
-///     - <<e, n>> not in any aggregation (single-location)
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! Proof pool management for the aggregation pipeline.
+//!
+//! Maps TLA+ variables to Rust state:
+//!   aggregationPool  ->  ProofPool.pool (HashMap<ProofId, ProofEntry>)
+//!   everSubmitted     ->  ProofPool.ever_submitted (HashSet<ProofId>)
+//!   proofCounter      ->  ProofPool.proof_counters (HashMap<EnterpriseId, u64>)
+//!
+//! Enforces TLA+ guards:
+//!   SubmitToPool(e, n):
+//!     - n >= 1 (sequence starts at 1)
+//!     - n <= proofCounter[e] (proof must be generated)
+//!     - <<e, n>> not in aggregationPool (duplicate rejection)
+//!     - <<e, n>> not in any aggregation (single-location)
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 

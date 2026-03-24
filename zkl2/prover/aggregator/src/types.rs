@@ -1,11 +1,11 @@
-/// Core types for the proof aggregation pipeline.
-///
-/// Maps TLA+ domain definitions to Rust types:
-///   ProofIds   == Enterprises x (1..MaxProofsPerEnt)  ->  ProofId { enterprise, sequence }
-///   AggStatuses == {"aggregated", "l1_verified", "l1_rejected"}  ->  AggregationStatus enum
-///   AggRecord  == [components, valid, status]  ->  AggregationRecord struct
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! Core types for the proof aggregation pipeline.
+//!
+//! Maps TLA+ domain definitions to Rust types:
+//!   ProofIds   == Enterprises x (1..MaxProofsPerEnt)  ->  ProofId { enterprise, sequence }
+//!   AggStatuses == {"aggregated", "l1_verified", "l1_rejected"}  ->  AggregationStatus enum
+//!   AggRecord  == [components, valid, status]  ->  AggregationRecord struct
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
 
 use std::collections::BTreeSet;
 use thiserror::Error;

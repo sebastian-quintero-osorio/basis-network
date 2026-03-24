@@ -1,20 +1,20 @@
-/// Main proof aggregation pipeline.
-///
-/// Orchestrates the complete aggregation lifecycle:
-///   1. Proof generation tracking (GenerateValidProof / GenerateInvalidProof)
-///   2. Pool submission (SubmitToPool)
-///   3. Set-based aggregation via ProtoGalaxy folding (AggregateSubset)
-///   4. L1 verification status (VerifyOnL1)
-///   5. Recovery from rejection (RecoverFromRejection)
-///
-/// Enforces all 5 TLA+ safety properties as runtime assertions:
-///   S1 AggregationSoundness:     agg.valid == (components subset of proofValidity)
-///   S2 IndependencePreservation: valid submitted proofs always accessible
-///   S3 OrderIndependence:        same components => same validity
-///   S4 GasMonotonicity:          AggregatedGasCost < BaseGasPerProof * N for N >= 2
-///   S5 SingleLocation:           each proof in at most one location
-///
-/// [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
+//! Main proof aggregation pipeline.
+//!
+//! Orchestrates the complete aggregation lifecycle:
+//!   1. Proof generation tracking (GenerateValidProof / GenerateInvalidProof)
+//!   2. Pool submission (SubmitToPool)
+//!   3. Set-based aggregation via ProtoGalaxy folding (AggregateSubset)
+//!   4. L1 verification status (VerifyOnL1)
+//!   5. Recovery from rejection (RecoverFromRejection)
+//!
+//! Enforces all 5 TLA+ safety properties as runtime assertions:
+//!   S1 AggregationSoundness:     agg.valid == (components subset of proofValidity)
+//!   S2 IndependencePreservation: valid submitted proofs always accessible
+//!   S3 OrderIndependence:        same components => same validity
+//!   S4 GasMonotonicity:          AggregatedGasCost < BaseGasPerProof * N for N >= 2
+//!   S5 SingleLocation:           each proof in at most one location
+//!
+//! [Spec: lab/3-architect/implementation-history/prover-aggregation/specs/ProofAggregation.tla]
 
 use std::collections::BTreeSet;
 
@@ -53,7 +53,7 @@ pub struct Aggregator {
     held_entries: Vec<(AggregationId, Vec<ProofEntry>)>,
 
     /// Recursive verifier for folding and deciding.
-    verifier: RecursiveVerifier,
+    _verifier: RecursiveVerifier,
 
     /// Next aggregation ID (monotonically increasing).
     next_agg_id: u64,
@@ -68,7 +68,7 @@ impl Aggregator {
             proof_validity: BTreeSet::new(),
             aggregations: Vec::new(),
             held_entries: Vec::new(),
-            verifier: RecursiveVerifier::default(),
+            _verifier: RecursiveVerifier::default(),
             next_agg_id: 0,
         }
     }
@@ -80,7 +80,7 @@ impl Aggregator {
             proof_validity: BTreeSet::new(),
             aggregations: Vec::new(),
             held_entries: Vec::new(),
-            verifier,
+            _verifier: verifier,
             next_agg_id: 0,
         }
     }

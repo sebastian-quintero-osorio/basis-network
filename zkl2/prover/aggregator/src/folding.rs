@@ -1,26 +1,26 @@
-/// Real ProtoGalaxy folding implementation for proof aggregation.
-///
-/// Replaces the SHA256 simulation in verifier_circuit.rs with actual
-/// field-arithmetic-based folding that preserves the cryptographic
-/// aggregation soundness property.
-///
-/// ProtoGalaxy folding (Gabizon & Khovratovich, 2023):
-///   Given N committed instances {(C_i, x_i, w_i)} for a relation R,
-///   produce a single folded instance (C', x', w') such that:
-///     R(C', x', w') = 0  iff  R(C_i, x_i, w_i) = 0 for all i.
-///
-/// The folding uses random challenges (Fiat-Shamir) to compute:
-///   C' = sum(alpha^i * C_i)
-///   x' = sum(alpha^i * x_i)
-///   w' = sum(alpha^i * w_i)
-///
-/// For on-chain verification, a Groth16 "decider" proof attests that
-/// the folded instance is satisfiable.
-///
-/// [Spec: zkl2/specs/units/2026-03-proof-aggregation/ProofAggregation.tla]
+//! Real ProtoGalaxy folding implementation for proof aggregation.
+//!
+//! Replaces the SHA256 simulation in verifier_circuit.rs with actual
+//! field-arithmetic-based folding that preserves the cryptographic
+//! aggregation soundness property.
+//!
+//! ProtoGalaxy folding (Gabizon & Khovratovich, 2023):
+//!   Given N committed instances {(C_i, x_i, w_i)} for a relation R,
+//!   produce a single folded instance (C', x', w') such that:
+//!     R(C', x', w') = 0  iff  R(C_i, x_i, w_i) = 0 for all i.
+//!
+//! The folding uses random challenges (Fiat-Shamir) to compute:
+//!   C' = sum(alpha^i * C_i)
+//!   x' = sum(alpha^i * x_i)
+//!   w' = sum(alpha^i * w_i)
+//!
+//! For on-chain verification, a Groth16 "decider" proof attests that
+//! the folded instance is satisfiable.
+//!
+//! [Spec: zkl2/specs/units/2026-03-proof-aggregation/ProofAggregation.tla]
 
 use ark_bn254::Fr;
-use ark_ff::{Field, PrimeField, BigInteger};
+use ark_ff::{PrimeField, BigInteger};
 use sha2::{Sha256, Digest};
 
 /// A committed instance for folding.
@@ -77,7 +77,7 @@ fn derive_challenge(instances: &[CommittedInstance]) -> Fr {
     for inst in instances {
         let bytes = inst.commitment.into_bigint().to_bytes_be();
         hasher.update(&bytes);
-        hasher.update(&inst.batch_id.to_le_bytes());
+        hasher.update(inst.batch_id.to_le_bytes());
     }
     let hash = hasher.finalize();
     // Reduce to field element
@@ -157,9 +157,9 @@ pub fn decide(folded: &FoldedInstance) -> DeciderProof {
     let mut hasher = Sha256::new();
     let comm_bytes = folded.commitment.into_bigint().to_bytes_be();
     hasher.update(&comm_bytes);
-    hasher.update(&folded.pre_state_root.into_bigint().to_bytes_be());
-    hasher.update(&folded.post_state_root.into_bigint().to_bytes_be());
-    hasher.update(&(folded.instance_count as u64).to_le_bytes());
+    hasher.update(folded.pre_state_root.into_bigint().to_bytes_be());
+    hasher.update(folded.post_state_root.into_bigint().to_bytes_be());
+    hasher.update((folded.instance_count as u64).to_le_bytes());
     let hash = hasher.finalize();
 
     // Build proof bytes from the hash (deterministic, binding).
