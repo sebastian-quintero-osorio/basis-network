@@ -1,12 +1,15 @@
 # Validium: Complete Production Roadmap
 
-## Current State: ~97% (Updated 2026-03-24)
+## Current State: ~92% (Updated 2026-03-23)
 
 The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L1
-verification -> state root updated. Phases 1-4 are substantially completed (BN128
-validation, circuit v2 reconciliation, distributed DAC with gRPC, security hardening,
-Prometheus metrics, TLS, WAL encryption). Remaining work: mainnet preparation (Phase 5)
-and scale optimizations (Phase 6).
+verification -> state root updated. Phases 1 and 2 are substantially completed (BN128
+validation, circuit v2 reconciliation, distributed DAC with gRPC). Phase 2.3
+(DACAttestation L1 integration) remains open. Phase 3 is partially completed
+(WAL encryption, TLS, rate limiter fix done; per-enterprise rate limiting and API key
+rotation still open). Phase 4 partially completed (Prometheus metrics, graceful shutdown).
+Remaining work: open Phase 2/3 items, Phase 4 operational tests, mainnet preparation
+(Phase 5) and scale optimizations (Phase 6).
 
 ---
 
@@ -58,7 +61,7 @@ WAL encryption, TLS).
 
 ---
 
-## Phase 2: Distributed DAC -- COMPLETED (2026-03-21)
+## Phase 2: Distributed DAC -- PARTIALLY COMPLETED (2026-03-21)
 
 ### 2.1 DAC Node as Standalone Service -- COMPLETED
 
@@ -93,7 +96,7 @@ Commit 31bbce4 verified distributed DAC with 3 Docker nodes.
 - Timeout handling per-node (don't block on slow nodes)
 - Fallback: if < threshold nodes respond, trigger on-chain DA fallback
 
-### 2.3 DACAttestation L1 Integration
+### 2.3 DACAttestation L1 Integration -- OPEN
 
 **Problem:** DAC attestations are collected locally but never submitted to the DACAttestation contract on L1.
 
@@ -112,17 +115,17 @@ Commit 31bbce4 verified distributed DAC with 3 Docker nodes.
 
 ---
 
-## Phase 3: Security Hardening -- COMPLETED (2026-03-23)
+## Phase 3: Security Hardening -- PARTIALLY COMPLETED (2026-03-23)
 
-### 3.1 Rate Limiting per Enterprise
+### 3.1 Rate Limiting per Enterprise -- OPEN
 
-**Problem:** Current rate limiting is per-IP. Per-enterprise rate limiting still open.
+**Problem:** Current rate limiting is per-IP only. Per-enterprise rate limiting is not implemented.
 
 **Solution:**
 - Modify `api/rate-limiter.ts` to key on enterprise ID (from API key lookup)
 - Configurable per-enterprise limits
 
-### 3.2 API Key Rotation
+### 3.2 API Key Rotation -- OPEN
 
 **Solution:**
 - Add `POST /v1/admin/rotate-key` endpoint
