@@ -23,7 +23,13 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-const rpcURL = "http://localhost:9998"
+var rpcURL = "http://localhost:9998"
+
+func init() {
+	if v := os.Getenv("RPC_URL"); v != "" {
+		rpcURL = v
+	}
+}
 
 func main() {
 	fmt.Println("=== Basis L2 Node -- E2E Integration Test ===")
