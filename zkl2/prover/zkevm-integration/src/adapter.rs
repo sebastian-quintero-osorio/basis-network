@@ -84,6 +84,7 @@ impl PseTraceAdapter {
                     TraceOp::RETURN | TraceOp::REVERT => 2,
                     TraceOp::SHA3 => 5,
                     TraceOp::CREATE | TraceOp::CREATE2 => 10,
+                    _ => 1, // Default: 1 row for unhandled opcodes
                 };
             }
             // Opcode count from executor (approximation for non-state-modifying ops)
