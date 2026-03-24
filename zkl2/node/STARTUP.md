@@ -179,7 +179,7 @@ The node is fully operational with E2E pipeline verified on Basis Network L1 (Fu
 - **Contracts**: All 6 contracts + PlonkVerifier deployed on Fuji testnet
 - **ZK proofs**: Real PLONK-KZG proofs (86ms, 1376 bytes) verified on-chain (291K gas)
 
-See `docs/POST_ROADMAP_TODO.md` for remaining work (bridge E2E, DAC E2E, security hardening).
+See `docs/PRODUCTION_ROADMAP.md` for current status and remaining work.
 
 ## Monitoring
 

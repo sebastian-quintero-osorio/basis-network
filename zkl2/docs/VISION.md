@@ -281,12 +281,13 @@ interface IBasisRollup {
 
 ```
 zkl2/
-|-- VISION.md                    # This document
-|-- ROADMAP.md                   # Research units and execution plan
-|-- ROADMAP_CHECKLIST.md         # Sequential agent execution checklist
 |-- docs/
-|   |-- ARCHITECTURE.md          # Detailed technical architecture
-|   `-- TECHNICAL_DECISIONS.md   # Full ADR catalog
+|   |-- VISION.md                # Strategic vision and long-term plan
+|   |-- ARCHITECTURE.md          # System design (4-layer architecture)
+|   |-- TECHNICAL_DECISIONS.md   # 9 ADRs with rationale
+|   |-- PRODUCTION_ROADMAP.md    # Current status and path to production
+|   |-- DEPLOYMENT.md            # Operational deployment guide
+|   `-- API.md                   # JSON-RPC endpoint reference
 |-- research/                    # R&D pipeline output (Scientist)
 |   |-- experiments/             # Self-contained experiment directories
 |   `-- foundations/             # Living specs (invariants, threat models)
