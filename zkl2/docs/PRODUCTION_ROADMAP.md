@@ -9,15 +9,22 @@ L1 commit (149K gas) -> L1 prove (71K gas) -> L1 execute -> batch finalized
 state persistence, L1 synchronizer, and ProtoGalaxy aggregation are all operational.
 Contract deployment E2E also verified.
 
-**UPDATE (2026-03-24):** BasisRollupV2 + PlonkVerifier have been deployed to Fuji.
-L1 commitBatch succeeds (149K gas) via the real pipeline. The L1 submitter now has
-idempotent retry logic for resilient batch submission.
+**UPDATE (2026-03-24):** BasisRollupV2 + PlonkVerifier deployed on Fuji with real SRS
+G2 points extracted from prover's srs_k8.bin. L1 commitBatch succeeds (149K gas) via
+the real pipeline. L1 submitter has idempotent retry logic.
 
-**REMAINING ISSUE:** proveBatchV2 reverts on-chain because the PlonkVerifier SRS G2
-points (currently set to BN254 generator) do not match the Rust prover's SRS
-(generated via `ParamsKZG::setup(k, OsRng)`). Fix: export the actual SRS G2 point
-from the Rust prover's `srs_k8.bin` and configure PlonkVerifier with the correct
-points. The proof generation is valid (off-chain verification passes).
+**REMAINING ISSUE:** proveBatchV2 reverts because PlonkVerifier.sol implements a
+simplified KZG opening check (`e(-W,[s]_2)*e(C+zW,-[1]_2)==1`) that does not match
+the full Halo2 PLONK proof format (which includes multiple polynomial commitments,
+linearization, and multi-opening arguments). The Rust prover generates valid proofs
+(off-chain verification passes), but the on-chain verifier needs to be regenerated
+using `snark-verifier` or `halo2-solidity-verifier` to produce a Halo2-compatible
+Solidity verifier contract. This is a well-known step in Halo2-based zkEVM projects
+(Scroll, PSE zkEVM use generated Solidity verifiers, not hand-written ones).
+
+Deployed contracts (2026-03-24):
+- PlonkVerifier: 0xD2F07E9bC02d96C53Da47D166eEAa0d850212F23
+- BasisRollupV2: 0x9DDE6f93182d660c9f18734De29254D811ae859f
 
 **Recent changes (2026-03-23/24):**
 - PlonkVerifier.sol upgraded to real KZG pairing verification (EIP-197 precompiles)
@@ -112,9 +119,8 @@ state root advanced from Poseidon genesis to post-batch root.
 BasisRollupHarness (test harness, mock _verifyProof): 0x79279EDe17c8026412cD093876e8871352f18546.
 Total gas: 291K, total time: 5.8s.
 
-**REMAINING:** Deploy BasisRollupV2 + PlonkVerifier to Fuji for real cryptographic
-proof verification on-chain. Both contracts exist and are tested (48 PlonkVerifier
-tests passing) but have not been deployed.
+**UPDATE:** BasisRollupV2 + PlonkVerifier deployed on Fuji (2026-03-24). commitBatch
+works (149K gas). proveBatchV2 requires Halo2-generated Solidity verifier (see header).
 
 ---
 
