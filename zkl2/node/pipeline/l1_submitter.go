@@ -214,94 +214,131 @@ func (s *L1Submitter) SubmitBatch(ctx context.Context, batch *BatchState) (uint6
 
 	contract := bind.NewBoundContract(s.rollupAddr, s.rollupABI, s.client, s.client, s.client)
 
-	// Phase 1: commitBatch
-	s.logger.Info("L1 commit batch", "batch_id", batch.BatchID)
-	stateRoot := common.HexToHash(batch.PostStateRoot)
-	priorityHash := common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
-
-	type CommitBatchData struct {
-		NewStateRoot    [32]byte
-		L2BlockStart    uint64
-		L2BlockEnd      uint64
-		PriorityOpsHash [32]byte
-		Timestamp       uint64
-	}
-	commitData := CommitBatchData{
-		NewStateRoot:    stateRoot,
-		L2BlockStart:    batch.BlockNumber,
-		L2BlockEnd:      batch.BlockNumber + uint64(batch.TxCount),
-		PriorityOpsHash: priorityHash,
-		Timestamp:       uint64(time.Now().Unix()),
+	// Query on-chain state for idempotent retry support.
+	committed, proven, executed, stateErr := s.enterpriseState(ctx)
+	if stateErr != nil {
+		s.logger.Warn("could not query on-chain state (proceeding anyway)", "error", stateErr)
+		committed, proven, executed = 0, 0, 0
 	}
 
-	commitTx, err := contract.Transact(auth, "commitBatch", commitData)
-	if err != nil {
-		return 0, "", fmt.Errorf("commitBatch tx: %w", err)
-	}
-	commitReceipt, err := bind.WaitMined(ctx, s.client, commitTx)
-	if err != nil {
-		return 0, "", fmt.Errorf("commitBatch receipt: %w", err)
-	}
-	if commitReceipt.Status != 1 {
-		return 0, "", fmt.Errorf("commitBatch reverted")
-	}
-	totalGas += commitReceipt.GasUsed
-	s.logger.Info("L1 commit success", "gas", commitReceipt.GasUsed, "tx", commitTx.Hash().Hex()[:10])
+	// Phase 1: commitBatch (skip if already committed)
+	if committed > batch.BatchID {
+		s.logger.Info("L1 commit: batch already committed, skipping",
+			"batch_id", batch.BatchID, "on_chain_committed", committed)
+	} else {
+		s.logger.Info("L1 commit batch", "batch_id", batch.BatchID)
+		stateRoot := common.HexToHash(batch.PostStateRoot)
+		priorityHash := common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
-	// Phase 2: proveBatchV2 -- submit raw PLONK-KZG proof bytes to PlonkVerifier
-	s.logger.Info("L1 prove batch (V2/PLONK)", "batch_id", batch.BatchID,
-		"proof_size", len(batch.ProofResult.ProofBytes),
-		"public_inputs_size", len(batch.ProofResult.PublicInputs),
-	)
-	batchID := new(big.Int).SetUint64(batch.BatchID)
-
-	// Send raw proof bytes directly (PlonkVerifier handles verification).
-	proofBytes := batch.ProofResult.ProofBytes
-	var publicInputs []*big.Int
-	if batch.ProofResult != nil && batch.ProofResult.PublicInputs != nil {
-		for i := 0; i+32 <= len(batch.ProofResult.PublicInputs); i += 32 {
-			publicInputs = append(publicInputs, new(big.Int).SetBytes(batch.ProofResult.PublicInputs[i:i+32]))
+		type CommitBatchData struct {
+			NewStateRoot    [32]byte
+			L2BlockStart    uint64
+			L2BlockEnd      uint64
+			PriorityOpsHash [32]byte
+			Timestamp       uint64
 		}
+		commitData := CommitBatchData{
+			NewStateRoot:    stateRoot,
+			L2BlockStart:    batch.BlockNumber,
+			L2BlockEnd:      batch.BlockNumber + uint64(batch.TxCount),
+			PriorityOpsHash: priorityHash,
+			Timestamp:       uint64(time.Now().Unix()),
+		}
+
+		commitTx, err := contract.Transact(auth, "commitBatch", commitData)
+		if err != nil {
+			return 0, "", fmt.Errorf("commitBatch tx: %w", err)
+		}
+		commitReceipt, err := bind.WaitMined(ctx, s.client, commitTx)
+		if err != nil {
+			return 0, "", fmt.Errorf("commitBatch receipt: %w", err)
+		}
+		if commitReceipt.Status != 1 {
+			return 0, "", fmt.Errorf("commitBatch reverted")
+		}
+		totalGas += commitReceipt.GasUsed
+		s.logger.Info("L1 commit success", "gas", commitReceipt.GasUsed, "tx", commitTx.Hash().Hex()[:10])
 	}
 
-	proveTx, err := contract.Transact(auth, "proveBatchV2", batchID, proofBytes, publicInputs)
-	if err != nil {
-		return totalGas, "", fmt.Errorf("proveBatch tx: %w", err)
-	}
-	proveReceipt, err := bind.WaitMined(ctx, s.client, proveTx)
-	if err != nil {
-		return totalGas, "", fmt.Errorf("proveBatch receipt: %w", err)
-	}
-	if proveReceipt.Status != 1 {
-		return totalGas, "", fmt.Errorf("proveBatch reverted")
-	}
-	totalGas += proveReceipt.GasUsed
-	s.logger.Info("L1 prove success", "gas", proveReceipt.GasUsed)
+	// Phase 2: proveBatchV2 (skip if already proven)
+	batchID := new(big.Int).SetUint64(batch.BatchID)
+	if proven > batch.BatchID {
+		s.logger.Info("L1 prove: batch already proven, skipping",
+			"batch_id", batch.BatchID, "on_chain_proven", proven)
+	} else {
+		s.logger.Info("L1 prove batch (V2/PLONK)", "batch_id", batch.BatchID,
+			"proof_size", len(batch.ProofResult.ProofBytes),
+			"public_inputs_size", len(batch.ProofResult.PublicInputs),
+		)
 
-	// Phase 3: executeBatch
-	s.logger.Info("L1 execute batch", "batch_id", batch.BatchID)
-	execTx, err := contract.Transact(auth, "executeBatch", batchID)
-	if err != nil {
-		return totalGas, "", fmt.Errorf("executeBatch tx: %w", err)
+		// Send raw proof bytes directly (PlonkVerifier handles verification).
+		proofBytes := batch.ProofResult.ProofBytes
+		var publicInputs []*big.Int
+		if batch.ProofResult != nil && batch.ProofResult.PublicInputs != nil {
+			for i := 0; i+32 <= len(batch.ProofResult.PublicInputs); i += 32 {
+				publicInputs = append(publicInputs, new(big.Int).SetBytes(batch.ProofResult.PublicInputs[i:i+32]))
+			}
+		}
+
+		proveTx, err := contract.Transact(auth, "proveBatchV2", batchID, proofBytes, publicInputs)
+		if err != nil {
+			return totalGas, "", fmt.Errorf("proveBatch tx: %w", err)
+		}
+		proveReceipt, err := bind.WaitMined(ctx, s.client, proveTx)
+		if err != nil {
+			return totalGas, "", fmt.Errorf("proveBatch receipt: %w", err)
+		}
+		if proveReceipt.Status != 1 {
+			return totalGas, "", fmt.Errorf("proveBatch reverted")
+		}
+		totalGas += proveReceipt.GasUsed
+		s.logger.Info("L1 prove success", "gas", proveReceipt.GasUsed)
 	}
-	execReceipt, err := bind.WaitMined(ctx, s.client, execTx)
-	if err != nil {
-		return totalGas, "", fmt.Errorf("executeBatch receipt: %w", err)
+
+	// Phase 3: executeBatch (skip if already executed)
+	if executed > batch.BatchID {
+		s.logger.Info("L1 execute: batch already executed, skipping",
+			"batch_id", batch.BatchID, "on_chain_executed", executed)
+	} else {
+		s.logger.Info("L1 execute batch", "batch_id", batch.BatchID)
+		execTx, err := contract.Transact(auth, "executeBatch", batchID)
+		if err != nil {
+			return totalGas, "", fmt.Errorf("executeBatch tx: %w", err)
+		}
+		execReceipt, err := bind.WaitMined(ctx, s.client, execTx)
+		if err != nil {
+			return totalGas, "", fmt.Errorf("executeBatch receipt: %w", err)
+		}
+		if execReceipt.Status != 1 {
+			return totalGas, "", fmt.Errorf("executeBatch reverted")
+		}
+		totalGas += execReceipt.GasUsed
 	}
-	if execReceipt.Status != 1 {
-		return totalGas, "", fmt.Errorf("executeBatch reverted")
-	}
-	totalGas += execReceipt.GasUsed
 
 	elapsed := time.Since(start)
 	s.logger.Info("L1 batch submitted successfully",
 		"batch_id", batch.BatchID,
 		"total_gas", totalGas,
 		"duration_ms", elapsed.Milliseconds(),
-		"l1_tx", commitTx.Hash().Hex(),
 	)
 
-	return totalGas, commitTx.Hash().Hex(), nil
+	return totalGas, fmt.Sprintf("batch_%d", batch.BatchID), nil
+}
+
+// enterpriseState queries the on-chain state for the submitter's enterprise.
+// Returns (committedBatches, provenBatches, executedBatches, error).
+func (s *L1Submitter) enterpriseState(ctx context.Context) (uint64, uint64, uint64, error) {
+	contract := bind.NewBoundContract(s.rollupAddr, s.rollupABI, s.client, s.client, s.client)
+	var result []interface{}
+	err := contract.Call(&bind.CallOpts{Context: ctx}, &result, "enterprises", s.fromAddr)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("query enterprises: %w", err)
+	}
+	// ABI returns: currentRoot, committedBatches, provenBatches, executedBatches, initialized, lastL2Block
+	committed := result[1].(uint64)
+	proven := result[2].(uint64)
+	executed := result[3].(uint64)
+	return committed, proven, executed, nil
 }
 
 // Close closes the ethclient connection.
