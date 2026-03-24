@@ -273,8 +273,8 @@ fn configure_mod_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConf
 fn configure_lt_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitConfig) {
     meta.create_gate("lt_gate", |meta: &mut VirtualCells<Fr>| {
         let q = meta.query_selector(config.q_lt);
-        let a = meta.query_advice(config.a, Rotation::cur());
-        let b = meta.query_advice(config.b, Rotation::cur());
+        let _a = meta.query_advice(config.a, Rotation::cur());
+        let _b = meta.query_advice(config.b, Rotation::cur());
         let c = meta.query_advice(config.c, Rotation::cur());
 
         // Boolean constraint: c * (1 - c) = 0
@@ -418,7 +418,7 @@ fn configure_sstore_gate(meta: &mut ConstraintSystem<Fr>, config: &BasisCircuitC
         let b = meta.query_advice(config.b, Rotation::cur());
         let c = meta.query_advice(config.c, Rotation::cur());
         let d = meta.query_advice(config.d, Rotation::cur());
-        let one = halo2_proofs::plonk::Expression::Constant(Fr::from(1));
+        let _one = halo2_proofs::plonk::Expression::Constant(Fr::from(1));
         // When d=1 (identity flag): c - b must be 0
         vec![q * d * (c - b)]
     });

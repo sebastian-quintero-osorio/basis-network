@@ -33,7 +33,6 @@
 /// Phase-aware verification is provided by `verifier::verify_with_phase`.
 ///
 /// [Spec: lab/3-architect/implementation-history/prover-plonk-migration/specs/PlonkMigration.tla]
-
 pub mod circuit;
 pub mod columns;
 pub mod gates;
