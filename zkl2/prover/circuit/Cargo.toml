@@ -9,6 +9,12 @@ license = "BUSL-1.1"
 # halo2 proving system (PSE fork, KZG on BN254)
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
 
+# Keccak256 transcript for EVM-compatible proof generation
+halo2_solidity_verifier = { git = "https://github.com/privacy-scaling-explorations/halo2-solidity-verifier" }
+
+# Keccak256 hashing (for transcript)
+sha3 = "0.10"
+
 # arkworks BN254 for witness interop (shared with basis-witness crate)
 ark-ff = "0.4"
 ark-bn254 = "0.4"

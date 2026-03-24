@@ -301,10 +301,11 @@ type WitnessResultJSON struct {
 	GenerationTimeMs uint64 `json:"generation_time_ms"`
 }
 
-// ProofResultJSON represents a generated ZK proof (Groth16: 2*G1 + 1*G2 = 192 bytes).
+// ProofResultJSON represents a generated ZK proof.
 type ProofResultJSON struct {
 	ProofBytes       []byte `json:"proof_bytes"`
 	PublicInputs     []byte `json:"public_inputs"`
+	EvmProofBytes    []byte `json:"evm_proof_bytes"`    // Decompressed for on-chain verification
 	ProofSizeBytes   uint64 `json:"proof_size_bytes"`
 	ConstraintCount  uint64 `json:"constraint_count"`
 	GenerationTimeMs uint64 `json:"generation_time_ms"`

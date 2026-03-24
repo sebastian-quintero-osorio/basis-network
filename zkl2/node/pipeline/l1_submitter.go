@@ -271,12 +271,28 @@ func (s *L1Submitter) SubmitBatch(ctx context.Context, batch *BatchState) (uint6
 			"public_inputs_size", len(batch.ProofResult.PublicInputs),
 		)
 
-		// Send raw proof bytes directly (PlonkVerifier handles verification).
+		// Use EVM-formatted proof (decompressed G1 points) if available.
+		// The generated Halo2Verifier expects uncompressed G1 (64 bytes each),
+		// while halo2's create_proof outputs compressed G1 (32 bytes each).
 		proofBytes := batch.ProofResult.ProofBytes
+		if len(batch.ProofResult.EvmProofBytes) > 0 {
+			proofBytes = batch.ProofResult.EvmProofBytes
+			s.logger.Info("using EVM-decompressed proof",
+				"compressed_size", len(batch.ProofResult.ProofBytes),
+				"evm_size", len(proofBytes),
+			)
+		}
 		var publicInputs []*big.Int
 		if batch.ProofResult != nil && batch.ProofResult.PublicInputs != nil {
 			for i := 0; i+32 <= len(batch.ProofResult.PublicInputs); i += 32 {
-				publicInputs = append(publicInputs, new(big.Int).SetBytes(batch.ProofResult.PublicInputs[i:i+32]))
+				// Public inputs from Rust prover are Fr::to_repr() = little-endian.
+				// Solidity expects big-endian uint256. Reverse byte order.
+				chunk := batch.ProofResult.PublicInputs[i : i+32]
+				beBytes := make([]byte, 32)
+				for j := 0; j < 32; j++ {
+					beBytes[j] = chunk[31-j]
+				}
+				publicInputs = append(publicInputs, new(big.Int).SetBytes(beBytes))
 			}
 		}
 

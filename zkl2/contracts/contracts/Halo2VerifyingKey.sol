@@ -10,7 +10,7 @@ pragma solidity ^0.8.0;
 contract Halo2VerifyingKey {
     constructor() {
         assembly {
-            mstore(0x0000, 0x151d4be39c2d47996703043c268444b75a8f042cc2c0ed5a0b82d9bb706b7817) // vk_digest
+            mstore(0x0000, 0x0737b92ad5383c5ab0ea5f5472d94645a187e9857c28eb7218779db472f06746) // vk_digest
             mstore(0x0020, 0x0000000000000000000000000000000000000000000000000000000000000003) // num_instances
             mstore(0x0040, 0x0000000000000000000000000000000000000000000000000000000000000008) // k
             mstore(0x0060, 0x3033ea246e506e898e97f570caffd704cb0bb460313fb720b29e139e5c100001) // n_inv
@@ -27,16 +27,16 @@ contract Halo2VerifyingKey {
             mstore(0x01c0, 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed) // g2_x_2
             mstore(0x01e0, 0x090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b) // g2_y_1
             mstore(0x0200, 0x12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa) // g2_y_2
-            mstore(0x0220, 0x033cab59a40f965774aa46f1381557f876b8eeedcedd87a3c80825b97c5f88a1) // neg_s_g2_x_1
-            mstore(0x0240, 0x29f8c3e09be99a74a2a695d6847cea8835e2c2d0d4b4cec5822220d293b01d49) // neg_s_g2_x_2
-            mstore(0x0260, 0x0f8b6a6b3751314cf3455751ecf6184197dc3b11554eedad905ab4fd59029b7c) // neg_s_g2_y_1
-            mstore(0x0280, 0x1fcb386c44ed9de64972fdf444036ac22086b7c6471bfa88ab7338744032bc41) // neg_s_g2_y_2
+            mstore(0x0220, 0x1eea4e3b708b834f2cb6e61eea616d16209c760fc90c78f3547e35f8a25adfa2) // neg_s_g2_x_1
+            mstore(0x0240, 0x2e0397b45de7af60bed56c388600c3adac630de489afee8a3a3007b622341c20) // neg_s_g2_x_2
+            mstore(0x0260, 0x29f19275d0e0e3515a8ef8347e79348fc81d6c094764a2e14ff372d48549b0c0) // neg_s_g2_y_1
+            mstore(0x0280, 0x2e1fd02c495e7e09cc89739a00f0a672b62cd74291a50ab69cde2d7d631df11e) // neg_s_g2_y_2
             mstore(0x02a0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[0].x
             mstore(0x02c0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[0].y
             mstore(0x02e0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[1].x
             mstore(0x0300, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[1].y
-            mstore(0x0320, 0x26f024d22ecccceb38fc70bea30294e406088ca5711865e9b5beb64d15cf311b) // fixed_comms[2].x
-            mstore(0x0340, 0x19e6da320450bafaca96c1da2151effbf2fdd94324c8a6cdf7eb90c7267a2543) // fixed_comms[2].y
+            mstore(0x0320, 0x05ae8c3ccb774afb3a731c26d289a64d735e9b2383cea110acfd23ed79b5f9f8) // fixed_comms[2].x
+            mstore(0x0340, 0x104d6d483747086d4a670a185bedbf3c909bc710e77c2a727db1a6b061ec45f8) // fixed_comms[2].y
             mstore(0x0360, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[3].x
             mstore(0x0380, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[3].y
             mstore(0x03a0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[4].x
@@ -67,20 +67,24 @@ contract Halo2VerifyingKey {
             mstore(0x06c0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[16].y
             mstore(0x06e0, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[17].x
             mstore(0x0700, 0x0000000000000000000000000000000000000000000000000000000000000000) // fixed_comms[17].y
-            mstore(0x0720, 0x133acf5d14877dc622405fb76dd4892844f1d75a1a93e06891c88cd97d8939e6) // permutation_comms[0].x
-            mstore(0x0740, 0x1bfc7b097f10463bf1ff7152590e77adabc80513d2a330c87c8522c49b6f003f) // permutation_comms[0].y
-            mstore(0x0760, 0x13cce52a0e3e1cb96fb6b40a686a1a15651b836de6b2f42318b32b1480315687) // permutation_comms[1].x
-            mstore(0x0780, 0x20d063887c64edf41e5ae855d55ca4a160a04eda5614418c47b58c9024ff1c2a) // permutation_comms[1].y
-            mstore(0x07a0, 0x0dbb6bde26cb4dda2930d47091e1256733ef8850a169676f92ed798ded97f138) // permutation_comms[2].x
-            mstore(0x07c0, 0x02a9a247c0f248f16a9a390863689b1bac3d8950bb45b3e3f35eb7fe1ea80685) // permutation_comms[2].y
-            mstore(0x07e0, 0x06cd3c90c14ea0c541a39297fbe3d22d2eb2a29779591f79db40da0d2b4608fc) // permutation_comms[3].x
-            mstore(0x0800, 0x17ff6a62deb79a6b148b7e3dad5ae02ad3f91b8b06732479aa7a8c60773f0b28) // permutation_comms[3].y
-            mstore(0x0820, 0x1ab3fb6048dde1c8db0f4f7e9b5aaabf74e5064bedf423f04fe767e2d8080b97) // permutation_comms[4].x
-            mstore(0x0840, 0x1164d4485689f03aaccb75cf22cca3c81ce07e00a8daaac35eb0e041787ab166) // permutation_comms[4].y
-            mstore(0x0860, 0x10af1021137c7012939dcb2f4b96d42a883cf11eba18aae6bc87d55bb37159c8) // permutation_comms[5].x
-            mstore(0x0880, 0x19f6c2835336decb874d0c6792a212b33c3c4c1617d57a3db8accbe95a5a1c14) // permutation_comms[5].y
+            mstore(0x0720, 0x243297b186a36902c7b856704f46a2542f06801beb2b2e60f6c8c9c4baf31641) // permutation_comms[0].x
+            mstore(0x0740, 0x083d4daae00c2b01e669078bbf5b54ec60a0c89fdf411af2e66233b2ddde328d) // permutation_comms[0].y
+            mstore(0x0760, 0x0dfa238faa8504f35b104aba40e3e25049b282c90a9c4f01771defc9ec475510) // permutation_comms[1].x
+            mstore(0x0780, 0x1aae2888c9b9171b0bd683388e1147e9e86b15b7d6a1388b3ad1b9b1190d323a) // permutation_comms[1].y
+            mstore(0x07a0, 0x0eb127d6a3bc6edc5b6db1ff135d423bb4e8be4628ae2bd9065a20b0268d2e66) // permutation_comms[2].x
+            mstore(0x07c0, 0x1d35221191ea466357889650abf0b4487546d11538b8c4bc88f642b71dcc339e) // permutation_comms[2].y
+            mstore(0x07e0, 0x023108e11875b533e71e05fb82a85cab10ac621955f06cdc0d95b41df674b2e4) // permutation_comms[3].x
+            mstore(0x0800, 0x0feebf8e307985ef42366ab053b926c8c19a527fb24dc90fc193f83a1e9752db) // permutation_comms[3].y
+            mstore(0x0820, 0x2945dd91296b9beeeff0d33299c7c5b83d23812a1ea2808c901ba4695aff5c76) // permutation_comms[4].x
+            mstore(0x0840, 0x0eea3faba679bfd1a5835188406980d7cda18edd76a261d574e5f2ad2bbf9c08) // permutation_comms[4].y
+            mstore(0x0860, 0x20975cc90921d6d84e69c9cbd20a4cab9110319e31e0702a7fe4a35a09a08285) // permutation_comms[5].x
+            mstore(0x0880, 0x0814595e3b102d8ab3f861aa2493146f90a40a18888e0417153fe06cfc053390) // permutation_comms[5].y
 
             return(0, 0x08a0)
         }
     }
 }
+// ==========================================================
+// Halo2Verifier.sol -- Generated verifier for Basis Network circuit
+// Generated by: basis-prover gen-verifier (halo2-solidity-verifier)
+// ==========================================================

@@ -23,6 +23,7 @@ use halo2_proofs::{
     },
     transcript::{Blake2bRead, Challenge255, TranscriptReadBuffer},
 };
+use halo2_solidity_verifier::Keccak256Transcript;
 
 use crate::types::{CircuitResult, MigrationPhase, ProofData, ProofSystem};
 
@@ -47,6 +48,33 @@ pub fn verify(
 
     let mut transcript =
         Blake2bRead::<_, G1Affine, Challenge255<_>>::init(proof_data.proof.as_slice());
+
+    let strategy = SingleStrategy::new(params);
+
+    match verify_proof::<_, VerifierSHPLONK<Bn256>, _, _, _>(
+        params,
+        vk,
+        strategy,
+        &[instance_refs.as_slice()],
+        &mut transcript,
+    ) {
+        Ok(_) => Ok(true),
+        Err(_) => Ok(false),
+    }
+}
+
+/// Verify a PLONK proof using Keccak256 transcript (EVM-compatible).
+///
+/// Use this to verify proofs generated with `create_proof_evm()`.
+pub fn verify_evm(
+    params: &ParamsKZG<Bn256>,
+    vk: &VerifyingKey<G1Affine>,
+    proof_data: &ProofData,
+) -> CircuitResult<bool> {
+    let instances = [proof_data.public_inputs.clone()];
+    let instance_refs: Vec<&[Fr]> = instances.iter().map(|v| v.as_slice()).collect();
+
+    let mut transcript = Keccak256Transcript::new(proof_data.proof.as_slice());
 
     let strategy = SingleStrategy::new(params);
 
