@@ -7,7 +7,9 @@ use serde::{Deserialize, Deserializer, Serialize};
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 
 /// Input to the witness generator: batch of execution traces.
+/// Deserialized from Go pipeline JSON (never constructed directly in Rust).
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct BatchTraceJSON {
     pub block_number: u64,
     pub pre_state_root: String,
@@ -17,6 +19,7 @@ pub struct BatchTraceJSON {
 
 /// Per-transaction execution trace.
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ExecutionTraceJSON {
     pub tx_hash: String,
     pub from: String,
@@ -31,6 +34,7 @@ pub struct ExecutionTraceJSON {
 
 /// Individual state-modifying operation in a trace.
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct TraceEntryJSON {
     pub op: String,
     #[serde(default)]

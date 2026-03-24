@@ -211,7 +211,6 @@ fn run_aggregate() -> Result<(), Box<dyn std::error::Error>> {
 
     // Convert to folding committed instances
     use ark_bn254::Fr as ArkFr;
-    use ark_ff::PrimeField;
     use basis_aggregator::folding::{self, CommittedInstance};
 
     let committed: Vec<CommittedInstance> = instances.iter().map(|inst| {
