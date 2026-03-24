@@ -29,7 +29,7 @@
 | EnterpriseRegistry | 0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5 | Core |
 | TraceabilityRegistry | 0x0a84C68Fe45d3036Fe66ad219f37963c79140fcb | Core |
 | ZKVerifier | 0x51B072d47f40ab7aaeD2D7744a17Bf5b53fC916D | Verification |
-| Groth16Verifier | 0xEe0149b9E547cfD7e31274EE3DA25DCEd48703a6 | Verification |
+| Groth16Verifier | 0xDb1a72Ee390D8d990A267fA85357F78C2b74F2F1 | Verification |
 | StateCommitment | 0x0FD3874008ed7C1184798Dd555B3D9695771fb5b | Core |
 | DACAttestation | 0xBa485D9b8b8b132E5eC4d7Bcf5F0B18aD10fCB22 | Verification |
 | CrossEnterpriseVerifier | 0x188125658E9Bd8D7a026A52052dB9B970d6441A9 | Verification |
@@ -45,15 +45,26 @@
 
 ### zkEVM L2 Settlement Contracts
 
-#### Active (BasisRollupV2 + PlonkVerifier -- Deployed 2026-03-24)
+#### Active -- Halo2 Generated Verifier Stack (Deployed 2026-03-24)
 
 | Contract | Address | Purpose |
 |---|---|---|
-| PlonkVerifier | 0xD2F07E9bC02d96C53Da47D166eEAa0d850212F23 | PLONK-KZG proof verification (real SRS from srs_k8.bin) |
-| BasisRollupV2 | 0x9DDE6f93182d660c9f18734De29254D811ae859f | State root management + PlonkVerifier integration |
+| Halo2Verifier | 0x53C42dC2E9459CE21A1A321cC51ba92D28E4FAE7 | Self-contained PLONK-KZG verifier (Keccak256 transcript, VK embedded) |
+| Halo2PlonkVerifier | 0x361CBD8714180acF6d2230837893CED779045Db6 | Wrapper: forwards 2-param verifyProof to Halo2Verifier |
+| BasisRollupV2 | 0xE5D257e10616B30282b67e0D2367216aC89623B4 | State root management + Halo2PlonkVerifier integration |
 
-commitBatch verified on-chain (149K gas). proveBatchV2 requires Halo2-generated
-Solidity verifier (snark-verifier) to match full PLONK proof format.
+FULL E2E VERIFIED ON-CHAIN:
+  committedBatches=1, provenBatches=1, executedBatches=1
+  Total gas: 735K (149K commit + 515K prove + 70K execute)
+  State root: 0x051bd9... -> 0x24e2cd... (advanced from genesis)
+  Pipeline: tx -> EVM -> witness -> PLONK-KZG proof (Keccak256) -> L1 verify (EIP-197 pairing)
+
+#### Previous Hand-Written PlonkVerifier (Deprecated 2026-03-24)
+
+| Contract | Address | Purpose |
+|---|---|---|
+| PlonkVerifier (hand-written) | 0xD2F07E9bC02d96C53Da47D166eEAa0d850212F23 | Simplified KZG check -- incompatible with Halo2 SHPLONK proofs |
+| BasisRollupV2 (old) | 0x9DDE6f93182d660c9f18734De29254D811ae859f | Used hand-written PlonkVerifier |
 
 #### Supporting Contracts (Deployed 2026-03-24)
 
