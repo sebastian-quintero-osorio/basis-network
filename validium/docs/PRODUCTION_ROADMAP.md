@@ -1,14 +1,13 @@
 # Validium: Complete Production Roadmap
 
-## Current State: ~95% (Updated 2026-03-23)
+## Current State: ~96% (Updated 2026-03-23)
 
 The core pipeline is verified on-chain (Fuji): 8 txs -> Groth16 proof (10s) -> L1
-verification -> state root updated. Phases 1-3 are substantially completed (BN128
-validation, circuit v2 reconciliation, distributed DAC with gRPC and L1 attestation
-submission, security hardening with per-enterprise rate limiting, WAL encryption, TLS).
-Phase 3.2 (API key rotation) remains open. Phase 4 partially completed (Prometheus
-metrics, graceful shutdown). Remaining work: API key rotation, Phase 4 operational
-tests, mainnet preparation (Phase 5) and scale optimizations (Phase 6).
+verification -> state root updated. Phases 1-3 fully completed (BN128 validation,
+circuit v2 reconciliation, distributed DAC with gRPC and L1 attestation submission,
+security hardening with per-enterprise rate limiting, API key rotation, WAL encryption,
+TLS). Phase 4 partially completed (Prometheus metrics, graceful shutdown). Remaining
+work: Phase 4 operational tests, mainnet preparation (Phase 5), scale (Phase 6).
 
 ---
 
@@ -118,7 +117,7 @@ batch processing.
 
 ---
 
-## Phase 3: Security Hardening -- PARTIALLY COMPLETED (2026-03-23)
+## Phase 3: Security Hardening -- COMPLETED (2026-03-23)
 
 ### 3.1 Rate Limiting per Enterprise -- COMPLETED
 
@@ -130,12 +129,15 @@ key format `enterprise:{enterpriseId}`).
 - Modify `api/rate-limiter.ts` to key on enterprise ID (from API key lookup)
 - Configurable per-enterprise limits
 
-### 3.2 API Key Rotation -- OPEN
+### 3.2 API Key Rotation -- COMPLETED (2026-03-23)
 
-**Solution:**
-- Add `POST /v1/admin/rotate-key` endpoint
-- Generate new API key, invalidate old one after grace period
-- Audit log of key rotations
+**Problem (resolved):** No runtime API key rotation. Keys could only be
+marked active/inactive at startup.
+
+**Solution:** Added `POST /v1/admin/rotate-key` endpoint to `server.ts`.
+Added `rotateKey()` method to `ApiKeyAuthenticator` in `auth.ts`.
+Generates new 32-byte key, deactivates old keys for the enterprise,
+returns new plaintext key (store securely -- only returned once).
 
 ### 3.3 Rate Limiter Test Reliability -- COMPLETED (2026-03-23)
 

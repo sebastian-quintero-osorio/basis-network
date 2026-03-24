@@ -1,6 +1,6 @@
 # zkL2: Complete Production Roadmap
 
-## Current State: ~85-90% (Updated 2026-03-23)
+## Current State: ~90-93% (Updated 2026-03-23)
 
 The full E2E pipeline has been **verified on Basis Network L1 (Fuji)** on 2026-03-23:
 tx -> EVM execute -> witness (9ms, 2 rows) -> PLONK-KZG prove (86ms, 1376 bytes) ->
@@ -233,10 +233,12 @@ Main node triggers aggregation after 4 finalized batches (main.go lines 668-686)
 - Configurable listen address via `DAC_LISTEN_ADDR` (default: 0.0.0.0:50051)
 - ECDSA key generated for attestation signing
 
-### 4.3 BasisDAC.sol Integration
+### 4.3 BasisDAC.sol Integration -- COMPLETED (2026-03-23)
 
-- After collecting threshold attestations, submit to BasisDAC.sol on L1
-- Wire into pipeline Submit stage (after proof submission)
+**Result:** L1DACClient (`da/l1_client.go`) submits certificates to BasisDAC.sol
+via `submitCertificate(batchId, dataHash, signatures, signers)`. Wired into main.go
+via `orch.OnBatchFinalized()` callback. Non-blocking fire-and-forget submission.
+Initialized when `DAC_CONTRACT_ADDRESS` env var is set.
 
 ### 4.4 DAC Recovery Testing
 
@@ -334,9 +336,11 @@ and is NOT the production code.
 - State roots updated after each batch finalization
 - localEnterpriseRegistry for address validation
 
-### 7.3 Remaining: L1 BasisHub.sol Integration
+### 7.3 L1 BasisHub.sol Integration -- COMPLETED (2026-03-23)
 
-- Submit cross-enterprise settlements to BasisHub.sol on L1
+**Result:** L1HubClient (`cross/l1_client.go`) submits settlements to BasisHub.sol
+via `prepareMessage()` and `settleMessage()`. Wired into main.go via
+`crossHub.SetL1Client()`. Initialized when `HUB_CONTRACT_ADDRESS` env var is set.
 - RPC endpoints for cross-enterprise operations
 
 ### 7.4 Atomic Settlement
@@ -457,10 +461,10 @@ The zkL2 is 100% production-ready when:
 | 1. Real KZG Proofs | 1-2 weeks | **PIPELINE COMPLETED** (real proof generation works; deployed contract uses mock verification -- deploy BasisRollupV2+PlonkVerifier to close gap) |
 | 2. Complete EVM Circuit | 2-6 months (or 2-6 weeks with PSE adoption) | **SUBSTANTIALLY COMPLETED** (28 new opcodes: SDIV/SMOD/XOR/SAR/SLT/SGT/ADDMOD/MULMOD/etc) |
 | 3. Real Proof Aggregation | 3-4 weeks | **ProtoGalaxy COMPLETED**, aggregated on-chain verification open |
-| 4. Distributed DAC | 2-3 weeks | **COMPLETED** (DAC wired into node, real gRPC service + client, Docker compose with 7 nodes) |
+| 4. Distributed DAC | 2-3 weeks | **COMPLETED** (DAC wired into node, real gRPC service + client, L1 certificate submission, Docker compose with 7 nodes) |
 | 5. L1 Synchronizer | 1-2 weeks | **COMPLETED** (wired into main loop) |
 | 6. Bridge Implementation | 2-3 weeks | **COMPLETED** (deposit+withdrawal+escape hatch, production relayer in node/bridge/) |
-| 7. Cross-Enterprise Hub | 2-3 weeks | **PARTIALLY COMPLETED** (hub wired into node, state root updates, L1 BasisHub.sol integration open) |
+| 7. Cross-Enterprise Hub | 2-3 weeks | **COMPLETED** (hub wired into node, state root updates, L1 settlement submission via L1HubClient) |
 | 8. Security Audit | 3-4 weeks | **PlonkVerifier KZG pairing COMPLETED + 48 tests**, full audit open |
 | 9. Production Deployment | 2-4 weeks | **Health/metrics/graceful shutdown COMPLETED**, deployment open |
 | 10. Scale/Optimization | Ongoing | Open |
