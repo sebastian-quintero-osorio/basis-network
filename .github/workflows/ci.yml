@@ -6,10 +6,21 @@ on:
   pull_request:
     branches: [main, dev]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.24"
+  NODE_VERSION: "20"
+  RUST_BACKTRACE: 1
+
 jobs:
-  contracts:
-    name: Smart Contracts
+  # ── L1 Smart Contracts ──────────────────────────────────────────
+  l1-contracts:
+    name: L1 Contracts
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: l1/contracts
@@ -17,16 +28,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: l1/contracts/package-lock.json
       - run: npm ci
       - run: npx hardhat compile
-      - run: npx hardhat test
+      - name: Run tests
+        run: npx hardhat test
 
+  # ── Validium Node ───────────────────────────────────────────────
   validium-node:
     name: Validium Node
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: validium/node
@@ -34,16 +48,20 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: validium/node/package-lock.json
       - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npm test
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Run tests
+        run: npm test
 
-  adapters:
-    name: Adapters
+  # ── Validium Adapters ───────────────────────────────────────────
+  validium-adapters:
+    name: Validium Adapters
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: validium/adapters
@@ -51,31 +69,37 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: validium/adapters/package-lock.json
       - run: npm ci
-      - run: npx tsc --noEmit
+      - name: Type check
+        run: npx tsc --noEmit
 
-  dashboard:
-    name: Dashboard
+  # ── Validium DAC Node ───────────────────────────────────────────
+  validium-dac:
+    name: Validium DAC Node
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
-        working-directory: l1/dashboard
+        working-directory: validium/dac-node
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: l1/dashboard/package-lock.json
+          cache-dependency-path: validium/dac-node/package-lock.json
       - run: npm ci
-      - run: npx next build
+      - name: Type check
+        run: npx tsc --noEmit
 
-  circuits:
+  # ── ZK Circuits ─────────────────────────────────────────────────
+  validium-circuits:
     name: ZK Circuits
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: validium/circuits
@@ -83,14 +107,43 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: validium/circuits/package-lock.json
       - run: npm ci
 
-  zkl2-contracts:
-    name: zkl2 Contracts
+  # ── Dashboard ───────────────────────────────────────────────────
+  dashboard:
+    name: Dashboard
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: l1/dashboard
+    env:
+      NEXT_PUBLIC_RPC_URL: https://rpc.basisnetwork.com.co
+      NEXT_PUBLIC_ENTERPRISE_REGISTRY_ADDRESS: "0xB030b8c0aE2A9b5EE4B09861E088572832cd7EA5"
+      NEXT_PUBLIC_TRACEABILITY_REGISTRY_ADDRESS: "0x0a84C68Fe45d3036Fe66ad219f37963c79140fcb"
+      NEXT_PUBLIC_ZK_VERIFIER_ADDRESS: "0x51B072d47f40ab7aaeD2D7744a17Bf5b53fC916D"
+      NEXT_PUBLIC_STATE_COMMITMENT_ADDRESS: "0x0FD3874008ed7C1184798Dd555B3D9695771fb5b"
+      NEXT_PUBLIC_DAC_ATTESTATION_ADDRESS: "0xBa485D9b8b8b132E5eC4d7Bcf5F0B18aD10fCB22"
+      NEXT_PUBLIC_CROSS_ENTERPRISE_VERIFIER_ADDRESS: "0x188125658E9Bd8D7a026A52052dB9B970d6441A9"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: l1/dashboard/package-lock.json
+      - run: npm ci
+      - name: Build
+        run: npx next build
+
+  # ── zkL2 Contracts ──────────────────────────────────────────────
+  zkl2-contracts:
+    name: zkL2 Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: zkl2/contracts
@@ -98,16 +151,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: zkl2/contracts/package-lock.json
       - run: npm ci
       - run: npx hardhat compile
-      - run: npx hardhat test
+      - name: Run tests
+        run: npx hardhat test
 
+  # ── zkL2 Node (Go) ─────────────────────────────────────────────
   zkl2-node:
-    name: zkl2 Node (Go)
+    name: zkL2 Node (Go)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: zkl2/node
@@ -115,15 +171,31 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: zkl2/node/go.sum
-      - run: go vet ./...
-      - run: go test ./... -count=1 -timeout 120s -race
-      - run: go build -o /dev/null ./cmd/basis-l2/
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./... -count=1 -timeout 120s
+      - name: Build node binary
+        run: go build -o /dev/null ./cmd/basis-l2/
+      - name: Build CLI tools
+        run: |
+          go build -o /dev/null ./cmd/e2e-test/
+          go build -o /dev/null ./cmd/e2e-contract-test/
+          go build -o /dev/null ./cmd/e2e-bridge-test/
+          go build -o /dev/null ./cmd/e2e-cross-test/
+          go build -o /dev/null ./cmd/e2e-dac-test/
+          go build -o /dev/null ./cmd/send-tx/
+          go build -o /dev/null ./cmd/init-enterprise/
+          go build -o /dev/null ./cmd/genesis-root/
+          go build -o /dev/null ./cmd/query-enterprise/
 
+  # ── zkL2 Bridge (Go) ───────────────────────────────────────────
   zkl2-bridge:
-    name: zkl2 Bridge (Go)
+    name: zkL2 Bridge (Go)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: zkl2/bridge
@@ -131,13 +203,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: zkl2/bridge/go.sum
-      - run: go test ./... -count=1 -timeout 60s
+      - name: Test
+        run: go test ./... -count=1 -timeout 60s
 
+  # ── zkL2 Prover (Rust) ─────────────────────────────────────────
   zkl2-prover:
-    name: zkl2 Prover (Rust)
+    name: zkL2 Prover (Rust)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: zkl2/prover
@@ -147,6 +222,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "zkl2/prover"
-      - run: cargo clippy -- -D warnings
-      - run: cargo test
-      - run: cargo build --release
+      - name: Lint
+        run: cargo clippy -- -D warnings
+      - name: Test
+        run: cargo test
+      - name: Build (release)
+        run: cargo build --release
