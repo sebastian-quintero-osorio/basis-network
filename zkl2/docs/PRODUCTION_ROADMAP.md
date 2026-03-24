@@ -1,6 +1,6 @@
 # zkL2: Complete Production Roadmap
 
-## Current State: ~90-93% (Updated 2026-03-23)
+## Current State: ~93% (Updated 2026-03-24)
 
 The full E2E pipeline has been **verified on Basis Network L1 (Fuji)** on 2026-03-23:
 tx -> EVM execute -> witness (9ms, 2 rows) -> PLONK-KZG prove (86ms, 1376 bytes) ->
@@ -9,12 +9,15 @@ L1 commit (149K gas) -> L1 prove (71K gas) -> L1 execute -> batch finalized
 state persistence, L1 synchronizer, and ProtoGalaxy aggregation are all operational.
 Contract deployment E2E also verified.
 
-**IMPORTANT:** The E2E verification used **BasisRollupHarness** (test harness with mock
-`_verifyProof()`), NOT BasisRollupV2 + PlonkVerifier. Real KZG proof bytes reach L1
-and are processed, but proof verification is mocked. PlonkVerifier.sol with real
-KZG pairing (EIP-197) exists and has 48 passing tests but is NOT deployed on Fuji.
-Deploying BasisRollupV2 + PlonkVerifier is the primary remaining gap for real
-on-chain crypto verification.
+**UPDATE (2026-03-24):** BasisRollupV2 + PlonkVerifier have been deployed to Fuji.
+L1 commitBatch succeeds (149K gas) via the real pipeline. The L1 submitter now has
+idempotent retry logic for resilient batch submission.
+
+**REMAINING ISSUE:** proveBatchV2 reverts on-chain because the PlonkVerifier SRS G2
+points (currently set to BN254 generator) do not match the Rust prover's SRS
+(generated via `ParamsKZG::setup(k, OsRng)`). Fix: export the actual SRS G2 point
+from the Rust prover's `srs_k8.bin` and configure PlonkVerifier with the correct
+points. The proof generation is valid (off-chain verification passes).
 
 **Recent changes (2026-03-23/24):**
 - PlonkVerifier.sol upgraded to real KZG pairing verification (EIP-197 precompiles)
