@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package basis.dac.v1;
+
+// DACService defines the Data Availability Committee protocol.
+// Each DAC node runs this service. The validium orchestrator is the client.
+//
+// Protocol flow:
+//   1. Orchestrator calls StoreShare on each committee node
+//   2. Each node stores its Shamir share and responds with an attestation signature
+//   3. Orchestrator collects threshold attestations -> DACCertificate
+//   4. If data recovery is needed, orchestrator calls GetShare on k nodes
+//   5. Shares are combined via Lagrange interpolation to recover original data
+service DACService {
+  // StoreShare stores a Shamir secret share on this DAC node.
+  // The node verifies the share against the data commitment before storing.
+  // Returns an ECDSA attestation signature if the share is valid.
+  rpc StoreShare(StoreShareRequest) returns (StoreShareResponse);
+
+  // Attest returns this node's attestation for a previously stored batch.
+  // Used when re-collecting attestations after a transient failure.
+  rpc Attest(AttestRequest) returns (AttestResponse);
+
+  // GetShare retrieves a previously stored share for data recovery.
+  // Only returns data if the requester is authorized (same enterprise).
+  rpc GetShare(GetShareRequest) returns (GetShareResponse);
+
+  // Health returns the node's operational status.
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+// --- StoreShare ---
+
+message StoreShareRequest {
+  // Unique batch identifier (SHA-256 hash).
+  string batch_id = 1;
+  // Enterprise ID that owns this data.
+  string enterprise_id = 2;
+  // The Shamir secret share (field element, hex-encoded).
+  string share_value = 3;
+  // Share index (1-based, identifies which polynomial evaluation point).
+  uint32 share_index = 4;
+  // SHA-256 commitment hash of the original batch data.
+  string data_commitment = 5;
+  // Total number of shares (n in k-of-n scheme).
+  uint32 total_shares = 6;
+  // Reconstruction threshold (k in k-of-n scheme).
+  uint32 threshold = 7;
+}
+
+message StoreShareResponse {
+  // Whether the share was accepted and stored.
+  bool accepted = 1;
+  // ECDSA attestation signature (hex-encoded).
+  // Signs: keccak256(batch_id || data_commitment || share_index)
+  string attestation_signature = 2;
+  // The signer's address (hex-encoded, for on-chain verification).
+  string signer_address = 3;
+  // Error message if not accepted.
+  string error = 4;
+}
+
+// --- Attest ---
+
+message AttestRequest {
+  string batch_id = 1;
+  string enterprise_id = 2;
+}
+
+message AttestResponse {
+  bool has_share = 1;
+  string attestation_signature = 2;
+  string signer_address = 3;
+}
+
+// --- GetShare ---
+
+message GetShareRequest {
+  string batch_id = 1;
+  string enterprise_id = 2;
+}
+
+message GetShareResponse {
+  bool found = 1;
+  string share_value = 2;
+  uint32 share_index = 3;
+  string error = 4;
+}
+
+// --- Health ---
+
+message HealthRequest {}
+
+message HealthResponse {
+  bool healthy = 1;
+  string node_id = 2;
+  uint64 shares_stored = 3;
+  uint64 uptime_seconds = 4;
+}

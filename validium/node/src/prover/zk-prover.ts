@@ -182,26 +182,35 @@ export class ZKProver {
       return BigInt("0x" + hex).toString(10);
     };
 
-    const txKeys: string[] = [];
-    const txOldValues: string[] = [];
-    const txNewValues: string[] = [];
-    const txSiblings: string[][] = [];
+    const keys: string[] = [];
+    const oldValues: string[] = [];
+    const newValues: string[] = [];
+    const siblings: string[][] = [];
+    const pathBits: string[][] = [];
 
     // Fill with actual transitions (convert hex -> decimal)
     for (const t of witness.transitions) {
-      txKeys.push(hexToDec(t.key));
-      txOldValues.push(hexToDec(t.oldValue));
-      txNewValues.push(hexToDec(t.newValue));
-      txSiblings.push(t.siblings.map(hexToDec));
+      keys.push(hexToDec(t.key));
+      oldValues.push(hexToDec(t.oldValue));
+      newValues.push(hexToDec(t.newValue));
+      siblings.push(t.siblings.map(hexToDec));
+      pathBits.push(t.pathBits.map(String));
     }
 
-    // Pad remaining slots with identity transitions
-    const zeroSiblings = Array.from({ length: smtDepth }, () => "0");
+    // Pad remaining slots with identity transitions (key=0, old=0, new=0).
+    // Use real SMT siblings from the batch witness if available (set by the
+    // orchestrator after building the witness). This ensures the circuit's
+    // Merkle path verification produces the correct root for padding slots.
+    const paddingSibs = witness.paddingSiblings?.map(hexToDec)
+      ?? Array.from({ length: smtDepth }, () => "0");
+    const paddingBits = witness.paddingPathBits?.map(String)
+      ?? Array.from({ length: smtDepth }, () => "0");
     for (let i = witness.transitions.length; i < batchSize; i++) {
-      txKeys.push("0");
-      txOldValues.push("0");
-      txNewValues.push("0");
-      txSiblings.push([...zeroSiblings]);
+      keys.push("0");
+      oldValues.push("0");
+      newValues.push("0");
+      siblings.push([...paddingSibs]);
+      pathBits.push([...paddingBits]);
     }
 
     // enterpriseId may be a string label (e.g., "e2e-test-basis") or a numeric ID.
@@ -222,10 +231,11 @@ export class ZKProver {
       newStateRoot: hexToDec(witness.newStateRoot),
       batchNum: String(witness.batchNum),
       enterpriseId: numericEnterpriseId,
-      txKeys,
-      txOldValues,
-      txNewValues,
-      txSiblings,
+      keys,
+      oldValues,
+      newValues,
+      siblings,
+      pathBits,
     };
   }
 }

@@ -37,6 +37,7 @@
 pub mod circuit;
 pub mod columns;
 pub mod gates;
+pub mod evm_gates;
 pub mod prover;
 pub mod srs;
 pub mod types;

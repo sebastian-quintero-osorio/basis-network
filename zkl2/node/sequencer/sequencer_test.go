@@ -2,6 +2,8 @@ package sequencer
 
 import (
 	"context"
+	"fmt"
+	"math/big"
 	"sync"
 	"testing"
 	"time"
@@ -19,7 +21,7 @@ func makeTx(from byte, nonce uint64) Transaction {
 		From:     fromAddr,
 		Nonce:    nonce,
 		GasLimit: 21_000,
-		Value:    100,
+		Value:    big.NewInt(100),
 	}
 }
 

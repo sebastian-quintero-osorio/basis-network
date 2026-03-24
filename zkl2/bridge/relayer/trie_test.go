@@ -70,12 +70,11 @@ func TestWithdrawTrie_SingleLeafRoot(t *testing.T) {
 		t.Error("single-leaf trie root should not be zero hash")
 	}
 
-	// Root of single leaf padded to 2 nodes:
-	// root = keccak256(leaf || 0x00...00)
+	// Root of single-leaf trie: nextPowerOf2(1)=1, so root IS the leaf hash.
+	// No padding occurs because a single leaf is already a power of 2.
 	leaf := ComputeLeafHash(makeEntry(testRecipient1, 1000, 0))
-	expected := hashPair(leaf, common.Hash{})
-	if root != expected {
-		t.Errorf("root mismatch: got %s, expected %s", root.Hex(), expected.Hex())
+	if root != leaf {
+		t.Errorf("root mismatch: got %s, expected leaf hash %s", root.Hex(), leaf.Hex())
 	}
 }
 

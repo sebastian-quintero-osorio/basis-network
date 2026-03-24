@@ -113,6 +113,147 @@ func (t *ZKTracer) onOpcode(pc uint64, op byte, gas, cost uint64, scope tracing.
 		})
 	}
 
+	// Capture arithmetic opcodes: ADD, SUB, MUL, DIV, MOD
+	if n >= 2 {
+		var arithOp TraceOp
+		switch opCode {
+		case vm.ADD:
+			arithOp = TraceOpADD
+		case vm.SUB:
+			arithOp = TraceOpSUB
+		case vm.MUL:
+			arithOp = TraceOpMUL
+		case vm.DIV:
+			arithOp = TraceOpDIV
+		case vm.MOD:
+			arithOp = TraceOpMOD
+		}
+		if arithOp != "" {
+			a := stack[n-1].ToBig()
+			b := stack[n-2].ToBig()
+			t.trace.Entries = append(t.trace.Entries, TraceEntry{
+				Op:       arithOp,
+				OperandA: new(big.Int).Set(a),
+				OperandB: new(big.Int).Set(b),
+			})
+		}
+	}
+
+	// Capture EXP: base^exponent
+	if opCode == vm.EXP && n >= 2 {
+		base := stack[n-1].ToBig()
+		exp := stack[n-2].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:       TraceOpEXP,
+			OperandA: new(big.Int).Set(base),
+			OperandB: new(big.Int).Set(exp),
+		})
+	}
+
+	// Capture SHL, SHR
+	if (opCode == vm.SHL || opCode == vm.SHR) && n >= 2 {
+		shift := stack[n-1].ToBig()
+		value := stack[n-2].ToBig()
+		op := TraceOpSHL
+		if opCode == vm.SHR {
+			op = TraceOpSHR
+		}
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:          op,
+			OperandA:    new(big.Int).Set(value),
+			ShiftAmount: shift.Uint64(),
+		})
+	}
+
+	// Capture BYTE
+	if opCode == vm.BYTE && n >= 2 {
+		index := stack[n-1].ToBig()
+		word := stack[n-2].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:       TraceOpBYTE,
+			OperandA: new(big.Int).Set(word),
+			OperandB: new(big.Int).Set(index),
+		})
+	}
+
+	// Capture SHA3/KECCAK256
+	if opCode == vm.KECCAK256 && n >= 2 {
+		offset := stack[n-1].ToBig()
+		size := stack[n-2].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:       TraceOpSHA3,
+			MemOffset: offset.Uint64(),
+			Sha3Size:  size.Uint64(),
+		})
+	}
+
+	// Capture MLOAD, MSTORE
+	if opCode == vm.MLOAD && n >= 1 {
+		offset := stack[n-1].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:        TraceOpMLOAD,
+			MemOffset: offset.Uint64(),
+		})
+	}
+	if opCode == vm.MSTORE && n >= 2 {
+		offset := stack[n-1].ToBig()
+		value := stack[n-2].Bytes32()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:        TraceOpMSTORE,
+			MemOffset: offset.Uint64(),
+			MemValue:  common.Hash(value),
+		})
+	}
+
+	// Capture JUMP, JUMPI
+	if opCode == vm.JUMP && n >= 1 {
+		dest := stack[n-1].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:          TraceOpJUMP,
+			Destination: dest.Uint64(),
+		})
+	}
+	if opCode == vm.JUMPI && n >= 2 {
+		dest := stack[n-1].ToBig()
+		cond := stack[n-2].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:          TraceOpJUMPI,
+			Destination: dest.Uint64(),
+			Condition:   cond.Uint64(),
+		})
+	}
+
+	// Capture CREATE, CREATE2
+	if opCode == vm.CREATE && n >= 3 {
+		value := stack[n-1].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:       TraceOpCREATE,
+			OperandA: new(big.Int).Set(value),
+		})
+	}
+	if opCode == vm.CREATE2 && n >= 4 {
+		value := stack[n-1].ToBig()
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:       TraceOpCREATE2,
+			OperandA: new(big.Int).Set(value),
+		})
+	}
+
+	// Capture RETURN, REVERT
+	if (opCode == vm.RETURN || opCode == vm.REVERT) && n >= 2 {
+		offset := stack[n-1].ToBig()
+		size := stack[n-2].ToBig()
+		op := TraceOpRETURN
+		if opCode == vm.REVERT {
+			op = TraceOpREVERT
+		}
+		t.trace.Entries = append(t.trace.Entries, TraceEntry{
+			Op:        op,
+			MemOffset: offset.Uint64(),
+			Sha3Size:  size.Uint64(), // Reusing Sha3Size as generic size field
+		})
+	}
+
 	// Optionally capture full opcode execution log.
 	if t.captureOps {
 		entry := OpcodeEntry{

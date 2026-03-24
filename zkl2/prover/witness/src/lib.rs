@@ -21,6 +21,7 @@ pub mod types;
 pub mod arithmetic;
 pub mod storage;
 pub mod call_context;
+pub mod evm;
 pub mod generator;
 
 // Public API re-exports

@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/holiman/uint256"
 )
 
 // --- Test Helpers ---
@@ -36,8 +36,7 @@ func oneEther() *big.Int {
 func setupTestState(t *testing.T) (*state.StateDB, common.Address, common.Address) {
 	t.Helper()
 
-	db := rawdb.NewMemoryDatabase()
-	stateDB, err := state.New(types.EmptyRootHash, state.NewDatabase(db), nil)
+	stateDB, err := state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
 	if err != nil {
 		t.Fatalf("failed to create state database: %v", err)
 	}
@@ -46,13 +45,13 @@ func setupTestState(t *testing.T) (*state.StateDB, common.Address, common.Addres
 	recipient := common.HexToAddress("0x2222222222222222222222222222222222222222")
 
 	// Fund accounts with 1000 ETH each.
-	// [Spec: Init -- accountState[a].balance = 1 per account]
-	fundAmount := new(big.Int).Mul(big.NewInt(1000), oneEther())
+	fundAmount := uint256.MustFromBig(new(big.Int).Mul(big.NewInt(1000), oneEther()))
 	stateDB.AddBalance(sender, fundAmount, tracing.BalanceChangeUnspecified)
-	stateDB.SetNonce(sender, 0)
+	stateDB.SetNonce(sender, 0, tracing.NonceChangeUnspecified)
 	stateDB.AddBalance(recipient, fundAmount, tracing.BalanceChangeUnspecified)
-	stateDB.SetNonce(recipient, 0)
+	stateDB.SetNonce(recipient, 0, tracing.NonceChangeUnspecified)
 
+	// The executor auto-wraps *state.StateDB with NewHookedState for tracing hooks.
 	return stateDB, sender, recipient
 }
 
@@ -547,7 +546,7 @@ func TestOpcodeClassification(t *testing.T) {
 		{vm.BALANCE, ZKExpensive, false, "BALANCE is expensive (trie traversal)"},
 		{vm.CALL, ZKVeryExpensive, true, "CALL is very expensive (~20K constraints)"},
 		{vm.CREATE, ZKVeryExpensive, true, "CREATE is very expensive"},
-		{vm.SHA3, ZKCritical, false, "KECCAK256 is critical (~150K constraints)"},
+		{vm.KECCAK256, ZKCritical, false, "KECCAK256 is critical (~150K constraints)"},
 	}
 
 	for _, tt := range tests {
@@ -569,7 +568,7 @@ func TestOpcodeClassification(t *testing.T) {
 // TestIsZKProblematic verifies the ZK difficulty threshold.
 func TestIsZKProblematic(t *testing.T) {
 	// SLOAD, SSTORE, CALL, KECCAK256 should be ZK-problematic.
-	problematic := []vm.OpCode{vm.SLOAD, vm.SSTORE, vm.CALL, vm.SHA3, vm.CREATE}
+	problematic := []vm.OpCode{vm.SLOAD, vm.SSTORE, vm.CALL, vm.KECCAK256, vm.CREATE}
 	for _, op := range problematic {
 		if !IsZKProblematic(op) {
 			t.Errorf("%s should be ZK-problematic", op.String())

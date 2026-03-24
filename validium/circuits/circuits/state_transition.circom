@@ -2,114 +2,164 @@ pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
+include "../node_modules/circomlib/circuits/mux1.circom";
 include "../node_modules/circomlib/circuits/bitify.circom";
-include "merkle_proof_verifier.circom";
 
-/// StateTransition: Proves a batch of sequential state transitions in a Sparse Merkle Tree.
+/// MerklePathVerifier: Reconstructs a Merkle root from a leaf and sibling path.
 ///
-/// Each transaction updates one key-value pair in the enterprise's SMT. The state root
-/// after transaction i becomes the input state root for transaction i+1, creating a
-/// verifiable chain: prevStateRoot -> tx0 -> tx1 -> ... -> newStateRoot.
+/// Given a leaf value, an array of sibling hashes, and path direction bits,
+/// computes the Merkle root by hashing pairs from leaf to root.
 ///
-/// Path bits are derived from keys via Num2Bits decomposition rather than provided as
-/// inputs. This prevents the prover from supplying inconsistent path directions and
-/// reduces the witness size by depth * batchSize field elements.
+/// @param depth The tree depth (number of hash levels).
+template MerklePathVerifier(depth) {
+    signal input leaf;
+    signal input siblings[depth];
+    signal input pathBits[depth];
+    signal output root;
+
+    signal intermediateHashes[depth + 1];
+    intermediateHashes[0] <== leaf;
+
+    component hashers[depth];
+    component muxLeft[depth];
+    component muxRight[depth];
+
+    for (var i = 0; i < depth; i++) {
+        muxLeft[i] = Mux1();
+        muxLeft[i].c[0] <== intermediateHashes[i];
+        muxLeft[i].c[1] <== siblings[i];
+        muxLeft[i].s <== pathBits[i];
+
+        muxRight[i] = Mux1();
+        muxRight[i].c[0] <== siblings[i];
+        muxRight[i].c[1] <== intermediateHashes[i];
+        muxRight[i].s <== pathBits[i];
+
+        hashers[i] = Poseidon(2);
+        hashers[i].inputs[0] <== muxLeft[i].out;
+        hashers[i].inputs[1] <== muxRight[i].out;
+
+        intermediateHashes[i + 1] <== hashers[i].out;
+    }
+
+    root <== intermediateHashes[depth];
+}
+
+/// ChainedBatchStateTransition: Proves a batch of sequential SMT state transitions.
+///
+/// Each transaction updates one key-value pair in the enterprise's Sparse Merkle Tree.
+/// The state root after transaction i becomes the input for transaction i+1, forming
+/// a verifiable chain: prevStateRoot -> tx0 -> tx1 -> ... -> newStateRoot.
+///
+/// EMPTY leaf convention:
+///   When value = 0, the leaf hash is 0 (EMPTY), NOT Poseidon(key, 0).
+///   This matches the TypeScript SMT implementation where defaultHashes[0] = 0
+///   and empty leaf positions store 0. The IsZero + Mux1 conditional handles this:
+///     leaf = (value == 0) ? 0 : Poseidon(key, value)
+///
+/// For padding (identity transitions): key=0, oldValue=0, newValue=0.
+///   Both old and new leaves are 0, and the Merkle path verification produces
+///   the same root. The prover must supply real siblings from the current tree
+///   state at key=0 for padding slots.
 ///
 /// Verified invariants from the TLA+ specification:
 ///   StateRootChain  -- Final chained root equals ComputeRoot of the resulting tree
 ///   BatchIntegrity  -- Each per-tx WalkUp agrees with ComputeRoot at every reachable state
 ///   ProofSoundness  -- Wrong oldValue always causes circuit unsatisfiability
 ///
-/// [Spec: validium/specs/units/2026-03-state-transition-circuit/1-formalization/v0-analysis/specs/StateTransitionCircuit/StateTransitionCircuit.tla]
+/// [Spec: validium/specs/units/2026-03-state-transition-circuit]
 ///
 /// @param depth     The depth of the Sparse Merkle Tree (capacity: 2^depth leaves).
-/// @param batchSize The number of transactions in the batch.
-template StateTransition(depth, batchSize) {
+/// @param batchSize The number of transactions in the batch (including padding).
+template ChainedBatchStateTransition(depth, batchSize) {
     // -- Public inputs --
-    signal input prevStateRoot;     // Root before batch application
-    signal input newStateRoot;      // Root after batch application
-    signal input batchNum;          // Batch sequence number (on-chain identification)
-    signal input enterpriseId;      // Enterprise identifier (enterprise isolation)
+    signal input prevStateRoot;
+    signal input newStateRoot;
+    signal input batchNum;
+    signal input enterpriseId;
 
     // -- Private inputs (witness) --
-    // [Spec: Tx == [key: Keys, oldValue: Values \cup {EMPTY}, newValue: Values \cup {EMPTY}]]
-    signal input txKeys[batchSize];
-    signal input txOldValues[batchSize];
-    signal input txNewValues[batchSize];
-    signal input txSiblings[batchSize][depth];
+    signal input keys[batchSize];
+    signal input oldValues[batchSize];
+    signal input newValues[batchSize];
+    signal input siblings[batchSize][depth];
+    signal input pathBits[batchSize][depth];
 
     // -- Per-transaction components --
-    component keyBits[batchSize];
     component oldLeafHashers[batchSize];
     component newLeafHashers[batchSize];
+    component oldIsZero[batchSize];
+    component newIsZero[batchSize];
+    component oldLeafMux[batchSize];
+    component newLeafMux[batchSize];
     component oldPathVerifiers[batchSize];
     component newPathVerifiers[batchSize];
     component oldRootChecks[batchSize];
 
+    signal oldLeaf[batchSize];
+    signal newLeaf[batchSize];
+
     // -- Chain of state roots --
-    // chainedRoots[0] = prevStateRoot
-    // chainedRoots[batchSize] must equal newStateRoot
-    // [Spec: ApplyBatch chains tree state and root across sequential transactions]
     signal chainedRoots[batchSize + 1];
     chainedRoots[0] <== prevStateRoot;
 
     for (var i = 0; i < batchSize; i++) {
-        // Step 1: Derive path bits from key (bit decomposition).
-        // Num2Bits(depth) extracts the lower `depth` bits of the key.
-        // Bit j corresponds to level j: 0 = left child, 1 = right child.
-        // [Spec: PathBit(key, level) == (key \div Pow2(level)) % 2]
-        keyBits[i] = Num2Bits(depth);
-        keyBits[i].in <== txKeys[i];
-
-        // Step 2: Compute old leaf hash = Poseidon(key, oldValue).
-        // [Spec: LeafHash(key, value) == IF value = EMPTY THEN EMPTY ELSE Hash(key, value)]
+        // Step 1: Compute Poseidon(key, oldValue) -- always computed, may not be used.
         oldLeafHashers[i] = Poseidon(2);
-        oldLeafHashers[i].inputs[0] <== txKeys[i];
-        oldLeafHashers[i].inputs[1] <== txOldValues[i];
+        oldLeafHashers[i].inputs[0] <== keys[i];
+        oldLeafHashers[i].inputs[1] <== oldValues[i];
 
-        // Step 3: Compute new leaf hash = Poseidon(key, newValue).
+        // Step 2: EMPTY leaf handling -- if oldValue == 0, leaf = 0 (not Poseidon(key, 0)).
+        oldIsZero[i] = IsZero();
+        oldIsZero[i].in <== oldValues[i];
+
+        oldLeafMux[i] = Mux1();
+        oldLeafMux[i].c[0] <== oldLeafHashers[i].out;
+        oldLeafMux[i].c[1] <== 0;
+        oldLeafMux[i].s <== oldIsZero[i].out;
+        oldLeaf[i] <== oldLeafMux[i].out;
+
+        // Step 3: Same for new leaf.
         newLeafHashers[i] = Poseidon(2);
-        newLeafHashers[i].inputs[0] <== txKeys[i];
-        newLeafHashers[i].inputs[1] <== txNewValues[i];
+        newLeafHashers[i].inputs[0] <== keys[i];
+        newLeafHashers[i].inputs[1] <== newValues[i];
+
+        newIsZero[i] = IsZero();
+        newIsZero[i].in <== newValues[i];
+
+        newLeafMux[i] = Mux1();
+        newLeafMux[i].c[0] <== newLeafHashers[i].out;
+        newLeafMux[i].c[1] <== 0;
+        newLeafMux[i].s <== newIsZero[i].out;
+        newLeaf[i] <== newLeafMux[i].out;
 
         // Step 4: Verify old Merkle path produces the current chained root.
-        // This enforces: WalkUp(treeEntries, oldLeafHash, key, 0) == chainedRoots[i].
-        // [Spec: ApplyTx checks treeEntries[tx.key] = tx.oldValue via Merkle proof]
-        oldPathVerifiers[i] = MerkleProofVerifier(depth);
-        oldPathVerifiers[i].leaf <== oldLeafHashers[i].out;
+        oldPathVerifiers[i] = MerklePathVerifier(depth);
+        oldPathVerifiers[i].leaf <== oldLeaf[i];
         for (var j = 0; j < depth; j++) {
-            oldPathVerifiers[i].siblings[j] <== txSiblings[i][j];
-            oldPathVerifiers[i].pathBits[j] <== keyBits[i].out[j];
+            oldPathVerifiers[i].siblings[j] <== siblings[i][j];
+            oldPathVerifiers[i].pathBits[j] <== pathBits[i][j];
         }
 
         // Step 5: Constrain old path root == current chained root.
-        // If the prover provides a wrong oldValue, the computed root will differ
-        // from chainedRoots[i], making the circuit unsatisfiable.
-        // [Spec: ProofSoundness -- wrong oldValue always causes rejection]
         oldRootChecks[i] = IsEqual();
         oldRootChecks[i].in[0] <== oldPathVerifiers[i].root;
         oldRootChecks[i].in[1] <== chainedRoots[i];
         oldRootChecks[i].out === 1;
 
-        // Step 6: Compute new root using same siblings but different leaf.
-        // The key insight: only the leaf changes, so all off-path siblings
-        // remain identical. The new root is WalkUp with newLeafHash.
-        // [Spec: newRoot == WalkUp(treeEntries, newLeafHash, tx.key, 0)]
-        newPathVerifiers[i] = MerkleProofVerifier(depth);
-        newPathVerifiers[i].leaf <== newLeafHashers[i].out;
+        // Step 6: Compute new root using same siblings but new leaf.
+        newPathVerifiers[i] = MerklePathVerifier(depth);
+        newPathVerifiers[i].leaf <== newLeaf[i];
         for (var j = 0; j < depth; j++) {
-            newPathVerifiers[i].siblings[j] <== txSiblings[i][j];
-            newPathVerifiers[i].pathBits[j] <== keyBits[i].out[j];
+            newPathVerifiers[i].siblings[j] <== siblings[i][j];
+            newPathVerifiers[i].pathBits[j] <== pathBits[i][j];
         }
 
         // Step 7: Chain the new root to the next transaction.
-        // [Spec: chainedRoots[i+1] <== newPathVerifiers[i].root]
         chainedRoots[i + 1] <== newPathVerifiers[i].root;
     }
 
     // -- Final root verification --
-    // The last chained root must equal the declared newStateRoot.
-    // [Spec: StateRootChain invariant -- roots[e] = ComputeRoot(trees[e])]
     component finalCheck = IsEqual();
     finalCheck.in[0] <== chainedRoots[batchSize];
     finalCheck.in[1] <== newStateRoot;
@@ -118,9 +168,4 @@ template StateTransition(depth, batchSize) {
 
 // Production instantiation: depth 32 (4.3B leaves), batch 8.
 // ~274K constraints. Requires pot19 (2^19 = 524,288) for trusted setup.
-//
-// Development alternative: depth 10, batch 4 (~45K constraints, pot16).
-// See build/dev/ for fast iteration artifacts.
-//
-// Constraint formula: ~1,038 * (depth + 1) * batchSize + depth * batchSize (Num2Bits)
-component main {public [prevStateRoot, newStateRoot, batchNum, enterpriseId]} = StateTransition(32, 8);
+component main {public [prevStateRoot, newStateRoot, batchNum, enterpriseId]} = ChainedBatchStateTransition(32, 8);

@@ -47,6 +47,18 @@ func (k TreeKey) ToFieldElement() fr.Element {
 	return e
 }
 
+// FieldElementToHash converts a BN254 field element to a 32-byte hash.
+func FieldElementToHash(e fr.Element) [32]byte {
+	return [32]byte(e.Marshal())
+}
+
+// HashToFieldElement converts a 32-byte hash to a BN254 field element.
+func HashToFieldElement(h [32]byte) fr.Element {
+	var e fr.Element
+	e.SetBytes(h[:])
+	return e
+}
+
 // AddressToKey converts a 20-byte address to a TreeKey.
 // The address is right-aligned (big-endian) in the 32-byte key.
 func AddressToKey(addr [20]byte) TreeKey {

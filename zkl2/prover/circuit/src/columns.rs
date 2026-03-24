@@ -50,6 +50,80 @@ pub struct BasisCircuitConfig {
     /// Selector for StackGate: stack discipline (c_prev feeds a_cur).
     pub q_stack: Selector,
 
+    // -- EVM arithmetic selectors --
+
+    /// Selector for SubGate: a - b = c.
+    pub q_sub: Selector,
+    /// Selector for DivGate: a / b = c (b != 0), or c = 0 when b = 0 (EVM convention).
+    pub q_div: Selector,
+    /// Selector for ModGate: a mod b = c.
+    pub q_mod: Selector,
+    /// Selector for LtGate: (a < b) = c (0 or 1).
+    pub q_lt: Selector,
+    /// Selector for EqGate: (a == b) = c (0 or 1).
+    pub q_eq: Selector,
+    /// Selector for IsZeroGate: (a == 0) = c (0 or 1).
+    pub q_iszero: Selector,
+    /// Selector for AndGate: a AND b = c (bitwise, modeled as a * b for booleans).
+    pub q_and: Selector,
+    /// Selector for OrGate: a OR b = c (bitwise, modeled as a + b - a*b for booleans).
+    pub q_or: Selector,
+    /// Selector for NotGate: NOT a = c (modeled as 1 - a for booleans).
+    pub q_not: Selector,
+
+    // -- Storage/Memory selectors --
+
+    /// Selector for SloadGate: storage read consistency (value matches state).
+    pub q_sload: Selector,
+    /// Selector for SstoreGate: storage write with state root transition.
+    pub q_sstore: Selector,
+    /// Selector for MloadGate: memory read consistency.
+    pub q_mload: Selector,
+    /// Selector for MstoreGate: memory write operation.
+    pub q_mstore: Selector,
+    /// Selector for HashGate: generic 2-to-1 hash (Poseidon for Merkle nodes).
+    pub q_hash: Selector,
+
+    // -- Control flow selectors --
+
+    /// Selector for JumpGate: JUMP/JUMPI destination validation.
+    pub q_jump: Selector,
+    /// Selector for PushGate: PUSH value onto stack.
+    pub q_push: Selector,
+    /// Selector for PopGate: POP value from stack.
+    pub q_pop: Selector,
+    /// Selector for DupGate: DUP copies stack value.
+    pub q_dup: Selector,
+    /// Selector for SwapGate: SWAP exchanges stack values.
+    pub q_swap: Selector,
+    /// Selector for CallGate: CALL/STATICCALL/DELEGATECALL context switch.
+    pub q_call: Selector,
+    /// Selector for ReturnGate: RETURN/REVERT execution termination.
+    pub q_return: Selector,
+
+    // -- Extended EVM selectors --
+
+    /// Selector for SHL (shift left).
+    pub q_shl: Selector,
+    /// Selector for SHR (shift right).
+    pub q_shr: Selector,
+    /// Selector for BYTE (extract byte).
+    pub q_byte: Selector,
+    /// Selector for EXP (exponentiation).
+    pub q_exp: Selector,
+    /// Selector for SHA3 (keccak256).
+    pub q_sha3: Selector,
+    /// Selector for CALLDATALOAD.
+    pub q_calldataload: Selector,
+    /// Selector for environment opcodes (ADDRESS, BALANCE, ORIGIN, etc).
+    pub q_env: Selector,
+    /// Selector for block context opcodes (BLOCKHASH, TIMESTAMP, etc).
+    pub q_block: Selector,
+    /// Selector for LOG0-LOG4.
+    pub q_log: Selector,
+    /// Selector for CREATE/CREATE2.
+    pub q_create: Selector,
+
     // -- Fixed column --
 
     /// Constants column for round constants and lookup values.
@@ -78,6 +152,45 @@ impl BasisCircuitConfig {
         let q_memory = meta.selector();
         let q_stack = meta.selector();
 
+        // EVM arithmetic selectors
+        let q_sub = meta.selector();
+        let q_div = meta.selector();
+        let q_mod = meta.selector();
+        let q_lt = meta.selector();
+        let q_eq = meta.selector();
+        let q_iszero = meta.selector();
+        let q_and = meta.selector();
+        let q_or = meta.selector();
+        let q_not = meta.selector();
+
+        // Storage/Memory selectors
+        let q_sload = meta.selector();
+        let q_sstore = meta.selector();
+        let q_mload = meta.selector();
+        let q_mstore = meta.selector();
+        let q_hash = meta.selector();
+
+        // Control flow selectors
+        let q_jump = meta.selector();
+        let q_push = meta.selector();
+        let q_pop = meta.selector();
+        let q_dup = meta.selector();
+        let q_swap = meta.selector();
+        let q_call = meta.selector();
+        let q_return = meta.selector();
+
+        // Extended EVM selectors
+        let q_shl = meta.selector();
+        let q_shr = meta.selector();
+        let q_byte = meta.selector();
+        let q_exp = meta.selector();
+        let q_sha3 = meta.selector();
+        let q_calldataload = meta.selector();
+        let q_env = meta.selector();
+        let q_block = meta.selector();
+        let q_log = meta.selector();
+        let q_create = meta.selector();
+
         // Fixed column for constants
         let constant = meta.fixed_column();
 
@@ -102,6 +215,37 @@ impl BasisCircuitConfig {
             q_poseidon,
             q_memory,
             q_stack,
+            q_sub,
+            q_div,
+            q_mod,
+            q_lt,
+            q_eq,
+            q_iszero,
+            q_and,
+            q_or,
+            q_not,
+            q_sload,
+            q_sstore,
+            q_mload,
+            q_mstore,
+            q_hash,
+            q_jump,
+            q_push,
+            q_pop,
+            q_dup,
+            q_swap,
+            q_call,
+            q_return,
+            q_shl,
+            q_shr,
+            q_byte,
+            q_exp,
+            q_sha3,
+            q_calldataload,
+            q_env,
+            q_block,
+            q_log,
+            q_create,
             constant,
         }
     }

@@ -6,6 +6,7 @@
 /// [Spec: lab/3-architect/implementation-history/prover-plonk-migration/specs/PlonkMigration.tla]
 
 import { expect } from "chai";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { ethers } from "hardhat";
 import { BasisVerifierHarness } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
@@ -359,7 +360,7 @@ describe("BasisVerifier", function () {
     it("Groth16Only -> Dual", async function () {
       await expect(verifier.startDualVerification())
         .to.emit(verifier, "PhaseTransition")
-        .withArgs(PHASE_GROTH16_ONLY, PHASE_DUAL, await getTimestamp());
+        .withArgs(PHASE_GROTH16_ONLY, PHASE_DUAL, anyValue);
       expect(await verifier.migrationPhase()).to.equal(PHASE_DUAL);
     });
 

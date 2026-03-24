@@ -16,10 +16,10 @@ This roadmap defines 11 Research Units (RUs) that flow through the 4-agent R&D p
 | Vision document | Complete (327 lines) | `zkl2/VISION.md` |
 | Architecture document | Complete (97 lines) | `zkl2/docs/ARCHITECTURE.md` |
 | Technical decisions (9 ADRs) | Complete (157 lines) | `zkl2/docs/TECHNICAL_DECISIONS.md` |
-| Go code (L2 node) | 0% -- nothing exists | `zkl2/node/` (planned) |
-| Rust code (ZK prover) | 0% -- nothing exists | `zkl2/prover/` (planned) |
-| Solidity contracts (L1) | 0% -- nothing exists | `zkl2/contracts/` (planned) |
-| Bridge infrastructure | 0% -- nothing exists | `zkl2/bridge/` (planned) |
+| Go code (L2 node) | 100% -- E2E verified on L1 | `zkl2/node/` (246 Go tests, 7 CLI commands) |
+| Rust code (ZK prover) | 100% -- real KZG proofs | `zkl2/prover/` (142 Rust tests, SRS cached) |
+| Solidity contracts (L1) | 100% -- deployed on Fuji | `zkl2/contracts/` (322 TS tests, 6+1 contracts) |
+| Bridge infrastructure | 90% -- wired, E2E untested | `zkl2/bridge/` (33 Go tests) |
 
 ## Prerequisite
 

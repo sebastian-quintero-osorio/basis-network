@@ -51,6 +51,8 @@ export interface L1SubmitterConfig {
   readonly maxRetries: number;
   /** Base delay (ms) for exponential backoff. */
   readonly retryBaseDelayMs: number;
+  /** Timeout (ms) for tx.wait() confirmation. Default: 120000 (2 min). */
+  readonly txConfirmTimeoutMs: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +71,7 @@ export class L1Submitter {
   private readonly signer: ethers.Wallet;
   private readonly maxRetries: number;
   private readonly retryBaseDelayMs: number;
+  private readonly txConfirmTimeoutMs: number;
   private lastConfirmedRoot: string;
 
   constructor(config: L1SubmitterConfig) {
@@ -81,6 +84,7 @@ export class L1Submitter {
     );
     this.maxRetries = config.maxRetries;
     this.retryBaseDelayMs = config.retryBaseDelayMs;
+    this.txConfirmTimeoutMs = config.txConfirmTimeoutMs;
     this.lastConfirmedRoot = ethers.zeroPadValue("0x00", 32);
 
     log.info("L1 submitter initialized", {
@@ -139,7 +143,20 @@ export class L1Submitter {
           attempt,
         });
 
-        const receipt = await tx.wait();
+        const receipt = await Promise.race([
+          tx.wait(),
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    `Transaction confirmation timeout after ${this.txConfirmTimeoutMs}ms`
+                  )
+                ),
+              this.txConfirmTimeoutMs
+            )
+          ),
+        ]);
         if (!receipt) {
           throw new Error("Transaction receipt is null");
         }

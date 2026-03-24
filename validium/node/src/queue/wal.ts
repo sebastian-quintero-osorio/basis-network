@@ -16,7 +16,13 @@
  * @module queue/wal
  */
 
-import { createHash } from "crypto";
+import {
+  createHash,
+  createHmac,
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+} from "crypto";
 import {
   appendFileSync,
   existsSync,
@@ -44,6 +50,23 @@ function computeChecksum(seq: number, timestamp: number, tx: Transaction): strin
 }
 
 /**
+ * Compute HMAC-SHA256 for a checkpoint marker.
+ * Binds seq, batchId, and timestamp to prevent injection.
+ * Truncated to 32 hex characters (128 bits) for compactness.
+ */
+function computeCheckpointHmac(
+  seq: number,
+  batchId: string,
+  timestamp: number,
+  key: string
+): string {
+  return createHmac("sha256", key)
+    .update(`checkpoint|${seq}|${batchId}|${timestamp}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+/**
  * Validate that a parsed object is a WAL entry with a valid checksum.
  * Returns the entry if valid, undefined otherwise.
  */
@@ -67,9 +90,43 @@ function validateEntry(record: Record<string, unknown>): WALEntry | undefined {
   return entry;
 }
 
+/**
+ * Encrypt a plaintext line with AES-256-GCM.
+ * Output format: base64(iv + ciphertext + authTag) -- single line, no newlines.
+ */
+function encryptLine(plaintext: string, keyHex: string): string {
+  const key = Buffer.from(keyHex, "hex");
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return Buffer.concat([iv, encrypted, authTag]).toString("base64");
+}
+
+/**
+ * Decrypt a line encrypted by encryptLine.
+ * Returns the plaintext, or undefined if decryption fails (wrong key, tampered data).
+ */
+function decryptLine(encoded: string, keyHex: string): string | undefined {
+  try {
+    const key = Buffer.from(keyHex, "hex");
+    const data = Buffer.from(encoded, "base64");
+    const iv = data.subarray(0, 12);
+    const authTag = data.subarray(data.length - 16);
+    const ciphertext = data.subarray(12, data.length - 16);
+    const decipher = createDecipheriv("aes-256-gcm", key, iv);
+    decipher.setAuthTag(authTag);
+    return decipher.update(ciphertext) + decipher.final("utf8");
+  } catch {
+    return undefined;
+  }
+}
+
 export class WriteAheadLog {
   private readonly walPath: string;
   private readonly fsyncOnWrite: boolean;
+  private readonly hmacKey?: string;
+  private readonly encryptionKey?: string;
   private seq: number;
 
   constructor(config: WALConfig) {
@@ -79,6 +136,8 @@ export class WriteAheadLog {
 
     this.walPath = join(config.walDir, WAL_FILENAME);
     this.fsyncOnWrite = config.fsyncOnWrite;
+    this.hmacKey = config.hmacKey;
+    this.encryptionKey = config.encryptionKey;
 
     if (!existsSync(config.walDir)) {
       mkdirSync(config.walDir, { recursive: true });
@@ -106,7 +165,8 @@ export class WriteAheadLog {
       checksum: computeChecksum(this.seq, tx.timestamp, tx),
     };
 
-    const line = JSON.stringify(entry) + "\n";
+    const json = JSON.stringify(entry);
+    const line = (this.encryptionKey ? encryptLine(json, this.encryptionKey) : json) + "\n";
 
     try {
       appendFileSync(this.walPath, line);
@@ -133,14 +193,19 @@ export class WriteAheadLog {
    * [v1-fix: Checkpoint written at ProcessBatch time, NOT FormBatch time]
    */
   checkpoint(committedSeq: number, batchId: string): void {
+    const timestamp = Date.now();
     const marker: WALCheckpoint = {
       type: "checkpoint",
       seq: committedSeq,
       batchId,
-      timestamp: Date.now(),
+      timestamp,
+      ...(this.hmacKey
+        ? { hmac: computeCheckpointHmac(committedSeq, batchId, timestamp, this.hmacKey) }
+        : {}),
     };
 
-    const line = JSON.stringify(marker) + "\n";
+    const json = JSON.stringify(marker);
+    const line = (this.encryptionKey ? encryptLine(json, this.encryptionKey) : json) + "\n";
 
     try {
       appendFileSync(this.walPath, line);
@@ -184,13 +249,19 @@ export class WriteAheadLog {
       return { transactions: [], lastCheckpointSeq: 0, corruptedEntries: 0 };
     }
 
-    const lines = content.split("\n").filter((l) => l.length > 0);
+    const rawLines = content.split("\n").filter((l) => l.length > 0);
     let lastCheckpointSeq = 0;
     const entriesBySeq = new Map<number, WALEntry>();
     let corruptedEntries = 0;
 
-    for (const line of lines) {
+    for (const rawLine of rawLines) {
       try {
+        // Decrypt if encryption is enabled; otherwise parse directly.
+        const line = this.encryptionKey ? decryptLine(rawLine, this.encryptionKey) : rawLine;
+        if (line === undefined) {
+          corruptedEntries++;
+          continue;
+        }
         const parsed: unknown = JSON.parse(line);
         if (typeof parsed !== "object" || parsed === null) {
           corruptedEntries++;
@@ -202,6 +273,20 @@ export class WriteAheadLog {
         if (record["type"] === "checkpoint") {
           const seq = record["seq"];
           if (typeof seq === "number") {
+            // When HMAC key is configured, reject checkpoints without valid HMAC.
+            // This mitigates the checkpoint injection attack (ADV-WAL-04).
+            if (this.hmacKey) {
+              const expectedHmac = computeCheckpointHmac(
+                seq,
+                String(record["batchId"] ?? ""),
+                Number(record["timestamp"] ?? 0),
+                this.hmacKey
+              );
+              if (record["hmac"] !== expectedHmac) {
+                corruptedEntries++;
+                continue;
+              }
+            }
             lastCheckpointSeq = seq;
           }
         } else {
@@ -259,12 +344,14 @@ export class WriteAheadLog {
 
     if (!content) return;
 
-    const lines = content.split("\n").filter((l) => l.length > 0);
+    const rawLines = content.split("\n").filter((l) => l.length > 0);
     let lastCheckpointSeq = 0;
 
     // Find the highest checkpoint sequence
-    for (const line of lines) {
+    for (const rawLine of rawLines) {
       try {
+        const line = this.encryptionKey ? decryptLine(rawLine, this.encryptionKey) : rawLine;
+        if (line === undefined) continue;
         const parsed: unknown = JSON.parse(line);
         if (
           typeof parsed === "object" &&
@@ -284,16 +371,20 @@ export class WriteAheadLog {
     if (lastCheckpointSeq === 0) return;
 
     // Keep only entries with seq > lastCheckpointSeq (drop checkpoints and committed entries)
+    // Remaining lines stay in their original format (encrypted or plain).
     const remaining: string[] = [];
-    for (const line of lines) {
+    for (const rawLine of rawLines) {
       try {
+        const line = this.encryptionKey ? decryptLine(rawLine, this.encryptionKey) : rawLine;
+        if (line === undefined) continue;
         const parsed: unknown = JSON.parse(line);
         if (typeof parsed !== "object" || parsed === null) continue;
         const record = parsed as Record<string, unknown>;
-        if (record["type"] === "checkpoint") continue; // Remove all checkpoint markers
+        if (record["type"] === "checkpoint") continue;
         const seq = record["seq"];
         if (typeof seq === "number" && seq > lastCheckpointSeq) {
-          remaining.push(line);
+          // Re-encrypt if needed (new IV for each write)
+          remaining.push(this.encryptionKey ? encryptLine(line, this.encryptionKey) : rawLine);
         }
       } catch {
         // Drop corrupt lines during compaction
@@ -349,11 +440,13 @@ export class WriteAheadLog {
 
     if (!content) return 0;
 
-    const lines = content.split("\n").filter((l) => l.length > 0);
+    const rawLines = content.split("\n").filter((l) => l.length > 0);
     let maxSeq = 0;
 
-    for (const line of lines) {
+    for (const rawLine of rawLines) {
       try {
+        const line = this.encryptionKey ? decryptLine(rawLine, this.encryptionKey) : rawLine;
+        if (line === undefined) continue;
         const parsed: unknown = JSON.parse(line);
         if (typeof parsed === "object" && parsed !== null) {
           const seq = (parsed as Record<string, unknown>)["seq"];

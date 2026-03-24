@@ -1,0 +1,20 @@
+[package]
+name = "basis-prover-cli"
+version = "0.1.0"
+edition = "2021"
+description = "CLI binary for the Basis Network ZK prover (witness generation + proof generation)"
+
+[[bin]]
+name = "basis-prover"
+path = "src/main.rs"
+
+[dependencies]
+basis-witness = { path = "../witness" }
+basis-circuit = { path = "../circuit" }
+basis-aggregator = { path = "../aggregator" }
+halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v0.3.0" }
+ark-bn254 = "0.4"
+ark-ff = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"

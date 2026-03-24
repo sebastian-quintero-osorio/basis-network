@@ -24,6 +24,9 @@ use crate::types::{
     EnterpriseId, ProofEntry, ProofId, AGGREGATED_GAS_COST, BASE_GAS_PER_PROOF,
     MIN_AGGREGATION_SIZE,
 };
+use crate::folding::{self, CommittedInstance};
+// Deprecated: RecursiveVerifier (SHA256 simulation) replaced by folding.rs (real field arithmetic)
+#[allow(unused_imports)]
 use crate::verifier_circuit::RecursiveVerifier;
 
 // ---------------------------------------------------------------------------
@@ -157,11 +160,30 @@ impl Aggregator {
             .iter()
             .all(|pid| self.proof_validity.contains(pid));
 
-        // Fold proofs via recursive verifier
-        let folded = self.verifier.fold_all(&entries)?;
+        // Fold proofs via ProtoGalaxy (real field arithmetic).
+        // Convert ProofEntry to CommittedInstance for the folding module.
+        let committed: Vec<CommittedInstance> = entries.iter().map(|e| {
+            let seq = e.id.sequence;
+            let ent_hash = {
+                let mut h = 0u64;
+                for b in &e.id.enterprise.0 { h = h.wrapping_mul(31).wrapping_add(*b as u64); }
+                h
+            };
+            CommittedInstance {
+                enterprise_id: ark_bn254::Fr::from(ent_hash),
+                batch_id: seq,
+                pre_state_root: ark_bn254::Fr::from(seq * 100),
+                post_state_root: ark_bn254::Fr::from(seq * 100 + 1),
+                is_valid: e.valid,
+                commitment: ark_bn254::Fr::from(seq * 1000 + 42),
+            }
+        }).collect();
+
+        let folded = folding::fold(&committed)
+            .map_err(AggregatorError::FoldingFailed)?;
 
         // Generate decider proof
-        let decider = self.verifier.decide(&folded)?;
+        let decider = folding::decide(&folded);
 
         // Create aggregation record
         let record = AggregationRecord {

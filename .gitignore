@@ -18,6 +18,17 @@ cache/
 # Rust build artifacts
 target/
 
+# Go compiled binaries
+*.exe
+!.github/**/*.exe
+
+# ZK trusted setup parameters (large binary files)
+*.bin
+!**/circuits/build/**/*.bin
+
+# Runtime data directories
+**/node/data/
+
 # Hardhat
 l1/contracts/cache/
 l1/contracts/artifacts/

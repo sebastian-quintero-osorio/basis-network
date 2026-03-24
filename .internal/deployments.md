@@ -42,6 +42,17 @@
 - Address: 0xA5Ee89Af692d47547Dedf79DF02A3e3e96e48bfD
 - Initial Balance: 1,000,000 LITHOS
 
+### zkEVM L2 Settlement Contracts (Deployed 2026-03-21)
+
+| Contract | Address | Purpose |
+|---|---|---|
+| BasisVerifier | 0xFE9DF13c038414773Ac96189742b6c1f93999f29 | PLONK/Groth16 proof verification + migration |
+| BasisRollup | 0x3984a7ab6d7f05A49d11C347b63E7bc7e5c95f49 | State root management + ZK batch lifecycle |
+| BasisBridge | 0x9Df0814CFBfE352C942bac682A378ff887486Dd8 | L1-L2 asset transfers + escape hatch |
+| BasisDAC | 0xa7D5771fA69404438d79a1F8C192F7257A514691 | Data availability committee attestations |
+| BasisAggregator | 0x98272431b8B270CABeE37A158e01bdC3412744E2 | Multi-enterprise proof aggregation |
+| BasisHub | 0xBf997eFD945Fe99ECDD129C86De7f75355b1AC42 | Cross-enterprise hub-and-spoke settlement |
+
 ### Architecture Notes
 - L1 is a generic settlement layer (no application-specific logic)
 - PLASMAConnector and TraceConnector were removed (belong in L2)

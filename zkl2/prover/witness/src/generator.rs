@@ -116,6 +116,25 @@ pub fn generate(batch: &BatchTrace, config: &WitnessConfig) -> WitnessResult<Gen
                 call_table.add_row(row)?;
             }
 
+            // Dispatch to extended EVM tables
+            let math_rows = crate::evm::math::process_entry(entry, global_counter)?;
+            for row in math_rows { arith_table.add_row(row)?; }
+
+            let bitwise_rows = crate::evm::bitwise::process_entry(entry, global_counter)?;
+            for row in bitwise_rows { arith_table.add_row(row)?; }
+
+            let control_rows = crate::evm::control::process_entry(entry, global_counter)?;
+            for row in control_rows { arith_table.add_row(row)?; }
+
+            let crypto_rows = crate::evm::crypto::process_entry(entry, global_counter)?;
+            for row in crypto_rows { arith_table.add_row(row)?; }
+
+            let lifecycle_rows = crate::evm::lifecycle::process_entry(entry, global_counter)?;
+            for row in lifecycle_rows { arith_table.add_row(row)?; }
+
+            let stack_rows = crate::evm::stack_ops::process_entry(entry, global_counter)?;
+            for row in stack_rows { arith_table.add_row(row)?; }
+
             // TLA+ globalCounter' = globalCounter + 1 (S4: GlobalCounterMonotonic)
             global_counter += 1;
         }

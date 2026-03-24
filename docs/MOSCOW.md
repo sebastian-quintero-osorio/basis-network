@@ -38,7 +38,7 @@
 | C7 | Data Availability Committee with Shamir SSS | validium/node | Complete |
 | C8 | Cross-enterprise ZKP verification | validium/node + l1/contracts | Complete |
 | C9 | AI-driven R&D pipeline (4 agents) | lab | Operational (28/28 sessions) |
-| C10 | zkEVM L2 architecture and contracts | zkl2 | 80% complete (386 tests) |
+| C10 | zkEVM L2 architecture and contracts | zkl2 | E2E verified on L1 (677+ tests, 291K gas, 5.8s) |
 
 ## Will Not Have (post-competition roadmap)
 

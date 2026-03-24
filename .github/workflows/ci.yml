@@ -87,3 +87,66 @@ jobs:
           cache: npm
           cache-dependency-path: validium/circuits/package-lock.json
       - run: npm ci
+
+  zkl2-contracts:
+    name: zkl2 Contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zkl2/contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: zkl2/contracts/package-lock.json
+      - run: npm ci
+      - run: npx hardhat compile
+      - run: npx hardhat test
+
+  zkl2-node:
+    name: zkl2 Node (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zkl2/node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: zkl2/node/go.sum
+      - run: go vet ./...
+      - run: go test ./... -count=1 -timeout 120s -race
+      - run: go build -o /dev/null ./cmd/basis-l2/
+
+  zkl2-bridge:
+    name: zkl2 Bridge (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zkl2/bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: zkl2/bridge/go.sum
+      - run: go test ./... -count=1 -timeout 60s
+
+  zkl2-prover:
+    name: zkl2 Prover (Rust)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zkl2/prover
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "zkl2/prover"
+      - run: cargo clippy -- -D warnings
+      - run: cargo test
+      - run: cargo build --release

@@ -66,6 +66,8 @@ export interface WALCheckpoint {
   readonly batchId: string;
   /** Checkpoint timestamp (Unix ms). */
   readonly timestamp: number;
+  /** HMAC-SHA256 authentication tag (present when WAL_HMAC_KEY is configured). */
+  readonly hmac?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -80,6 +82,10 @@ export interface WALConfig {
   readonly walDir: string;
   /** If true, fsync after every write for maximum durability. */
   readonly fsyncOnWrite: boolean;
+  /** HMAC key for checkpoint authentication. When set, rejects tampered checkpoints. */
+  readonly hmacKey?: string;
+  /** AES-256-GCM encryption key (hex, 64 chars = 32 bytes). Encrypts WAL entries at rest. */
+  readonly encryptionKey?: string;
 }
 
 // ---------------------------------------------------------------------------

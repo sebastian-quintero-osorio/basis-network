@@ -4,4 +4,7 @@ members = [
     "witness",
     "circuit",
     "aggregator",
+    "cli",
+    "evm-verifier",
+    "zkevm-integration",
 ]

@@ -19,6 +19,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 )
 
@@ -41,11 +42,11 @@ type Address [20]byte
 type Transaction struct {
 	Hash      TxHash    // Unique transaction identifier
 	From      Address   // Sender address
-	To        Address   // Recipient address
+	To        *Address  // Recipient address (nil for contract creation)
 	Nonce     uint64    // Sender nonce
 	Data      []byte    // Calldata
 	GasLimit  uint64    // Gas limit (metering only, zero-fee model)
-	Value     uint64    // Transfer value (wei)
+	Value     *big.Int  // Transfer value (wei) -- full 256-bit precision
 	Timestamp time.Time // Arrival time at sequencer
 	SeqNum    uint64    // Monotonic sequence number assigned by mempool (FIFO key)
 }

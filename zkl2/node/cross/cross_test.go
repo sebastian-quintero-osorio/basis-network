@@ -304,25 +304,25 @@ func TestReplayProtection(t *testing.T) {
 	}
 
 	// Adversarial replay: manually craft a message with the same nonce.
+	// Since the message ID is deterministic (source + dest + nonce), the replay
+	// message has the same ID as the original. RegisterPreparedMessage must
+	// reject duplicates, preventing the nonce from being reused.
 	replayMsg, _ := NewPreparedMessage(
 		enterpriseA, enterpriseB, 1, true, hub.GetStateRoot(enterpriseA),
 		testCommitment, hub.BlockHeight(),
 	)
-	hub.RegisterPreparedMessage(replayMsg)
-
-	// Hub verification must reject the replay (nonce already consumed).
-	err := hub.VerifyMessage(replayMsg.ID)
+	err := hub.RegisterPreparedMessage(replayMsg)
 	if err == nil {
-		t.Fatal("ReplayProtection: hub should reject replayed nonce")
+		t.Fatal("ReplayProtection: RegisterPreparedMessage should reject duplicate message ID")
 	}
 
-	// Verify the replayed message is in Failed state.
-	replayResult, _ := hub.GetMessage(replayMsg.ID)
-	if replayResult.Status != StatusFailed {
-		t.Fatalf("ReplayProtection: expected failed, got %s", replayResult.Status)
+	// Verify the original message remains settled (unchanged).
+	originalResult, _ := hub.GetMessage(replayMsg.ID)
+	if originalResult.Status != StatusSettled {
+		t.Fatalf("ReplayProtection: original message should remain settled, got %s", originalResult.Status)
 	}
 
-	// Verify: only ONE message with nonce 1 passed verification.
+	// Verify: only ONE message with nonce 1 exists and it is settled.
 	verifiedCount := 0
 	for _, msg := range hub.AllMessages() {
 		if msg.Source == enterpriseA && msg.Dest == enterpriseB && msg.Nonce == 1 {
