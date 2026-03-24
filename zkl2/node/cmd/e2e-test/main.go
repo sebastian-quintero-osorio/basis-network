@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 var rpcURL = "http://localhost:9998"
@@ -83,7 +82,7 @@ func main() {
 		Value:     transferAmount,
 	})
 
-	rawBytes, _ := rlp.EncodeToBytes(tx)
+	rawBytes, _ := tx.MarshalBinary()
 	rawHex := "0x" + hex.EncodeToString(rawBytes)
 
 	txHash := rpcCall("eth_sendRawTransaction", []interface{}{rawHex})
