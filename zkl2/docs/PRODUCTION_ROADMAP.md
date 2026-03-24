@@ -22,9 +22,11 @@ using `snark-verifier` or `halo2-solidity-verifier` to produce a Halo2-compatibl
 Solidity verifier contract. This is a well-known step in Halo2-based zkEVM projects
 (Scroll, PSE zkEVM use generated Solidity verifiers, not hand-written ones).
 
-Deployed contracts (2026-03-24):
-- PlonkVerifier: 0xD2F07E9bC02d96C53Da47D166eEAa0d850212F23
-- BasisRollupV2: 0x9DDE6f93182d660c9f18734De29254D811ae859f
+Deployed contracts (2026-03-24) -- Halo2 Generated Verifier Stack:
+- Halo2VerifyingKey: 0x5a04689914cf2288e80d6829eb2Ee303E5361BB5
+- Halo2Verifier: 0x49a2Ad282b541BC20DFF616551F2104141D91936
+- Halo2PlonkVerifier (wrapper): 0x1EdeB00f1420a6589Feb72d1CB1134D1d1A02FB8
+- BasisRollupV2: 0xc028f04f477A53d64C181e3d9CC79A1e1b4Bd562
 
 **Recent changes (2026-03-23/24):**
 - PlonkVerifier.sol upgraded to real KZG pairing verification (EIP-197 precompiles)
