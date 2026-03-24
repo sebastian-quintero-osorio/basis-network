@@ -13,7 +13,6 @@ package main
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -247,5 +246,3 @@ func printJSON(v interface{}) {
 	enc.Encode(v)
 }
 
-// Ensure we import ecdsa for the function signature.
-var _ *ecdsa.PrivateKey
