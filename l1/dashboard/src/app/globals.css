@@ -209,6 +209,24 @@ body {
   border: 1px solid rgba(0, 204, 255, 0.20);
 }
 
+.badge-state {
+  background: rgba(245, 158, 11, 0.10);
+  color: #92400E;
+  border: 1px solid rgba(245, 158, 11, 0.20);
+}
+
+.badge-dac {
+  background: rgba(139, 92, 246, 0.10);
+  color: #6D28D9;
+  border: 1px solid rgba(139, 92, 246, 0.20);
+}
+
+.badge-crossref {
+  background: rgba(236, 72, 153, 0.10);
+  color: #BE185D;
+  border: 1px solid rgba(236, 72, 153, 0.20);
+}
+
 /* ── Timeline ── */
 
 .timeline-line {
@@ -322,17 +340,17 @@ body {
 }
 
 .animate-in {
-  animation: fadeInUp 0.5s ease-out forwards;
+  animation: fadeInUp 0.35s ease-out forwards;
   opacity: 0;
 }
 
-.delay-1 { animation-delay: 0.06s; }
-.delay-2 { animation-delay: 0.12s; }
-.delay-3 { animation-delay: 0.18s; }
-.delay-4 { animation-delay: 0.24s; }
-.delay-5 { animation-delay: 0.30s; }
-.delay-6 { animation-delay: 0.36s; }
-.delay-7 { animation-delay: 0.42s; }
+.delay-1 { animation-delay: 0.04s; }
+.delay-2 { animation-delay: 0.08s; }
+.delay-3 { animation-delay: 0.12s; }
+.delay-4 { animation-delay: 0.16s; }
+.delay-5 { animation-delay: 0.20s; }
+.delay-6 { animation-delay: 0.24s; }
+.delay-7 { animation-delay: 0.28s; }
 
 @keyframes pulseDot {
   0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.40); }
@@ -387,4 +405,29 @@ body {
   border: 1px solid rgba(251, 191, 36, 0.20);
   @apply rounded-xl px-4 py-3 text-sm;
   color: #92400E;
+}
+
+/* ── Accessibility: Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in {
+    animation: none;
+    opacity: 1;
+  }
+  .pulse-live {
+    animation: none;
+  }
+  .block-flash {
+    animation: none;
+  }
+  .skeleton {
+    animation: none;
+    background: rgba(0, 0, 0, 0.06);
+  }
+  .card:hover {
+    transform: none;
+  }
+  .sidebar {
+    transition: none;
+  }
 }

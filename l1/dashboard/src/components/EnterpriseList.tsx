@@ -9,8 +9,15 @@ interface EnterpriseListProps {
 export default function EnterpriseList({ enterprises }: EnterpriseListProps) {
   if (enterprises.length === 0) {
     return (
-      <div className="card-static p-8 text-center text-zinc-500 text-sm">
-        No enterprises registered yet.
+      <div className="card-static p-10 text-center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-3 text-zinc-300">
+          <path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18" />
+          <path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2" />
+          <path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2" />
+          <path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" />
+        </svg>
+        <p className="text-sm text-zinc-400">No enterprises registered yet.</p>
+        <p className="text-xs text-zinc-300 mt-1">Authorized enterprises will appear once registered on-chain.</p>
       </div>
     );
   }
