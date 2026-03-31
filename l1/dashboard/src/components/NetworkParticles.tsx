@@ -15,6 +15,9 @@ export default function NetworkParticles() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motionQuery.matches) return;
+
     const c = ref.current;
     if (!c) return;
     const ctx = c.getContext("2d");
@@ -24,19 +27,27 @@ export default function NetworkParticles() {
     const nodes: Node[] = [];
     const N = 40;
     const LINK = 150;
+    const dpr = window.devicePixelRatio || 1;
 
     function size() {
-      c!.width = window.innerWidth;
-      c!.height = window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      c!.width = w * dpr;
+      c!.height = h * dpr;
+      c!.style.width = w + "px";
+      c!.style.height = h + "px";
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function seed() {
       size();
       nodes.length = 0;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       for (let i = 0; i < N; i++) {
         nodes.push({
-          x: Math.random() * c!.width,
-          y: Math.random() * c!.height,
+          x: Math.random() * w,
+          y: Math.random() * h,
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
           r: Math.random() * 1.8 + 0.6,
@@ -46,14 +57,16 @@ export default function NetworkParticles() {
     }
 
     function frame() {
-      ctx!.clearRect(0, 0, c!.width, c!.height);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      ctx!.clearRect(0, 0, w, h);
 
       for (let i = 0; i < nodes.length; i++) {
         const a = nodes[i];
         a.x += a.vx;
         a.y += a.vy;
-        if (a.x < 0 || a.x > c!.width) a.vx *= -1;
-        if (a.y < 0 || a.y > c!.height) a.vy *= -1;
+        if (a.x < 0 || a.x > w) a.vx *= -1;
+        if (a.y < 0 || a.y > h) a.vy *= -1;
 
         for (let j = i + 1; j < nodes.length; j++) {
           const b = nodes[j];

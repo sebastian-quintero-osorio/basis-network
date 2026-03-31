@@ -16,9 +16,26 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Basis Network — Dashboard",
   description:
-    "Enterprise-grade Avalanche L1 network dashboard. Real-time monitoring, enterprise registry, and on-chain activity.",
+    "Enterprise-grade Avalanche L1 network dashboard. Real-time monitoring, enterprise registry, ZK proofs, and on-chain activity.",
+  metadataBase: new URL("https://dashboard.basisnetwork.com.co"),
+  openGraph: {
+    title: "Basis Network — Enterprise L1 Dashboard",
+    description:
+      "Real-time monitoring for Basis Network: zero-fee Avalanche L1 with ZK proofs, enterprise registry, and industrial traceability.",
+    url: "https://dashboard.basisnetwork.com.co",
+    siteName: "Basis Network",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: "Basis Network — Enterprise L1 Dashboard",
+    description:
+      "Real-time monitoring for Basis Network: zero-fee Avalanche L1 with ZK proofs, enterprise registry, and industrial traceability.",
+  },
   icons: {
     icon: "/favicon.svg",
+    apple: "/favicon.svg",
   },
 };
 

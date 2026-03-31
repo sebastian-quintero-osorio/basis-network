@@ -3,12 +3,14 @@
 import StatCard from "@/components/StatCard";
 
 const CONTRACTS = {
-  rollup: "0x79279EDe17c8026412cD093876e8871352f18546",
-  verifier: "0xFE9DF13c038414773Ac96189742b6c1f93999f29",
-  bridge: "0x9Df0814CFBfE352C942bac682A378ff887486Dd8",
-  dac: "0xa7D5771fA69404438d79a1F8C192F7257A514691",
-  aggregator: "0x98272431b8B270CABeE37A158e01bdC3412744E2",
-  hub: "0xBf997eFD945Fe99ECDD129C86De7f75355b1AC42",
+  rollupV2: "0xE5D257e10616B30282b67e0D2367216aC89623B4",
+  plonkVerifier: "0x361CBD8714180acF6d2230837893CED779045Db6",
+  halo2Verifier: "0x53C42dC2E9459CE21A1A321cC51ba92D28E4FAE7",
+  verifier: "0x9393099EbCA963388B73b34f71DAB31fec7E8e49",
+  bridge: "0xd0B4BeB95De33d6F49Bcc08fE5ce3b923e263a5b",
+  dac: "0x1E0c7C220c75E530E22BC066F8B5a98DeB6dfe9B",
+  aggregator: "0xddfe844E347470F45D53bA6FFBA95034F45670a2",
+  hub: "0x6Faf689a6Dcb67a633b437774388F0358D882f0B",
 };
 
 function truncateAddress(addr: string): string {
@@ -17,13 +19,13 @@ function truncateAddress(addr: string): string {
 
 const PIPELINE_STEPS = [
   { label: "Commit", desc: "Batch submitted with state root, L2 block range, and priority ops hash", color: "from-amber-400 to-orange-500", gas: "149K" },
-  { label: "Prove", desc: "PLONK-KZG validity proof generated (86ms) and verified on-chain", color: "from-cyan-400 to-blue-500", gas: "71K" },
-  { label: "Execute", desc: "State root finalized, batch permanently anchored on L1", color: "from-emerald-400 to-green-500", gas: "71K" },
+  { label: "Prove", desc: "Halo2 PLONK-KZG validity proof verified on-chain via EIP-197", color: "from-cyan-400 to-blue-500", gas: "515K" },
+  { label: "Execute", desc: "State root finalized, batch permanently anchored on L1", color: "from-emerald-400 to-green-500", gas: "70K" },
 ];
 
 const E2E_METRICS = {
-  totalGas: "291K",
-  totalTime: "5.8s",
+  totalGas: "735K",
+  totalTime: "5.99s",
   proofSize: "1,376 bytes",
   witnessTime: "9ms",
   proveTime: "86ms",
@@ -139,9 +141,19 @@ export default function ZkevmPage() {
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 <tr>
-                  <td className="py-2.5 font-medium text-zinc-800">BasisRollup</td>
-                  <td className="py-2.5 font-mono text-xs text-cyan-600">{truncateAddress(CONTRACTS.rollup)}</td>
-                  <td className="py-2.5 text-zinc-500">State root management + ZK proof verification</td>
+                  <td className="py-2.5 font-medium text-zinc-800">BasisRollupV2</td>
+                  <td className="py-2.5 font-mono text-xs text-cyan-600">{truncateAddress(CONTRACTS.rollupV2)}</td>
+                  <td className="py-2.5 text-zinc-500">State root management + 3-phase settlement</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-medium text-zinc-800">Halo2PlonkVerifier</td>
+                  <td className="py-2.5 font-mono text-xs text-cyan-600">{truncateAddress(CONTRACTS.plonkVerifier)}</td>
+                  <td className="py-2.5 text-zinc-500">PLONK-KZG proof verification wrapper</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-medium text-zinc-800">Halo2Verifier</td>
+                  <td className="py-2.5 font-mono text-xs text-cyan-600">{truncateAddress(CONTRACTS.halo2Verifier)}</td>
+                  <td className="py-2.5 text-zinc-500">Generated Halo2 verifier (Keccak256 transcript)</td>
                 </tr>
                 <tr>
                   <td className="py-2.5 font-medium text-zinc-800">BasisVerifier</td>
@@ -243,7 +255,7 @@ export default function ZkevmPage() {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Go (11 packages)</dt>
-                <dd className="font-medium text-emerald-600">246 passing</dd>
+                <dd className="font-medium text-emerald-600">258 passing</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Rust (3 crates)</dt>
@@ -251,7 +263,7 @@ export default function ZkevmPage() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">Solidity (6 contracts)</dt>
-                <dd className="font-medium text-emerald-600">322 passing</dd>
+                <dd className="font-medium text-emerald-600">370 passing</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-zinc-500">TLA+ specs</dt>
