@@ -136,22 +136,24 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       if (registryAddr) {
         calls.push(
           (async () => {
-            const c = getContract(registryAddr, ENTERPRISE_REGISTRY_ABI);
-            enterpriseCount = Number(await c.enterpriseCount());
-            const addrs: string[] = await c.listEnterprises();
-            enterpriseData = await Promise.all(
-              addrs.map(async (addr: string) => {
-                const e = await c.getEnterprise(addr);
-                return {
-                  address: addr,
-                  name: e.name,
-                  active: e.active,
-                  registeredAt: new Date(
-                    Number(e.registeredAt) * 1000
-                  ).toLocaleDateString(),
-                };
-              })
-            );
+            try {
+              const c = getContract(registryAddr, ENTERPRISE_REGISTRY_ABI);
+              enterpriseCount = Number(await c.enterpriseCount());
+              const addrs: string[] = await c.listEnterprises();
+              enterpriseData = await Promise.all(
+                addrs.map(async (addr: string) => {
+                  const e = await c.getEnterprise(addr);
+                  return {
+                    address: addr,
+                    name: e.name,
+                    active: e.active,
+                    registeredAt: new Date(
+                      Number(e.registeredAt) * 1000
+                    ).toLocaleDateString(),
+                  };
+                })
+              );
+            } catch { /* EnterpriseRegistry call failed */ }
           })()
         );
       }
@@ -159,9 +161,11 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       if (traceRegAddr) {
         calls.push(
           (async () => {
-            totalEvents = Number(
-              await getContract(traceRegAddr, TRACEABILITY_REGISTRY_ABI).eventCount()
-            );
+            try {
+              totalEvents = Number(
+                await getContract(traceRegAddr, TRACEABILITY_REGISTRY_ABI).eventCount()
+              );
+            } catch { /* TraceabilityRegistry call failed */ }
           })()
         );
       }
@@ -169,12 +173,14 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       if (zkAddr) {
         calls.push(
           (async () => {
-            const c = getContract(zkAddr, ZK_VERIFIER_ABI);
-            [totalZKBatches, totalZKVerified, totalTxVerified] = await Promise.all([
-              c.totalBatches().then(Number),
-              c.totalVerified().then(Number),
-              c.totalTransactionsVerified().then(Number),
-            ]);
+            try {
+              const c = getContract(zkAddr, ZK_VERIFIER_ABI);
+              [totalZKBatches, totalZKVerified, totalTxVerified] = await Promise.all([
+                c.totalBatches().then(Number),
+                c.totalVerified().then(Number),
+                c.totalTransactionsVerified().then(Number),
+              ]);
+            } catch { /* ZKVerifier call failed */ }
           })()
         );
       }
@@ -235,8 +241,10 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       if (crossRefAddr) {
         calls.push(
           (async () => {
-            const c = getContract(crossRefAddr, CROSS_ENTERPRISE_VERIFIER_ABI);
-            totalCrossRefsVerified = Number(await c.totalCrossRefsVerified());
+            try {
+              const c = getContract(crossRefAddr, CROSS_ENTERPRISE_VERIFIER_ABI);
+              totalCrossRefsVerified = Number(await c.totalCrossRefsVerified());
+            } catch { /* CrossEnterpriseVerifier call failed */ }
           })()
         );
       }
