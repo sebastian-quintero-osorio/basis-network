@@ -142,9 +142,13 @@ export default function ValidiumPage() {
             State Commitment History
           </h2>
           {validiumBatches.length === 0 ? (
-            <div className="text-center py-8 text-zinc-400 text-sm">
-              No batches committed yet. The validium node will submit ZK-proven
-              state transitions here.
+            <div className="text-center py-10">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-3 text-zinc-300">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              <p className="text-sm text-zinc-400">No batches committed yet.</p>
+              <p className="text-xs text-zinc-300 mt-1">The validium node will submit ZK-proven state transitions here.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

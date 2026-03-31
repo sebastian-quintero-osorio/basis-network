@@ -62,7 +62,7 @@ export default function ActivityPage() {
           <button
             key={t.key}
             onClick={() => setFilter(t.key)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 ${
               filter === t.key
                 ? "bg-white/60 text-zinc-800 shadow-sm border border-white/60"
                 : "text-zinc-500 hover:text-zinc-700 hover:bg-white/30"

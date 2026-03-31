@@ -40,8 +40,12 @@ export default function ActivityFeed({
 }: ActivityFeedProps) {
   if (activities.length === 0) {
     return (
-      <div className="card-static p-8 text-center text-zinc-500 text-sm">
-        No on-chain activity recorded yet.
+      <div className="card-static p-10 text-center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-3 text-zinc-300">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+        <p className="text-sm text-zinc-400">No on-chain activity recorded yet.</p>
+        <p className="text-xs text-zinc-300 mt-1">Events from protocol contracts will appear here in real time.</p>
       </div>
     );
   }
